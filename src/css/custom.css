@@ -25,6 +25,7 @@
     --ifm-color-primary-lightest: #8bc6ee;
     --ifm-code-font-size: 95%;
     --ifm-navbar-background-color: #555A5B;
+    --ifm-navbar-link-color: #FFFFFF;
 }
 
 .docusaurus-highlight-code-line {

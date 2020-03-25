@@ -142,17 +142,6 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className={classnames(styles.announcement, styles.announcementDark)}>
-        <div className={styles.announcementInner}>
-          Coming from v1? Check out our{' '}
-          <Link to={useBaseUrl('/docs/migrating-from-v1-to-v2')}>
-            v1 to v2 migration guide
-          </Link>
-          .
-        </div>
-      </div>
-
-
       <main>
         {features && features.length && (
           <section className={styles.features}>
