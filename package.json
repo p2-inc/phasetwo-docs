@@ -11,7 +11,7 @@
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.50",
     "@docusaurus/preset-classic": "^2.0.0-alpha.50",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.50",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.39",
     "classnames": "^2.2.6",
     "keycloak-js": "^9.0.2",
     "react": "^16.8.4",

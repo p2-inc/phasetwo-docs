@@ -30,7 +30,7 @@ const features = [
     title: <>Pricing Transparency</>,
     description: (
       <>
-        Unlike the labyrinth of different rate cards out that that nickel and dime for each feature
+        Unlike the labyrinth of different rate cards out there that nickel and dime for each feature
       and user, Phase Two is one price per project. No hidden fees, no unpredictable costs.
       </>
     ),
