@@ -11,7 +11,10 @@
   "dependencies": {
     "@docusaurus/core": "^2.0.0-alpha.48",
     "@docusaurus/preset-classic": "^2.0.0-alpha.48",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.39",
+    "@react-keycloak/web": "^2.0.0",
     "classnames": "^2.2.6",
+    "keycloak-js": "^9.0.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-text-rotator": "^0.1.1"

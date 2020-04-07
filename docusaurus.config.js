@@ -15,15 +15,14 @@ module.exports = {
       },
       links: [
         {
-          to: 'docs/doc1',
+          to: 'docs/introduction',
           activeBasePath: 'docs',
           label: 'Docs',
           position: 'right',
         },
-        {to: 'blog', label: 'Blog', position: 'right'},
-        {
-          href: 'https://github.com/p2-inc',
-          label: 'GitHub',
+	{
+          href: 'https://app.phasetwo.io/auth/admin/master/console/',
+          label: 'Dashboard',
           position: 'right',
         },
       ],
@@ -42,6 +41,10 @@ module.exports = {
               label: 'Terms of use',
               to: 'docs/terms',
             },
+	    {
+	      label: 'support@phasetwo.io',
+	      href: 'mailto:support@phasetwo.io'
+	    }
           ],
         },
       ],
@@ -59,7 +62,7 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/p2-inc/phasetwo-docs/edit/master/website/',
+            'https://github.com/p2-inc/phasetwo-docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -67,4 +70,5 @@ module.exports = {
       },
     ],
   ],
+  themes: ['@docusaurus/theme-live-codeblock'],
 };

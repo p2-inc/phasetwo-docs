@@ -1,0 +1,7 @@
+{
+  "realm": "master",
+  "auth-server-url": "https://app.phasetwo.io/auth/",
+  "ssl-required": "external",
+  "public-client": true,
+  "confidential-port": 0
+}
