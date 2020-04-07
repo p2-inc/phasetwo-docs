@@ -22,14 +22,12 @@ import useLockBodyScroll from '@theme/hooks/useLockBodyScroll';
 
 import styles from './styles.module.css';
 
-import { KeycloakProvider } from '@react-keycloak/web'
 import keycloak from './auth'
 
 function AuthLink() {
   const opts = {redirectUri:window.location.href};
 
   return (
-    <KeycloakProvider keycloak={keycloak}>
     <div>
       <div>{`User is ${
         !keycloak.authenticated ? 'NOT ' : ''
@@ -40,7 +38,6 @@ function AuthLink() {
         </button>
       )}
     </div>
-    </KeycloakProvider>
   );
 }
 
