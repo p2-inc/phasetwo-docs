@@ -142,6 +142,16 @@ function Home() {
           </div>
         </div>
       </div>
+      <div
+        className={classnames(styles.announcement, styles.announcementDark)}>
+        <div className={styles.announcementInner}>
+          Phase Two is currently in private BETA. Please {' '}
+          <Link to={useBaseUrl('access')}>
+          request access
+          </Link>
+      {' '}in order to receive an early access account.  
+        </div>
+      </div>
       <main>
         {features && features.length && (
           <section className={styles.features}>
