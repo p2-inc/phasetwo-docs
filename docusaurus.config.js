@@ -62,7 +62,7 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/p2-inc/phasetwo-docs/',
+            'https://github.com/p2-inc/phasetwo-docs/tree/master',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

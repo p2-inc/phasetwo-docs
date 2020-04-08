@@ -136,8 +136,8 @@ function Home() {
           <div className={styles.indexCtas}>
             <Link
               className={styles.indexCtasGetStartedButton}
-              to={useBaseUrl('docs/introduction')}>
-              Get Started
+              to={useBaseUrl('access')}>
+              Request Access
             </Link>
           </div>
         </div>
