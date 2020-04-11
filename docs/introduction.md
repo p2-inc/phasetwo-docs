@@ -3,4 +3,4 @@ id: introduction
 title: Introduction
 ---
 
-todo
+Coming soon!
