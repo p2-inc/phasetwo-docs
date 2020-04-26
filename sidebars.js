@@ -1,11 +1,16 @@
 module.exports = {
   docs: {
-    'Getting Started': ['introduction'],
-    'Authentication':
+    'Getting Started':
+    [
+      'introduction',
+      'setup'
+    ],
+    'Identity':
     [
       'auth-overview',
       'auth-clients',
-      'auth-social-logins'
+      'auth-social-logins',
+      'auth-securing-apps'
     ],
     'Account Management':
     [
@@ -32,6 +37,7 @@ module.exports = {
     [
       'sync-overview',
       'sync-ldap',
+      'sync-scim',
       'sync-legacy',
       {
 	'Provider Examples':
@@ -40,5 +46,18 @@ module.exports = {
 	]
       }
     ],
+    'Auditing':
+    [
+      'audit-overview',
+      'audit-access',
+      'audit-admin',
+      'audit-api'
+    ],
+    'Organizations':
+    [
+      'orgs-overview',
+      'orgs-teams',
+      'orgs-invitations'
+    ]
   },
 };

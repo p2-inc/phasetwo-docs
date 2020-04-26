@@ -55,11 +55,7 @@ const rotatingFeatures = [
     className: styles.heroProjectKeywords
   },
   {
-    text: 'OpenId SSO',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'LDAP SSO',
+    text: 'OpenID SSO',
     className: styles.heroProjectKeywords
   },
   {
@@ -71,9 +67,9 @@ const rotatingFeatures = [
     className: styles.heroProjectKeywords
   },
   {
-    text: 'an Identity Provider',
+    text: 'User Federation',
     className: styles.heroProjectKeywords
-  },
+  },  
   {
     text: 'Permissions',
     className: styles.heroProjectKeywords
@@ -93,11 +89,7 @@ const rotatingFeatures = [
   {
     text: 'Audit Logs',
     className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Access Auditing',
-    className: styles.heroProjectKeywords
-  },
+  }
 ];
 
 function Feature({imageUrl, title, description}) {
@@ -136,7 +128,7 @@ function Home() {
           <div className={styles.indexCtas}>
             <Link
               className={styles.indexCtasGetStartedButton}
-              to={useBaseUrl('access')}>
+              to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
               Request Access
             </Link>
           </div>
@@ -146,7 +138,7 @@ function Home() {
         className={classnames(styles.announcement, styles.announcementDark)}>
         <div className={styles.announcementInner}>
           Phase Two is currently in private BETA. Please {' '}
-          <Link to={useBaseUrl('access')}>
+          <Link to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
           request access
           </Link>
       {' '}in order to receive an early access account.  
