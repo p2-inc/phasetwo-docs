@@ -320,7 +320,7 @@ function Home() {
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary}>Apply now</button>
+                        <button className={styles.btnPrimary}>Request access</button>
                       </div>
                     </div>
                   </div>
