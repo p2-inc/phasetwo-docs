@@ -114,26 +114,230 @@ function Home() {
     <Layout
       title={`${siteConfig.title}`}
       description="Tools for SaaS builders">
-      <div className={styles.hero}>
-        <div className={styles.heroInner}>
-          <h1 className={styles.heroProjectTagline}>
-      Phase Two gives you {' '}<br/>
-      <ReactTextRotator
-        content={rotatingFeatures}
-        time={2000}
-        startDelay={0}
-      />{' '}<br/>
-      so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
-          </h1>
-          <div className={styles.indexCtas}>
-            <Link
-              className={styles.indexCtasGetStartedButton}
-              to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
-              Request Access
-            </Link>
+
+      {/* Main Content */}
+      <main>
+
+        {/* Hero Section */}
+        <div className={styles.hero}>
+          <div className={styles.heroInner}>
+            <h1 className={styles.heroProjectTagline}>
+              {' '}
+              <ReactTextRotator
+                content={rotatingFeatures}
+                time={2000}
+                startDelay={0}
+              />{' '}<br/>
+              so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
+            </h1>
+            <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need that are not core to your business.</p>
+
+            <div className={styles.heroImage}>
+              <picture>
+                <source srcSet="../../static/img/hero-mobile.png"
+                        media="(max-width: 767px)"/>
+                <source srcSet="../../static/img/hero.png"
+                        media="(min-width: 768px)"/>
+                <img src="../../static/img/hero.png" alt="Illustration showing login box with callout explaining features"></img>
+              </picture>
+            </div>
+
+            <div className={styles.heroCta}>
+              <p>Phase Two is currently in private BETA. Please request access in order to receive an early access account.</p>
+              <div className={styles.formGroup}>
+                <input type="text" className={styles.formControl} placeholder="Enter your email"/>
+                <button type="submit" className={styles.btnPrimary}>Request access</button>
+              </div>
+              <a href="#" className={styles.btnVideo}>
+                <img src="../../static/img/play.svg" alt="Play"></img>
+                How Plase Two Works
+              </a>
+            </div>
+
+            {/*<div className={styles.indexCtas}>
+              <Link
+                className={styles.indexCtasGetStartedButton}
+                to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
+                Request Access
+              </Link>
+            </div> */}
           </div>
         </div>
-      </div>
+
+        
+          <div className="container">
+
+            <div className={styles.sect} id="features">
+
+              <div className={styles.sectHead}>
+                <p className={styles.sectPreHeadline}>Features</p>
+                <h2 className={styles.sectHeadline}>From login to federation, it’s all in</h2>
+              </div>
+  
+              <div className={styles.featblocks}>
+                
+                {/* Feature */}
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+                    <img src="../../static/img/feat-identity.png" alt="Illustration showing login box with social logins and code callout"></img>
+                  </div>
+                  <div className={styles.featureCopy}>
+                    <div>
+                      <h3>Identity</h3>
+                      <p>One simple integration to add authentication, authorization, account management, social logins and identity brokering.</p>
+                    </div>
+                  </div>
+                </div>
+  
+                {/* Feature */}
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+                    <img src="../../static/img/feat-sso.png" alt="Illustration showing enterprise SSO services (Okta, Azure, Onelogin...) with code callout"></img>
+                  </div>
+                  <div className={styles.featureCopy}>
+                    <div>
+                      <h3>SSO</h3>
+                      <p>With or without adopting our identity feature, integrate once to add all enterprise identity providers.</p>
+                    </div>
+                  </div>
+                </div>
+  
+                {/* Feature */}
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+                    <img src="../../static/img/feat-user-federation.png" alt="Illustration showing groups of users connected to Phase Two"></img>
+                  </div>
+                  <div className={styles.featureCopy}>
+                    <div>
+                      <h3>User Federation</h3>
+                      <p>Synchronize and authorize against customer and internal legacy user stores. Easily onboard enterprise customers and port your existing users.</p>
+                    </div>
+                  </div>
+                </div>
+  
+  
+                {/* Feature */}
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+                    <img src="../../static/img/feat-organizations.png" alt="Illustration showing groups of users connected to Phase Two interface"></img>
+                  </div>
+                  <div className={styles.featureCopy}>
+                    <div>
+                      <h3>Organizations</h3>
+                      <p>Empower your customers to manage their users with organizations, teams, and invitations.</p>
+                    </div>
+                  </div>
+                </div>
+  
+  
+                {/* Feature */}
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+                    <img src="../../static/img/feat-auditing.png" alt="Illustration showing history of events with call out of one of the events (Login Failed)"></img>
+                  </div>
+                  <div className={styles.featureCopy}>
+                    <div>
+                      <h3>Auditing</h3>
+                      <p>Access and administrative audit trail out of the box. One method to extend audit logging to your application’s actions.</p>
+                    </div>
+                  </div>
+                </div>
+  
+              </div>
+
+            </div>
+
+
+            {/* Pricing */}
+            <div className={styles.sect + ' ' + styles.pt0} id="pricing">
+
+              <div className={styles.pricing}>
+
+                <div className={styles.sectHead}>
+                  <p className={styles.sectPreHeadline}>Pricing</p>
+                  <h2 className={styles.sectHeadline}>Phase Two is one price per project</h2>
+                  <p className={styles.sectHeadIntro}>No hidden fees, no unpredictable costs.</p>
+                </div>
+  
+                <div className={styles.plans}>
+  
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <img className={styles.planOutline} src="../../static/img/plan1.png" alt="Scribed outline"></img>
+                    <div className={styles.planInner}>
+                      <div className={styles.planHead}>
+                        <img className={styles.planPicto} src="../../static/img/sprout.svg" alt="Sprout pictogram"></img>
+                        <h5>Early Stage Startup <sup>✻</sup></h5>
+                        <p className={styles.badgeSuccess}>Free for 6 months</p>
+                        <p className={styles.planPrice}><span className={styles.large}>$499</span>/month<br/>
+                        after that for 1 year</p>
+                      </div>
+                      <div className={styles.planBody}>
+                        <ul className={styles.checklist}>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            All features
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Unlimited users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Email support
+                          </li>
+                        </ul>
+                      </div>
+                      <div className={styles.planFoot}>
+                        <button className={styles.btnPrimary}>Apply now</button>
+                      </div>
+                    </div>
+                  </div>
+  
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <img className={styles.planOutline} src="../../static/img/plan2.png" alt="Scribed outline"></img>
+                    <div className={styles.planInner}>
+                      <div className={styles.planHead}>
+                        <img className={styles.planPicto} src="../../static/img/tree.svg" alt="Tree pictogram"></img>
+                        <h5>Premium</h5>
+                        <p className={styles.planPrice}><span className={styles.large}>$999</span>/month</p>
+                      </div>
+                      <div className={styles.planBody}>
+                        <ul className={styles.checklist}>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            All features
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Unlimited users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Chat  email support
+                          </li>
+                        </ul>
+                      </div>
+                      <div className={styles.planFoot}>
+                        <button className={styles.btnPrimary}>Apply now</button>
+                      </div>
+                    </div>
+                  </div>
+  
+                </div>
+  
+                <p className={styles.plansNote}>✻ Available to startups with &lt;$5m in funding and &lt;25 employees</p>
+              </div>
+
+            </div>
+
+          </div>
+          
+
+      </main>
+
+      {/*
       <div
         className={classnames(styles.announcement, styles.announcementDark)}>
         <div className={styles.announcementInner}>
@@ -156,7 +360,7 @@ function Home() {
             </div>
           </section>
         )}
-      </main>
+      </main> */}
     </Layout>
   );
 }

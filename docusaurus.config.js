@@ -15,12 +15,22 @@ module.exports = {
       },
       links: [
         {
+          href: '#features',
+          label: 'Features',
+          position: 'right',
+        },
+	      {
+          href: '#pricing',
+          label: 'Pricing',
+          position: 'right',
+        },
+        {
           to: 'docs/introduction',
           activeBasePath: 'docs',
           label: 'Docs',
           position: 'right',
         },
-	{
+	      {
           href: 'https://app.phasetwo.io/auth/admin/master/console/',
           label: 'Dashboard',
           position: 'right',
@@ -28,7 +38,7 @@ module.exports = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
       links: [
         {
           title: 'Phase Two',
