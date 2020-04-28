@@ -147,7 +147,7 @@ function Home() {
             <h1 className={styles.heroProjectTagline}>
               <ReactTextRotator
                 content={rotatingFeatures}
-                time={1500}
+                time={2000}
                 startDelay={0}
               /><br/>
               so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
@@ -339,7 +339,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Chat  email support
+                            Chat & email support
                           </li>
                         </ul>
                       </div>
