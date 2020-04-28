@@ -170,10 +170,12 @@ function Home() {
                 <input id="email" type="text" className={styles.formControl} placeholder="Enter your email"/>
                 <button type="submit" className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
               </div>
+      {/*
               <a href="#" className={styles.btnVideo}>
                 <img src="img/play.svg" alt="Play"></img>
                 How Phase Two Works
               </a>
+       */}
             </div>
 
             {/*<div className={styles.indexCtas}>
