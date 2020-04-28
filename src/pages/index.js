@@ -107,6 +107,29 @@ function Feature({imageUrl, title, description}) {
   );
 }
 
+function requestAccess() {
+  const email = document.getElementById("email").value;
+  //todo validate email
+  if (email) {
+    window.open(
+      `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=pp_url&entry.2001081113=${email}`,
+      '_blank'
+    );
+  } else {
+    window.open(
+      `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link`,
+      '_blank'
+    );
+  }
+}
+
+function applyStartup() {
+  window.open(
+    `https://docs.google.com/forms/d/e/1FAIpQLSfMDlnhjbdvtJ9nByjqyfLuPAN73m3bggz8hQV8JHUrWkdKJw/viewform?usp=sf_link`,
+    '_blank'
+  );
+}  
+    
 function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
@@ -145,12 +168,12 @@ function Home() {
             <div className={styles.heroCta}>
               <p>Phase Two is currently in private BETA. Please request access in order to receive an early access account.</p>
               <div className={styles.formGroup}>
-                <input type="text" className={styles.formControl} placeholder="Enter your email"/>
-                <button type="submit" className={styles.btnPrimary}>Request access</button>
+                <input id="email" type="text" className={styles.formControl} placeholder="Enter your email"/>
+                <button type="submit" className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
               </div>
               <a href="#" className={styles.btnVideo}>
                 <img src="../../static/img/play.svg" alt="Play"></img>
-                How Plase Two Works
+                How Phase Two Works
               </a>
             </div>
 
@@ -289,7 +312,7 @@ function Home() {
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary}>Apply now</button>
+                        <button className={styles.btnPrimary} onClick={applyStartup}>Apply now</button>
                       </div>
                     </div>
                   </div>
@@ -320,7 +343,7 @@ function Home() {
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary}>Request access</button>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
                       </div>
                     </div>
                   </div>

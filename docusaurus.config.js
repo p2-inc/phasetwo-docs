@@ -15,12 +15,12 @@ module.exports = {
       },
       links: [
         {
-          href: '#features',
+          to: '#features',
           label: 'Features',
           position: 'right',
         },
 	      {
-          href: '#pricing',
+          to: '#pricing',
           label: 'Pricing',
           position: 'right',
         },
