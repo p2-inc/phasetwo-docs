@@ -145,12 +145,11 @@ function Home() {
         <div className={styles.hero}>
           <div className={styles.heroInner}>
             <h1 className={styles.heroProjectTagline}>
-              {' '}
               <ReactTextRotator
                 content={rotatingFeatures}
-                time={2000}
+                time={1500}
                 startDelay={0}
-              />{' '}<br/>
+              /><br/>
               so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
             </h1>
             <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need that are not core to your business.</p>

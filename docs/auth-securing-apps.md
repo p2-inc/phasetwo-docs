@@ -3,15 +3,15 @@ id: auth-securing-apps
 title: Securing Apps
 ---
 
-Your applications and services can be secured using any compliant OpenID Connect Relying Party library. Phase Two's Identity functionality is based on and compatible with the [Keycloak](https://www.keycloak.org/) IAM system, and we use their client libraries.
+Your applications and services can be secured using any compliant OpenID Connect Relying Party library. Phase Two's supplies client libraries that can be used to secure your applications.
 
 ## Single-page apps
 
 ```html
 <head>
-    <script src="https://app.phasetwo.io/auth/js/keycloak.js"></script>
+    <script src="https://app.phasetwo.io/auth/js/phasetwo.js"></script>
     <script>
-	    var auth = new Keycloak({
+	    var auth = new Phasetwo({
             url: 'https://app.phasetwo.io/auth',
 		    realm: 'myrealm.com',
 		    clientId: 'myapp'
