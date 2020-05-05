@@ -51,6 +51,7 @@ module.exports = {
       'audit-overview',
       'audit-access',
       'audit-admin',
+      'audit-system',
       'audit-api'
     ],
     'Organizations':
