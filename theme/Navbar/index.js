@@ -55,7 +55,7 @@ function NavLink({activeBasePath, to, href, label, position, ...props}) {
             href,
           }
         : {
-            activeClassName: 'navbar__link--active',
+            activeclassname: 'navbar__link--active',
             to: toUrl,
             ...(activeBasePath
               ? {

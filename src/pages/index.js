@@ -6,6 +6,9 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import ReactTextRotator from 'react-text-rotator';
+import { render } from "react-dom";
+import Carousel from "./carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const features = [
   {
@@ -156,13 +159,7 @@ function Home() {
             <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need that are not core to your business.</p>
 
             <div className={styles.heroImage}>
-              <picture>
-                <source srcSet="../../static/img/hero-mobile.png"
-                        media="(max-width: 767px)"/>
-                <source srcSet="../../static/img/hero.png"
-                        media="(min-width: 768px)"/>
-                <img src="../../static/img/hero.png" alt="Illustration showing login box with callout explaining features"></img>
-              </picture>
+            <Carousel />
             </div>
 
             <div className={styles.heroCta}>
