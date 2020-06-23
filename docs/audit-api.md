@@ -36,7 +36,7 @@ The Event object describes the full action that took place in the system.
 | uid | string | provided | An ID unique to this event |
 | time | number | optional [^1] | UNIX timestamp of the event |
 | realmId | string | provided | The realm ID where the action took place |
-| authDetails | [AuthDetails](#AuthDetails) | provided | - |
+| authDetails | [AuthDetails](#authdetails) | provided | - |
 | type | string | required | A description of the action that took place |
 | operationType | string | optional | What operation was executed on a resource (CREATE, DELETE, UPDATE, ACTION) |
 | resourcePath | string | optional | If the action changed a resource, this is meant to be the / delimited resource path |
@@ -77,6 +77,6 @@ HTTP status codes are used to indicate types of successful or failure states. A 
 curl https://app.phasetwo.io/auth/realms/company.app/events \
   --header "Content-Type: application/json" \
   --header "Accept: application/json" \
-  --header "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIi-A" \
+  --header "Authorization: Bearer <accessToken>" \
   --data "{ \"type\": \"foo.bar\" }"
 ```
