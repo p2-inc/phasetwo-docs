@@ -122,6 +122,17 @@
   font-size: .9rem;
 }
 
+/* Carousel */
+.carousel .slide {
+  background-color: transparent !important;
+}
+.carousel.carousel-slider .control-arrow:hover {
+  background-color: transparent !important;
+}
+.carousel.carousel-slider .control-arrow::before {
+  border-right-color: #444 !important;
+  border-left-color: #444 !important;
+}
 
 @media (min-width: 768px) {
   .footer,

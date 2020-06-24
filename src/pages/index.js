@@ -6,6 +6,9 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import ReactTextRotator from 'react-text-rotator';
+import { render } from "react-dom";
+import Carousel from "./carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const features = [
   {
@@ -155,15 +158,9 @@ function Home() {
             </h1>
             <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need that are not core to your business.</p>
 
-            <div className={styles.heroImage}>
-              <picture>
-                <source srcSet="img/hero-mobile.png"
-                        media="(max-width: 767px)"/>
-                <source srcSet="img/hero.png"
-                        media="(min-width: 768px)"/>
-                <img src="img/hero.png" alt="Illustration showing login box with callout explaining features"></img>
-              </picture>
-            </div>
+      <div className={styles.heroImage}>
+      <Carousel />
+      </div>
 
             <div className={styles.heroCta}>
               <p>Phase Two is currently in private BETA. Please request access in order to receive an early access account.</p>
