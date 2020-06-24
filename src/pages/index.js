@@ -168,11 +168,11 @@ function Home() {
                 <input id="email" type="text" className={styles.formControl} placeholder="Enter your email"/>
                 <button type="submit" className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
               </div>
-              <a href="#" className={styles.btnVideo}>
-                <img src="../../static/img/play.svg" alt="Play"></img>
-                How Phase Two Works
-              </a>
-            </div>
+      {/*<a href="#" className={styles.btnVideo}>
+         <!-- <img src="img/play.svg" alt="Play"></img>
+         How Phase Two Works -->
+         </a> */}
+         </div>
 
             {/*<div className={styles.indexCtas}>
               <Link
@@ -199,7 +199,7 @@ function Home() {
                 {/* Feature */}
                 <div className={styles.feature}>
                   <div className={styles.featureImg}>
-                    <img src="../../static/img/feat-identity.png" alt="Illustration showing login box with social logins and code callout"></img>
+                    <img src="img/feat-identity.png" alt="Illustration showing login box with social logins and code callout"></img>
                   </div>
                   <div className={styles.featureCopy}>
                     <div>
@@ -212,7 +212,7 @@ function Home() {
                 {/* Feature */}
                 <div className={styles.feature}>
                   <div className={styles.featureImg}>
-                    <img src="../../static/img/feat-sso.png" alt="Illustration showing enterprise SSO services (Okta, Azure, Onelogin...) with code callout"></img>
+                    <img src="img/feat-sso.png" alt="Illustration showing enterprise SSO services (Okta, Azure, Onelogin...) with code callout"></img>
                   </div>
                   <div className={styles.featureCopy}>
                     <div>
@@ -225,7 +225,7 @@ function Home() {
                 {/* Feature */}
                 <div className={styles.feature}>
                   <div className={styles.featureImg}>
-                    <img src="../../static/img/feat-user-federation.png" alt="Illustration showing groups of users connected to Phase Two"></img>
+                    <img src="img/feat-user-federation.png" alt="Illustration showing groups of users connected to Phase Two"></img>
                   </div>
                   <div className={styles.featureCopy}>
                     <div>
@@ -239,7 +239,7 @@ function Home() {
                 {/* Feature */}
                 <div className={styles.feature}>
                   <div className={styles.featureImg}>
-                    <img src="../../static/img/feat-organizations.png" alt="Illustration showing groups of users connected to Phase Two interface"></img>
+                    <img src="img/feat-organizations.png" alt="Illustration showing groups of users connected to Phase Two interface"></img>
                   </div>
                   <div className={styles.featureCopy}>
                     <div>
@@ -253,7 +253,7 @@ function Home() {
                 {/* Feature */}
                 <div className={styles.feature}>
                   <div className={styles.featureImg}>
-                    <img src="../../static/img/feat-auditing.png" alt="Illustration showing history of events with call out of one of the events (Login Failed)"></img>
+                    <img src="img/feat-auditing.png" alt="Illustration showing history of events with call out of one of the events (Login Failed)"></img>
                   </div>
                   <div className={styles.featureCopy}>
                     <div>
@@ -283,10 +283,10 @@ function Home() {
   
                   {/* Plan */}
                   <div className={styles.plan}>
-                    <img className={styles.planOutline} src="../../static/img/plan1.png" alt="Scribed outline"></img>
+                    <img className={styles.planOutline} src="img/plan1.png" alt="Scribed outline"></img>
                     <div className={styles.planInner}>
                       <div className={styles.planHead}>
-                        <img className={styles.planPicto} src="../../static/img/sprout.svg" alt="Sprout pictogram"></img>
+                        <img className={styles.planPicto} src="img/sprout.svg" alt="Sprout pictogram"></img>
                         <h5>Early Stage Startup <sup>✻</sup></h5>
                         <p className={styles.badgeSuccess}>Free for 6 months</p>
                         <p className={styles.planPrice}><span className={styles.large}>$499</span>/month<br/>
@@ -295,15 +295,15 @@ function Home() {
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             All features
                           </li>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Unlimited users
                           </li>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Email support
                           </li>
                         </ul>
@@ -316,26 +316,66 @@ function Home() {
   
                   {/* Plan */}
                   <div className={`${styles.plan} ${styles.planPop}`}>
-                    <img className={styles.planOutline} src="../../static/img/plan2.png" alt="Scribed outline"></img>
+                    <img className={styles.planOutline} src="img/plan2.png" alt="Scribed outline"></img>
                     <div className={styles.planInner}>
                       <div className={styles.planHead}>
-                        <img className={styles.planPicto} src="../../static/img/tree.svg" alt="Tree pictogram"></img>
+                        <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
                         <p className={styles.planPrice}><span className={styles.large}>$999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             All features
                           </li>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Unlimited users
                           </li>
                           <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            Chat  email support
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Chat & email support
+                          </li>
+                        </ul>
+                      </div>
+                      <div className={styles.planFoot}>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <img className={styles.planOutline} src="img/plan1.png" alt="Scribed outline"></img>
+                    <div className={styles.planInner}>
+                      <div className={styles.planHead}>
+                        <img className={styles.planPicto} src="img/custom.svg" alt="Tree in pickup pictogram"></img>
+                        <h5>Custom</h5>
+      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
+                      </div>
+                      <div className={styles.planBody}>
+                        <ul className={styles.checklist}>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            All features
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Unlimited users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Dedicated support
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Customization
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            On-premise deployment
                           </li>
                         </ul>
                       </div>
@@ -390,8 +430,7 @@ function Home() {
                 <p className={styles.plansNote}>✻ Available to startups with &lt;$5m in funding and &lt;25 employees</p>
 
                 <div  className={styles.plansAffiliate}>
-                  <p>Integrating Phase Two for another company? Premium and Custom plans are available through our <a target="_blank" href="/docs/affiliate">affiliate program</a>.</p> 
-                  <p>Make ongoing revenue for your software development agency.</p>
+                  <p>Integrating Phase Two for another company? Premium and Custom plans are available through our <a target="_blank" href="/docs/affiliate">affiliate program</a>. Make ongoing revenue for your software development agency.</p>
                 </div>
               </div>
 
