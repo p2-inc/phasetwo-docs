@@ -158,9 +158,9 @@ function Home() {
             </h1>
             <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
 
-      <div className={styles.heroImage}>
-      <Carousel />
-      </div>
+            <div className={styles.heroImage}>
+            <Carousel />
+            </div>
 
             <div className={styles.heroCta}>
               <p>Phase Two is currently in private BETA. Please request access in order to receive an early access account.</p>
@@ -375,6 +375,46 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            On-premise deployment
+                          </li>
+                        </ul>
+                      </div>
+                      <div className={styles.planFoot}>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <img className={styles.planOutline} src="../../static/img/plan1.png" alt="Scribed outline"></img>
+                    <div className={styles.planInner}>
+                      <div className={styles.planHead}>
+                        <img className={styles.planPicto} src="../../static/img/custom.svg" alt="Tree in pickup pictogram"></img>
+                        <h5>Custom</h5>
+                        <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1.999</span>/month</p>
+                      </div>
+                      <div className={styles.planBody}>
+                        <ul className={styles.checklist}>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            All features
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Unlimited users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Dedicated support
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
+                            Customization
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
                             On-premise deployment
                           </li>
                         </ul>
