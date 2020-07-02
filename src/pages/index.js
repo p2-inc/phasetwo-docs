@@ -321,7 +321,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}><span className={styles.large}>$1999</span>/month</p>
+                        <p className={styles.planPrice}><span className={styles.large}>$1,999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -384,47 +384,6 @@ function Home() {
                       </div>
                     </div>
                   </div>
-
-
-                  {/* Plan */}
-                  <div className={styles.plan}>
-                    <img className={styles.planOutline} src="../../static/img/plan1.png" alt="Scribed outline"></img>
-                    <div className={styles.planInner}>
-                      <div className={styles.planHead}>
-                        <img className={styles.planPicto} src="../../static/img/custom.svg" alt="Tree in pickup pictogram"></img>
-                        <h5>Custom</h5>
-                        <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1.999</span>/month</p>
-                      </div>
-                      <div className={styles.planBody}>
-                        <ul className={styles.checklist}>
-                          <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            All features
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            Unlimited users
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            Dedicated support
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            Customization
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="../../static/img/checkmark.svg" alt="Checkmark"></img>
-                            On-premise deployment
-                          </li>
-                        </ul>
-                      </div>
-                      <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
-                      </div>
-                    </div>
-                  </div>
-  
                 </div>
   
                 <p className={styles.plansNote}>✻ Available to startups with &lt;$5m in funding and &lt;25 employees</p>
