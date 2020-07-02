@@ -156,7 +156,7 @@ function Home() {
               />{' '}<br/>
               so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
             </h1>
-            <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need that are not core to your business.</p>
+            <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
 
       <div className={styles.heroImage}>
       <Carousel />
@@ -321,7 +321,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}><span className={styles.large}>$999</span>/month</p>
+                        <p className={styles.planPrice}><span className={styles.large}>$1999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -353,7 +353,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/custom.svg" alt="Tree in pickup pictogram"></img>
                         <h5>Custom</h5>
-      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
+      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $4,999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
