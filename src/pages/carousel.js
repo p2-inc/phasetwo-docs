@@ -21,20 +21,20 @@ export default () => (
     <Carousel {...getConfigurableProps()}>
         <div>
             <picture>
-            <source srcSet="../../static/img/hero-mobile.png"
+            <source srcSet="img/hero-mobile.png"
                     media="(max-width: 767px)"/>
-            <source srcSet="../../static/img/hero.png"
+            <source srcSet="img/hero.png"
                     media="(min-width: 768px)"/>
-            <img src="../../static/img/hero.png" alt="Illustration showing login box with callouts explaining features"></img>
+            <img src="img/hero.png" alt="Illustration showing login box with callouts explaining features"></img>
             </picture>
         </div>
         <div>
             <picture>
-            <source srcSet="../../static/img/hero-mobile2.png"
+            <source srcSet="img/hero-mobile2.png"
                     media="(max-width: 767px)"/>
-            <source srcSet="../../static/img/hero2.png"
+            <source srcSet="img/hero2.png"
                     media="(min-width: 768px)"/>
-            <img src="../../static/img/hero2.png" alt="Illustration showing user management with callouts explaining features"></img>
+            <img src="img/hero2.png" alt="Illustration showing user management with callouts explaining features"></img>
             </picture>
         </div>
     </Carousel>
