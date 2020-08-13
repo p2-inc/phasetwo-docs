@@ -21,7 +21,7 @@ module.exports = {
         alt: 'Phase Two',
         src: 'img/logo_phase_slash.svg',
       },
-      links: [
+      items: [
         {
           to: '#features',
           label: 'Features',
@@ -63,7 +63,8 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Phase Two, Inc.`,
     },
-    disableDarkMode: true,
+    defaultMode: 'light',
+    disableSwitch: true,
     googleAnalytics: {
       trackingID: 'UA-160183620-1',
     },
