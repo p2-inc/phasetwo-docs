@@ -1,11 +1,3 @@
-/* add back dashboard to navbar links later
-        {
-          href: 'https://app.phasetwo.io/auth/admin/master/console/',
-          label: 'Dashboard',
-          position: 'right',
-        },
-*/
-
 module.exports = {
   title: 'Phase Two',
   tagline: 'Tools for SaaS builders',
@@ -23,19 +15,24 @@ module.exports = {
       },
       items: [
         {
-          to: '#features',
+          to: '/#features',
           label: 'Features',
-          position: 'right',
+          position: 'left',
         },
 	      {
-          to: '#pricing',
+          to: '/#pricing',
           label: 'Pricing',
-          position: 'right',
+          position: 'left',
         },
         {
           to: 'docs/introduction',
           activeBasePath: 'docs',
           label: 'Docs',
+          position: 'left',
+        },
+        {
+          href: 'https://app.phasetwo.io/auth/admin/master/console',
+          label: 'Dashboard',
           position: 'right',
         },
       ],
@@ -63,8 +60,11 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Phase Two, Inc.`,
     },
-    defaultMode: 'light',
-    disableSwitch: true,
+    colorMode: {
+      // "light" | "dark"
+      defaultMode: 'light',
+      disableSwitch: true,
+    },
     googleAnalytics: {
       trackingID: 'UA-160183620-1',
     },
