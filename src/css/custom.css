@@ -157,3 +157,8 @@ html {
     margin-left: 20px;
   }
 }
+
+
+[data-theme='dark'] .footer, .footer .footer__title, .footer .text--center {
+  color: #999;
+}

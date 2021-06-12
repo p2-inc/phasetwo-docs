@@ -159,28 +159,27 @@ function Home() {
         {/* Hero Section */}
         <div className={styles.hero}>
           <div className={styles.heroInner}>
-            <h1 className={styles.heroProjectTagline}>
-              {' '}
-              <ReactTextRotator
-                content={rotatingFeatures}
-                time={2000}
-                startDelay={0}
-              />{' '}<br/>
-              so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
-            </h1>
-            <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
 
-            <div className={styles.heroImage}>
-            <Carousel />
+            {/* Hero Image */}
+            <div className={styles.heroImg}>
+              <Carousel />
             </div>
 
-            <div className={styles.heroCta}>
-              <p>Phase Two is currently in private BETA. Please request access in order to receive an early access account.</p>
-              <div className={styles.formGroup}>
-                <input id="email" type="text" className={styles.formControl} placeholder="Enter your email"/>
-                <button type="submit" className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
+            {/* Hero Message */}
+            <div className={styles.heroMsg}>
+              <h1 className={styles.heroProjectTagline}>
+                {' '}
+                <ReactTextRotator
+                  content={rotatingFeatures}
+                  time={2000}
+                  startDelay={0}
+                />{' '}<br/>
+                so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
+              </h1>
+              <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
+              <div className={styles.heroCta}>
+                <button className={styles.btnPrimary}>Get started</button>
               </div>
-    {/*<a href="#" className={styles.btnVideo}><img src="img/play.svg" alt="Play"></img>How Phase Two Works</a> */}
             </div>
 
             {/*<div className={styles.indexCtas}>
@@ -190,6 +189,7 @@ function Home() {
                 Request Access
               </Link>
             </div> */}
+           
           </div>
         </div>
 
@@ -276,6 +276,41 @@ function Home() {
 
             </div>
 
+            {/* Open Source */}
+
+            <div className={styles.sect + ' ' + styles.pt0} id="opensource">
+
+              <img className={styles.sectOsArrow} src="img/open-source-arrow.svg" alt="Arrow"></img>
+            
+              <div className={styles.sectHead}>
+                <p className={styles.sectPreHeadline}>Open Source</p>
+                <h2 className={styles.sectHeadline}>
+                  Phase Two 
+                  <img className={styles.heart} src="img/heart.svg" alt="Loves"></img>
+                  Keycloak
+                </h2>
+                <p className={styles.sectHeadIntro}>Phase Two is based on the <a href="https://www.keycloak.org/" target="_blank">Keycloak</a> Open Source Identity and Access Management system, built and maintained by Red Hat.</p>
+              </div>
+
+              <div className={styles.feats}>
+                <div className={styles.feat}>
+                  <div className={styles.featInner}>
+                    <img className={styles.featPicto} src="img/feat-keycloak.svg" alt="Defending companies big and small"></img>
+                    <h3>Battle-tested and hardened</h3>
+                    <p>Keycloak has been battle-tested and hardened for over 6 years. It's security and reliability is depended on by organizations from small startups to Fortune 500 companies and governments.</p>
+                  </div>
+                </div>
+                <div className={styles.feat}>
+                  <div className={styles.featInner}>
+                    <img className={styles.featPicto} src="img/feat-extensions.svg" alt="Phase Two are Open Source extensions"></img>
+                    <h3>A collection of extensions</h3>
+                    <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our extensions will always be open source.</p>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+
 
             {/* Pricing */}
             <div className={styles.sect + ' ' + styles.pt0} id="pricing">
@@ -298,7 +333,7 @@ function Home() {
                         <img className={styles.planPicto} src="img/sprout.svg" alt="Sprout pictogram"></img>
                         <h5>Early Stage Startup <sup>✻</sup></h5>
                         <p className={styles.badgeSuccess}>Free for 6 months</p>
-                        <p className={styles.planPrice}><span className={styles.large}>$499</span>/month<br/>
+                        <p className={styles.planPrice}><span className={styles.large}>$199</span>/month<br/>
                         after that for 1 year</p>
                       </div>
                       <div className={styles.planBody}>
@@ -309,7 +344,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Unlimited users
+                            &#60;1000 users
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -330,7 +365,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}><span className={styles.large}>$1,999</span>/month</p>
+                        <p className={styles.planPrice}><span className={styles.large}>$499</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -344,12 +379,20 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Custom name
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Custom domain
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Chat & email support
                           </li>
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
                       </div>
                     </div>
                   </div>
@@ -362,17 +405,13 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/custom.svg" alt="Tree in pickup pictogram"></img>
                         <h5>Custom</h5>
-      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $4,999</span>/month</p>
+      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            All features
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Unlimited users
+                            All Premium features
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -380,7 +419,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Customization
+                            Custom extensions
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -389,7 +428,7 @@ function Home() {
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary} onClick={requestAccess}>Request access</button>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
                       </div>
                     </div>
                   </div>
