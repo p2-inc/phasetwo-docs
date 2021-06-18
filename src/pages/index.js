@@ -5,7 +5,6 @@ import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
-import ReactTextRotator from 'react-text-rotator';
 import { render } from "react-dom";
 import Carousel from "./carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
