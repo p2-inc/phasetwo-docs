@@ -40,60 +40,9 @@ const features = [
   },
 ];
 
-const rotatingFeatures = [
-  {
-    text: 'Authorization',
-    className: styles.heroProjectKeywords
-  },      
-  {
-    text: 'Authentication',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Role-based Access Control',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'SAML SSO',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'OpenID SSO',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Active Directory SSO',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'OAuth Connections',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'User Federation',
-    className: styles.heroProjectKeywords
-  },  
-  {
-    text: 'Permissions',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Organizations',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Teams',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Invitations',
-    className: styles.heroProjectKeywords
-  },
-  {
-    text: 'Audit Logs',
-    className: styles.heroProjectKeywords
-  }
-];
+var ReactRotatingText = require('react-rotating-text');
+
+const rotatingFeats = ['Authorization', 'Authentication', 'Role-based Access Control', 'SAML SSO', 'OpenID SSO', 'Active Directory SSO', 'OAuth Connections', 'User Federation', 'Permissions', 'Organizations', 'Teams', 'Invitations', 'Audit Logs']
 
 function Feature({imageUrl, title, description}) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -169,12 +118,14 @@ function Home() {
             <div className={styles.heroMsg}>
               <h1 className={styles.heroProjectTagline}>
                 {' '}
-                <ReactTextRotator
-                  content={rotatingFeatures}
-                  time={2000}
-                  startDelay={0}
-                />{' '}<br/>
-                so you can focus on <span className={styles.heroProjectKeywords}>your app</span>.
+                <ReactRotatingText
+                  items={rotatingFeats}
+                  emptyPause={250}
+                  pause={4000}
+                  typingInterval={70}
+                />
+                {' '}<br/>
+                so you can focus on <br/>your app.
               </h1>
               <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
               <div className={styles.heroCta}>
@@ -379,7 +330,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Custom name
+                            CSS theme
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -405,7 +356,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/custom.svg" alt="Tree in pickup pictogram"></img>
                         <h5>Custom</h5>
-      <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
+                        <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -416,6 +367,10 @@ function Home() {
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Dedicated support
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Custom theme
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>

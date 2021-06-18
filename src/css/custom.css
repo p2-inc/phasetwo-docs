@@ -30,7 +30,9 @@
     --success: #18CC6D;
     --form-outline: #E1E6EA;
     --form-outline-focus: #BCC5CB;
-    --inner-width: 1040px;
+    --inner-width: 1400px;
+    --inner-width-narrow: 1040px;
+    --ifm-container-width: 1400px;
 }
 
 html {
@@ -159,6 +161,29 @@ html {
 }
 
 
-[data-theme='dark'] .footer, .footer .footer__title, .footer .text--center {
+/* Dark Theme Touchup */
+
+[data-theme='dark'] .footer,
+[data-theme='dark'] .footer .footer__title,
+[data-theme='dark'] .footer .text--center {
   color: #999;
+}
+
+/* Text Rotator Cursor */
+
+.react-rotating-text-cursor {
+  animation: blinking-cursor 0.8s cubic-bezier(0.68, 0.01, 0.01, 0.99) 0s infinite;
+  font-weight: 400;
+}
+ 
+@keyframes blinking-cursor {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

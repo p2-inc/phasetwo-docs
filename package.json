@@ -17,7 +17,7 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-responsive-carousel": "^3.2.8",
-    "react-text-rotator": "^0.1.1"
+    "react-rotating-text": "^1.4.1"
   },
   "browserslist": {
     "production": [
