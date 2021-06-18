@@ -25,6 +25,11 @@ module.exports = {
           position: 'left',
         },
         {
+          to: '/#opensource',
+          label: 'Open Source',
+          position: 'left',
+        },
+        {
           to: 'docs/introduction',
           activeBasePath: 'docs',
           label: 'Docs',
