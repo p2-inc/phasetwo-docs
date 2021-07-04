@@ -120,8 +120,8 @@ function Home() {
                 <ReactRotatingText
                   items={rotatingFeats}
                   emptyPause={250}
-                  pause={4000}
-                  typingInterval={70}
+                  pause={2000}
+                  typingInterval={34}
                 />
                 {' '}<br/>
                 so you can focus on <br/>your app.
@@ -224,11 +224,15 @@ function Home() {
   
               </div>
 
+              <p className={"text-center"}>
+                and much more...
+              </p>
+
             </div>
 
             {/* Open Source */}
 
-            <div className={styles.sect + ' ' + styles.pt0} id="opensource">
+            <div className={styles.sect + ' ' + styles.sectOpenSource} id="opensource">
 
               <img className={styles.sectOsArrow} src="img/open-source-arrow.svg" alt="Arrow"></img>
             

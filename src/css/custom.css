@@ -56,6 +56,9 @@ html {
 .navbar .navbar__logo {
   margin-right: 0;
 }
+.text-center {
+  text-align: center;
+}
 
 @media (max-width: 996px) {
   .navbar .navbar__items {

@@ -105,12 +105,29 @@ a:hover {
   transform: scale(1.15);
 }
 
+@media (max-width: 991px) {
+  .heroInner {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .heroIntro, .heroCta  {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .heroMsg {
+    text-align: center;
+  }
+  .heroCta {
+    margin-bottom: 30px;
+  }
+}
+
 @media (min-width: 768px) {
   .hero {
     padding-top: 60px;
   }
   .heroProjectTagline {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
   .heroCta .btnPrimary {
     font-size: 13px;
@@ -120,6 +137,9 @@ a:hover {
 @media (min-width: 769px) {
   .hero {
     padding: 48px;
+  }
+  .heroImg {
+    width: 42%;
   }
 }
 
@@ -138,7 +158,7 @@ a:hover {
     flex: 1 1 auto;
   }
   .heroProjectTagline {
-    font-size: 2.6rem;
+    font-size: 1.9rem;
   }
   .heroIntro {
     font-size: 1.3rem;
@@ -146,10 +166,19 @@ a:hover {
   .heroImg {
     flex: 0 0 auto;
     min-width: 0;
-    width: 800px;
+    width: 50%;
   }
   .heroImg img {
     max-width: 800px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .heroProjectTagline {
+    font-size: 2.6rem;
+  }
+  .heroImg {
+    width: 55%;
   }
 }
 
@@ -190,8 +219,11 @@ a:hover {
   position: absolute;
   z-index: -1;
   left: 55%;
-  top: 50px;
+  top: 130px;
   display: none;
+}
+.sectOpenSource {
+  padding-top: 80px;
 }
 
 @media (min-width: 768px) {
@@ -207,6 +239,9 @@ a:hover {
   }
   .sectHeadline .heart {
     width: 60px;
+  }
+  .sectOpenSource {
+    padding-top: 40px;
   }
 }
 
@@ -246,6 +281,17 @@ a:hover {
 }
 .featureImg img {
   max-width: 280px;
+}
+
+
+@media (max-width: 767px) {
+  .featureCopy {
+    text-align: center;
+  }
+  .featureCopy h3 {
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
 }
 
 @media (min-width: 768px) {

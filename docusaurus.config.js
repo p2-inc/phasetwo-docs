@@ -19,14 +19,14 @@ module.exports = {
           label: 'Features',
           position: 'left',
         },
-	      {
-          to: '/#pricing',
-          label: 'Pricing',
-          position: 'left',
-        },
         {
           to: '/#opensource',
           label: 'Open Source',
+          position: 'left',
+        },
+	      {
+          to: '/#pricing',
+          label: 'Pricing',
           position: 'left',
         },
         {
