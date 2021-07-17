@@ -138,9 +138,6 @@ a:hover {
   .hero {
     padding: 48px;
   }
-  .heroImg {
-    width: 42%;
-  }
 }
 
 @media (min-width: 992px) {
@@ -291,6 +288,10 @@ a:hover {
   .featureCopy h3 {
     margin-top: 16px;
     margin-bottom: 12px;
+  }
+  .heroImg {
+    margin-left: -12px;
+    margin-right: -12px;
   }
 }
 

@@ -21,7 +21,7 @@ export default () => (
     <Carousel {...getConfigurableProps()}>
         <div>
         <picture>
-            <source srcSet="img/hero-compact.svg"
+            <source srcSet="img/hero-compact-mobile.svg"
                     media="(max-width: 767px)"/>
             <source srcSet="img/hero-compact.svg"
                     media="(min-width: 768px)"/>

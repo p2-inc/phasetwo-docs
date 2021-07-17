@@ -42,35 +42,35 @@
                     <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-3"></use>
                     <rect stroke="#DDE2E7" stroke-width="0.6" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd" x="259.3" y="188.3" width="184.4" height="29.4" rx="3"></rect>
                 </g>
-                <text id="Enter-your-email" opacity="0.300000012" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="Enter-your-email" opacity="0.300000012" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="267" y="276">Enter your email</tspan>
                 </text>
                 <rect id="Rectangle-Copy-5" stroke="#DDE2E7" fill="#FFFFFF" x="259.5" y="291.5" width="184" height="29" rx="3"></rect>
                 <rect id="Rectangle-Copy-9" fill="#3EA1E5" x="260" y="327" width="183" height="29" rx="3"></rect>
-                <text id="Enter-your-password" opacity="0.300000012" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="Enter-your-password" opacity="0.300000012" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="267" y="310">Enter your password</tspan>
                 </text>
-                <text id="OR" opacity="0.300000012" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="7" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="OR" opacity="0.300000012" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="7" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="348.617898" y="238">OR</tspan>
                 </text>
-                <text id="Sign-in-with-LinkedI" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="Sign-in-with-LinkedI" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="267" y="207">Sign in with LinkedIn</tspan>
                 </text>
                 <g id="Rectangle-Copy-11">
                     <use fill="black" fill-opacity="1" filter="url(#filter-6)" xlink:href="#path-5"></use>
                     <rect stroke="#DDE2E7" stroke-width="0.6" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd" x="259.3" y="154.3" width="184.4" height="29.4" rx="3"></rect>
                 </g>
-                <text id="Sign-in-with-Microso" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="Sign-in-with-Microso" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="267" y="173">Sign in with Microsoft</tspan>
                 </text>
                 <g id="Rectangle-Copy-31">
                     <use fill="black" fill-opacity="1" filter="url(#filter-8)" xlink:href="#path-7"></use>
                     <rect stroke="#DDE2E7" stroke-width="0.6" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd" x="259.3" y="120.3" width="184.4" height="29.4" rx="3"></rect>
                 </g>
-                <text id="Sign-in-with-Google" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
+                <text id="Sign-in-with-Google" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="normal" line-spacing="16" fill="#66737B">
                     <tspan x="267" y="139">Sign in with Google</tspan>
                 </text>
-                <text id="Forgot?" font-family="InterUI-Regular, Inter UI, Arial, Helvetica, sans-serif" font-size="7" font-weight="normal" line-spacing="16" fill="#66737B" text-decoration="underline">
+                <text id="Forgot?" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="7" font-weight="normal" line-spacing="16" fill="#66737B" text-decoration="underline">
                     <tspan x="389" y="308">Forgot?</tspan>
                 </text>
                 <g id="Group-10" opacity="0.300000012" transform="translate(425.000000, 269.000000)" stroke="#66737B" stroke-width="1.3">
@@ -82,7 +82,7 @@
                     <line x1="4.09804406" y1="8.33333333" x2="6.14519619" y2="8.33333333" id="Path-25" stroke-linecap="round" stroke-linejoin="round"></line>
                     <path d="M2.5,4.16666667 L2.5,5.46670017 L2.5,2.5 C2.5,1.11928813 3.61928813,-3.55271368e-14 5,-3.55271368e-14 C6.38071187,-3.55271368e-14 7.5,1.11928813 7.5,2.5 L7.5,4.16666667 L7.5,5.46670017" id="Path"></path>
                 </g>
-                <text id="Sign-In" font-family="InterUI-Bold, Inter UI" font-size="10" font-weight="bold" line-spacing="16" fill="#FFFFFF">
+                <text id="Sign-In" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="10" font-weight="bold" line-spacing="16" fill="#FFFFFF">
                     <tspan x="335.482599" y="345">Sign In</tspan>
                 </text>
                 <path d="M146.468111,126 C157.027833,141 175.538463,149 202,150" id="Path-11" stroke="#3C474E" stroke-width="1.5" stroke-linecap="round"></path>
@@ -187,7 +187,7 @@
                         <path d="M20.0087981,5.04414465 C25.1760965,5.04414465 29.6874719,7.85248413 32.0999005,12.026139 C31.2339345,11.8578433 30.3396117,11.7698084 29.4247273,11.7698084 C21.7171782,11.7698084 15.4689751,18.0180115 15.4689751,25.7255606 C15.4689751,28.2658114 16.1476718,30.6475441 17.3336249,32.6993184 C10.906356,31.4522247 6.05304592,25.7928365 6.05304592,18.9998969 C6.05304592,11.2923477 12.301249,5.04414465 20.0087981,5.04414465 Z" id="Combined-Shape-Copy-2" fill="#003165" opacity="0.300000012" transform="translate(19.076473, 18.871732) scale(-1, 1) rotate(-127.000000) translate(-19.076473, -18.871732) "></path>
                         <path d="M19.4894371,14.3172783 C17.7833159,15.9150653 16.5098675,17.7503448 15.6690917,19.8231169 C18.0335321,20.7029422 20.5355506,20.7865256 23.1751472,20.0738671 C22.8086147,19.0181614 22.3171177,18.0088933 21.7006564,17.0460627 C21.084195,16.0832321 20.3471219,15.1736373 19.4894371,14.3172783 Z" id="Path-42" fill="#FFFFFF"></path>
                     </g>
-                    <text id="Your-Company" font-family="InterUI-Bold, Inter UI" font-size="12" font-weight="bold" fill="#3C474E">
+                    <text id="Your-Company" font-family="Inter, Inter UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#3C474E">
                         <tspan x="0.0738636364" y="46">Your Company</tspan>
                     </text>
                 </g>
