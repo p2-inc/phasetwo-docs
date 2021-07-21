@@ -41,7 +41,7 @@ const features = [
 
 var ReactRotatingText = require('react-rotating-text');
 
-const rotatingFeats = ['Authorization', 'Authentication', 'Role-based Access Control', 'SAML SSO', 'OpenID SSO', 'Active Directory SSO', 'OAuth Connections', 'User Federation', 'Permissions', 'Organizations', 'Teams', 'Invitations', 'Audit Logs']
+const rotatingFeats = ['Authentication', 'Authorization', 'Role-based Access Control', 'SAML SSO', 'OpenID SSO', 'Active Directory SSO', 'OAuth Connections', 'User Federation', 'Permissions', 'Organizations', 'Teams', 'Invitations', 'Audit Logs']
 
 function Feature({imageUrl, title, description}) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -59,19 +59,10 @@ function Feature({imageUrl, title, description}) {
 }
 
 function requestAccess() {
-  const email = document.getElementById("email").value;
-  //todo validate email
-  if (email) {
-    window.open(
-      `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=pp_url&entry.2001081113=${email}`,
-      '_blank'
-    );
-  } else {
-    window.open(
-      `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link`,
-      '_blank'
-    );
-  }
+  window.open(
+    `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link`,
+    '_blank'
+  );
 }
 
 function applyStartup() {
@@ -128,7 +119,7 @@ function Home() {
               </h1>
               <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
               <div className={styles.heroCta}>
-                <button className={styles.btnPrimary}>Get started</button>
+                <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
               </div>
             </div>
 
