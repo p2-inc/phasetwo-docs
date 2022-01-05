@@ -4,8 +4,9 @@ module.exports = {
   url: 'https://p2-inc.github.io',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
-  organizationName: 'p2-inc', // Usually your GitHub org/user name.
-  projectName: 'p2-inc.github.io', // Usually your repo name.
+  organizationName: 'p2-inc',
+  projectName: 'p2-inc.github.io',
+  deploymentBranch: 'master',
   themeConfig: {
     navbar: {
       title: '',
