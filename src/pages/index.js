@@ -249,7 +249,7 @@ function Home() {
                   <div className={styles.featInner}>
                     <img className={styles.featPicto} src="img/feat-extensions.svg" alt="Phase Two are Open Source extensions"></img>
                     <h3>A collection of extensions</h3>
-                    <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our extensions will always be open source.</p>
+                    <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our core extensions will always be open source.</p>
                   </div>
                 </div>
               </div>
@@ -349,8 +349,8 @@ function Home() {
                     <div className={styles.planInner}>
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/custom.svg" alt="Tree in pickup pictogram"></img>
-                        <h5>Custom</h5>
-                        <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}>from</span> $1,999</span>/month</p>
+                        <h5>On-prem license</h5>
+                        <p className={styles.planPrice}><span className={styles.large}><span className={styles.small}></span>$999</span>/year/customer</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -360,19 +360,11 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Dedicated support
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Custom theme
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Custom extensions
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             On-premise deployment
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Replicated.com compatible
                           </li>
                         </ul>
                       </div>
@@ -385,9 +377,6 @@ function Home() {
   
                 <p className={styles.plansNote}>✻ Available to startups with &lt;$5m in funding and &lt;25 employees</p>
 
-                <div  className={styles.plansAffiliate}>
-                  <p>Integrating Phase Two for another company? Premium and Custom plans are available through our <a target="_blank" href="/docs/affiliate">affiliate program</a>. Make ongoing revenue for your software development agency.</p>
-                </div>
               </div>
 
             </div>

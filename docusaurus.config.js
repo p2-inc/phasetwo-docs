@@ -37,6 +37,11 @@ module.exports = {
           position: 'left',
         },
         {
+          to: 'api/',
+          label: 'API',
+          position: 'left',
+        },
+        {
           href: 'https://app.phasetwo.io/auth/admin/master/console',
           label: 'Dashboard',
           position: 'right',
@@ -76,6 +81,17 @@ module.exports = {
     },
   },
   presets: [
+    [
+      'redocusaurus',
+      {
+        specs: [
+          {
+            routePath: "/api/",
+            spec: 'openapi.yaml',
+          },
+        ],
+      },
+    ],
     [
       '@docusaurus/preset-classic',
       {

@@ -1,0 +1,642 @@
+openapi: 3.0.2
+info:
+  title: Phase Two Admin REST API
+  description: This is a REST API reference for the Phase Two Keycloak custom resources
+  version: 'v1'
+components:
+  securitySchemes:
+    access_token:
+      type: http
+      scheme: bearer
+      bearerFormat: ""
+  schemas:
+    IdentityProviderRepresentation:
+      type: object
+      properties:
+        addReadTokenRoleOnCreate:
+          type: boolean
+        alias:
+          type: string
+        config:
+          type: object
+          additionalProperties: true
+        displayName:
+          type: string
+        enabled:
+          type: boolean
+        firstBrokerLoginFlowAlias:
+          type: string
+        internalId:
+          type: string
+        linkOnly:
+          type: boolean
+        postBrokerLoginFlowAlias:
+          type: string
+        providerId:
+          type: string
+        storeToken:
+          type: boolean
+        trustEmail:
+          type: boolean
+    IdentityProviderMapperRepresentation:
+      type: object
+      properties:
+        config:
+          type: object
+          additionalProperties: true
+        id:
+          type: string
+        identityProviderAlias:
+          type: string
+        identityProviderMapper:
+          type: string
+        name:
+          type: string
+    OrganizationRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        domain:
+          type: string
+        url:
+          type: string
+        realmId:
+          type: string
+        attributes:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    PortalLinkRepresentation:
+      type: object
+      properties:
+        user:
+          type: string
+        link:
+          type: string
+        redirect:
+          type: string
+security:
+  - access_token: []
+externalDocs:
+  description: Public documentation
+  url: https://phasetwo.io/docs
+paths:
+  # identity provider resources
+  /{realm}/orgs/{orgId}/identity-provider/import-config:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Identity Providers
+      summary: Import identity provider from uploaded JSON file
+      responses:
+        2XX:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /{realm}/orgs/{orgId}/identity-provider:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Identity Providers
+      summary: Get identity providers for this organization
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      tags:
+        - Identity Providers
+      summary: Create a new identity provider for this organization
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityProviderRepresentation'
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}/identity-provider/{alias}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: alias
+        description: Identity Provider alias
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Identity Providers
+      summary: Get identity provider for this organization by alias
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderRepresentation'
+    put:
+      tags:
+        - Identity Providers
+      summary: Update identity provider for this organization by alias
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityProviderRepresentation'
+        required: true
+      responses:
+        200:
+          description: success
+    delete:
+      tags:
+        - Identity Providers
+      summary: Delete the identity provider
+      responses:
+        204:
+          description: success
+  # identity provider mapper resources
+  /{realm}/orgs/{orgId}/identity-provider/{alias}/mappers:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: alias
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Identity Providers
+      summary: Get mappers for identity provider
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      tags:
+        - Identity Providers
+      summary: Add a mapper to identity provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityProviderMapperRepresentation'
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}identity-provider/{alias}/mappers/{id}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: alias
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: id
+        description: Mapper id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Identity Providers
+      summary: Get mapper by id for the identity provider
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityProviderMapperRepresentation'
+    put:
+      tags:
+        - Identity Providers
+      summary: Update a mapper for the identity provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentityProviderMapperRepresentation'
+        required: true
+      responses:
+        200:
+          description: success
+    delete:
+      tags:
+        - Identity Providers
+      summary: Delete a mapper for the identity provider
+      responses:
+        204:
+          description: success
+  # organization resources
+  /{realm}/orgs:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organizations
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      tags:
+        - Organizations
+      summary: Create a new organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRepresentation'
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organization by id
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRepresentation'
+    put:
+      tags:
+        - Organizations
+      summary: Update this organization by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRepresentation'
+        required: true
+      responses:
+        200:
+          description: success
+    delete:
+      tags:
+        - Organizations
+      summary: Delete the organization
+      responses:
+        204:
+          description: success
+  /{realm}/orgs/{orgId}/portal-link:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organizations
+      summary: Create a link for the organization's admin portal
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalLinkRepresentation'
+  # organization membership resources
+  /{realm}/orgs/{orgId}/members:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organization memberships
+      parameters:
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+  /{realm}/orgs/{orgId}/members/{userId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: userId
+        description: user id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Check if a user is a member of an organization
+      responses:
+        204:
+          description: success
+    put:
+      tags:
+        - Organizations
+      summary: Add an organization member
+      responses:
+        201:
+          description: success
+    delete:
+      tags:
+        - Organizations
+      summary: Remove an organization member
+      responses:
+        204:
+          description: success
+  # organization invitation resources
+  /{realm}/orgs/{orgId}/invitations:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organizations
+      summary: Create an invitation to an organization
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+          style: form
+          required: true
+      responses:
+        201:
+          description: success
+    get:
+      tags:
+        - Organizations
+      summary: Get organization memberships
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+  /{realm}/orgs/{orgId}/invitations/{invitationId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: invitationId
+        description: invitation id
+        required: true
+        schema:
+          type: string
+        style: simple
+    delete:
+      tags:
+        - Organizations
+      summary: Remove a pending invitation
+      responses:
+        204:
+          description: success
