@@ -72,6 +72,13 @@ components:
           items:
             type: object
             additionalProperties: true
+    OrganizationRoleRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
     PortalLinkRepresentation:
       type: object
       properties:
@@ -81,12 +88,553 @@ components:
           type: string
         redirect:
           type: string
+    InvitationRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        inviterId:
+          type: string
+        invitationUrl:
+          type: string
+        organizationId:
+          type: string
+    UserRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+        createdTimestamp:
+          type: integer
+          format: int64
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        enabled:
+          type: boolean
+        firstName:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string          
+    EventRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+        id:
+          type: string
 security:
   - access_token: []
 externalDocs:
   description: Public documentation
   url: https://phasetwo.io/docs
 paths:
+  # organization resources
+  /{realm}/orgs:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organizations
+      description: Get a paginated list of organizations using an optional search query.
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationRepresentation'
+    post:
+      tags:
+        - Organizations
+      summary: Create a new organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRepresentation'
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organization by id
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRepresentation'
+    put:
+      tags:
+        - Organizations
+      summary: Update this organization by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRepresentation'
+        required: true
+      responses:
+        200:
+          description: success
+    delete:
+      tags:
+        - Organizations
+      summary: Delete the organization
+      responses:
+        204:
+          description: success
+  /{realm}/orgs/{orgId}/portal-link:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organizations
+      summary: Create a link for the organization's admin 
+      description: Create a link for this organizations admin portal. This link encodes an action token on behalf of the organization's default admin user, or the user that is optionally specified in this request.
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalLinkRepresentation'
+  # organization membership resources
+  /{realm}/orgs/{orgId}/members:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Memberships
+      summary: Get organization memberships
+      description: Get a paginated list of users who are a member of the specified organization. 
+      parameters:
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRepresentation'
+                  additionalProperties: true
+  /{realm}/orgs/{orgId}/members/{userId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: userId
+        description: user id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Memberships
+      summary: Check if a user is a member of an organization
+      responses:
+        204:
+          description: success
+    put:
+      tags:
+        - Organization Memberships
+      summary: Add an organization member
+      description: Add the specified user to the specified organization as a member
+      responses:
+        201:
+          description: success
+    delete:
+      tags:
+        - Organization Memberships
+      summary: Remove an organization member
+      description: Remove the specified user from the specified organization as a member
+      responses:
+        204:
+          description: success
+  # organization invitation resources
+  /{realm}/orgs/{orgId}/invitations:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organization Invitations
+      summary: Create an invitation to an organization
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+          style: form
+          required: true
+      responses:
+        201:
+          description: success
+    get:
+      tags:
+        - Organization Invitations
+      summary: Get organization invitations
+      description: Get a paginated list of invitations to an organization, using an optional search query for email address.
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvitationRepresentation'
+                  additionalProperties: true
+  /{realm}/orgs/{orgId}/invitations/{invitationId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: invitationId
+        description: invitation id
+        required: true
+        schema:
+          type: string
+        style: simple
+    delete:
+      tags:
+        - Organization Invitations
+      summary: Remove a pending invitation
+      responses:
+        204:
+          description: success
+  /{realm}/orgs/{orgId}/roles:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Roles
+      summary: Get roles for this organization
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationRoleRepresentation'
+    post:
+      tags:
+        - Organization Roles
+      summary: Create a new role for this organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRoleRepresentation'
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}/roles/{name}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: name
+        description: organization role name
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Roles
+      summary: Get role for this organization by name
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRoleRepresentation'
+    delete:
+      tags:
+        - Organization Roles
+      summary: Delete this organization role
+      responses:
+        204:
+          description: success
+  /{realm}/orgs/{orgId}/roles/{name}/users:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: name
+        description: organization role name
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Roles
+      summary: Get users with this organization role
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRepresentation'
+  /{realm}/orgs/{orgId}/roles/{name}/users/{userId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: name
+        description: organization role name
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: userId
+        description: user id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Roles
+      summary: Check if a user has an organization role
+      responses:
+        204:
+          description: success
+    put:
+      tags:
+        - Organization Roles
+      summary: Grant a user an organization role
+      description: Grant the specified user to the specified organization role
+      responses:
+        201:
+          description: success
+    delete:
+      tags:
+        - Organization Roles
+      summary: Revoke an organization role from a user
+      description: Revoke the specified organization role from the specified user
+      responses:
+        204:
+          description: success
   # identity provider resources
   /{realm}/orgs/{orgId}/identity-provider/import-config:
     parameters:
@@ -144,7 +692,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
+                  $ref: '#/components/schemas/IdentityProviderRepresentation'
                   additionalProperties: true
     post:
       tags:
@@ -249,7 +797,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
+                  $ref: '#/components/schemas/IdentityProviderMapperRepresentation'
                   additionalProperties: true
     post:
       tags:
@@ -324,197 +872,11 @@ paths:
       responses:
         204:
           description: success
-  # organization resources
-  /{realm}/orgs:
+  /{realm}/users/{userId}/orgs:
     parameters:
       - in: path
         name: realm
         description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-    get:
-      tags:
-        - Organizations
-      summary: Get organizations
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          style: form
-        - in: query
-          name: first
-          schema:
-            type: integer
-            format: int32
-          style: form
-        - in: query
-          name: max
-          schema:
-            type: integer
-            format: int32
-          style: form
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  additionalProperties: true
-    post:
-      tags:
-        - Organizations
-      summary: Create a new organization
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationRepresentation'
-        required: true
-      responses:
-        201:
-          description: success
-  /{realm}/orgs/{orgId}:
-    parameters:
-      - in: path
-        name: realm
-        description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: orgId
-        description: organization id
-        required: true
-        schema:
-          type: string
-        style: simple
-    get:
-      tags:
-        - Organizations
-      summary: Get organization by id
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrganizationRepresentation'
-    put:
-      tags:
-        - Organizations
-      summary: Update this organization by id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationRepresentation'
-        required: true
-      responses:
-        200:
-          description: success
-    delete:
-      tags:
-        - Organizations
-      summary: Delete the organization
-      responses:
-        204:
-          description: success
-  /{realm}/orgs/{orgId}/portal-link:
-    parameters:
-      - in: path
-        name: realm
-        description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: orgId
-        description: organization id
-        required: true
-        schema:
-          type: string
-        style: simple
-    post:
-      tags:
-        - Organizations
-      summary: Create a link for the organization's admin portal
-      parameters:
-        - in: query
-          name: userId
-          schema:
-            type: string
-          style: form
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PortalLinkRepresentation'
-  # organization membership resources
-  /{realm}/orgs/{orgId}/members:
-    parameters:
-      - in: path
-        name: realm
-        description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: orgId
-        description: organization id
-        required: true
-        schema:
-          type: string
-        style: simple
-    get:
-      tags:
-        - Organizations
-      summary: Get organization memberships
-      parameters:
-        - in: query
-          name: first
-          schema:
-            type: integer
-            format: int32
-          style: form
-        - in: query
-          name: max
-          schema:
-            type: integer
-            format: int32
-          style: form
-      responses:
-        200:
-          description: success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  additionalProperties: true
-  /{realm}/orgs/{orgId}/members/{userId}:
-    parameters:
-      - in: path
-        name: realm
-        description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: orgId
-        description: organization id
         required: true
         schema:
           type: string
@@ -528,78 +890,8 @@ paths:
         style: simple
     get:
       tags:
-        - Organizations
-      summary: Check if a user is a member of an organization
-      responses:
-        204:
-          description: success
-    put:
-      tags:
-        - Organizations
-      summary: Add an organization member
-      responses:
-        201:
-          description: success
-    delete:
-      tags:
-        - Organizations
-      summary: Remove an organization member
-      responses:
-        204:
-          description: success
-  # organization invitation resources
-  /{realm}/orgs/{orgId}/invitations:
-    parameters:
-      - in: path
-        name: realm
-        description: realm name (not id!)
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: orgId
-        description: organization id
-        required: true
-        schema:
-          type: string
-        style: simple
-    post:
-      tags:
-        - Organizations
-      summary: Create an invitation to an organization
-      parameters:
-        - in: query
-          name: email
-          schema:
-            type: string
-          style: form
-          required: true
-      responses:
-        201:
-          description: success
-    get:
-      tags:
-        - Organizations
-      summary: Get organization memberships
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          style: form
-        - in: query
-          name: first
-          schema:
-            type: integer
-            format: int32
-          style: form
-        - in: query
-          name: max
-          schema:
-            type: integer
-            format: int32
-          style: form
+        - Users
+      summary: List organizations for the given user
       responses:
         200:
           description: success
@@ -608,9 +900,8 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  additionalProperties: true
-  /{realm}/orgs/{orgId}/invitations/{invitationId}:
+                  $ref: '#/components/schemas/OrganizationRepresentation'
+  /{realm}/events:
     parameters:
       - in: path
         name: realm
@@ -619,24 +910,23 @@ paths:
         schema:
           type: string
         style: simple
-      - in: path
-        name: orgId
-        description: organization id
-        required: true
-        schema:
-          type: string
-        style: simple
-      - in: path
-        name: invitationId
-        description: invitation id
-        required: true
-        schema:
-          type: string
-        style: simple
-    delete:
+    post:
       tags:
-        - Organizations
-      summary: Remove a pending invitation
+        - Events
+      summary: Create a new audit log event
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRepresentation'
+        required: true
       responses:
-        204:
-          description: success
+        202:
+          description: Event received
+        400:
+          description: Malformed event
+        403:
+          description: Rate limit exceeded
+        409:
+          description: Reserved event type

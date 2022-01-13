@@ -12,13 +12,13 @@
     "@docusaurus/core": "^2.0.0-beta.14",
     "@docusaurus/preset-classic": "^2.0.0-beta.14",
     "@docusaurus/theme-live-codeblock": "^2.0.0-beta.14",
+    "docusaurus-preset-openapi": "0.4.0",
     "classnames": "^2.2.6",
     "keycloak-js": "^9.0.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-responsive-carousel": "^3.2.8",
-    "react-rotating-text": "^1.4.1",
-    "redocusaurus": "^0.5.0"
+    "react-rotating-text": "^1.4.1"
   },
   "browserslist": {
     "production": [

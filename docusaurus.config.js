@@ -82,27 +82,17 @@ module.exports = {
   },
   presets: [
     [
-      'redocusaurus',
+      "docusaurus-preset-openapi",
+      /** @type {import('docusaurus-preset-openapi').Options} */
       {
-        specs: [
-          {
-            routePath: "/api/",
-            spec: 'openapi.yaml',
-          },
-        ],
-      },
-    ],
-    [
-      '@docusaurus/preset-classic',
-      {
-        docs: {
+	docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
-            'https://github.com/p2-inc/phasetwo-docs/tree/master',
-        },
-        theme: {
+          'https://github.com/p2-inc/phasetwo-docs/tree/master',
+	},
+	theme: {
           customCss: require.resolve('./src/css/custom.css'),
-        },
+	},
       },
     ],
   ],
