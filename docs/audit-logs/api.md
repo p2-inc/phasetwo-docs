@@ -1,6 +1,6 @@
 ---
 id: api
-title: API
+title: Audit Log API
 ---
 
 Customers can use the existing audit logging mechanism to include their own application's events. There is a single API method that will consume events in the representation below and make them available for searching, filtering and exporting.

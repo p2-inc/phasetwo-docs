@@ -1,6 +1,6 @@
 ---
 id: api
-title: API
+title: User Migration API
 ---
 
 ## Prerequisites
