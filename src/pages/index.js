@@ -41,7 +41,7 @@ const features = [
 
 var ReactRotatingText = require('react-rotating-text');
 
-const rotatingFeats = ['Authentication', 'Authorization', 'Role-based Access Control', 'SAML SSO', 'OpenID SSO', 'Active Directory SSO', 'OAuth Connections', 'User Federation', 'Permissions', 'Organizations', 'Teams', 'Invitations', 'Audit Logs']
+const rotatingFeats = ['Authentication', 'Authorization', 'SSO', 'Organizations', 'Invitations', 'Audit Logs']
 
 function Feature({imageUrl, title, description}) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -110,9 +110,10 @@ function Home() {
                 {' '}
                 <ReactRotatingText
                   items={rotatingFeats}
-                  emptyPause={250}
-                  pause={2000}
-                  typingInterval={34}
+                  emptyPause={100}
+                  pause={1500}
+                  typingInterval={25}
+                  deletingInterval={20}
                 />
                 {' '}<br/>
                 so you can focus on <br/>your app.

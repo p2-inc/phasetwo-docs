@@ -8,6 +8,14 @@ module.exports = {
   projectName: 'p2-inc.github.io',
   deploymentBranch: 'master',
   themeConfig: {
+    announcementBar: {
+      id: 'connect',
+      content:
+        'Introducing <a href="/docs/connect">Phase Two Connect</a> for on-prem SSO onboarding.',
+      backgroundColor: 'var(--ifm-color-primary)',
+      textColor: '#fff',
+      isCloseable: true,
+    },
     navbar: {
       title: '',
       logo: {
@@ -75,10 +83,7 @@ module.exports = {
       // "light" | "dark"
       defaultMode: 'light',
       disableSwitch: true,
-    },
-    googleAnalytics: {
-      trackingID: 'UA-160183620-1',
-    },
+    }
   },
   presets: [
     [
@@ -92,6 +97,9 @@ module.exports = {
 	},
 	theme: {
           customCss: require.resolve('./src/css/custom.css'),
+	},
+	googleAnalytics: {
+	  trackingID: 'UA-160183620-1',
 	},
       },
     ],
