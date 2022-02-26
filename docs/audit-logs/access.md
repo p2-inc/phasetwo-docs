@@ -33,7 +33,7 @@ The following is an example of the detail contained in an `access.LOGIN` event:
 }
 ```
 
-Field definitions can be viewed in the [API documentation](audit-api).
+Field definitions can be viewed in the [API documentation](api).
 
 ## Event types
 
