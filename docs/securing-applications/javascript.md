@@ -3,11 +3,9 @@ id: javascript
 title: Javascript
 ---
 
-### Single-page apps
-
 Most modern applications are being built as single-page apps. The easiest way to secure these is with the Javascript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at https://app.phasetwo.io/auth/js/keycloak.js
 
-#### Example
+### Example
 
 You must replace the `<corp-realm>` value with the account name.
 

@@ -90,7 +90,10 @@ module.exports = {
       "docusaurus-preset-openapi",
       /** @type {import('docusaurus-preset-openapi').Options} */
       {
-	docs: {
+        api: {
+          path: "openapi.json"
+        },
+        docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl:
           'https://github.com/p2-inc/phasetwo-docs/tree/master',

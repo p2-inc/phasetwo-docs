@@ -10,6 +10,8 @@ Phase Two is an implementation of the [OpenID Connect](https://openid.net/connec
 
 Confused? We will also use this category as a place to provide language and framework specific guides to make securing your applications easier.
 
+### Guides
+
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';
 import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
@@ -17,4 +19,21 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 <DocCardList items={useCurrentSidebarCategory().items}/>
 ```
 
-
+### Libraries
+Also, here is an unofficial list of OpenID Connect libraries we've heard good things about. 
+- JavaScript (client-side)
+  - [JavaScript](https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter)
+- Node.js (server-side)
+  - [Node.js](https://www.keycloak.org/docs/latest/securing_apps/#_nodejs_adapter)
+- Python
+  - [oidc](https://pypi.org/project/oic/)
+- Go
+  - [gocloak](https://github.com/Nerzal/gocloak)
+- Android
+  - [AppAuth](https://github.com/openid/AppAuth-Android)
+- iOS
+  - [AppAuth](https://github.com/openid/AppAuth-iOS)
+- PHP
+  - [oauth2-keycloak](https://github.com/stevenmaguire/oauth2-keycloak)
+- C#
+  - [OWIN](https://github.com/dylanplecki/KeycloakOwinAuthentication)
