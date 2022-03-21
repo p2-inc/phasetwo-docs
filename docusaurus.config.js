@@ -91,7 +91,7 @@ module.exports = {
       /** @type {import('docusaurus-preset-openapi').Options} */
       {
         api: {
-          path: "openapi.json"
+          path: "openapi.yaml"
         },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),

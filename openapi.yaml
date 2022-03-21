@@ -1,8 +1,59 @@
 openapi: 3.0.2
 info:
   title: Phase Two Admin REST API
-  description: This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authetication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n
+  description: |
+    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).
+    
+    ### Base URI format
+    Paths specified in the documentation are relative to the the base URI.
+    - Format: `https://<host>:<port>/auth/realms`
+    - Example: `https://app.phasetwo.io/auth/realms`
+    
+    ### Authentication
+    Authentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.
+    
+    It is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authetication, getting an access token, and refreshing it when it expires.
+    
+    #### Client credentials grant example
+    ```
+    POST /auth/realms/test-realm/protocol/openid-connect/token
+    Host: app.phasetwo.io
+    Accept: application/json
+    Content-type: application/x-www-form-urlencoded
+    
+    grant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1
+    ```
+    
+    #### Password grant example
+    ```
+    POST /auth/realms/test-realm/protocol/openid-connect/token
+    Host: app.phasetwo.io
+    Accept: application/json
+    Content-type: application/x-www-form-urlencoded
+    
+    grant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli
+    ```
   version: 'v1'
+servers:
+  - url: '{protocol}://{host}{port}/auth/realms'
+    variables:
+      host:
+        enum:
+          - app.phasetwo.io
+          - localhost
+        default: app.phasetwo.io
+        description: API host
+      port:
+        enum:
+          - ''
+          - '8081'
+        default: ''
+        description: API port
+      protocol:
+        enum:
+          - http
+          - https
+        default: https
 components:
   securitySchemes:
     access_token:
@@ -88,6 +139,13 @@ components:
           type: string
         redirect:
           type: string
+    InvitationRequestRepresentation:
+      type: object
+      properties:
+        email:
+          type: string
+        inviterId:
+          type: string
     InvitationRepresentation:
       type: object
       properties:
@@ -96,8 +154,6 @@ components:
         email:
           type: string
         inviterId:
-          type: string
-        invitationUrl:
           type: string
         organizationId:
           type: string
@@ -235,7 +291,7 @@ paths:
               $ref: '#/components/schemas/OrganizationRepresentation'
         required: true
       responses:
-        200:
+        204:
           description: success
     delete:
       tags:
@@ -390,13 +446,12 @@ paths:
       tags:
         - Organization Invitations
       summary: Create an invitation to an organization
-      parameters:
-        - in: query
-          name: email
-          schema:
-            type: string
-          style: form
-          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationRequestRepresentation'
+        required: true
       responses:
         201:
           description: success
@@ -636,7 +691,7 @@ paths:
         204:
           description: success
   # identity provider resources
-  /{realm}/orgs/{orgId}/identity-provider/import-config:
+  /{realm}/orgs/{orgId}/idps/import-config:
     parameters:
       - in: path
         name: realm
@@ -664,7 +719,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-  /{realm}/orgs/{orgId}/identity-provider:
+  /{realm}/orgs/{orgId}/idps:
     parameters:
       - in: path
         name: realm
@@ -708,7 +763,7 @@ paths:
       responses:
         201:
           description: success
-  /{realm}/orgs/{orgId}/identity-provider/{alias}:
+  /{realm}/orgs/{orgId}/idps/{alias}:
     parameters:
       - in: path
         name: realm
@@ -763,7 +818,7 @@ paths:
         204:
           description: success
   # identity provider mapper resources
-  /{realm}/orgs/{orgId}/identity-provider/{alias}/mappers:
+  /{realm}/orgs/{orgId}/idps/{alias}/mappers:
     parameters:
       - in: path
         name: realm
@@ -812,7 +867,7 @@ paths:
       responses:
         201:
           description: success
-  /{realm}/orgs/{orgId}identity-provider/{alias}/mappers/{id}:
+  /{realm}/orgs/{orgId}/idps/{alias}/mappers/{id}:
     parameters:
       - in: path
         name: realm
