@@ -112,12 +112,14 @@ components:
           type: string
         displayName:
           type: string
-        domain:
-          type: string
         url:
           type: string
         realmId:
           type: string
+        domains:
+          type: array
+          items:
+            type: string
         attributes:
           type: array
           items:
