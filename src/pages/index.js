@@ -278,7 +278,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/sprout.svg" alt="Sprout pictogram"></img>
                         <h5>Early Stage Startup <sup>✻</sup></h5>
-                        <p className={styles.badgeSuccess}>Free for 6 months</p>
+                        <p className={styles.badgeSuccess}>Free for 12 months</p>
                         <p className={styles.planPrice}><span className={styles.large}>$199</span>/month<br/>
                         after that for 1 year</p>
                       </div>
@@ -290,7 +290,11 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            &#60;1000 users
+                            &#60;10,000 users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            &#60;10 SSO connections
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -322,6 +326,10 @@ function Home() {
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Unlimited users
+                          </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Unlimited SSO connections
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
