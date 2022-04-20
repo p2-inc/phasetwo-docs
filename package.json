@@ -6,7 +6,8 @@
     "start": "docusaurus start",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy"
+    "deploy": "docusaurus deploy",
+    "serve": "docusaurus serve"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.14",
@@ -23,7 +24,7 @@
   },
   "resolutions": {
     "@docusaurus/core": "2.0.0-beta.14",
-    "@docusaurus/plugin-google-analytics": "2.0.0-beta.14",    
+    "@docusaurus/plugin-google-analytics": "2.0.0-beta.14",
     "@docusaurus/preset-classic": "2.0.0-beta.14",
     "@docusaurus/mdx-loader": "2.0.0-beta.14",
     "@docusaurus/plugin-content-docs": "2.0.0-beta.14",
