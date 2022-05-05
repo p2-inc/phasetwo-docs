@@ -33,7 +33,7 @@
   --inner-width: 1400px;
   --inner-width-narrow: 1040px;
   --ifm-container-width: 1400px;
-  --openapi-code-dim-light: #aaaaaa !important;
+  --openapi-code-dim-light: #aaaaa1 !important;
 }
 
 html {
