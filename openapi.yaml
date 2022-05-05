@@ -114,7 +114,7 @@ components:
           type: string
         url:
           type: string
-        realmId:
+        realm:
           type: string
         domains:
           type: array
@@ -196,6 +196,25 @@ components:
           additionalProperties: true
         id:
           type: string
+    MagicLinkRepresentation:
+      type: object
+      properties:
+        email:
+          type: string
+        client_id:
+          type: string
+        redirect_uri:
+          type: string
+        expiration_seconds:
+          type: integer
+        force_create:
+          type: boolean
+        send_email:
+          type: boolean
+      required:
+        - email
+        - client_id
+        - redirect_uri
 security:
   - access_token: []
 externalDocs:
@@ -991,3 +1010,30 @@ paths:
           description: Rate limit exceeded
         409:
           description: Reserved event type
+  /{realm}/magic-link:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Users
+      summary: Create a magic link to log in a user
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MagicLinkRepresentation'
+        required: true
+      responses:
+        200:
+          description: Magic Link created
+        400:
+          description: Malformed request
+        404:
+          description: User or Client not found

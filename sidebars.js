@@ -42,7 +42,8 @@ module.exports = {
       label: 'SSO',
       link: {type: 'doc', id: 'sso/index'},
       items: [
-        'sso/sso-without-auth'
+        'sso/sso-without-auth',
+        'sso/magic-link'
       ],
     },
     {

@@ -12,6 +12,7 @@ The core extensions to Keycloak that Phase Two is built on will always be open s
 | Events | :white_check_mark: | https://github.com/p2-inc/keycloak-events | All event listener implementations. |
 | User Migration | :white_check_mark: | https://github.com/p2-inc/keycloak-user-migration | User migration storage provider and API client. |
 | Organizations | :white_check_mark: | https://github.com/p2-inc/keycloak-orgs | Organizations multi-tenant entities, resources and APIs. |
+| Magic Link | :white_check_mark: | https://github.com/p2-inc/keycloak-magic-link | Magic Link Authentication. Created with an Authenticator or Resource. |
 | Login Theme | *Spring 2022* | | Customizable login theme. |
 | Admin UI | *Summer 2022* | | Admin UI customizations. |
 
