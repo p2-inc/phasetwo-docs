@@ -236,6 +236,7 @@ paths:
         - Organizations
       summary: Get organizations
       description: Get a paginated list of organizations using an optional search query.
+      operationId: getOrganizations
       parameters:
         - in: query
           name: search
@@ -267,6 +268,7 @@ paths:
       tags:
         - Organizations
       summary: Create a new organization
+      operationId: createOrganization
       requestBody:
         content:
           application/json:
@@ -296,6 +298,7 @@ paths:
       tags:
         - Organizations
       summary: Get organization by id
+      operationId: getOrganizationById
       responses:
         200:
           description: success
@@ -307,6 +310,7 @@ paths:
       tags:
         - Organizations
       summary: Update this organization by id
+      operationId: updateOrganization
       requestBody:
         content:
           application/json:
@@ -320,6 +324,7 @@ paths:
       tags:
         - Organizations
       summary: Delete the organization
+      operationId: deleteOrganization
       responses:
         204:
           description: success
@@ -343,6 +348,7 @@ paths:
       tags:
         - Organizations
       summary: Create a link for the organization's admin portal
+      operationId: createPortalLink
       description: Create a link for this organizations admin portal. This link encodes an action token on behalf of the organization's default admin user, or the user that is optionally specified in this request. The user specified must be a member of this organization, and have full organization admin roles.
       requestBody:
         content:
@@ -380,6 +386,7 @@ paths:
       tags:
         - Organization Memberships
       summary: Get organization memberships
+      operationId: getOrganizationMemberships
       description: Get a paginated list of users who are a member of the specified organization. 
       parameters:
         - in: query
@@ -431,6 +438,7 @@ paths:
       tags:
         - Organization Memberships
       summary: Check if a user is a member of an organization
+      operationId: checkOrganizationMembership
       responses:
         204:
           description: success
@@ -438,6 +446,7 @@ paths:
       tags:
         - Organization Memberships
       summary: Add an organization member
+      operationId: addOrganizationMember
       description: Add the specified user to the specified organization as a member
       responses:
         201:
@@ -446,6 +455,7 @@ paths:
       tags:
         - Organization Memberships
       summary: Remove an organization member
+      operationId: removeOrganizationMember
       description: Remove the specified user from the specified organization as a member
       responses:
         204:
@@ -471,6 +481,7 @@ paths:
       tags:
         - Organization Invitations
       summary: Create an invitation to an organization
+      operationId: addOrganizationInvitation
       requestBody:
         content:
           application/json:
@@ -484,6 +495,7 @@ paths:
       tags:
         - Organization Invitations
       summary: Get organization invitations
+      operationId: getOrganizationInvitations
       description: Get a paginated list of invitations to an organization, using an optional search query for email address.
       parameters:
         - in: query
@@ -540,6 +552,7 @@ paths:
       tags:
         - Organization Invitations
       summary: Remove a pending invitation
+      operationId: removeOrganizationInvitation
       responses:
         204:
           description: success
@@ -563,6 +576,7 @@ paths:
       tags:
         - Organization Roles
       summary: Get roles for this organization
+      operationId: getOrganizationRoles
       responses:
         200:
           description: success
@@ -576,6 +590,7 @@ paths:
       tags:
         - Organization Roles
       summary: Create a new role for this organization
+      operationId: createOrganizationRole
       requestBody:
         content:
           application/json:
@@ -612,6 +627,7 @@ paths:
       tags:
         - Organization Roles
       summary: Get role for this organization by name
+      operationId: getOrganizationRole
       responses:
         200:
           description: success
@@ -623,6 +639,7 @@ paths:
       tags:
         - Organization Roles
       summary: Delete this organization role
+      operationId: deleteOrganizationRoles
       responses:
         204:
           description: success
@@ -653,6 +670,7 @@ paths:
       tags:
         - Organization Roles
       summary: Get users with this organization role
+      operationId: getUserOrganizationRoles
       responses:
         200:
           description: success
@@ -696,6 +714,7 @@ paths:
       tags:
         - Organization Roles
       summary: Check if a user has an organization role
+      operationId: checkUserOrganizationRole
       responses:
         204:
           description: success
@@ -703,6 +722,7 @@ paths:
       tags:
         - Organization Roles
       summary: Grant a user an organization role
+      operationId: grantUserOrganizationRole
       description: Grant the specified user to the specified organization role
       responses:
         201:
@@ -711,6 +731,7 @@ paths:
       tags:
         - Organization Roles
       summary: Revoke an organization role from a user
+      operationId: revokeUserOrganizationRole
       description: Revoke the specified organization role from the specified user
       responses:
         204:
@@ -736,6 +757,7 @@ paths:
       tags:
         - Identity Providers
       summary: Import identity provider from uploaded JSON file
+      operationId: importIdpJson
       responses:
         2XX:
           description: success
@@ -764,6 +786,7 @@ paths:
       tags:
         - Identity Providers
       summary: Get identity providers for this organization
+      operationId: getIdps
       responses:
         200:
           description: success
@@ -778,6 +801,7 @@ paths:
       tags:
         - Identity Providers
       summary: Create a new identity provider for this organization
+      operationId: createIdp
       requestBody:
         description: JSON body
         content:
@@ -815,6 +839,7 @@ paths:
       tags:
         - Identity Providers
       summary: Get identity provider for this organization by alias
+      operationId: getIdp
       responses:
         200:
           description: success
@@ -826,6 +851,7 @@ paths:
       tags:
         - Identity Providers
       summary: Update identity provider for this organization by alias
+      operationId: updateIdp
       requestBody:
         content:
           application/json:
@@ -839,6 +865,7 @@ paths:
       tags:
         - Identity Providers
       summary: Delete the identity provider
+      operationId: deleteIdp
       responses:
         204:
           description: success
@@ -869,6 +896,7 @@ paths:
       tags:
         - Identity Providers
       summary: Get mappers for identity provider
+      operationId: getIdpMappers
       responses:
         200:
           description: success
@@ -883,6 +911,7 @@ paths:
       tags:
         - Identity Providers
       summary: Add a mapper to identity provider
+      operationId: addIdpMapper
       requestBody:
         content:
           application/json:
@@ -925,6 +954,7 @@ paths:
       tags:
         - Identity Providers
       summary: Get mapper by id for the identity provider
+      operationId: getIdpMapper
       responses:
         200:
           description: success
@@ -936,6 +966,7 @@ paths:
       tags:
         - Identity Providers
       summary: Update a mapper for the identity provider
+      operationId: updateIdpMapper
       requestBody:
         content:
           application/json:
@@ -949,6 +980,7 @@ paths:
       tags:
         - Identity Providers
       summary: Delete a mapper for the identity provider
+      operationId: deleteIdpMapper
       responses:
         204:
           description: success
@@ -994,6 +1026,7 @@ paths:
       tags:
         - Events
       summary: Create a new audit log event
+      operationId: createEvent
       requestBody:
         description: JSON body
         content:
@@ -1023,6 +1056,7 @@ paths:
       tags:
         - Users
       summary: Create a magic link to log in a user
+      operationId: createMagicLink
       requestBody:
         description: JSON body
         content:
