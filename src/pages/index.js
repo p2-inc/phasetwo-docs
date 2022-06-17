@@ -65,10 +65,9 @@ function requestAccess() {
   );
 }
 
-function applyStartup() {
+function contactSales() {
   window.open(
-    `https://docs.google.com/forms/d/e/1FAIpQLSfMDlnhjbdvtJ9nByjqyfLuPAN73m3bggz8hQV8JHUrWkdKJw/viewform?usp=sf_link`,
-    '_blank'
+    `mailto:support@phasetwo.io`,
   );
 }  
     
@@ -277,10 +276,8 @@ function Home() {
                     <div className={styles.planInner}>
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/sprout.svg" alt="Sprout pictogram"></img>
-                        <h5>Early Stage Startup <sup>✻</sup></h5>
-                        <p className={styles.badgeSuccess}>Free for 12 months</p>
-                        <p className={styles.planPrice}><span className={styles.large}>$199</span>/month<br/>
-                        after that for 1 year</p>
+                        <h5>Starter</h5>
+                        <p className={styles.planPrice}>always <span className={styles.large}>FREE</span><sup>*</sup><br/></p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -290,20 +287,20 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            &#60;10,000 users
+                            &#60;1,000 users
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            &#60;10 SSO connections
+                            &#60;3 SSO connections
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Email support
+                            Community support
                           </li>
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary} onClick={applyStartup}>Apply now</button>
+                        <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
                       </div>
                     </div>
                   </div>
@@ -315,7 +312,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}><span className={styles.large}>$499</span>/month</p>
+                        <p className={styles.planPrice}>from <span className={styles.large}>$499</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -333,11 +330,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            CSS theme
-                          </li>
-                          <li>
-                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            Custom domain
+                            Custom theme & domain
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
@@ -375,16 +368,20 @@ function Home() {
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
                             Replicated.com compatible
                           </li>
+                          <li>
+                            <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                            Dedicated support
+                          </li>
                         </ul>
                       </div>
                       <div className={styles.planFoot}>
-                        <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
+                        <button className={styles.btnPrimary} onClick={contactSales}>Contact Sales</button>
                       </div>
                     </div>
                   </div>
                 </div>
   
-                <p className={styles.plansNote}>✻ Available to startups with &lt;$5m in funding and &lt;25 employees</p>
+                <p className={styles.plansNote}>✻ Subject to terms of use and product availability</p>
 
               </div>
 
