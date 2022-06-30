@@ -1013,6 +1013,42 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OrganizationRepresentation'
+  /{realm}/users/{userId}/orgs/{orgId}/roles:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: userId
+        description: user id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Users
+      summary: List organization roles for the given user and org
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationRoleRepresentation'
   /{realm}/events:
     parameters:
       - in: path
