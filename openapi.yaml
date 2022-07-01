@@ -635,11 +635,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrganizationRoleRepresentation'
+    put:
+      tags:
+        - Organization Roles
+      summary: Update role for this organization
+      operationId: updateOrganizationRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRoleRepresentation'
+        required: true
+      responses:
+        204:
+          description: success
     delete:
       tags:
         - Organization Roles
       summary: Delete this organization role
-      operationId: deleteOrganizationRoles
+      operationId: deleteOrganizationRole
       responses:
         204:
           description: success
