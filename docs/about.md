@@ -19,4 +19,4 @@ While we were founded in Seattle, Washington, the Phase Two team is a remote, gl
 
 ## Contact
 
-Feel free to reach out with [Bugs & Feature Requests](https://github.com/p2-inc/phasetwo/issues), or [email us](support@phasetwo.io) with questions and comments. Prefer snail mail? You can reach us at [140 Lakeside Ave, Suite A49, Seattle, WA 98122](https://goo.gl/maps/69ypGd4U3Z8Tkirg7).
+Feel free to reach out with [Bugs & Feature Requests](https://github.com/p2-inc/phasetwo/issues), or [email us](mailto:support@phasetwo.io) with questions and comments. Prefer snail mail? You can reach us at [140 Lakeside Ave, Suite A49, Seattle, WA 98122](https://goo.gl/maps/69ypGd4U3Z8Tkirg7).
