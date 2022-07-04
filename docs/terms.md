@@ -3,7 +3,7 @@ id: terms
 title: Phase Two Terms and Conditions
 ---
 
-*Last updated: April 07, 2020*
+*Last updated: July 05, 2022*
 
 Please read these terms and conditions carefully before using Our Service.
 

@@ -1,10 +1,9 @@
 ---
 id: privacy
 title: Phase Two Privacy Policy
-#sidebar_label: Style Guide
 ---
 
-*Last updated: April 07, 2020*
+*Last updated: July 05, 2022*
 
 This Privacy Policy describes Our policies and procedures on the collection,
 use and disclosure of Your information when You use the Service and tells You
@@ -37,7 +36,7 @@ For the purposes of this Privacy Policy:
     Service.
 
   * **Company** (referred to as either "the Company", "We", "Us" or "Our" in this
-    Agreement) refers to Phase Two, Inc., P.O. Box 12540, Seattle, WA 98111.
+    Agreement) refers to Phase Two, Inc., 140 Lakeside Ave, Ste A49, Seattle, WA 98122.
 
     For the purpose of the GDPR, the Company is the Data Controller.
 

@@ -1,4 +1,5 @@
 module.exports = {
+  plugins: [require.resolve('./sitePlugin')],
   title: "Phase Two",
   tagline: "Tools for SaaS builders",
   url: "https://p2-inc.github.io",
@@ -8,14 +9,6 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
-    announcementBar: {
-      id: "connect",
-      content:
-        'Introducing <a href="/docs/connect">Phase Two Connect</a> for on-prem SSO onboarding.',
-      backgroundColor: "var(--ifm-color-primary)",
-      textColor: "#fff",
-      isCloseable: true,
-    },
     navbar: {
       title: "",
       logo: {
@@ -63,16 +56,63 @@ module.exports = {
           title: "Phase Two",
           items: [
             {
-              label: "Privacy policy",
-              to: "docs/privacy",
+              label: "About",
+              to: "docs/about",
             },
             {
-              label: "Terms of use",
-              to: "docs/terms",
+              label: "News",
+              to: "blog",
+            },
+            {
+              label: "Carrers",
+              to: "docs/careers",
+            },
+            {
+              label: "Github",
+              href: "https://github.com/p2-inc",
+            },
+          ],
+        },
+        {
+          title: "Documentation",
+          items: [
+            {
+              label: "Introduction",
+              to: "docs/introduction",
+            },
+            {
+              label: "Getting Started",
+              to: "docs/getting-started",
+            },
+            {
+              label: "API",
+              to: "api/",
+            },
+          ],
+        },
+        {
+          title: "Support",
+          items: [
+            {
+              label: "Bugs & Feature Requests",
+              href: "https://github.com/p2-inc/phasetwo/issues",
             },
             {
               label: "support@phasetwo.io",
               href: "mailto:support@phasetwo.io",
+            },
+          ],
+        },
+        {
+          title: "Legal",
+          items: [
+            {
+              label: "Privacy Policy",
+              to: "docs/privacy",
+            },
+            {
+              label: "Terms of Use",
+              to: "docs/terms",
             },
           ],
         },
@@ -102,6 +142,10 @@ module.exports = {
         },
         googleAnalytics: {
           trackingID: "UA-160183620-1",
+        },
+        blog: {
+          blogSidebarTitle: 'News',
+          blogSidebarCount: 'ALL',
         },
       },
     ],

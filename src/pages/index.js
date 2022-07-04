@@ -249,7 +249,7 @@ function Home() {
                   <div className={styles.featInner}>
                     <img className={styles.featPicto} src="img/feat-extensions.svg" alt="Phase Two are Open Source extensions"></img>
                     <h3>A collection of extensions</h3>
-                    <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our core extensions will always be open source.</p>
+                    <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our core extensions will always be <a href="docs/introduction/open-source">open source</a>.</p>
                   </div>
                 </div>
               </div>
@@ -291,7 +291,7 @@ function Home() {
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                            &#60;3 SSO connections
+                            &#60;5 SSO connections
                           </li>
                           <li>
                             <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>

@@ -144,23 +144,17 @@ html {
   border-left-color: #444 !important;
 }
 
+.footer--dark {
+  --ifm-footer-background-color: #2b3137;
+}
+
 @media (min-width: 768px) {
   .footer,
   .footer .text--center {
     text-align: left;
-  }
-  .footer .footer__title {
-    margin-bottom: 0;
-  }
-  .footer .footer__col {
-    display: flex;
-    justify-content: space-between;
-  }
-  .footer .footer__items {
-    display: flex;
-  }
-  .footer .footer__item {
-    margin-left: 20px;
+  },
+  .footer--dark {
+    --ifm-footer-background-color: #2b3137;
   }
 }
 
