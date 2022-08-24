@@ -150,6 +150,10 @@ components:
           type: string
         inviterId:
           type: string
+        roles:
+          type: array
+          items:
+            type: string
     InvitationRepresentation:
       type: object
       properties:
@@ -161,6 +165,10 @@ components:
           type: string
         organizationId:
           type: string
+        roles:
+          type: array
+          items:
+            type: string
     UserRepresentation:
       type: object
       properties:
