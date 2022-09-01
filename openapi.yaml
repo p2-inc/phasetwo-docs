@@ -148,6 +148,8 @@ components:
       properties:
         email:
           type: string
+        send:
+          type: boolean
         inviterId:
           type: string
         roles:
