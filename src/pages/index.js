@@ -312,7 +312,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}>from <span className={styles.large}>$499</span>/month</p>
+                        <p className={styles.planPrice}>from <span className={styles.large}>$199</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
