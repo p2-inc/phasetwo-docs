@@ -125,6 +125,19 @@ components:
           items:
             type: object
             additionalProperties: true
+    OrganizationDomainRepresentation:
+      type: object
+      properties:
+        domain_name:
+          type: string
+        verified:
+          type: boolean
+        record_key:
+          type: string
+        record_value:
+          type: string
+        type:
+          type: string
     OrganizationRoleRepresentation:
       type: object
       properties:
@@ -421,6 +434,103 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserRepresentation'
                   additionalProperties: true
+  /{realm}/orgs/{orgId}/domains:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Domains
+      summary: Get details for all domains owned by an organization
+      operationId: getOrganizationDomains
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationDomainRepresentation'
+  /{realm}/orgs/{orgId}/domains/{domainName}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: domainName
+        description: domain name
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Domains
+      summary: Get details for a domain owned by an organization
+      operationId: getOrganizationDomain
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationDomainRepresentation'
+  /{realm}/orgs/{orgId}/domains/{domainName}/verify:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: domainName
+        description: domain name
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organization Domains
+      summary: Start domain verification
+      operationId: verifyDomain
+      description: Initiate a verification check for the domain name owned by this organization
+      responses:
+        202:
+          description: success
   /{realm}/orgs/{orgId}/members/{userId}:
     parameters:
       - in: path
@@ -501,6 +611,8 @@ paths:
       responses:
         201:
           description: success
+        409:
+          description: invitation already exists
     get:
       tags:
         - Organization Invitations
