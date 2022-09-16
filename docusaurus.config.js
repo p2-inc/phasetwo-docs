@@ -9,6 +9,14 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
+    announcementBar: {
+      id: 'self-serve',
+      content:
+        'Introducing <a href="/blog/self-service">Phase Two Self-service</a> for free Keycloak deployments.',
+      backgroundColor: 'var(--ifm-color-primary)',
+      textColor: '#fff',
+      isCloseable: true,
+    },
     navbar: {
       title: "",
       logo: {
@@ -43,7 +51,7 @@ module.exports = {
           position: "left",
         },
         {
-          href: "https://app.phasetwo.io/auth/admin/master/console",
+          href: "https://phasetwo.io/dashboard/",
           label: "Dashboard",
           position: "right",
         },

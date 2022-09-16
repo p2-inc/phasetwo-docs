@@ -9,36 +9,6 @@ import { render } from "react-dom";
 import Carousel from "./carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-const features = [
-  {
-    title: <>Easy to Use</>,
-    description: (
-      <>
-        Phase Two was designed to be easily integrated into an existing application or
-      used as the structure for your new application, so you can get up and running quickly.
-      </>
-    ),
-  },
-  {
-    title: <>Focus on What Matters</>,
-    description: (
-      <>
-        Phase Two lets you focus on your competitive advantage, not the functionality common
-      to all SaaS services. Let us take care of the chores so you can work on realizing your dream.
-      </>
-    ),
-  },
-  {
-    title: <>Pricing Transparency</>,
-    description: (
-      <>
-        Unlike the labyrinth of different rate cards out there that nickel and dime for each feature
-      and user, Phase Two is one price per project. No hidden fees, no unpredictable costs.
-      </>
-    ),
-  },
-];
-
 var ReactRotatingText = require('react-rotating-text');
 
 const rotatingFeats = ['Authentication', 'Authorization', 'SSO', 'Organizations', 'Invitations', 'Audit Logs']
@@ -60,7 +30,7 @@ function Feature({imageUrl, title, description}) {
 
 function requestAccess() {
   window.open(
-    `https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link`,
+    `https://phasetwo.io/dashboard/`,
     '_blank'
   );
 }
@@ -122,19 +92,31 @@ function Home() {
                 <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
               </div>
             </div>
-
-            {/*<div className={styles.indexCtas}>
-              <Link
-                className={styles.indexCtasGetStartedButton}
-                to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
-                Request Access
-              </Link>
-            </div> */}
-           
           </div>
         </div>
 
-        
+          <div className="container">
+            <div className={styles.sect} id="launch">
+              <div className={styles.sectHead}>
+                <p className={styles.sectPreHeadline}>Launch</p>
+                <h2 className={styles.sectHeadline}>Introducing free self-service deployments</h2>
+              </div>
+              <div className={styles.featblocks}>
+                <div className={styles.feature}>
+                  <div className={styles.featureImg}>
+		    <iframe width="960" height="540" src="https://www.youtube.com/embed/zzJPmwrEHmU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		  </div>
+		</div>
+              </div>
+              <p className={"text-center"}>
+                See our <a href="/blog/self-service">blog post</a> for more information on the beta launch, or go ahead and...
+              </p>
+              <p className={"text-center"}>
+                <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
+              </p>
+            </div>
+	  </div>
+	
           <div className="container">
 
             <div className={styles.sect} id="features">
@@ -312,7 +294,7 @@ function Home() {
                       <div className={styles.planHead}>
                         <img className={styles.planPicto} src="img/tree.svg" alt="Tree pictogram"></img>
                         <h5>Premium</h5>
-                        <p className={styles.planPrice}>from <span className={styles.large}>$199</span>/month</p>
+                        <p className={styles.planPrice}>from <span className={styles.large}>$499</span>/month</p>
                       </div>
                       <div className={styles.planBody}>
                         <ul className={styles.checklist}>
@@ -392,30 +374,6 @@ function Home() {
 
       </main>
 
-      {/*
-      <div
-        className={classnames(styles.announcement, styles.announcementDark)}>
-        <div className={styles.announcementInner}>
-          Phase Two is currently in private BETA. Please {' '}
-          <Link to={'https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link'}>
-          request access
-          </Link>
-      {' '}in order to receive an early access account.  
-        </div>
-      </div>
-      <main>
-        {features && features.length && (
-          <section className={styles.features}>
-            <div className="container">
-              <div className="row">
-                {features.map((props, idx) => (
-                  <Feature key={idx} {...props} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-      </main> */}
     </Layout>
   );
 }
