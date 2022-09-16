@@ -17,4 +17,7 @@ Take a look at how easy it is to get started:
 
 The clusters that run our deployments are available in two regions (AWS, us-west-2 and eu-central-1), and are backed by [CockroachDB](https://www.cockroachlabs.com/), giving you scale, resilience and low-latency performance. In the future, clusters and dedicated instances will be available in other regions based on demand.
 
-We hope you find this new tool valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community. 
+We hope you find this new tool valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
+
+[TRY IT NOW!](https://phasetwo.io/dashboard/)
+
