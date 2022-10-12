@@ -185,3 +185,8 @@ html {
     opacity: 0;
   }
 }
+
+.img_node_modules-\@docusaurus-theme-classic-lib-theme-MDXComponents-Img-styles-module {
+  height: auto;
+  box-shadow: 0 0 5px;
+}

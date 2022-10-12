@@ -7,7 +7,7 @@ tags: [ tutorial, keycloak, phase_two, email ]
 
 One of the first things you will need to do when getting a Keycloak Realm ready for use is to set up your email server configuration. There are many system emails that are sent to users in the course of verifying and updating user accounts: Email address verification, magic links, password reset, account update, login failure notifications, identity provider linking, etc.
 
-In order to provide your users with a positive experience, these messages need a way to get to them. Keycloak supports any internet reachable SMTP server. If you are currently testing, and don't have an email server or service that you currently use, [SendGrid](https://sendgrid.com/) provides free accounts that allow you to send up to 100 emails per day forever. 
+In order to provide your users with a positive experience, these messages need a way to get to them. Keycloak supports any internet reachable SMTP server. If you are currently testing, and don't have an email server or service that you currently use, [SendGrid](https://sendgrid.com/) provides free accounts that allow you to send up to 100 emails per day forever. For debugging, you can also use a service like [MailTrap](https://mailtrap.io/) to give you a catch-all for emails coming from Keycloak.
 
 If you are using a Phase Two Deployment, log in to the self-service dashboard, and click on the **Open Console** link for the Deployment you wish to use. Once in the Keycloak admin console, click **Realm settings** in the left menu, and then click the **Email** tab.
 
@@ -21,7 +21,7 @@ The other fields in the **Template** section are not required, but will enhance 
 - **From display name** a user-friendly name displayed along **From**
 - **Reply to** an email address that will be used by email clients when your user replies to an email
 - **Reply to display name** a user-friendly name displayed along **Reply to**
-- **Envelope from** Bounce Address used for the mails sent
+- **Envelope from** Bounce Address used for the mails that are rejected
 
 ![](/blog/2022-10-05-set-up-email-connection.png)
 
