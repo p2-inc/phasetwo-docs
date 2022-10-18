@@ -25,7 +25,7 @@ However, it is useful to see what is going on in the login process, so that you 
 
 ### Setup
 
-We'll make an assumption for this guide that you are using a cloud deployment of Phase Two enhanced Keycloak. If you haven't already set one up, go over to the [self-service launch announcement](self-service) for details. You may also use your own Keycloak setup, but that setup is beyond the scope of this article.
+We'll make an assumption for this guide that you are using a cloud deployment of Phase Two enhanced Keycloak. If you haven't already set one up, go over to the [self-service launch announcement](/blog/self-service) for details. You may also use your own Keycloak setup, but that setup is beyond the scope of this article.
 
 The sample applications are available in our [demo repo](https://github.com/p2-inc/debug-app) on Github. Clone that repo to your local machine. You'll find the applications in the `frontend` and `backend` directory, and a set of supporting files for configuration and deployment.
 
