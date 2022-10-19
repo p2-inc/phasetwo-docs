@@ -1428,7 +1428,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WebhooksRepresentation'
+              $ref: '#/components/schemas/WebhookRepresentation'
         required: true
       responses:
         204:
