@@ -103,6 +103,19 @@ components:
           type: string
         name:
           type: string
+    RealmAttributeRepresentation:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+        realm:
+          type: string
+    KeyedRealmAttributeRepresentation:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/RealmAttributeRepresentation'
     OrganizationRepresentation:
       type: object
       properties:
@@ -219,6 +232,29 @@ components:
           additionalProperties: true
         id:
           type: string
+    WebhookRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+        id:
+          type: string
+        enabled:
+          type: boolean
+        url:
+          type: string
+        secret:
+          type: string
+        created_by:
+          type: string
+        created_at:
+          type: string
+        realm:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
     MagicLinkRepresentation:
       type: object
       properties:
@@ -1215,6 +1251,200 @@ paths:
           description: Rate limit exceeded
         409:
           description: Reserved event type
+  /{realm}/attributes:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Attributes
+      summary: Get realm attributes
+      description: Get a list of attributes for this realm
+      operationId: getRealmAttributes
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KeyedRealmAttributeRepresentation'
+    post:
+      tags:
+        - Attributes
+      summary: Create a new realm attribute
+      operationId: createRealmAttribute
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealmAttributeRepresentation'
+        required: true
+      responses:
+        201:
+          description: Attribute created
+        400:
+          description: Malformed attribute
+  /{realm}/attributes/{attributeKey}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: attributeKey
+        description: attribute key
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Attributes
+      summary: Get realm attribute by key
+      operationId: getRealmAttributeByKey
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealmAttributeRepresentation'
+        404:
+          description: Realm attribute doesn't exist
+    put:
+      tags:
+        - Attributes
+      summary: Update realm attribute by key
+      operationId: updateRealmAttributeByKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealmAttributeRepresentation'
+        required: true
+      responses:
+        204:
+          description: success
+        404:
+          description: Realm attribute doesn't exist
+    delete:
+      tags:
+        - Attributes
+      summary: Delete the realm attribute
+      operationId: deleteRealmAttribute
+      responses:
+        204:
+          description: success
+        404:
+          description: Realm attribute doesn't exist
+  /{realm}/webhooks:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhooks
+      description: Get a list of webhooks for this realm
+      operationId: getWebhooks
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookRepresentation'
+    post:
+      tags:
+        - Events
+      summary: Create a new webhook
+      operationId: createWebhook
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRepresentation'
+        required: true
+      responses:
+        201:
+          description: Webhook created
+        400:
+          description: Malformed webhook
+  /{realm}/webhooks/{webhookId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook by id
+      operationId: getWebhookById
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRepresentation'
+        404:
+          description: Webhook doesn't exist
+    put:
+      tags:
+        - Events
+      summary: Update this webhook by id
+      operationId: updateWebhook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhooksRepresentation'
+        required: true
+      responses:
+        204:
+          description: success
+        404:
+          description: Webhook doesn't exist
+    delete:
+      tags:
+        - Events
+      summary: Delete the webhook
+      operationId: deleteWebhook
+      responses:
+        204:
+          description: success
+        404:
+          description: Webhook doesn't exist
   /{realm}/magic-link:
     parameters:
       - in: path
