@@ -134,10 +134,11 @@ components:
           items:
             type: string
         attributes:
-          type: array
-          items:
-            type: object
-            additionalProperties: true
+          type: object
+          additionalProperties:
+             type: array 
+             items:
+               type: string
     OrganizationDomainRepresentation:
       type: object
       properties:
@@ -469,7 +470,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserRepresentation'
-                  additionalProperties: true
   /{realm}/orgs/{orgId}/domains:
     parameters:
       - in: path
@@ -682,7 +682,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/InvitationRepresentation'
-                  additionalProperties: true
   /{realm}/orgs/{orgId}/invitations/{invitationId}:
     parameters:
       - in: path
@@ -968,7 +967,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/IdentityProviderRepresentation'
-                  additionalProperties: true
     post:
       tags:
         - Identity Providers
@@ -1078,7 +1076,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/IdentityProviderMapperRepresentation'
-                  additionalProperties: true
     post:
       tags:
         - Identity Providers
