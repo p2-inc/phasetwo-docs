@@ -179,6 +179,8 @@ components:
           type: boolean
         inviterId:
           type: string
+        redirectUri:
+          type: string
         roles:
           type: array
           items:
@@ -225,14 +227,49 @@ components:
           type: string
         username:
           type: string          
+    AuthDetailsRepresentation:
+      type: object
+      properties:
+        realmId:
+          type: string
+        clientId:
+          type: string
+        userId:
+          type: string
+        ipAddress:
+          type: string
+        username:
+          type: string
+        sessionId:
+          type: string
     EventRepresentation:
       type: object
       properties:
-        attributes:
+        uid:
+          type: string
+        time:
+          type: integer
+        realmId:
+          type: string
+        organizationId:
+          type: string
+        type:
+          type: string
+        representation:
+          type: string
+        operationType:
+          type: string
+        resourcePath:
+          type: string
+        resourceType:
+          type: string
+        error:
+          type: string
+        authDetails:
+          $ref: '#/components/schemas/AuthDetailsRepresentation'
+        details:
           type: object
           additionalProperties: true
-        id:
-          type: string
     WebhookRepresentation:
       type: object
       properties:
@@ -338,6 +375,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI indicating the ID of the new resource.
   /{realm}/orgs/{orgId}:
     parameters:
       - in: path
