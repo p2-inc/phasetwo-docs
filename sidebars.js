@@ -7,7 +7,8 @@ module.exports = {
       items: [
         'introduction/keycloak',
         'introduction/open-source',
-        'introduction/documentation'
+        'introduction/documentation',
+        'introduction/sdks'
       ],
     },
     {
