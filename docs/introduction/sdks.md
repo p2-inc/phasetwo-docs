@@ -5,7 +5,7 @@ title: Software Development Kits
 
 Much of the functionality described here is documented in our [API](/api/) section. Our API is built as extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/20.0.1/rest-api/index.html), and can be used in a similar way.
 
-We have built modern API libraries that complement the most popular Keycloak Admin libraries built for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/master/openapi.yaml).
+Modern API libraries are available for several common languages. They complement some of the popular Keycloak Admin libraries. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/master/openapi.yaml).
 
 
 ### SDK libraries
