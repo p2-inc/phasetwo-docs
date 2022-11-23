@@ -40,6 +40,12 @@ module.exports = {
           position: "left",
         },
         {
+          to: "blog",
+          activeBasePath: "blog",
+          label: "Blog",
+          position: "left",
+        },
+        {
           to: "docs/introduction",
           activeBasePath: "docs",
           label: "Docs",
@@ -68,7 +74,7 @@ module.exports = {
               to: "docs/about",
             },
             {
-              label: "News",
+              label: "Blog",
               to: "blog",
             },
             {
