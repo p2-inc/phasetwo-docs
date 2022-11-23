@@ -109,6 +109,10 @@ module.exports = {
               label: "support@phasetwo.io",
               href: "mailto:support@phasetwo.io",
             },
+            {
+              label: "Youtube",
+              href: "https://www.youtube.com/channel/UCUY2ZvxI0hxpTWO_8w7MjVw",
+            },
           ],
         },
         {

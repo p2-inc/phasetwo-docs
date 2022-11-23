@@ -4798,10 +4798,10 @@ dns-packet@^5.2.2:
   dependencies:
     "@leichtgewicht/ip-codec" "^2.0.1"
 
-docusaurus-plugin-openapi@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-openapi/-/docusaurus-plugin-openapi-0.6.2.tgz#53b223ca8f6c897bb2d57be38059fba911ea5cbf"
-  integrity sha512-pL6O7xbzQMPthcv1+yU8KBfAp+qI/B60hHSue7NfRTz5Bdf8Ehdn6y1vDxQZfI+DHTLGHa5PAb0KBH1LW24tFA==
+docusaurus-plugin-openapi@^0.6.2, docusaurus-plugin-openapi@^0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-openapi/-/docusaurus-plugin-openapi-0.6.3.tgz#03049eb843211a6fa36d7209dfd278438bfdcf01"
+  integrity sha512-2i/f4zfW5aCNe8Ids6WsgSPQHFEdAwvhoe0lwb83QkNE33bYerZmoqSjJr6wSZsAEsb1HkDW+JLZNxkjSAHe2w==
   dependencies:
     "@docusaurus/mdx-loader" "^2.0.0"
     "@docusaurus/plugin-content-docs" "^2.0.0"
@@ -4821,9 +4821,9 @@ docusaurus-plugin-openapi@^0.6.2:
     webpack "^5.73.0"
 
 docusaurus-plugin-proxy@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-proxy/-/docusaurus-plugin-proxy-0.6.2.tgz#98768a084a917feec3c581bbd59516165b3b2756"
-  integrity sha512-HWvXBGx5AqgB8gp2QdbYXqqTQs0BXbtbKO3vfYW/SxdACmXy4WO2TnVco8+Rr6sNDEnrKhalaX8ZOJYDDVkSwg==
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-proxy/-/docusaurus-plugin-proxy-0.6.3.tgz#4ef3193e49ef851a3b5b57f349e3549c41a7a20e"
+  integrity sha512-HAR76IsuSWlVI1K6P8fEJDjhHxT3LLdXGr+ZxNBm6DJTUQ8Xf057nHR8BhB5sfwmzrDPup5wChP/nuOVAfU6wg==
 
 docusaurus-preset-openapi@0.6.2:
   version "0.6.2"
@@ -4836,9 +4836,9 @@ docusaurus-preset-openapi@0.6.2:
     docusaurus-theme-openapi "^0.6.2"
 
 docusaurus-theme-openapi@^0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/docusaurus-theme-openapi/-/docusaurus-theme-openapi-0.6.2.tgz#d07793eb658ac1495b05fb843ecfa2ab3cce72bd"
-  integrity sha512-+phTQw+XMnzlCprC724eZJ6vV6kSlHfCpPqvAGciOqYTplsiEOsBvUQDXg10WkdZHO11Kplr01mCg39fUyVNWg==
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/docusaurus-theme-openapi/-/docusaurus-theme-openapi-0.6.3.tgz#eace4982a6d969b4c4f8fad85478d283553126b9"
+  integrity sha512-9cFFbfP2arRHxs/HgSX4phbfpwawN1sxY8H8REZYiqwzEpirNE++qkz507K3bYz7WfOqYwYJAITkPtnPaKzjag==
   dependencies:
     "@docusaurus/theme-common" "^2.0.0"
     "@mdx-js/react" "^1.6.22"
@@ -4847,7 +4847,7 @@ docusaurus-theme-openapi@^0.6.2:
     buffer "^6.0.3"
     clsx "^1.1.1"
     crypto-js "^4.1.1"
-    docusaurus-plugin-openapi "^0.6.2"
+    docusaurus-plugin-openapi "^0.6.3"
     immer "^9.0.7"
     lodash "^4.17.20"
     monaco-editor "^0.31.1"
@@ -6440,9 +6440,9 @@ jsonfile@^6.0.1:
     graceful-fs "^4.1.6"
 
 keycloak-js@^19.0.2:
-  version "19.0.2"
-  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-19.0.2.tgz#df8d12138c3edf70d9880097204a943674c605ee"
-  integrity sha512-tQjkLVVIwaV1xf4Fri5u+d+Ttddrh0S5cv3ltG+uTUd7WNwt5LkOXsPnqWQjj9stpoBTFgTuzIqJ2C6vk0CcEQ==
+  version "19.0.3"
+  resolved "https://registry.yarnpkg.com/keycloak-js/-/keycloak-js-19.0.3.tgz#f70e988b799054957e47c981b7e962c9874da00e"
+  integrity sha512-mzCBxrzfl+vB551Q7MB+T9+40IHU4i0a6g1eTatzeEGrQMis5m/BqvPC3kxTsI+/LxHbB9XYQE3u9SlWKDHQCw==
   dependencies:
     base64-js "^1.5.1"
     js-sha256 "^0.9.0"
