@@ -16,6 +16,10 @@ The core extensions to Keycloak that Phase Two is built on will always be open s
 | Admin UI |  :white_check_mark: | https://github.com/p2-inc/keycloak-ui | Admin UI customizations. |
 | Themes |  :white_check_mark: | https://github.com/p2-inc/keycloak-themes | Login and email theme customizations via Realm attributes without deploying an extension. |
 
+### Docker
+
+We distribute a [Docker image](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) that combines the above extensions with the Keycloak image. While the online [Self-service tool](/docs/self-service/) is the easiest way to try Phase Two, and includes additional features and extensions, if you want to try it on your own, the Docker image is the fastest way to do it. Documentation and examples for using it are in the [phasetwo-containers](https://github.com/p2-inc/phasetwo-containers) repository. The most recent version of these extension are included.
+
 ### Notes
 
 It is important to note that not all of Phase Two's extensions will be available as open source. The extensions that are considered "non-core" relate to functionality that is not essential in order to migrate to your own Keycloak deployment. This includes all changes to the underlying storage architecture that allows Phase Two to achieve larger scale than a standard Keycloak deployment. This also includes the user experience features targeted at IdP onboarding, such as the organization portal and Phase Two Connect on-prem wizards and dashboard.

@@ -13,7 +13,7 @@ You are encouraged **not** to use the `master` realm to secure your deployed app
 
 It is recommended to provide your on-prem customers with an onboarding guide that includes a way of accessing their Keycloak credentials following initial installtion in their cluster. You can create a link to the Phase Two Connect onboarding portal using the following format:
 ```
-    https://<your-host-name>/auth/realms/<your-realm-name>/wizard/
+    https://<host>:<port>/auth/realms/<realm>/wizard/
 ```
 
 Your customer will use their admin credentials to login and setup their IdP integration.

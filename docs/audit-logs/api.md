@@ -7,15 +7,15 @@ Customers can use the existing audit logging mechanism to include their own appl
 
 ## Endpoint
 
-Events can be posted to the following endpoint. Note that `realmId` must be replaced with your realm. This endpoint accepts and returns JSON content.
+Events can be posted to the following endpoint. Note that `host`, `port` and `realm` must be replaced with your values. This endpoint accepts and returns JSON content.
 
 ```shell
-POST https://app.phasetwo.io/auth/realms/<realmId>/events
+POST https://<host>:<port>/auth/realms/<realm>/events
 ```
 
 ## Authentication
 
-Only authenticated users may send events at this time. The current user login access token should be used in the `Authorization` HTTP header as below.
+Only authenticated users may send events at this time. The current user login access token should be used for browser requests in the `Authorization` HTTP header as below. Backend requests can be made using a service account or other admin access token.
 
 ```shell
 Authorization: Bearer <accessToken>

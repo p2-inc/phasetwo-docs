@@ -142,6 +142,11 @@ module.exports = {
       defaultMode: "light",
       disableSwitch: true,
     },
+    docs: {
+      sidebar: {
+        autoCollapseCategories: true,
+      },
+    },
   },
   presets: [
     [

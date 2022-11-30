@@ -15,7 +15,7 @@ Webhooks are managed with a custom REST resource with the following methods. Use
 | `/auth/realms/:realm/webhooks` | `POST` | Webhook object | `201` | Create webhook |
 | `/auth/realms/:realm/webhooks/:id` | `GET` | | Webhook object | Get webhook |
 | `/auth/realms/:realm/webhooks/:id` | `PUT` | Webhook object | `204` | Update webhook |
-| `/auth/realms/:realm/webhooks/:id` | `DELETE` | Webhook object | `204` | Delete webhook |
+| `/auth/realms/:realm/webhooks/:id` | `DELETE` | | `204` | Delete webhook |
 
 The webhook object has this format:
 ```json

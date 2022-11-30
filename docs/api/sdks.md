@@ -12,7 +12,7 @@ Modern API libraries are available for several common languages. They complement
 
 | Language | Library |
 | --- | --- |
-| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |
+| Java (and other JVM languages) | https://github.com/p2-inc/phasetwo-java |
 | JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |
 | Python | https://github.com/p2-inc/phasetwo-python |
 
