@@ -3,8 +3,6 @@ id: api
 title: User Migration API
 ---
 
-## Prerequisites
-
 You must provide two REST endpoints (GET and POST) in your legacy authentication system under the URI `${restClientUri}/{$username}`, where `${restClientUri}` is a configurable base URL for the endpoints and `{$username}` is the
 username of the user that is attempting to sign in.
 

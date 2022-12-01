@@ -31,6 +31,12 @@ Access to each of the Organization components is controlled by the User's member
     - requires `view-invitations` to see pending invitations, and `manage-invitations` and `view-roles` to invite new users
     - requires `view-organization`, `manage-organization`, `view-identity-providers` and `manage-identity-providers` to use the SSO setup wizards and view/remove Identity Providers
 
+### API
+
+If you choose to build functionality like the Admin Portal into your application to create a more unified experience, or to build it into native or mobile applications, you can use the APIs for User and Organization management.
+- [Organization API](/api)
+- [User Account API](tbd)
+
 ### Component guides
 
 ```mdx-code-block
