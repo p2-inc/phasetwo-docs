@@ -1,4 +1,14 @@
-# Website
+# Phasetwo Website
+
+Content for the https://phasetwo.io/ public website, documentation and API specs.
+
+All content is Copyright 2023 Phase Two, Inc.
+
+[![License: CC BY-NC-ND 4.0](https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-nd.png)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+Contributions and corrections are welcome as pull requests.
+
+## Website
 
 This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern static website generator.
 

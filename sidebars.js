@@ -24,8 +24,8 @@ module.exports = {
       label: 'Getting Started',
       link: {type: 'doc', id: 'getting-started/index'},
       items: [
-        'getting-started/sample',
         'getting-started/configuration',
+        'getting-started/sample',
         'getting-started/customizing-ui',
         'getting-started/email',
         'getting-started/launch-checklist',
