@@ -58,11 +58,12 @@ module.exports = {
       items: [
         'authentication/understanding-flows',
         'authentication/username-password',
-        'authentication/magic-links',
         'authentication/social-login',
+        'authentication/magic-links',
         'authentication/otps',
         'authentication/webauthn',
         'authentication/sso',
+        'authentication/complex-flows',
       ],
     },
     {

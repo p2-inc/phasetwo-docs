@@ -11,6 +11,28 @@ This section is currently under construction. Check back soon for updates.
 
 The Phase Two Admin Portal allows you to offer self-management of User Profile and Organization features to your customers from within your application with almost no code. A portal link can be generated in your application that will take a logged in user to the Admin Portal.
 
+### Configuration
+
+In the **Admin portal** section of the admin UI, it is possible to configure user access to portions of the portal. This has the effect of limiting the self-management functionality that is available to your users. The sections that can be toggled are:
+
+- *Profile* View and edit profile information such as first name, last name and email.
+- *Security* View and edit credentials, linked account, and manage authenticated sessions. 
+  - *Password update* Update password.
+  - *2FA create/update* Add and remove 2FA mechanisms like OTP and WebAuthn.
+  - *Device activity* View and terminate active authentication sessions.
+  - *Linked accounts* View, create and remove links with social and other identity providers.
+- *Organizations* View and (conditionally) edit details of organizations for which a user is a member.
+  - *Details* View and edit organization profile information.
+  - *Members and Invitations* View and manage organization members and their roles. Invite new members.
+  - *SSO* Create and update SSO connections to organization identity provider.
+  - *Domains* Add and verify email domains for SSO login.
+
+![](/docs/placeholder.png)
+
+#### Styles
+
+Currently, the logo and favicon set in the general styles section will be used when rendering the portal in order to preserve your branding.
+
 ### Access control
 
 Access to components in the admin portal is dictated by the User's roles, both globally and within their organization.
