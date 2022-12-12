@@ -46,8 +46,8 @@ module.exports = {
       label: 'API',
       link: {type: 'doc', id: 'api/index'},
       items: [
-        'api/authentication',
         'api/service-accounts',
+        'api/authentication',
         'api/sdks',
       ],
     },
@@ -128,19 +128,19 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Connect',
-      link: {type: 'doc', id: 'connect/index'},
-      items: [
-        'connect/setup',
-        'connect/kubernetes',
-      ],
-    },
-    {
-      type: 'category',
       label: 'User Migration',
       link: {type: 'doc', id: 'user-migration/index'},
       items: [
         'user-migration/api'
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Hosting',
+      link: {type: 'doc', id: 'hosting/index'},
+      items: [
+        'hosting/kubernetes',
+        'hosting/connect',
       ],
     },
   ]

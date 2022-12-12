@@ -34,14 +34,14 @@ git clone https://github.com/p2-inc/debug-app.git
 cd debug-app/frontend
 ```
 
-Once you have cloned the repo, edit the `keycloak.json` file and switch it with the configuration you downloaded at the end of the Client setup. It should look something like this.
+Once you have cloned the repo, edit the `keycloak.json` file and switch it with the configuration you downloaded at the end of the Client setup. It should look something like this (you'll need to replace the values in curly braces).
 
 ```json
 {
   "realm": "{realm}",
-  "auth-server-url": "https://usw2.auth.ac/auth/",
+  "auth-server-url": "https://{host}/auth/",
   "ssl-required": "external",
-  "resource": "frontent",
+  "resource": "frontend",
   "public-client": true,
   "confidential-port": 0
 }

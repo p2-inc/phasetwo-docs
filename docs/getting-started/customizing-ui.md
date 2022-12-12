@@ -3,12 +3,6 @@ id: customizing-ui
 title: Customizing UI
 ---
 
-:::caution
-
-This section is currently under construction. Check back soon for updates.
-
-:::
-
 It is possible to customize styles for login screens to match your branding. This can be achieved by simple colors and logo override of the default them, or by full CSS replacement.
 
 ### Simple
@@ -20,9 +14,13 @@ The simple override of colors and logo can be access in the Admin UI under the *
 - Logo: URL of your logo image. This will be constrained to 300x300. You should use an SVG or PNG with alpha channel to make sure this renders properly on your background color and in the Admin Portal, if you are using it.
 - Favicon: URL of your favicon.
 
+![](/docs/placeholder.png)
+
 ### Full CSS
 
 Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file may override the values from above.
+
+![](/docs/placeholder.png)
 
 ### Maually by Realm attributes
 

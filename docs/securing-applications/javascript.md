@@ -3,11 +3,11 @@ id: javascript
 title: Javascript
 ---
 
-Most modern applications are being built as single-page apps. The easiest way to secure these is with the Javascript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at https://app.phasetwo.io/auth/js/keycloak.js
+Most modern applications are being built as single-page apps. The easiest way to secure these is with the Javascript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at `https://{host}/auth/js/keycloak.js
 
 ### Example
 
-You must replace the `<corp-realm>` value with the account name.
+You must replace the `{host}`, `{realm}` and `{clientId}` values with those from your account.
 
 ```html
 <html>
@@ -15,11 +15,13 @@ You must replace the `<corp-realm>` value with the account name.
     <script src="https://app.phasetwo.io/auth/js/keycloak.js"></script>
     <script>
       var auth = new Keycloak({
-      url: 'https://app.phasetwo.io/auth',
-        realm: '<corp-realm>',
-	    clientId: sample-app'
+        url: 'https://{host}/auth',
+        realm: '{realm}',
+        clientId: {clientId}'
       });
-      auth.init().then(function(authenticated) {
+      auth.init({
+        onLoad: 'login-required'
+      }).then(function(authenticated) {
         alert(authenticated ? 'authenticated' : 'not authenticated');
       }).catch(function() {
         alert('failed to initialize');

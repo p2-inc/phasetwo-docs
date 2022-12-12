@@ -20,7 +20,8 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 ```
 
 ### Libraries
-Also, here is an unofficial list of OpenID Connect libraries we've heard good things about. 
+Also, here is an unofficial list of OpenID Connect libraries we've heard good things about. Please [email us](mailto:support@phasetwo.io) if you're a library author, and you'd like to see your library linked here, or if you've had success with a library not listed here.
+
 - JavaScript (client-side)
   - [JavaScript](https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter)
 - Node.js (server-side)
