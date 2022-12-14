@@ -15,6 +15,8 @@ The Organizations feature represents an significant enhancement to standard Keyc
 
 Organizations can be managed in the Admin UI in the **Organizations** section. It is possible here to create Organizations, and manage their attributes, membership, invitations, roles, and associated identity providers.
 
+![](/docs/organizations-index-details.png)
+
 ### Feature guides
 
 ```mdx-code-block

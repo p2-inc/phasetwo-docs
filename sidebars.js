@@ -85,6 +85,7 @@ module.exports = {
         'organizations/membership',
         'organizations/invitations',
         'organizations/roles',
+        'organizations/identity-providers',
       ],
     },
     {

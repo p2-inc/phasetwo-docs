@@ -22,12 +22,15 @@ The default roles can be assigned to users to give them access to view and manag
 | view-identity-providers | View configured identity providers for SSO. |
 | manage-identity-providers | Create, manage and remove identity providers for SSO. |
  
+![](/docs/organizations-roles-list.png)
  
 ### Custom roles
 
 Custom roles can be created in the Roles section of each organization in the Organizations tab of the Admin UI. It is important to note that a role is created for **each organization individually**. If you wish to have the same role name for multiple organization, it is recommended that you create them programmatically on organization creation.
 
-### Adding organizations to the token
+![](/docs/organizations-roles-create.png)
+
+### Adding roles to the token
 
 It is possible to map organization roles into the access token, ID token or userinfo endpoint response using the **Organization Role** token claim mapper for OIDC. If you have users that will have a large number of organization memberships or roles per organization, it is recommended that you only add the claim to the userinfo endpoint response, as it may cause large token sizes. 
 

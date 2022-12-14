@@ -7,20 +7,24 @@ It is possible to customize styles for login screens to match your branding. Thi
 
 ### Simple
 
-The simple override of colors and logo can be access in the Admin UI under the **Styles** tab. The available override values are 
-- Background color: Hex color for background.
-- Primary color: Hex color for primary.
-- Secondary color: Hex color for secondary.
-- Logo: URL of your logo image. This will be constrained to 300x300. You should use an SVG or PNG with alpha channel to make sure this renders properly on your background color and in the Admin Portal, if you are using it.
-- Favicon: URL of your favicon.
+The simple override of colors and logo can be access in the admin UI in the **Styles** section. The available override values are
+- **General** tab
+  - Logo: URL of your logo image. This will be constrained to 150x150. You should use an SVG or PNG with alpha channel to make sure this renders properly on your background color and in the Admin Portal, if you are using it.
+  - Favicon: URL of your favicon.
 
-![](/docs/placeholder.png)
+![](/docs/getting-started-customizing-ui-logos.png)
+
+- **Login** tab
+  - Background color: Hex color for background.
+  - Primary color: Hex color for primary.
+  - Secondary color: Hex color for secondary.
+
+![](/docs/getting-started-customizing-ui-colors.png)
+
 
 ### Full CSS
 
-Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file may override the values from above.
-
-![](/docs/placeholder.png)
+Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file will override the values from above. For more information on the styles used in the login pages, see [Patternfly v4](https://www.patternfly.org/v4/), and the Keycloak [base](https://github.com/keycloak/keycloak/tree/main/themes/src/main/resources/theme/base/login) and [keycloak](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) themes.
 
 ### Maually by Realm attributes
 

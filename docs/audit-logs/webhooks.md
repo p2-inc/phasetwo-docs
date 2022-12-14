@@ -7,7 +7,7 @@ Webhooks give application developers the ability to listen for all audit events 
 
 ## Managing webhook subscriptions
 
-Webhooks are managed with a custom REST resource with the following methods. Use of these methods requires the authenticated user to have the `view-events` and `manage-events` permissions.
+Webhooks are managed with a custom REST resource with the following methods. Use of these methods requires the authenticated user to have the `view-events` and `manage-events` permissions. If you are using one of the supported languages, we recommend using our [SDKs](/docs/api/sdks) rather than building the requests yourself.
 
 | Path | Method | Payload | Returns | Description |
 | ---- | ------ | ------- | ------- | ----------- |
@@ -34,9 +34,17 @@ The webhook object has this format:
 
 For creating and updating of webhooks, `id`, `createdBy` and `createdAt` are ignored. `secret` is not sent when fetching webhooks.
 
+### Event types
+
+The `eventTypes` variable is an array of expressions that match the type of event. It can contain a wildcard, such as `*` (send all events), `access.*` (send all access events), or `admin.CLIENT-*` (send all admin events related to the CLIENT resource type). It can also be a specific event type such as `admin-USER-CREATE` (only send user creation events).
+
 ## Retries
 
 Webhooks are sent using an automatic exponential backoff if there is not a 2xx response. The sending tasks are scheduled after the transaction which produced the event has been committed, so there is no question if the activity has occured. 
+
+## Client performance
+
+It is expected that the client will *immediately* send a 2xx response when receiving an event. If it does not, requests can become backed up and you may miss events because the server will not retry forever.
 
 ## Example
 
