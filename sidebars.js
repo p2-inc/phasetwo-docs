@@ -8,7 +8,15 @@ module.exports = {
         'introduction/keycloak',
         'introduction/open-source',
         'introduction/documentation',
-        'introduction/sdks'
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Self-service',
+      link: {type: 'doc', id: 'self-service/index'},
+      items: [
+        'self-service/deployments',
+        'self-service/your-organization'
       ],
     },
     {
@@ -16,8 +24,11 @@ module.exports = {
       label: 'Getting Started',
       link: {type: 'doc', id: 'getting-started/index'},
       items: [
+        'getting-started/configuration',
         'getting-started/sample',
-        'getting-started/customizing-ui'
+        'getting-started/customizing-ui',
+        'getting-started/email',
+        'getting-started/launch-checklist',
       ],
     },
     {
@@ -26,16 +37,33 @@ module.exports = {
       link: {type: 'doc', id: 'securing-applications/index'},
       items: [
         'securing-applications/javascript',
-        'securing-applications/react'
+        'securing-applications/react',
+        'securing-applications/backend',
       ],
     },
     {
       type: 'category',
-      label: 'Account Management',
-      link: {type: 'doc', id: 'account-management/index'},
+      label: 'API',
+      link: {type: 'doc', id: 'api/index'},
       items: [
-        'account-management/hosted',
-        'account-management/api'
+        'api/service-accounts',
+        'api/authentication',
+        'api/sdks',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Authentication',
+      link: {type: 'doc', id: 'authentication/index'},
+      items: [
+        'authentication/understanding-flows',
+        'authentication/username-password',
+        'authentication/social-login',
+        'authentication/magic-links',
+        'authentication/otps',
+        'authentication/webauthn',
+        'authentication/sso',
+        'authentication/complex-flows',
       ],
     },
     {
@@ -43,16 +71,49 @@ module.exports = {
       label: 'SSO',
       link: {type: 'doc', id: 'sso/index'},
       items: [
+        'sso/setup',
+        'sso/wizards',
         'sso/sso-without-auth',
-        'sso/magic-link'
       ],
     },
     {
       type: 'category',
-      label: 'User Migration',
-      link: {type: 'doc', id: 'user-migration/index'},
+      label: 'Organizations',
+      link: {type: 'doc', id: 'organizations/index'},
       items: [
-        'user-migration/api'
+        'organizations/attributes',
+        'organizations/membership',
+        'organizations/invitations',
+        'organizations/roles',
+        'organizations/identity-providers',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Admin Portal',
+      link: {type: 'doc', id: 'admin-portal/index'},
+      items: [
+        'admin-portal/portal-link',
+	{
+	  type: 'category',
+	  label: 'Profile',
+	  link: {type: 'doc', id: 'admin-portal/profile/index'},
+	  items: [
+            'admin-portal/profile/details',
+            'admin-portal/profile/security'
+	  ],
+	},
+	{
+	  type: 'category',
+	  label: 'Organization',
+	  link: {type: 'doc', id: 'admin-portal/organization/index'},
+	  items: [
+            'admin-portal/organization/details',
+            'admin-portal/organization/members',
+            'admin-portal/organization/domains',
+            'admin-portal/organization/sso',
+	  ],
+	},
       ],
     },
     {
@@ -69,23 +130,20 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Organizations',
-      link: {type: 'doc', id: 'organizations/index'},
+      label: 'User Migration',
+      link: {type: 'doc', id: 'user-migration/index'},
       items: [
-        'organizations/attributes',
-        'organizations/membership',
-        'organizations/invitations',
-        'organizations/roles',
-        'organizations/portal',
+        'user-migration/api'
       ],
     },
     {
       type: 'category',
-      label: 'Connect',
-      link: {type: 'doc', id: 'connect/index'},
+      label: 'Hosting',
+      link: {type: 'doc', id: 'hosting/index'},
       items: [
-        'connect/setup'
+        'hosting/kubernetes',
+        'hosting/connect',
       ],
-    }
+    },
   ]
 };

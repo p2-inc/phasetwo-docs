@@ -1,6 +1,6 @@
 ---
 id: documentation
-title: Documentation
+title: Additional Documentation
 ---
 
 In addition to the guides here and in the [API](/api/) documentation, users are encouraged to use the Keycloak documentation for the purpose of learning about Keycloak's capabilities, server administration techniquies, and guides for securing applications.

@@ -24,9 +24,10 @@
   --ifm-color-primary-lighter: #65b4e9;
   --ifm-color-primary-lightest: #ebf5fc;
   --ifm-code-font-size: 95%;
+  --ifm-heading-color: #161b1d;
   --ifm-navbar-background-color: rgba(255, 255, 255, 0.9);
   --ifm-navbar-link-color: #3c474e;
-  --main: #3c474e;
+  --main: #2c353a;
   --success: #18cc6d;
   --form-outline: #e1e6ea;
   --form-outline-focus: #bcc5cb;
@@ -186,7 +187,21 @@ html {
   }
 }
 
-.img_node_modules-\@docusaurus-theme-classic-lib-theme-MDXComponents-Img-styles-module {
+.markdown img {
   height: auto;
-  box-shadow: 0 0 5px;
+  box-shadow: 0 0 2.5px;
+}
+
+.menu {
+  font-weight: var(--ifm-font-weight-normal);
+  font-size: 95%;
+  overflow-x: hidden;
+}
+
+a.menu__link.menu__link--sublist {
+  font-weight: var(--ifm-font-weight-bold);
+}
+
+.markdown h1:first-child {
+  --ifm-h1-font-size: 2.5rem;
 }

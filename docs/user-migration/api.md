@@ -3,8 +3,6 @@ id: api
 title: User Migration API
 ---
 
-## Prerequisites
-
 You must provide two REST endpoints (GET and POST) in your legacy authentication system under the URI `${restClientUri}/{$username}`, where `${restClientUri}` is a configurable base URL for the endpoints and `{$username}` is the
 username of the user that is attempting to sign in.
 
@@ -91,7 +89,7 @@ As this is the correct password, the user will be logged in. In the background, 
 1. Provide the legacy system endpoint URI in the "Rest client URI" field.
 1. Click "save".
 
-Phase two will now recognize all users from your legacy authentication system and migrate them automatically.
+Phase Two will now recognize all users from your legacy authentication system and migrate them automatically.
 
 ## Optional - additional configuration
 
