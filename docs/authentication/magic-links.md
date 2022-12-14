@@ -5,7 +5,7 @@ title: Magic Links
 
 Magic links are a type of password-less authentication that allow your users to log in to your application following a link that is emailed to them, rather than typing a username and password. We wrote a blog post with more details and advantages/disadvantages in the [Magic Links Guide](/blog/set-up-magic-links).
 
-Note that email must be configured before setting up magic links. See the [email setup guide](/getting-started/email#server-configuration) if you haven't already done that.
+Note that email must be configured before setting up magic links. See the [email setup guide](/docs/getting-started/email#server-configuration) if you haven't already done that.
 
 ### Configuring magic links
 
