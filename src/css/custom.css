@@ -95,8 +95,6 @@ html {
   .navbar .navbar-sidebar__items {
     flex: 1 1 auto;
     display: flex;
-    align-items: center;
-    justify-content: center;
   }
   .menu {
     width: 100%;
@@ -153,7 +151,8 @@ html {
   .footer,
   .footer .text--center {
     text-align: left;
-  },
+  }
+  ,
   .footer--dark {
     --ifm-footer-background-color: #2b3137;
   }
