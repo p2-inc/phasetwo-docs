@@ -25,3 +25,15 @@ We distribute a [Docker image](https://quay.io/repository/phasetwo/phasetwo-keyc
 It is important to note that not all of Phase Two's extensions will be available as open source. The extensions that are considered "non-core" relate to functionality that is not essential in order to migrate to your own Keycloak deployment. This includes all changes to the underlying storage architecture that allows Phase Two to achieve larger scale than a standard Keycloak deployment. This also includes the user experience features targeted at IdP onboarding, such as the Admin Portal and Phase Two Connect on-prem wizards and dashboards.
 
 Also, if you are currently a paying customer, either for the hosted version or Phase Two Connect, and there is an extension that is not yet open sourced, you can request early access. Please [contact us](mailto:support@phasetwo.io) for more information.
+
+### Dual licensing
+
+The open source Phase Two extensions are licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html). Anyone who is a paid customer for the self-service, on-prem or hosted offerings are using the license specified in our [Service Agreement](/docs/service-agreement).
+
+#### Open source license
+
+With the AGPL, you can use, host and distribute the Phase Two Keycloak extensions in an unmodified fashion. If you modify the extensions, or include other extensions, you must release the source. You may not represent the Phase Two Keycloak extensions as your own work of authorship.
+
+#### Paid license
+
+Paying customers that have accepted our service agreements can use, host and distribute the Phase Two Keycloak extensions. You will have access to extensions that are not available as open source, such as our identity provider vendor wizards. Modifications and additional extensions are permitted. You may not use, host or distribute the extensions in a way that is competitive to Phase Two.

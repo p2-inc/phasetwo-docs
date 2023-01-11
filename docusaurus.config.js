@@ -9,6 +9,7 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
+    metadata: [{property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},{property: 'og:logo', content: '/img/playstore.png', size: '512x512'}],
     announcementBar: {
       id: 'self-serve',
       content:
@@ -131,6 +132,10 @@ module.exports = {
             {
               label: "Terms of Use",
               to: "docs/terms",
+            },
+            {
+              label: "Service Agreement",
+              to: "docs/service-agreement",
             },
           ],
         },
