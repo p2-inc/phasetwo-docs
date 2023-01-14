@@ -26,18 +26,9 @@ module.exports = {
       },
       items: [
         {
-          to: "/#features",
-          label: "Features",
-          position: "left",
-        },
-        {
-          to: "/#opensource",
-          label: "Open Source",
-          position: "left",
-        },
-        {
-          to: "/#pricing",
-          label: "Pricing",
+          to: "sso",
+          activeBasePath: "sso",
+          label: "SSO",
           position: "left",
         },
         {
