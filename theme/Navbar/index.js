@@ -163,11 +163,26 @@ function Navbar() {
               </strong>
             )}
           </Link>
-          {links
-            .filter(linkItem => linkItem.position !== 'right')
-            .map((linkItem, i) => (
-              <NavLink {...linkItem} key={i} />
-            ))}
+        </div>
+        <div className="navbar__main">
+          <ul className="navbar__links">
+            <li>
+              Product
+              {links
+                .filter(linkItem => linkItem.position !== 'right' && linkItem.group === 'product')
+                .map((linkItem, i) => (
+                  <NavLink {...linkItem} key={i} />
+              ))}
+            </li>
+            <li>
+              Developers
+              {links
+                .filter(linkItem => linkItem.position !== 'right' && linkItem.group === 'developers')
+                .map((linkItem, i) => (
+                  <NavLink {...linkItem} key={i} />
+              ))}
+            </li>
+          </ul>
         </div>
         <div className="navbar__items navbar__items--right">
           {links

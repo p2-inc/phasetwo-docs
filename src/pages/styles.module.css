@@ -1,46 +1,4 @@
-:root {
-  --color-wh: #fff;
-  --color-main: #0D0F19;
-  --color-n1: #C2CAD0;
-  --color-planbadge: #F36529;
-  --soft-shadow-branded: 0px 2px 12px rgba(248, 204, 241, 0.55);
-}
 
-body {
-  color: var(--main);
-  background-image: url(/static/img/home-bg.jpg);
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-size: 100% auto;
-}
-
-a {
-  transition: .2s all;
-}
-a:hover {
-  text-decoration: none;
-}
-
-.btnPrimary {
-  display: inline-block;
-  border-radius: 8px;
-  border: none;
-  background-color: var(--ifm-color-primary);
-  color: var(--color-wh);
-  font-size: 13px;
-  font-weight: 700;;
-  transition: .2s all;
-  padding: 12px 16px;
-}
-.btnPrimary:hover {
-  cursor: pointer;
-  background-color: var(--ifm-color-primary-light);
-  color: var(--color-wh);
-}
-
-.pt0 {
-  padding-top: 0 !important;
-}
 
 .formControl {
   padding: 12px 15px;
@@ -61,25 +19,7 @@ a:hover {
 }
 
 
-.hero {
-  padding: 40px 20px;
-  text-align: center;
-}
-.heroInner {
-  margin: 0 auto;
-  max-width: var(--inner-width);
-}
-.heroMsg {
-  text-align: center;
-  max-width: 664px;
-  margin: 0 auto;
-}
-.heroProjectTagline {
-  font-size: 1.6rem;
-  margin: 0;
-  margin-bottom: 15px;
-  line-height: 1.1em;
-}
+
 .heroImage {
   text-align: center;
 }
@@ -87,13 +27,6 @@ a:hover {
   width: 100%;
   height: auto;
   max-width: 950px;
-}
-.heroCta {
-  margin-top: 16px;
-  text-align: center;
-}
-.heroCta .btnPrimary {
-  display: inline-block;
 }
 
 
@@ -110,6 +43,19 @@ a:hover {
   flex: 1;
   max-width: 150px;
   position: relative;
+  color: var(--color-main);
+  transition: .25s ease-out;
+}
+.heroSectionPicto {
+  transition: .25s ease-out;
+  margin-bottom: 16px;
+}
+.heroSection:hover {
+  color: var(--color-main);
+  box-shadow: var(--soft-shadow-branded-strong);
+}
+.heroSection:hover .heroSectionPicto {
+  transform: scale(1.1);
 }
 .heroSection p {
   margin: 0;
@@ -118,8 +64,8 @@ a:hover {
   font-weight: 700;
 }
 .heroSectionPlus {
-  width: 24px;
-  height: 24px;
+  width: 27px;
+  height: 27px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -190,33 +136,7 @@ a:hover {
 }
 
 
-.contentBlock {
-  max-width: 1120px;
-  margin: 140px auto;
-}
-.contentBlockHead {
-  text-align: center;
-  max-width: 560px;
-  margin: 0 auto;
-  padding-bottom: 48px;
-}
-.contentBlockHead h2 {
-  font-size: 1.75rem;
-  line-height: 1.2em;
-  margin: 0;
-}
-.contentBlockHead p {
-  font-size: 1.125rem;
-  line-height: 1.4em;
-  margin: 0;
-}
-.contentBlockHead h2 + p {
-  margin-top: 24px; 
-}
-.contentBlockCta {
-  text-align: center;
-  padding-top: 48px;
-}
+
 
 
 .listFeats {
@@ -262,18 +182,10 @@ a:hover {
 
 
 
-.codeBox {
-  background-color: var(--color-main);
-  border-radius: 16px;
-  padding: 20px;
-  color: var(--color-wh);
-  min-height: 390px;
-}
-
-
 .enterpriseSSO {
   display: flex;
   column-gap: 80px;
+  align-items: center;
 }
 .enterpriseSSOL {
   width: 64%;

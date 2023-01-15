@@ -26,10 +26,39 @@ module.exports = {
       },
       items: [
         {
-          to: "sso",
-          activeBasePath: "sso",
+          to: "product/sso",
+          activeBasePath: "product/sso",
           label: "SSO",
           position: "left",
+          group: "product"
+        },
+        {
+          to: "product/identity",
+          activeBasePath: "product/identity",
+          label: "Identity",
+          position: "left",
+          group: "product"
+        },
+        {
+          to: "product/organizations",
+          activeBasePath: "product/organizations",
+          label: "Organizations",
+          position: "left",
+          group: "product"
+        },
+        {
+          to: "product/customerportal",
+          activeBasePath: "product/customerportal",
+          label: "Customer Portal",
+          position: "left",
+          group: "product"
+        },
+        {
+          to: "product/onprem",
+          activeBasePath: "product/onprem",
+          label: "On-Prem Deployment",
+          position: "left",
+          group: "product"
         },
         {
           to: "blog",
@@ -42,16 +71,25 @@ module.exports = {
           activeBasePath: "docs",
           label: "Docs",
           position: "left",
+          group: "developers"
         },
         {
           to: "api/",
           label: "API",
           position: "left",
+          group: "developers"
         },
         {
           href: "https://phasetwo.io/dashboard/",
           label: "Dashboard",
           position: "right",
+          buttonType: "btnSecondary"
+        },
+        {
+          href: "#",
+          label: "Get Started",
+          position: "right",
+          buttonType: "btnPrimary"
         },
       ],
     },

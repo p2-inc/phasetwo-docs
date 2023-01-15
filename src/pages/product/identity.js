@@ -1,0 +1,141 @@
+import React, { useEffect } from 'react';
+import classnames from 'classnames';
+import Layout from '@theme/Layout';
+import Link from '@docusaurus/Link';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import styles from './identity.module.css';
+import { render } from "react-dom";
+
+var ReactRotatingText = require('react-rotating-text');
+
+function getStarted() {
+  window.open(
+    `https://phasetwo.io/dashboard/`,
+    '_blank'
+  );
+}
+   
+function Sso() {
+  const context = useDocusaurusContext();
+  const {siteConfig = {}} = context;
+
+  useEffect(() => {
+    document.body.classList.add('page-identity', 'page-bg');
+  });
+
+
+  return (
+    <Layout
+      title={`${siteConfig.title}`}
+      description="Identity">
+
+      <main>
+
+        {/* Hero */}
+        <div className={`pageHero`}>
+          <div className={`pageHeroMsg`}>
+            <h1>Frictionless Authentication</h1>
+            <p className={`pageHeroMsgIntro`}>Authenticate your users securely across every application, from the first click to the last.</p>
+            <div className={`pageHeroCta`}>
+              <button className={`btnPrimary`}>Get Started</button>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Social Login */}
+        <div className={`contentBlock`}>
+          <div className={`socialLoginBgCircles bgImg`}>
+            <img src="/img/circles.svg" alt="Concentric Circles"/>
+          </div>
+          <div className={`socialLoginBgImg bgImg`}>
+            <img src="/img/social-login-bg.svg" alt="Social Login Symbols"/>
+          </div>
+          <div className={`contentBlockHead`}>
+            <h2>Social Login</h2>
+            <p>Add social login with popular providers like Google, Github and Facebook to remove barriers to engagement, and allow your users to maintain one identity.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.bodyImg}>
+              <img src="/img/img-social-login.svg" alt="Illustration showing Google and Microsoft social login buttons"/>
+            </div>
+          </div>
+        </div>
+
+
+        {/* MFA */}
+        <div className={`contentBlock`}>
+          <div className={`mfaBgImg bgImg`}>
+            <img src="/img/gradient-bg.png" alt="Color Gradient"/>
+          </div>
+          <div className={`contentBlockHead`}>
+            <h2>Multi-Factor Authentication</h2>
+            <p>Add an additional layer of security by allowing users to add second factors using advanced methods such as TOTP authenticator apps or WebAuthn devices like Yubikey or Passkeys.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.bodyImg}>
+              <img src="/img/img-mfa.svg" alt="Illustration showing various Multi-Factor Authentiation Means"/>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Magic Link */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2>Magic Links</h2>
+            <p>Removes friction to signup and identity using your user’s email, all without compromising account security. Immediately avoid password breaches, and remove the need for forgotten password problems.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.bodyImg}>
+              <img src="/img/img-magic-links.svg" alt="Illustration showing logging with magic link"/>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Magic Link */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2>User Account Management</h2>
+            <p>Empower your users with a user account portal that allows them to self-manage their account details and identity. Massively reduces the most common customer service issues.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.bodyImg}>
+              <img src="/img/img-user-management.svg" alt="Illustration showing managing users"/>
+            </div>
+          </div>
+        </div>
+
+
+        {/* Read More */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2>Learn More</h2>
+            <p>Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <a href="#" className={`readMore`}>
+              <div className={`readMoreL`}>
+                <img className={`readMoreImg`} src="/img/read-more-magic-link.jpg" alt="A magician with a hat and magic wand"/>
+              </div>
+              <div className={`readMoreR`}>
+                <h3>Magic Link Guide</h3>
+                <p>Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam. Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam.</p>
+                <p className={`btnReadMore`}>
+                  Read More
+                  <img src="/img/arrow-long-right.svg" alt="Arrow"/>
+                </p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+      </main>
+
+    </Layout>
+  );
+}
+
+export default Sso;

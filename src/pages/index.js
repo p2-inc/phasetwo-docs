@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import classnames from 'classnames';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
@@ -52,6 +52,12 @@ function Home() {
     this.setState({isOpen: true})
   }
 */
+
+  useEffect(() => {
+    document.body.classList.add('page-home', 'page-bg');
+  });
+
+
   return (
     <Layout
       title={`${siteConfig.title}`}
@@ -61,53 +67,55 @@ function Home() {
       <main>
 
         {/* Hero Section */}
-        <div className={styles.hero}>
+        <div className={`pageHero`}>
           <div className={styles.heroInner}>
 
             {/* Hero Message */}
-            <div className={styles.heroMsg}>
-              <h1 className={styles.heroProjectTagline}>
+            <div className={`pageHeroMsg`}>
+              <h1>
                 Future-Proof Your App
               </h1>
-              <p className={styles.heroIntro}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
-              <div className={styles.heroCta}>
-                <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
+              <p className={`pageHeroMsgIntro`}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
+              <div className={`pageHeroCta`}>
+                <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
               </div>
             </div>
           </div>
+
+
           <div className={styles.heroSections}>
-            <div className={styles.heroSection}>
-              <img src="img/picto-sso.svg" alt="Pictogram showing key"/>
+            <a href="#" className={styles.heroSection}>
+              <img className={styles.heroSectionPicto} src="img/picto-sso.svg" alt="Pictogram showing key"/>
               <p>SSO</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </div>
-            <div className={styles.heroSection}>
-              <img src="img/picto-identity.svg" alt="Pictogram showing a person"/>
+            </a>
+            <a href="#" className={styles.heroSection}>
+              <img className={styles.heroSectionPicto} src="img/picto-identity.svg" alt="Pictogram showing a person"/>
               <p>Identity</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </div>
-            <div className={styles.heroSection}>
-              <img src="img/picto-organizations.svg" alt="Pictogram showing multiple persons interacting"/>
+            </a>
+            <a href="#" className={styles.heroSection}>
+              <img className={styles.heroSectionPicto} src="img/picto-organizations.svg" alt="Pictogram showing multiple persons interacting"/>
               <p>Organizations</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </div>
-            <div className={styles.heroSection}>
-              <img src="img/picto-admin-portal.svg" alt="Pictogram showing a browser"/>
+            </a>
+            <a href="#" className={styles.heroSection}>
+              <img className={styles.heroSectionPicto} src="img/picto-admin-portal.svg" alt="Pictogram showing a browser"/>
               <p>Admin Portal</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </div>
-            <div className={styles.heroSection}>
-              <img src="img/picto-on-prem.svg" alt="Pictogram showing on prem servers"/>
+            </a>
+            <a href="#" className={styles.heroSection}>
+              <img className={styles.heroSectionPicto} src="img/picto-on-prem.svg" alt="Pictogram showing on prem servers"/>
               <p>On Prem Deployment</p>
-            </div>
+            </a>
           </div>
 
           <div className={styles.heroFeats}>
@@ -169,12 +177,15 @@ function Home() {
 
         
         {/* Enterprise SSO */}
-        <div className={styles.contentBlock}>
-          <div className={styles.contentBlockHead}>
+        <div className={`contentBlock`}>
+          <div className={`enterpriseSsoBgImg bgImg`}>
+            <img src="/img/enterprise-sso-bg.png" alt="Color Gradient"/>
+          </div>
+          <div className={`contentBlockHead`}>
             <h2>No-code Enterprise SSO</h2>
             <p>Leap up market into enterprise adoption with seamless SSO support.</p>
           </div>
-          <div className={styles.contentBlockBody}>
+          <div className={`contentBlockBody`}>
             <div className={styles.enterpriseSSO}>
               <div className={styles.enterpriseSSOL}>
                 <img className={styles.listFeatsImg} src="img/hero-feature-sso.png" alt="SSO Login Examples"/>
@@ -204,12 +215,12 @@ function Home() {
 
 
         {/* Developers */}
-        <div className={styles.contentBlock}>
-          <div className={styles.contentBlockHead}>
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
             <h2>By Developers, For Developers</h2>
             <p>Create delightful, seamless experiences for your customers. In just a few minutes!</p>
           </div>
-          <div className={styles.contentBlockBody}>
+          <div className={`contentBlockBody`}>
             <div className={styles.devs}>
               <div className={styles.devsL}>
               <ul className={styles.listFeats}>
@@ -231,25 +242,28 @@ function Home() {
                 </ul>
               </div>
               <div className={styles.devsR}>
-                <div className={styles.codeBox}>
+                <div className={`codeBox`}>
                   Put some code here
                 </div>
               </div>
             </div>
-            <div class={styles.contentBlockCta}>
-              <button className={styles.btnPrimary}>Go to Documentation</button>
+            <div class={`contentBlockCta`}>
+              <button className={`btnPrimary`}>Go to Documentation</button>
             </div>
           </div>
         </div>
 
 
         {/* PhaseTwo Loves Keycoak */}
-        <div className={styles.contentBlock}>
-          <div className={styles.contentBlockHead}>
+        <div className={`contentBlock`}>
+          <div className={`keycloakBgCircles bgImg`}>
+            <img src="/img/circles.svg" alt="Concentric Circles"/>
+          </div>
+          <div className={`contentBlockHead`}>
             <h2>Phase Two <img className={styles.heart} src="img/heart-filled.svg" alt="Heart symbols"/> Keycloak</h2>
             <p>Phase Two is based on the Keycloak Open Source Identity and Access Management system, built and maintained by Red Hat.</p>
           </div>
-          <div className={styles.contentBlockBody}>
+          <div className={`contentBlockBody`}>
 
             <div className={styles.keycloak}>
               <img className={styles.keycloakImg} src="img/diagram-keycloak.svg" alt="Diagram showing how Keycloak works with Phase Two"/>
@@ -278,12 +292,15 @@ function Home() {
 
 
         {/* Plan */}
-        <div className={styles.contentBlock}>
-          <div className={styles.contentBlockHead}>
+        <div className={`contentBlock`}>
+          <div className={`plansBgImg bgImg`}>
+            <img src="/img/gradient-bg.png" alt="Color Gradient"/>
+          </div>
+          <div className={`contentBlockHead`}>
             <h2>Phase Two is One Price Per Project</h2>
             <p>No hidden fees, no unpredictable costs.</p>
           </div>
-          <div className={styles.contentBlockBody}>
+          <div className={`contentBlockBody`}>
 
             <div className={styles.plans}>
 
@@ -315,7 +332,7 @@ function Home() {
                   </ul>
                 </div>
                 <div className={styles.planFoot}>
-                  <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
+                  <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
                 </div>
               </div>
 
@@ -348,7 +365,7 @@ function Home() {
                   </ul>
                 </div>
                 <div className={styles.planFoot}>
-                  <button className={styles.btnPrimary} onClick={requestAccess}>Get started</button>
+                  <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
                 </div>
               </div>
 
@@ -380,7 +397,7 @@ function Home() {
                   </ul>
                 </div>
                 <div className={styles.planFoot}>
-                  <button className={styles.btnPrimary} onClick={requestAccess}>GitLab</button>
+                  <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
                 </div>
               </div>
 
@@ -414,7 +431,7 @@ function Home() {
                   </ul>
                 </div>
                 <div className={styles.planFoot}>
-                  <button className={styles.btnPrimary} onClick={requestAccess}>GitLab</button>
+                  <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
                 </div>
               </div>
 

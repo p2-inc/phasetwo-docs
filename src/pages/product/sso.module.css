@@ -1,0 +1,32 @@
+.integrationRow {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 8px;
+  margin: 0 auto;
+  margin-top: -140px;
+  width: 96%;
+}
+.integrationRow + .integrationRow {
+  max-width: 76%;
+  margin: 0 auto;
+  margin-top: 48px;
+}
+.integration {
+  background-color: var(--color-wh);
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  max-width: 150px;
+  height: 64px;
+}
+.integration img {
+  width: 80px;
+  height: auto;
+}
+.integrationMore {
+  text-align: center;
+  margin-top: 16px;
+  margin-bottom: 140px;
+}
