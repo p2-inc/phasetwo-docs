@@ -302,6 +302,15 @@ function Home() {
           </div>
           <div className={`contentBlockBody`}>
 
+            <div className={styles.plansSects}>
+              <div className={styles.plansSect}>
+                <p>We host</p>
+              </div>
+              <div className={styles.plansSect}>
+                <p>You host</p>
+              </div>
+            </div>
+
             <div className={styles.plans}>
 
               {/* Plan */}
