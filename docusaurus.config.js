@@ -46,9 +46,9 @@ module.exports = {
               label: "Organizations",
             },
             {
-              to: "product/customerportal",
-              activeBasePath: "product/customerportal",
-              label: "Customer Portal",
+              to: "product/adminportal",
+              activeBasePath: "product/adminportal",
+              label: "Admin Portal",
             },
             {
               to: "product/onprem",

@@ -4,7 +4,7 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './customerportal.module.css';
+import styles from './adminportal.module.css';
 import { render } from "react-dom";
 
 var ReactRotatingText = require('react-rotating-text');
@@ -22,7 +22,7 @@ function Sso() {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Customer Portal">
+      description="Admin Portal">
 
       <main>
 
@@ -32,7 +32,7 @@ function Sso() {
             <img src="/img/circles.svg" alt="Concentric Circles"/>
           </div>
           <div className={`pageHeroMsg`}>
-            <h1>Customer Portal</h1>
+            <h1>Admin Portal</h1>
             <p className={`pageHeroMsgIntro`}>Seamless onboarding and self-management for your customer administrators and users. Empower your users and customers to easily manage every aspect of identity, organization and SSO. Drastically reduce customer support.</p>
             <div className={`pageHeroCta`}>
               <button className={`btnPrimary`}>Get Started</button>
