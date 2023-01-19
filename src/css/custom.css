@@ -38,6 +38,7 @@
   --openapi-code-dim-light: #aaaaa1 !important;
 
   --color-wh: #fff;
+  --color-bg: #F4F4FC;
   --color-main: #0D0F19;
   --color-n1: #C2CAD0;
   --color-n5: #3C474E;
@@ -202,10 +203,68 @@ a:hover {
 .navbar .navbar__logo {
   margin-right: 0;
 }
+.navbar__items--right {
+  column-gap: 8px;
+}
+.navbar__items--right [buttontype="btnSecondary"] {
+  display: inline-block;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-wh);
+  color: var(--ifm-color-primary);
+  box-shadow: inset 0 0 0 1px var(--ifm-color-primary);
+  font-size: 13px;
+  font-weight: 700;;
+  transition: .2s all;
+  padding: 12px 16px;
+}
+.navbar__items--right [buttontype="btnSecondary"]:hover {
+  cursor: pointer;
+  background-color: var(--color-wh);
+  color: var(--ifm-color-primary-light);
+  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+}
+.navbar__items--right [buttontype="btnPrimary"] {
+  display: inline-block;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--ifm-color-primary);
+  color: var(--color-wh);
+  font-size: 13px;
+  font-weight: 700;;
+  transition: .2s all;
+  padding: 12px 16px;
+}
+.navbar__items--right [buttontype="btnPrimary"]:hover {
+  cursor: pointer;
+  background-color: var(--ifm-color-primary-light);
+  color: var(--color-wh);
+  box-shadow: none;
+}
+
 .text-center {
   text-align: center;
 }
 
+.dropdown__menu {
+  border-radius: 16px;
+  padding: 8px;
+}
+.dropdown__link {
+  border-radius: 8px;
+  padding: 12px 16px;
+  line-height: 1.2em;
+  font-size: 1rem;
+}
+.dropdown__link:hover {
+  background-color: var(--color-bg);
+}
+.dropdown > .navbar__link:after {
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNiA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMC41IDAuNzVMMyAzLjI1TDUuNSAwLjc1IiBzdHJva2U9IiMxRjJDMzQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=") no-repeat center;
+  width: 10px;
+  height: 8px;
+  border: none;
+}
 
 .pageHero {
   padding: 120px 20px;
@@ -376,6 +435,10 @@ a:hover {
 
 .footer--dark {
   --ifm-footer-background-color: #2b3137;
+}
+.footer-logo {
+  float: right;
+  margin-top: -24px;
 }
 
 @media (min-width: 768px) {

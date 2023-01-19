@@ -26,58 +26,58 @@ module.exports = {
       },
       items: [
         {
-          to: "product/sso",
-          activeBasePath: "product/sso",
-          label: "SSO",
-          position: "left",
-          group: "product"
+          type: 'dropdown',
+          label: 'Product',
+          position: 'left',
+          items: [
+            {
+              to: "product/sso",
+              activeBasePath: "product/sso",
+              label: "SSO",
+            },
+            {
+              to: "product/identity",
+              activeBasePath: "product/identity",
+              label: "Identity",
+            },
+            {
+              to: "product/organizations",
+              activeBasePath: "product/organizations",
+              label: "Organizations",
+            },
+            {
+              to: "product/customerportal",
+              activeBasePath: "product/customerportal",
+              label: "Customer Portal",
+            },
+            {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem Deployment",
+            },
+          ]
         },
         {
-          to: "product/identity",
-          activeBasePath: "product/identity",
-          label: "Identity",
-          position: "left",
-          group: "product"
-        },
-        {
-          to: "product/organizations",
-          activeBasePath: "product/organizations",
-          label: "Organizations",
-          position: "left",
-          group: "product"
-        },
-        {
-          to: "product/customerportal",
-          activeBasePath: "product/customerportal",
-          label: "Customer Portal",
-          position: "left",
-          group: "product"
-        },
-        {
-          to: "product/onprem",
-          activeBasePath: "product/onprem",
-          label: "On-Prem Deployment",
-          position: "left",
-          group: "product"
+          type: 'dropdown',
+          label: 'Developers',
+          position: 'left',
+          items: [
+            {
+              to: "docs/introduction",
+              activeBasePath: "docs",
+              label: "Docs",
+            },
+            {
+              to: "api/",
+              label: "API",
+            },
+          ]
         },
         {
           to: "blog",
           activeBasePath: "blog",
           label: "Blog",
           position: "left",
-        },
-        {
-          to: "docs/introduction",
-          activeBasePath: "docs",
-          label: "Docs",
-          position: "left",
-          group: "developers"
-        },
-        {
-          to: "api/",
-          label: "API",
-          position: "left",
-          group: "developers"
         },
         {
           href: "https://phasetwo.io/dashboard/",
@@ -168,6 +168,16 @@ module.exports = {
             },
           ],
         },
+        {
+          title: " ",
+          items: [
+            {
+              html: `
+                <img class="footer-logo" src="https://phasetwo.io/img/logo_phase_slash.svg" alt="PhaseTwo" width="114" height="51" />
+              `
+            }
+          ]
+        }
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Phase Two, Inc.`,
     },
