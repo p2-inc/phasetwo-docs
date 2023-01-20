@@ -3,13 +3,14 @@
   justify-content: space-between;
   column-gap: 8px;
   margin: 0 auto;
-  margin-top: -140px;
-  width: 96%;
+  margin-top: -100px;
+  width: 130%;
+  margin-left: -15%;
 }
 .integrationRow + .integrationRow {
-  max-width: 76%;
+  max-width: 96%;
   margin: 0 auto;
-  margin-top: 48px;
+  margin-top: 12px;
 }
 .integration {
   background-color: var(--color-wh);
@@ -29,4 +30,16 @@
   text-align: center;
   margin-top: 16px;
   margin-bottom: 140px;
+}
+
+@media (min-width: 768px) {
+  .integrationRow {
+    margin-top: -140px;
+    margin-left: 0;
+    width: 96%;
+  }
+  .integrationRow + .integrationRow {
+    max-width: 76%;
+    margin-top: 48px;
+  }
 }

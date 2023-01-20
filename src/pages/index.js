@@ -153,8 +153,6 @@ function Home() {
               <div className={styles.heroIntegration}>
                 <img src="img/logo-active-directory.svg" alt="Active Directory Logo"/>
               </div>
-            </div>
-            <div className={styles.heroIntegrationRow}>
               <div className={styles.heroIntegration}>
                 <img src="img/logo-jump-cloud.svg" alt="JumpCloud Logo"/>
               </div>
@@ -167,7 +165,7 @@ function Home() {
               <div className={styles.heroIntegration}>
                 <img src="img/logo-duo-security.svg" alt="Duo Security Logo"/>
               </div>
-              <div className={styles.heroIntegration}>
+              <div className={`${styles.heroIntegration} ${styles.heroIntegrationMore}`}>
                 <p>+ many more</p>
               </div>
             </div>
@@ -254,6 +252,21 @@ function Home() {
         </div>
 
 
+
+        {/* Admin Portal */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2>Admin Portal</h2>
+            <p>Seamless onboarding and self-management for your customer administrators and users. Empower your users and customers to easily manage every aspect of identity, organization and SSO. Drastically reduce customer support.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.aportal}>
+              <img src="img/img-admin-portal-new1.png" alt="Screenshots showing management of users, domains and SSO"/>
+            </div>
+          </div>
+        </div>
+
+
         {/* PhaseTwo Loves Keycoak */}
         <div className={`contentBlock`}>
           <div className={`keycloakBgCircles bgImg`}>
@@ -302,145 +315,162 @@ function Home() {
           </div>
           <div className={`contentBlockBody`}>
 
-            <div className={styles.plansSects}>
-              <div className={styles.plansSect}>
-                <p>We host</p>
-              </div>
-              <div className={styles.plansSect}>
-                <p>You host</p>
-              </div>
-            </div>
+            <div className={styles.plansBlocks}>
 
-            <div className={styles.plans}>
+              <div className={styles.plansBlock}>
 
-              {/* Plan */}
-              <div className={styles.plan}>
-                <div className={styles.planHead}>
-                  <img className={styles.featCardPicto} src="img/plan-starter.svg" alt="Pictogram showing a sprout"/>
-                  <h3>Starter</h3>
-                  <p>Always FREE *</p>
+                <div className={styles.plansSects}>
+                  <div className={styles.plansSect}>
+                    <p>We host</p>
+                  </div>
                 </div>
-                <div className={styles.planBody}>
-                  <ul className={styles.checklist}>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      All features
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      &#60;1,000 users
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      &#60;10 SSO connections
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Community support
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.planFoot}>
-                  <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
-                </div>
-              </div>
 
-              {/* Plan */}
-              <div className={styles.plan}>
-                <div className={styles.planBadge}>Most Popular</div>
-                <div className={styles.planHead}>
-                  <img className={styles.featCardPicto} src="img/plan-premium.svg" alt="Pictogram showing a plant in a van"/>
-                  <h3>Premium</h3>
-                  <p><span className={styles.planFrom}>from</span> <strong className={styles.planPrice}>$499</strong>/mo</p>
-                </div>
-                <div className={styles.planBody}>
-                  <ul className={styles.checklist}>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      All features
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited users
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited SSO connections
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Chat & email support
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.planFoot}>
-                  <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
-                </div>
-              </div>
+                <div className={styles.plans}>
 
-              {/* Plan */}
-              <div className={styles.plan}>
-                <div className={styles.planHead}>
-                  <img className={styles.featCardPicto} src="img/plan-premium.svg" alt="Pictogram showing a plant in a van"/>
-                  <h3>Community</h3>
-                  <p>Always FREE</p>
-                </div>
-                <div className={styles.planBody}>
-                  <ul className={styles.checklist}>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      All open source extensions
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited users
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited SSO Connection
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Community support
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.planFoot}>
-                  <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <div className={styles.planHead}>
+                      <img className={styles.featCardPicto} src="img/plan-starter.svg" alt="Pictogram showing a sprout"/>
+                      <h3>Starter</h3>
+                      <p>Always FREE *</p>
+                    </div>
+                    <div className={styles.planBody}>
+                      <ul className={styles.checklist}>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          All features
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          &#60;1,000 users
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          &#60;10 SSO connections
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Community support
+                        </li>
+                      </ul>
+                    </div>
+                    <div className={styles.planFoot}>
+                      <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
+                    </div>
+                  </div>
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <div className={styles.planBadge}>Most Popular</div>
+                    <div className={styles.planHead}>
+                      <img className={styles.featCardPicto} src="img/plan-premium.svg" alt="Pictogram showing a plant in a van"/>
+                      <h3>Premium</h3>
+                      <p><span className={styles.planFrom}>from</span> <strong className={styles.planPrice}>$499</strong>/mo</p>
+                    </div>
+                    <div className={styles.planBody}>
+                      <ul className={styles.checklist}>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          All features
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited users
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited SSO connections
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Chat & email support
+                        </li>
+                      </ul>
+                    </div>
+                    <div className={styles.planFoot}>
+                      <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
+              <div className={styles.plansBlock}>
 
-              {/* Plan */}
-              <div className={styles.plan}>
-                <div className={styles.planBadge}>Enterprise Choice</div>
-                <div className={styles.planHead}>
-                  <img className={styles.featCardPicto} src="img/plan-supported.svg" alt="Pictogram showing a tree branch"/>
-                  <h3>Supported</h3>
-                  <p><span className={styles.planFrom}>from</span> <strong className={styles.planPrice}>$999</strong>/mo</p>
+                <div className={styles.plansSects}>
+                  <div className={styles.plansSect}>
+                    <p>You host</p>
+                  </div>
                 </div>
-                <div className={styles.planBody}>
-                  <ul className={styles.checklist}>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      All Features
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited users
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Unlimited SSO Connection
-                    </li>
-                    <li>
-                      <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                      Dedicated Support
-                    </li>
-                  </ul>
-                </div>
-                <div className={styles.planFoot}>
-                  <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+
+                <div className={styles.plans}>
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <div className={styles.planHead}>
+                      <img className={styles.featCardPicto} src="img/plan-premium.svg" alt="Pictogram showing a plant in a van"/>
+                      <h3>Community</h3>
+                      <p>Always FREE</p>
+                    </div>
+                    <div className={styles.planBody}>
+                      <ul className={styles.checklist}>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          All open source extensions
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited users
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited SSO Connection
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Community support
+                        </li>
+                      </ul>
+                    </div>
+                    <div className={styles.planFoot}>
+                      <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+                    </div>
+                  </div>
+
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <div className={styles.planBadge}>Enterprise Choice</div>
+                    <div className={styles.planHead}>
+                      <img className={styles.featCardPicto} src="img/plan-supported.svg" alt="Pictogram showing a tree branch"/>
+                      <h3>Supported</h3>
+                      <p><span className={styles.planFrom}>from</span> <strong className={styles.planPrice}>$999</strong>/mo</p>
+                    </div>
+                    <div className={styles.planBody}>
+                      <ul className={styles.checklist}>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          All Features
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited users
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Unlimited SSO Connection
+                        </li>
+                        <li>
+                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
+                          Dedicated Support
+                        </li>
+                      </ul>
+                    </div>
+                    <div className={styles.planFoot}>
+                      <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
