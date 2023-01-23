@@ -141,8 +141,7 @@
 }
 .heroIntegrationsLines {
   margin: 8px 0;
-  width: 100%;
-  max-width: 630px;
+  width: 80%;
   height: auto;
 }
 .heroIntegrationRow {
@@ -164,6 +163,7 @@
   flex: 1;
   max-width: 150px;
   height: 64px;
+  box-shadow: 0px 2px 6px rgba(248, 204, 241, 0.55);
 }
 .heroIntegration img {
   width: 80px;
@@ -184,6 +184,13 @@
   }
   .heroIntegrationMore {
     grid-column: auto;
+  }
+  .heroIntegrationsLines {
+    width: 100%;
+    max-width: 630px;
+  }
+  .heroIntegration {
+    box-shadow: none;
   }
 }
 
@@ -237,6 +244,11 @@
 
 
 @media (min-width: 800px) {
+  .featCards {
+    flex-direction: row;
+    column-gap: 12px;
+    row-gap: 0;
+  }
   .featCard {
     flex-direction: row;
     row-gap: 0;

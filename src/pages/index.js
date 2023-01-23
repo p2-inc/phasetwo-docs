@@ -136,7 +136,11 @@ function Home() {
 
           <div className={styles.heroIntegrations}>
             <p>Integrates with</p>
-            <img className={styles.heroIntegrationsLines} src="img/integration-lines.svg" alt="Integration Lines"/>
+            <picture>
+              <source media="(max-width: 767px)" srcset="/img/integration-lines-mobile.svg" />
+              <source media="(min-width: 768px)" srcset="/img/integration-lines.svg" />
+              <img className={styles.heroIntegrationsLines} src="/img/integration-lines.svg" alt="Integration Lines" />
+            </picture>
             <div className={styles.heroIntegrationRow}>
               <div className={styles.heroIntegration}>
                 <img src="img/logo-okta.svg" alt="Okta Logo"/>
@@ -261,7 +265,11 @@ function Home() {
           </div>
           <div className={`contentBlockBody`}>
             <div className={styles.aportal}>
-              <img src="img/img-admin-portal-new1.png" alt="Screenshots showing management of users, domains and SSO"/>
+              <picture>
+                <source media="(max-width: 767px)" srcset="/img/img-admin-portal-new1-mobile.png" />
+                <source media="(min-width: 768px)" srcset="/img/img-admin-portal-new1.png" />
+                <img src="/img/img-admin-portal-new1.png" alt="Screenshots showing management of users, domains and SSO" />
+              </picture>
             </div>
           </div>
         </div>
