@@ -68,8 +68,12 @@ body {
   background-size: 100% auto;
 }
 .page-home {
-  background-image: url(/static/img/home-bg-mobile.jpg);
-  background-size: 100% auto;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: auto;
+  z-index: -1;
 }
 .page-identity {
   background-image: url(/static/img/gradient-short-bg.png);
@@ -77,13 +81,12 @@ body {
 
 @media (min-width: 768px) {
   .page-home {
-    background-image: url(/static/img/home-bg.jpg);
-    background-size: 140% auto;
-  }
-}
-@media (min-width: 1200px) {
-  .page-home {
-    background-size: 100% auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 1300px;
+    object-fit: cover;
+    object-position: bottom;
   }
 }
 
@@ -314,14 +317,13 @@ a:hover {
 }
 
 .pageHero {
-  padding: 60px 20px;
-  padding-bottom: 20px;
+  padding: 40px 20px 20px 20px;
   background-color: transparent;
   position: relative;
   text-align: center;
 }
 .pageHeroMsg {
-  max-width: 664px;
+  max-width: 782px;
   margin: 0 auto;
   text-align: center;
 }
@@ -335,18 +337,32 @@ a:hover {
   font-size: 1.125rem;
   line-height: 1.4em;
 }
+.pageHeroImg {
+  margin-bottom: 12px;
+  width: 100%;
+}
+
 
 @media (min-width: 768px) {
 
 }
 @media (min-width: 1200px) {
   .pageHero {
-    padding: 120px 20px;
+    padding: 60px 20px;
     padding-bottom: 20px;
+  }
+  .pageHeroMsgIntro {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .pageHeroMsg h1 {
     font-size: 3.375rem;
     margin-bottom: 24px;
+  }
+  .pageHeroImg {
+    max-width: 782px;
+    margin-bottom: 20px;
   }
 }
 

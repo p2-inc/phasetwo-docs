@@ -54,7 +54,7 @@ function Home() {
 */
 
   useEffect(() => {
-    document.body.classList.add('page-home', 'page-bg');
+    document.body.classList.add('page-bg');
   });
 
 
@@ -62,6 +62,12 @@ function Home() {
     <Layout
       title={`${siteConfig.title}`}
       description="Tools for SaaS builders">
+
+      <picture>
+        <source media="(max-width: 767px)" srcset="/img/home-bg-mobile.jpg" />
+        <source media="(min-width: 768px)" srcset="/img/home-bg.jpg" />
+        <img className="page-home" src="/img/home-bg-mobile.jpg" alt="Gradient Background" />
+      </picture>
 
       {/* Main Content */}
       <main>
@@ -72,6 +78,11 @@ function Home() {
 
             {/* Hero Message */}
             <div className={`pageHeroMsg`}>
+              <picture>
+                <source media="(max-width: 767px)" srcset="/img/home-hero-mobile.png" />
+                <source media="(min-width: 768px)" srcset="/img/home-hero.png" />
+                <img className="pageHeroImg" src="/img/home-hero-mobile.png" alt="Illustration showing PhaseTwo solutions: SSO, Identity and User Management" />
+              </picture>
               <h1>
                 Future-Proof Your App
               </h1>
@@ -84,38 +95,38 @@ function Home() {
 
 
           <div className={styles.heroSections}>
-            <a href="#" className={styles.heroSection}>
+            <Link to={'product/sso'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-sso.svg" alt="Pictogram showing key"/>
               <p>SSO</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </a>
-            <a href="#" className={styles.heroSection}>
+            </Link>
+            <Link to={'product/identity'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-identity.svg" alt="Pictogram showing a person"/>
               <p>Identity</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </a>
-            <a href="#" className={styles.heroSection}>
+            </Link>
+            <Link to={'product/organizations'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-organizations.svg" alt="Pictogram showing multiple persons interacting"/>
               <p>Organizations</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </a>
-            <a href="#" className={styles.heroSection}>
+            </Link>
+            <Link to={'product/adminportal'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-admin-portal.svg" alt="Pictogram showing a browser"/>
               <p>Admin Portal</p>
               <div className={styles.heroSectionPlus}>
                 <img src="img/plus.svg" alt="Plus"/>
               </div>
-            </a>
-            <a href="#" className={styles.heroSection}>
+            </Link>
+            <Link to={'product/onprem'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-on-prem.svg" alt="Pictogram showing on prem servers"/>
               <p>On Prem Deployment</p>
-            </a>
+            </Link>
           </div>
 
           <div className={styles.heroFeats}>
@@ -216,6 +227,24 @@ function Home() {
         </div>
 
 
+        {/* Admin Portal */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2>Admin Portal</h2>
+            <p>Seamless onboarding and self-management for your customer administrators and users. Empower your users and customers to easily manage every aspect of identity, organization and SSO. Drastically reduce customer support.</p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.aportal}>
+              <picture>
+                <source media="(max-width: 767px)" srcset="/img/img-admin-portal-new1-mobile.png" />
+                <source media="(min-width: 768px)" srcset="/img/img-admin-portal-new1.png" />
+                <img src="/img/img-admin-portal-new1.png" alt="Screenshots showing management of users, domains and SSO" />
+              </picture>
+            </div>
+          </div>
+        </div>
+
+
         {/* Developers */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
@@ -256,23 +285,6 @@ function Home() {
         </div>
 
 
-
-        {/* Admin Portal */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2>Admin Portal</h2>
-            <p>Seamless onboarding and self-management for your customer administrators and users. Empower your users and customers to easily manage every aspect of identity, organization and SSO. Drastically reduce customer support.</p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.aportal}>
-              <picture>
-                <source media="(max-width: 767px)" srcset="/img/img-admin-portal-new1-mobile.png" />
-                <source media="(min-width: 768px)" srcset="/img/img-admin-portal-new1.png" />
-                <img src="/img/img-admin-portal-new1.png" alt="Screenshots showing management of users, domains and SSO" />
-              </picture>
-            </div>
-          </div>
-        </div>
 
 
         {/* PhaseTwo Loves Keycoak */}
@@ -363,7 +375,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>Get started</button>
                     </div>
                   </div>
 
@@ -396,7 +408,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>Get started</button>
                     </div>
                   </div>
 
@@ -441,7 +453,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>GitLab</button>
                     </div>
                   </div>
 
@@ -475,7 +487,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary`} onClick={requestAccess}>GitLab</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>GitLab</button>
                     </div>
                   </div>
 

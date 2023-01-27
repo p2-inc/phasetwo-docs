@@ -410,8 +410,9 @@
   padding-top: 0;
   text-align: center;
 }
-.planFoot .btnPrimary {
+.planFoot .btnPlan {
   width: 100%;
+  display: block;
 }
 
 
@@ -431,6 +432,9 @@
   .planHead h3 {
     margin: 16px 0;
     font-size: 1.75rem;
+  }
+  .planBody {
+    min-height: 220px;
   }
 }
 
