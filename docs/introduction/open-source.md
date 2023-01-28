@@ -28,12 +28,12 @@ Also, if you are currently a paying customer, either for the hosted version or P
 
 ### Dual licensing
 
-The open source Phase Two extensions are licensed under the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html). Anyone who is a paid customer for the self-service, on-prem or hosted offerings are using the license specified in our [Service Agreement](/docs/service-agreement).
+The open source Phase Two extensions are licensed under the [Elastic License v2](https://github.com/elastic/elasticsearch/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). Paid customers for the self-service or hosted offerings are using the license specified in our [SaaS Service Agreement](/docs/service-agreement). On-prem and other licensees can refer to their specific service agreements.
 
 #### Open source license
 
-With the AGPL, you can use, host and distribute the Phase Two Keycloak extensions in an unmodified fashion. If you modify the extensions, or include other extensions, you must release the source. You may not represent the Phase Two Keycloak extensions as your own work of authorship.
+With the Elastic License, you can use and host the Phase Two Keycloak extensions as part of your own product. You may not sell the extensions as a hosted or managed service, which includes bundling and distribution by companies who sell their products for on-prem and private cloud use. You are free to create derivative works, but they must maintain the same license, copyright and other notices. You may not represent the Phase Two Keycloak extensions as your own work of authorship.
 
 #### Paid license
 
-Paying customers that have accepted our service agreements can use, host and distribute the Phase Two Keycloak extensions. You will have access to extensions that are not available as open source, such as our identity provider vendor wizards. Modifications and additional extensions are permitted. You may not use, host or distribute the extensions in a way that is competitive to Phase Two.
+Paying customers that have accepted our service agreements can use, host and distribute the Phase Two Keycloak extensions in accordance with the restrictions defined in those agreements. You will have access to extensions that are not available as open source, such as our identity provider vendor wizards. Modifications and additional extensions are permitted. You may not use, host or distribute the extensions in a way that is competitive to Phase Two.
