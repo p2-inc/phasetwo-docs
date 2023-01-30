@@ -79,6 +79,11 @@ module.exports = {
           ]
         },
         {
+          to: "#pricing",
+          label: "Pricing",
+          position: "left",
+        },
+        {
           to: "blog",
           activeBasePath: "blog",
           label: "Blog",
@@ -116,17 +121,43 @@ module.exports = {
               label: "Careers",
               to: "docs/careers",
             },
+          ],
+        },
+        {
+          title: "Product",
+          items: [
             {
-              label: "Github",
-              href: "https://github.com/p2-inc",
+              to: "product/sso",
+              activeBasePath: "product/sso",
+              label: "SSO",
+            },
+            {
+              to: "product/identity",
+              activeBasePath: "product/identity",
+              label: "Identity",
+            },
+            {
+              to: "product/organizations",
+              activeBasePath: "product/organizations",
+              label: "Organizations",
+            },
+            {
+              to: "product/adminportal",
+              activeBasePath: "product/adminportal",
+              label: "Admin Portal",
+            },
+            {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem",
             },
           ],
         },
         {
-          title: "Documentation",
+          title: "Developers",
           items: [
             {
-              label: "Introduction",
+              label: "Documentation",
               to: "docs/introduction",
             },
             {
@@ -136,6 +167,10 @@ module.exports = {
             {
               label: "API",
               to: "api/",
+            },
+            {
+              label: "GitHub",
+              href: "https://github.com/p2-inc",
             },
           ],
         },

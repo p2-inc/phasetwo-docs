@@ -325,7 +325,7 @@ function Home() {
 
 
         {/* Plan */}
-        <div className={`contentBlock`}>
+        <div id="pricing" className={`contentBlock`}>
           <div className={`plansBgImg bgImg`}>
             <img src="/img/gradient-bg.png" alt="Color Gradient"/>
           </div>
