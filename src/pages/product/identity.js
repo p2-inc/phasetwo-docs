@@ -38,7 +38,7 @@ function Sso() {
             <h1>Frictionless Authentication</h1>
             <p className={`pageHeroMsgIntro`}>Authenticate your users securely across every application, from the first click to the last.</p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`}>Get Started</button>
+              <button className={`btnPrimary`} onClick={getStarted}>Get Started</button>
             </div>
           </div>
         </div>
@@ -113,7 +113,7 @@ function Sso() {
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
             <h2>Learn More</h2>
-            <p>Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam.</p>
+            <p>See our articles and setup guides for a more in-depth look at our identity features.</p>
           </div>
           <div className={`contentBlockBody`}>
             <a href="#" className={`readMore`}>
@@ -122,11 +122,11 @@ function Sso() {
               </div>
               <div className={`readMoreR`}>
                 <h3>Magic Link Guide</h3>
-                <p>Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam. Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam.</p>
-                <p className={`btnReadMore`}>
+                <p>Magic links are a type of password-less authentication that allow your users to log in to your application following a link that is emailed to them, rather than typing a username and password. Read our guide to understand if they're right for you, and for 5-minute setup.</p>
+                <a href="/blog/set-up-magic-links" className={`btnReadMore`}>
                   Read More
                   <img src="/img/arrow-long-right.svg" alt="Arrow"/>
-                </p>
+                </a>
               </div>
             </a>
           </div>

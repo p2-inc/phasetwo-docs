@@ -102,6 +102,24 @@ a:hover {
   padding-top: 0 !important;
 }
 
+.btnCta {
+  display: inline-block;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--ifm-color-primary);
+  color: var(--color-wh);
+  font-size: 16px;
+  font-weight: 550;;
+  transition: .2s all;
+  padding: 18px 24px;
+  box-shadow: 0px 16px 30px rgba(0, 0, 0, 0.2);
+}
+.btnCta:hover {
+  cursor: pointer;
+  background-color: var(--ifm-color-primary-light);
+  color: var(--color-wh);
+}
+
 .btnPrimary {
   display: inline-block;
   border-radius: 8px;

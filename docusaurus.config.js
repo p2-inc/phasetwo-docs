@@ -79,7 +79,7 @@ module.exports = {
           ]
         },
         {
-          to: "#pricing",
+          to: "/#pricing",
           label: "Pricing",
           position: "left",
         },
@@ -96,7 +96,7 @@ module.exports = {
           buttonType: "btnSecondary"
         },
         {
-          href: "#",
+          href: "https://phasetwo.io/dashboard/",
           label: "Get Started",
           position: "right",
           buttonType: "btnPrimary"

@@ -38,7 +38,7 @@ function Sso() {
             <h1>One Simple Integration to Support Many Identity Providers</h1>
             <p className={`pageHeroMsgIntro`}>Support SSO with the most popular identity providers with just a few lines of code. 5 minutes to enable a universal login flow for a secure and consistent experience.</p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`}>Get Started</button>
+              <button className={`btnPrimary`} onClick={getStarted}>Get Started</button>
             </div>
           </div>
         </div>
@@ -109,7 +109,7 @@ function Sso() {
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
             <h2>Learn More</h2>
-            <p>Amet viverra tempor sed tortor commodo non eget diam. Cursus nibh faucibus purus erat nam.</p>
+            <p>See our articles and setup guides for a more in-depth look at our SSO features.</p>
           </div>
           <div className={`contentBlockBody`}>
             <a href="#" className={`readMore`}>
@@ -119,10 +119,10 @@ function Sso() {
               <div className={`readMoreR`}>
                 <h3>SSO Guide</h3>
                 <p>Enterprise customers demand SSO from modern SaaS vendors. Quickly deliver a solution to the enterprise fragmentation problem, and immediately provide increased security, productivity and adoption. Read more about why you should begin now.</p>
-                <p className={`btnReadMore`}>
+                <a href="/blog/sso-setup" className={`btnReadMore`}>
                   Read More
                   <img src="/img/arrow-long-right.svg" alt="Arrow"/>
-                </p>
+                </a>
               </div>
             </a>
           </div>

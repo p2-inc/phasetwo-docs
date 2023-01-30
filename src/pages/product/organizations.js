@@ -33,7 +33,7 @@ function Sso() {
             <p className={`pageHeroMsgIntro`}>Organizations is a SaaS identity solution that delivers self-management for your customers and APIs for your developers, so that you can start to build workflows for your customers at scale.</p>
             <p className={`pageHeroMsgIntro`}>Programmatic toolset of APIs and SDKs for app development teams to manage and customize workflows for their end customers at scale.</p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`}>Get Started</button>
+              <button className={`btnPrimary`} onClick={getStarted}>Get Started</button>
             </div>
           </div>
         </div>

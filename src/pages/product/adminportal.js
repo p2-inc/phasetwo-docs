@@ -6,6 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './adminportal.module.css';
 import { render } from "react-dom";
+import CodeBlock from '@theme/CodeBlock';
 
 var ReactRotatingText = require('react-rotating-text');
 
@@ -35,7 +36,7 @@ function Sso() {
             <h1>Admin Portal</h1>
             <p className={`pageHeroMsgIntro`}>Seamless onboarding and self-management for your customer administrators and users. Empower your users and customers to easily manage every aspect of identity, organization and SSO. Drastically reduce customer support.</p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`}>Get Started</button>
+              <button className={`btnPrimary`} onClick={getStarted}>Get Started</button>
             </div>
           </div>
         </div>
@@ -87,9 +88,23 @@ function Sso() {
             <p>A link to the portal can be easily generated and added to your application. When a logged-in user clicks on the link, we take care of the permissions to give them an optimized experience.</p>
           </div>
           <div className={`contentBlockBody`}>
-            <div className={`codeBox ` + styles.codeBox}>
-              Put some code here
-            </div>
+            <CodeBlock language="typescript" title="Create a portal link">
+{`import { Configuration, EventsApi, OrganizationsApi } from "@p2-inc/js-sdk";
+
+const configuration = new Configuration({
+  basePath: 'https://{host}/auth/realms',
+  accessToken: getAccessToken(),
+});
+
+const realm = 'my-realm';
+const orgId = 'my-organization';
+
+const portalLinkPromise = orgs.createPortalLink({realm: realm, orgId: orgId});
+const portalLink = await portalLinkPromise.then((resp) => {
+  return resp.link;
+});
+`}
+            </CodeBlock>
           </div>
         </div>
 

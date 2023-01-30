@@ -9,10 +9,9 @@ import { render } from "react-dom";
 
 var ReactRotatingText = require('react-rotating-text');
 
-function getStarted() {
+function contactSales() {
   window.open(
-    `https://phasetwo.io/dashboard/`,
-    '_blank'
+    `mailto:support@phasetwo.io`,
   );
 }
    
@@ -35,7 +34,7 @@ function Sso() {
             <h1>Bundle Identity and SSO When You Deploy On-Prem</h1>
             <p className={`pageHeroMsgIntro`}>Sophisticated SaaS providers are realizing the value in bundling and deploying their solutions to customers in governments and regulated industries that can’t use cloud offerings for regulatory or compliance reasons.</p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`}>Contact Sales</button>
+              <button className={`btnPrimary`} onClick={contactSales}>Contact Sales</button>
             </div>
           </div>
         </div>

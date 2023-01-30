@@ -7,6 +7,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import { render } from "react-dom";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import CodeBlock from '@theme/CodeBlock';
 
 
 function Feature({imageUrl, title, description}) {
@@ -35,6 +36,17 @@ function contactSales() {
   window.open(
     `mailto:support@phasetwo.io`,
   );
+}  
+
+function githubHome() {
+  window.open(
+    `https://github.com/p2-inc/`,
+    '_blank'
+  );
+}  
+
+function docsEntry() {
+  window.location = `/docs/introduction`;
 }  
     
 function Home() {
@@ -88,12 +100,10 @@ function Home() {
               </h1>
               <p className={`pageHeroMsgIntro`}>Accelerate SaaS time-to-market and enterprise adoption by rapidly integrating the features you need.</p>
               <div className={`pageHeroCta`}>
-                <button className={`btnPrimary`} onClick={requestAccess}>Get started</button>
+                <button className={`btnCta`} onClick={requestAccess}>Try Phase Two for Free</button>
               </div>
             </div>
           </div>
-
-
           <div className={styles.heroSections}>
             <Link to={'product/sso'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-sso.svg" alt="Pictogram showing key"/>
@@ -273,13 +283,26 @@ function Home() {
                 </ul>
               </div>
               <div className={styles.devsR}>
-                <div className={`codeBox`}>
-                  Put some code here
-                </div>
+		<CodeBlock language="javascript" title="Protect a page">
+{`var auth = new Keycloak({
+  url: 'https://{host}/auth',
+  realm: '{realm}',
+  clientId: '{clientId}'
+});
+auth.init({
+  onLoad: 'login-required'
+}).then(function(authenticated) {
+  alert(authenticated ? 'authenticated' :
+       'not authenticated');
+}).catch(function() {
+   alert('failed to initialize');
+});
+`}
+		</CodeBlock>
               </div>
             </div>
             <div class={`contentBlockCta`}>
-              <button className={`btnPrimary`}>Go to Documentation</button>
+              <button className={`btnPrimary`} onClick={docsEntry}>Go to Documentation</button>
             </div>
           </div>
         </div>
@@ -453,7 +476,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>GitLab</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={githubHome}>GitHub</button>
                     </div>
                   </div>
 
@@ -487,7 +510,7 @@ function Home() {
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
-                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>GitLab</button>
+                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={contactSales}>Contact Sales</button>
                     </div>
                   </div>
 
