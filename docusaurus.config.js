@@ -69,7 +69,12 @@ module.exports = {
             },
             {
               to: "api/",
+              activeBasePath: "api",
               label: "API",
+            },
+            {
+              to: "https://github.com/p2-inc/",
+              label: "GitHub",
             },
           ]
         },

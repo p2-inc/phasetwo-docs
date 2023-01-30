@@ -78,11 +78,11 @@ function Home() {
 
             {/* Hero Message */}
             <div className={`pageHeroMsg`}>
-              <picture>
+              {/* <picture>
                 <source media="(max-width: 767px)" srcset="/img/home-hero-mobile.png" />
                 <source media="(min-width: 768px)" srcset="/img/home-hero.png" />
                 <img className="pageHeroImg" src="/img/home-hero-mobile.png" alt="Illustration showing PhaseTwo solutions: SSO, Identity and User Management" />
-              </picture>
+		</picture> */}
               <h1>
                 Future-Proof Your App
               </h1>
@@ -306,7 +306,7 @@ function Home() {
               <div class={styles.featCard}>
                 <img className={styles.featCardPicto} src="img/picto-open-source-alt.svg" alt="Pictogram showing Open Source logo"/>
                 <h5>Always Open Source</h5>
-                <p>Phase Two is built as a collection of essential Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, we will maintain compatibility so that customers can always choose to migrate to their own Keycloak deployment. Our core extensions will always be open source.</p>
+                <p>Phase Two is built as a collection of open source Keycloak extensions. While we endeavor to make Keycloak simple to use, operate and scale, in the cloud or on prem.</p>
               </div>
               <div class={styles.featCard}>
                 <img className={styles.featCardPicto} src="img/picto-hardened.svg" alt="Pictogram showing a fortress"/>
