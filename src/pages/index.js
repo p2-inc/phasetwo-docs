@@ -451,7 +451,7 @@ auth.init({
                   {/* Plan */}
                   <div className={styles.plan}>
                     <div className={styles.planHead}>
-                      <img className={styles.featCardPicto} src="img/plan-premium.svg" alt="Pictogram showing a plant in a van"/>
+                      <img className={styles.featCardPicto} src="img/plan-community.svg" alt="Pictogram showing a plant in a hand"/>
                       <h3>Community</h3>
                       <p>Always FREE</p>
                     </div>

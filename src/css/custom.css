@@ -181,18 +181,20 @@ a:hover {
   top: -280px;
 }
 .socialLoginBgCircles {
-  top: -346px;
+  top: -100px;
 }
 .socialLoginBgImg {
   max-width: 1164px;
   top: -220px;
 }
 .entSocialLoginBgCircles {
-  top: -396px;
+  top: -310px;
+  width: 280vw;
+  z-index: 0;
 }
 .entSocialLoginBgImg {
-  max-width: 1164px;
-  top: -264px;
+  width: 170vw;
+  top: 92px;
 }
 .enterpriseSsoBgImg {
   width: 120vw;
@@ -238,6 +240,14 @@ a:hover {
   .enterpriseSsoBgImg {
     width: 50vw;
   }
+  .entSocialLoginBgCircles {
+    top: -336px;
+    width: 1120px;
+  }
+  .entSocialLoginBgImg {
+    max-width: 1164px;
+    top: -264px;
+  }
 }
 
 
@@ -254,6 +264,7 @@ a:hover {
 .navbar .navbar__inner {
   width: var(--inner-width);
   margin: 0 auto;
+  position: relative;
 }
 .navbar .navbar__logo {
   margin-right: 0;
@@ -339,6 +350,7 @@ a:hover {
   background-color: transparent;
   position: relative;
   text-align: center;
+  z-index: 3;
 }
 .pageHeroMsg {
   max-width: 782px;

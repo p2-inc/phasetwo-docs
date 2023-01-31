@@ -82,6 +82,7 @@ module.exports = {
           to: "/#pricing",
           label: "Pricing",
           position: "left",
+          activeBasePath: "random",
         },
         {
           to: "blog",
