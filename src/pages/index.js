@@ -135,7 +135,7 @@ function Home() {
             </Link>
             <Link to={'product/onprem'} className={styles.heroSection}>
               <img className={styles.heroSectionPicto} src="img/picto-on-prem.svg" alt="Pictogram showing on prem servers"/>
-              <p>On Prem Deployment</p>
+              <p>On-Prem Deployment</p>
             </Link>
           </div>
 
