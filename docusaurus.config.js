@@ -10,14 +10,6 @@ module.exports = {
   deploymentBranch: "master",
   themeConfig: {
     metadata: [{property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},{property: 'og:logo', content: '/img/playstore.png', size: '512x512'}],
-    announcementBar: {
-      id: 'self-serve',
-      content:
-        'Introducing <a href="/blog/self-service">Phase Two Self-service</a> for free Keycloak deployments.',
-      backgroundColor: 'var(--ifm-color-primary)',
-      textColor: '#fff',
-      isCloseable: true,
-    },
     navbar: {
       title: "",
       logo: {
