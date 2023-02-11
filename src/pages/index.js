@@ -362,12 +362,6 @@ auth.init({
 
               <div className={styles.plansBlock}>
 
-                <div className={styles.plansSects}>
-                  <div className={styles.plansSect}>
-                    <p>We host</p>
-                  </div>
-                </div>
-
                 <div className={styles.plans}>
 
                   {/* Plan */}
@@ -399,6 +393,7 @@ auth.init({
                     </div>
                     <div className={styles.planFoot}>
                       <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>Get started</button>
+                      <button className={`btnSecondary ${styles.btnPlan}`}>Self Host</button>
                     </div>
                   </div>
 
@@ -432,85 +427,6 @@ auth.init({
                     </div>
                     <div className={styles.planFoot}>
                       <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>Get started</button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              <div className={styles.plansBlock}>
-
-                <div className={styles.plansSects}>
-                  <div className={styles.plansSect}>
-                    <p>You host</p>
-                  </div>
-                </div>
-
-                <div className={styles.plans}>
-
-                  {/* Plan */}
-                  <div className={styles.plan}>
-                    <div className={styles.planHead}>
-                      <img className={styles.featCardPicto} src="img/plan-community.svg" alt="Pictogram showing a plant in a hand"/>
-                      <h3>Community</h3>
-                      <p>Always FREE</p>
-                    </div>
-                    <div className={styles.planBody}>
-                      <ul className={styles.checklist}>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          All open source extensions
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Unlimited users
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Unlimited SSO Connection
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Community support
-                        </li>
-                      </ul>
-                    </div>
-                    <div className={styles.planFoot}>
-                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={githubHome}>GitHub</button>
-                    </div>
-                  </div>
-
-
-                  {/* Plan */}
-                  <div className={styles.plan}>
-                    <div className={styles.planBadge}>Enterprise Choice</div>
-                    <div className={styles.planHead}>
-                      <img className={styles.featCardPicto} src="img/plan-supported.svg" alt="Pictogram showing a tree branch"/>
-                      <h3>Supported</h3>
-                      <p><span className={styles.planFrom}>from</span> <strong className={styles.planPrice}>$999</strong>/mo</p>
-                    </div>
-                    <div className={styles.planBody}>
-                      <ul className={styles.checklist}>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          All Features
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Unlimited users
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Unlimited SSO Connection
-                        </li>
-                        <li>
-                          <img className={styles.checklistIcon} src="img/checkmark.svg" alt="Checkmark"></img>
-                          Dedicated Support
-                        </li>
-                      </ul>
-                    </div>
-                    <div className={styles.planFoot}>
-                      <button className={`btnPrimary ${styles.btnPlan}`} onClick={contactSales}>Contact Sales</button>
                     </div>
                   </div>
 

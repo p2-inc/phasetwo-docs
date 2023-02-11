@@ -324,8 +324,8 @@
 
 .plans {
   display: flex;
-  justify-content: center;
-  column-gap: 8px;
+  flex-direction: column;
+  row-gap: 32px;
 }
 .plansSects {
   display: flex;
@@ -333,30 +333,12 @@
   padding: 0 80px;
   margin-bottom: 24px;
 }
-.plansSect {
-  flex: 1;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  column-gap: 8px;
-}
-.plansSect p {
-  display: block;
-  margin: 0;
-  font-size: .865rem;
-}
-.plansSect::before,
-.plansSect::after {
-  content: '';
-  display: block;
-  height: 1px;
-  background-color: var(--color-main);
-  flex: 1 1 auto;
-}
 .plansBlocks {
   display: flex;
   flex-direction: column;
   row-gap: 32px;
+  max-width: 620px;
+  margin: 0 auto;
 }
 .plan {
   background-color: var(--color-wh);
@@ -409,13 +391,22 @@
   padding: 20px;
   padding-top: 0;
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  column-gap: 4px;
 }
 .planFoot .btnPlan {
   width: 100%;
   display: block;
 }
 
-
+@media (min-width: 600px) {
+  .plans {
+    flex-direction: row;
+    justify-content: center;
+    column-gap: 8px;
+  }
+}
 @media (min-width: 992px) {
   .plansBlocks {
     flex-direction: row;
@@ -434,7 +425,7 @@
     font-size: 1.75rem;
   }
   .planBody {
-    min-height: 220px;
+    min-height: 180px;
   }
 }
 
