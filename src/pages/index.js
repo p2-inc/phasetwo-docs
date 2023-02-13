@@ -393,7 +393,7 @@ auth.init({
                     </div>
                     <div className={styles.planFoot}>
                       <button className={`btnPrimary ${styles.btnPlan}`} onClick={requestAccess}>Get started</button>
-                      <button className={`btnSecondary ${styles.btnPlan}`}>Self Host</button>
+                      <button className={`btnSecondary ${styles.btnPlan}`} onClick={githubHome}>Self Host</button>
                     </div>
                   </div>
 
@@ -435,6 +435,10 @@ auth.init({
 
             </div>
           </div>
+          <div className={`contentBlockCta`}>
+            <p>For on-prem support and bundling options, please <a href="mailto:sales@phasetwo.io">contact sales</a>.</p>
+          </div>
+
         </div>
 
       </main>
