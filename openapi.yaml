@@ -148,6 +148,27 @@ components:
              type: array 
              items:
                type: string
+    CreateOrganizationInput:
+      type: object
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        url:
+          type: string
+        realm:
+          type: string
+        domains:
+          type: array
+          items:
+            type: string
+        attributes:
+          type: object
+          additionalProperties:
+             type: array 
+             items:
+               type: string
     OrganizationDomainRepresentation:
       type: object
       properties:
@@ -379,7 +400,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationRepresentation'
+              $ref: '#/components/schemas/CreateOrganizationInput'
         required: true
       responses:
         201:
