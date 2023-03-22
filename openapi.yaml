@@ -501,6 +501,11 @@ paths:
       description: Get a paginated list of users who are a member of the specified organization. 
       parameters:
         - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+        - in: query
           name: first
           schema:
             type: integer
