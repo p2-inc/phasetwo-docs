@@ -70,6 +70,29 @@ components:
       scheme: bearer
       bearerFormat: ""
   schemas:
+    MyOrganizationsRepresentation:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/MyOrganizationRepresentation'
+    MyOrganizationRepresentation:
+      type: object
+    properties: 
+      name: 
+        type: string
+      displayName: 
+        type: string
+      url: 
+        type: string
+      attributes:
+        type: object
+        additionalProperties:
+          type: array 
+          items:
+            type: string
+      roles:
+        type: array
+        items:
+          type: string
     IdentityProviderRepresentation:
       type: object
       properties:
@@ -389,6 +412,28 @@ paths:
               schema:
                 type: string
               description: URI indicating the ID of the new resource.
+  /{realm}/orgs/me:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get orgs and roles for authenticated user
+      description: Get a list of all organizations that the user is a member and their roles in those organizations. Similar idea to /userinfo in OIDC.
+      operationId: getMe
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyOrganizationsRepresentation'
   /{realm}/orgs/{orgId}:
     parameters:
       - in: path
