@@ -1,0 +1,24 @@
+.heroImg {
+  text-align: center;
+  padding: 0 20px;
+  margin-top: 20px;
+}
+.heroImg img {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+}
+.bodyImg {
+  text-align: center;
+}
+.codeBox {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+
+@media (min-width: 768px) {
+  .heroImg {
+    margin-top: -80px;
+  }
+}

@@ -9,14 +9,7 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
-    announcementBar: {
-      id: 'self-serve',
-      content:
-        'Introducing <a href="/blog/self-service">Phase Two Self-service</a> for free Keycloak deployments.',
-      backgroundColor: 'var(--ifm-color-primary)',
-      textColor: '#fff',
-      isCloseable: true,
-    },
+    metadata: [{property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},{property: 'og:logo', content: '/img/playstore.png', size: '512x512'}],
     navbar: {
       title: "",
       logo: {
@@ -25,19 +18,63 @@ module.exports = {
       },
       items: [
         {
-          to: "/#features",
-          label: "Features",
-          position: "left",
+          type: 'dropdown',
+          label: 'Product',
+          position: 'left',
+          items: [
+            {
+              to: "product/sso",
+              activeBasePath: "product/sso",
+              label: "SSO",
+            },
+            {
+              to: "product/identity",
+              activeBasePath: "product/identity",
+              label: "Identity",
+            },
+            {
+              to: "product/organizations",
+              activeBasePath: "product/organizations",
+              label: "Organizations",
+            },
+            {
+              to: "product/adminportal",
+              activeBasePath: "product/adminportal",
+              label: "Admin Portal",
+            },
+            {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem Deployment",
+            },
+          ]
         },
         {
-          to: "/#opensource",
-          label: "Open Source",
-          position: "left",
+          type: 'dropdown',
+          label: 'Developers',
+          position: 'left',
+          items: [
+            {
+              to: "docs/introduction",
+              activeBasePath: "docs",
+              label: "Docs",
+            },
+            {
+              to: "api/",
+              activeBasePath: "api",
+              label: "API",
+            },
+            {
+              to: "https://github.com/p2-inc/",
+              label: "GitHub",
+            },
+          ]
         },
         {
           to: "/#pricing",
           label: "Pricing",
           position: "left",
+          activeBasePath: "random",
         },
         {
           to: "blog",
@@ -46,20 +83,16 @@ module.exports = {
           position: "left",
         },
         {
-          to: "docs/introduction",
-          activeBasePath: "docs",
-          label: "Docs",
-          position: "left",
-        },
-        {
-          to: "api/",
-          label: "API",
-          position: "left",
-        },
-        {
           href: "https://phasetwo.io/dashboard/",
           label: "Dashboard",
           position: "right",
+          buttonType: "btnSecondary"
+        },
+        {
+          href: "https://phasetwo.io/dashboard/",
+          label: "Get Started",
+          position: "right",
+          buttonType: "btnPrimary"
         },
       ],
     },
@@ -81,17 +114,43 @@ module.exports = {
               label: "Careers",
               to: "docs/careers",
             },
+          ],
+        },
+        {
+          title: "Product",
+          items: [
             {
-              label: "Github",
-              href: "https://github.com/p2-inc",
+              to: "product/sso",
+              activeBasePath: "product/sso",
+              label: "SSO",
+            },
+            {
+              to: "product/identity",
+              activeBasePath: "product/identity",
+              label: "Identity",
+            },
+            {
+              to: "product/organizations",
+              activeBasePath: "product/organizations",
+              label: "Organizations",
+            },
+            {
+              to: "product/adminportal",
+              activeBasePath: "product/adminportal",
+              label: "Admin Portal",
+            },
+            {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem",
             },
           ],
         },
         {
-          title: "Documentation",
+          title: "Developers",
           items: [
             {
-              label: "Introduction",
+              label: "Documentation",
               to: "docs/introduction",
             },
             {
@@ -101,6 +160,10 @@ module.exports = {
             {
               label: "API",
               to: "api/",
+            },
+            {
+              label: "GitHub",
+              href: "https://github.com/p2-inc",
             },
           ],
         },
@@ -132,8 +195,22 @@ module.exports = {
               label: "Terms of Use",
               to: "docs/terms",
             },
+            {
+              label: "Service Agreement",
+              to: "docs/service-agreement",
+            },
           ],
         },
+        {
+          title: " ",
+          items: [
+            {
+              html: `
+                <img class="footer-logo" src="https://phasetwo.io/img/logo_phase_slash.svg" alt="PhaseTwo" width="114" height="51" />
+              `
+            }
+          ]
+        }
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Phase Two, Inc.`,
     },

@@ -163,12 +163,20 @@ function Navbar() {
               </strong>
             )}
           </Link>
+        </div>
+        <div className={styles.navbarMain}>
           {links
             .filter(linkItem => linkItem.position !== 'right')
             .map((linkItem, i) => (
               <NavLink {...linkItem} key={i} />
-            ))}
+          ))}
         </div>
+        {links
+          .filter(linkItem => linkItem.position !== 'right')
+          .map((linkItem, i) => (
+            <NavLink {...linkItem} key={i} />
+        ))}
+
         <div className="navbar__items navbar__items--right">
           {links
             .filter(linkItem => linkItem.position === 'right')
