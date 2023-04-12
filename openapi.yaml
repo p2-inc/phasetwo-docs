@@ -571,6 +571,37 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/UserRepresentation"
+  # organization membership resources
+  /{realm}/orgs/{orgId}/members/count:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Memberships
+      summary: Get organization members count
+      operationId: getOrganizationMembershipsCount
+      description: Get total number of members of a given organization
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
   /{realm}/orgs/{orgId}/domains:
     parameters:
       - in: path

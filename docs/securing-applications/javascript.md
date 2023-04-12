@@ -12,12 +12,12 @@ You must replace the `{host}`, `{realm}` and `{clientId}` values with those from
 ```html
 <html>
   <head>
-    <script src="https://app.phasetwo.io/auth/js/keycloak.js"></script>
+    <script src="https://{host}/auth/js/keycloak.js"></script>
     <script>
       var auth = new Keycloak({
         url: 'https://{host}/auth',
         realm: '{realm}',
-        clientId: {clientId}'
+        clientId: '{clientId}'
       });
       auth.init({
         onLoad: 'login-required'
