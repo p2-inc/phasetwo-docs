@@ -1,0 +1,34 @@
+---
+id: get-me
+title: "Get orgs and roles for authenticated user"
+description: "Get a list of all organizations that the user is a member and their roles in those organizations. Similar idea to /userinfo in OIDC."
+sidebar_label: "Get orgs and roles for authenticated user"
+hide_title: true
+hide_table_of_contents: true
+api: {"tags":["Organizations"],"description":"Get a list of all organizations that the user is a member and their roles in those organizations. Similar idea to /userinfo in OIDC.","operationId":"getMe","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"object","title":"MyOrganizationRepresentation"},"title":"MyOrganizationsRepresentation"}}}}},"parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/orgs/me","servers":[{"url":"{protocol}://{host}{port}/auth/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/master/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get orgs and roles for authenticated user","description":{"content":"Get a list of all organizations that the user is a member and their roles in those organizations. Similar idea to /userinfo in OIDC.","type":"text/plain"},"url":{"path":[":realm","orgs","me"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+sidebar_class_name: "get api-method"
+info_path: api//phase-two-admin-rest-api
+custom_edit_url: null
+---
+
+import ApiTabs from "@theme/ApiTabs";
+import MimeTabs from "@theme/MimeTabs";
+import ParamsItem from "@theme/ParamsItem";
+import ResponseSamples from "@theme/ResponseSamples";
+import SchemaItem from "@theme/SchemaItem";
+import SchemaTabs from "@theme/SchemaTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import TabItem from "@theme/TabItem";
+
+## Get orgs and roles for authenticated user
+
+
+
+Get a list of all organizations that the user is a member and their roles in those organizations. Similar idea to /userinfo in OIDC.
+
+<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+
+success
+
+</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><li><div><code>property name*</code><span style={{"opacity":"0.6"}}> object</span></div></li></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"{}"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+      
