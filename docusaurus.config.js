@@ -257,7 +257,6 @@ module.exports = {
           phasetwo: { // Note: petstore key is treated as the <id> and can be used to specify an API doc instance when using CLI commands
             specPath: "openapi.yaml", // Path to designated spec file
             outputDir: "api", // Output directory for generated .mdx docs
-            baseUrl: "/api",
             sidebarOptions: {
               groupPathsBy: "tag",
             },
@@ -269,7 +268,7 @@ module.exports = {
       "@docusaurus/plugin-content-docs",
       {
         id: "api",
-        path: "api",
+        path: "./api",
         breadcrumbs: true,
         routeBasePath: "api",
         include: ["**/*.md", "**/*.mdx"],
