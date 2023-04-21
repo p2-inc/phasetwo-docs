@@ -60,7 +60,7 @@ module.exports = {
               label: "Docs",
             },
             {
-              to: "api/",
+              to: "api/phase-two-admin-rest-api",
               activeBasePath: "api",
               label: "API",
             },
@@ -159,7 +159,7 @@ module.exports = {
             },
             {
               label: "API",
-              to: "api/",
+              to: "api/phase-two-admin-rest-api",
             },
             {
               label: "GitHub",
@@ -268,11 +268,11 @@ module.exports = {
       "@docusaurus/plugin-content-docs",
       {
         id: "api",
-        path: "./api",
+        path: "api",
         breadcrumbs: true,
         routeBasePath: "api",
         include: ["**/*.md", "**/*.mdx"],
-        sidebarPath: "api/sidebar.js",
+        sidebarPath: require.resolve("./api/sidebar.js"),
         docLayoutComponent: "@theme/DocPage",
         docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
       },
