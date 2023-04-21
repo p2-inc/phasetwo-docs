@@ -60,7 +60,7 @@ module.exports = {
               label: "Docs",
             },
             {
-              to: "api/",
+              to: "api/phase-two-admin-rest-api",
               activeBasePath: "api",
               label: "API",
             },
@@ -159,7 +159,7 @@ module.exports = {
             },
             {
               label: "API",
-              to: "api/",
+              to: "api/phase-two-admin-rest-api",
             },
             {
               label: "GitHub",
@@ -227,12 +227,9 @@ module.exports = {
   },
   presets: [
     [
-      "docusaurus-preset-openapi",
-      /** @type {import('docusaurus-preset-openapi').Options} */
-      {
-        api: {
-          path: "openapi.yaml",
-        },
+      "classic",
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/master",
@@ -247,8 +244,39 @@ module.exports = {
           blogSidebarTitle: 'News',
           blogSidebarCount: 'ALL',
         },
+      }),
+    ],
+  ],
+  plugins: [
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: "openapi",
+        docsPluginId: "api",
+        config: {
+          phasetwo: { // Note: petstore key is treated as the <id> and can be used to specify an API doc instance when using CLI commands
+            specPath: "openapi.yaml", // Path to designated spec file
+            outputDir: "api", // Output directory for generated .mdx docs
+            sidebarOptions: {
+              groupPathsBy: "tag",
+            },
+          }
+        }
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "api",
+        path: "api",
+        breadcrumbs: true,
+        routeBasePath: "api",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./api/sidebar.js"),
+        docLayoutComponent: "@theme/DocPage",
+        docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
       },
     ],
   ],
-  themes: ["@docusaurus/theme-live-codeblock"],
+  themes: ["@docusaurus/theme-live-codeblock","docusaurus-theme-openapi-docs"],
 };
