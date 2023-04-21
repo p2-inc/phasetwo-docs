@@ -13,6 +13,6 @@ It is possible to map all attributes of an organization into the access token, I
 
 ### API access
 
-It is possible to get and update organization attributes using the API. The `attributes` object is a child of the `organization` object. It is a hash between attribute `name` and an array of `values`. They are read and updated using the organization [get](/api/get-organization-by-id), [create](/api/create-a-new-organization) and [update](/api/update-this-organization-by-id) methods.
+It is possible to get and update organization attributes using the API. The `attributes` object is a child of the `organization` object. It is a hash between attribute `name` and an array of `values`. They are read and updated using the organization [get](/api/get-organization-by-id), [create](/api/create-organization) and [update](/api/update-organization) methods.
 
 

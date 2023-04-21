@@ -17,4 +17,4 @@ It is possible to map organization membership into the access token, ID token or
 
 ### API access
 
-It is possible to [create](/api/add-an-organization-member), [verify](/api/check-if-a-user-is-a-member-of-an-organization), [delete](/api/remove-an-organization-member) and [fetch all](/api/get-organization-memberships) organization memberships using the API.
+It is possible to [create](/api/add-organization-member), [verify](/api/check-organization-membership), [delete](/api/remove-organization-member) and [fetch all](/api/get-organization-memberships) organization memberships using the API.

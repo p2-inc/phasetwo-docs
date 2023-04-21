@@ -20,4 +20,4 @@ Following user creation and authentication, invitees will be prompted to accept 
 
 ### API access
 
-It is possible to [create](/api/create-an-invitation-to-an-organization), [remove pending](/api/remove-a-pending-invitation) and [fetch all outstanding](/api/get-organization-invitations) organization invitations using the API.
+It is possible to [create](/api/add-organization-invitation), [remove pending](/api/remove-organization-invitation) and [fetch all outstanding](/api/get-organization-invitations) organization invitations using the API.

@@ -15,4 +15,4 @@ In the Admin UI, in the Organizations tab, when you select an organization, the 
 
 #### API
 
-You can programmatically create portal links for your users with the API. This allows you to create a link for a specific user. The portal itself will take care of restricting access based on that user's organization permissions. Please refer to the API documentation to [create a link for the organization's admin portal](/api/create-a-link-for-the-organizations-admin-portal). Because this is an expiring link, it is recommended that you do not create the link until it has been selected in your application.
+You can programmatically create portal links for your users with the API. This allows you to create a link for a specific user. The portal itself will take care of restricting access based on that user's organization permissions. Please refer to the API documentation to [create a link for the organization's admin portal](/api/create-portal-link). Because this is an expiring link, it is recommended that you do not create the link until it has been selected in your application.

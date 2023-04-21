@@ -11,7 +11,7 @@ To that end, we've implemented two pathways for creating a magic link. One can b
 ![Install Magic Link Authenticator in Browser Flow](https://github.com/p2-inc/keycloak-magic-link/raw/main/docs/assets/magic-authenticator.png)
 This mechanism inserts a authenticator in the login flow that intercepts the email address and sends the magic link in an email to to the user.
 
-We've also implemented a web service that allows you to create a magic link without necessarily sending an email. This will allow you to send the link through another channel. Specification for the new endpoint can be found in the [Magic Link API Documentation](/api/create-a-magic-link-to-log-in-a-user).
+We've also implemented a web service that allows you to create a magic link without necessarily sending an email. This will allow you to send the link through another channel. Specification for the new endpoint can be found in the [Magic Link API Documentation](/api/create-magic-link).
 
 Both methods have the option of forcing the creation of a new user when an unknown email address is used. This allows a combination login/registration flow that combines an email verification. We think this really nails reducing friction in a new user flow.
 

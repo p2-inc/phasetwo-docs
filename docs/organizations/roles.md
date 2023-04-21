@@ -36,4 +36,4 @@ It is possible to map organization roles into the access token, ID token or user
 
 ### API access
 
-It is possible to [create](/api/create-a-new-role-for-this-organization), [update](/api/update-role-for-this-organization), [delete](/api/delete-this-organization-role) and [fetch all](/api/get-roles-for-this-organization) organization roles, as well as [grant](/api/grant-a-user-an-organization-role), [revoke](/api/revoke-an-organization-role-from-a-user), [verify](/api/check-if-a-user-has-an-organization-role) and [fetch all](/api/get-users-with-this-organization-role) user assignments using the API.
+It is possible to [create](/api/create-organization-role), [update](/api/update-organization-role), [delete](/api/delete-organization-role) and [fetch all](/api/get-organization-roles) organization roles, as well as [grant](/api/grant-user-organization-role), [revoke](/api/revoke-user-organization-role), [verify](/api/check-user-organization-role) and [fetch all](/api/get-user-organization-roles) user assignments using the API.
