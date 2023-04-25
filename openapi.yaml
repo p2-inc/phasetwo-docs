@@ -1062,7 +1062,7 @@ paths:
       summary: Import identity provider from uploaded JSON file
       operationId: importIdpJson
       responses:
-        2XX:
+        200:
           description: success
           content:
             application/json:
