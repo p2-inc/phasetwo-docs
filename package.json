@@ -10,10 +10,10 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "2.2.0",
-    "@docusaurus/plugin-google-analytics": "2.2.0",
-    "@docusaurus/preset-classic": "2.2.0",
-    "@docusaurus/theme-live-codeblock": "2.2.0",
+    "@docusaurus/core": ">=2.0.1 <2.3.0",
+    "@docusaurus/plugin-google-analytics": ">=2.0.1 <2.3.0",
+    "@docusaurus/preset-classic": ">=2.0.1 <2.3.0",
+    "@docusaurus/theme-live-codeblock": ">=2.0.1 <2.3.0",
     "classnames": "^2.2.6",
     "docusaurus-plugin-openapi-docs": "^1.7.2",
     "docusaurus-theme-openapi-docs": "^1.7.2",
@@ -21,21 +21,22 @@
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-responsive-carousel": "^3.2.8",
-    "react-rotating-text": "^1.4.1"
+    "react-rotating-text": "^1.4.1",
+    "swagger-ui-react": "^4.18.2"
   },
   "resolutions": {
-    "@docusaurus/core": "2.2.0",
-    "@docusaurus/plugin-google-analytics": "2.2.0",
-    "@docusaurus/preset-classic": "2.2.0",
-    "@docusaurus/mdx-loader": "2.2.0",
-    "@docusaurus/plugin-content-docs": "2.2.0",
-    "@docusaurus/types": "2.2.0",
-    "@docusaurus/utils-validation": "2.2.0",
-    "@docusaurus/utils": "2.2.0"
+    "@docusaurus/core": ">=2.0.1 <2.3.0",
+    "@docusaurus/plugin-google-analytics": ">=2.0.1 <2.3.0",
+    "@docusaurus/preset-classic": ">=2.0.1 <2.3.0",
+    "@docusaurus/mdx-loader": ">=2.0.1 <2.3.0",
+    "@docusaurus/plugin-content-docs": ">=2.0.1 <2.3.0",
+    "@docusaurus/types": ">=2.0.1 <2.3.0",
+    "@docusaurus/utils-validation": ">=2.0.1 <2.3.0",
+    "@docusaurus/utils": ">=2.0.1 <2.3.0"
   },
   "browserslist": {
     "production": [
-      ">0.2%",
+      ">0.5%",
       "not dead",
       "not op_mini all"
     ],
