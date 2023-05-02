@@ -94,26 +94,6 @@ module.exports = {
       link: {type: 'doc', id: 'admin-portal/index'},
       items: [
         'admin-portal/portal-link',
-	{
-	  type: 'category',
-	  label: 'Profile',
-	  link: {type: 'doc', id: 'admin-portal/profile/index'},
-	  items: [
-            'admin-portal/profile/details',
-            'admin-portal/profile/security'
-	  ],
-	},
-	{
-	  type: 'category',
-	  label: 'Organization',
-	  link: {type: 'doc', id: 'admin-portal/organization/index'},
-	  items: [
-            'admin-portal/organization/details',
-            'admin-portal/organization/members',
-            'admin-portal/organization/domains',
-            'admin-portal/organization/sso',
-	  ],
-	},
       ],
     },
     {
