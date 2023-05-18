@@ -412,6 +412,35 @@ paths:
               schema:
                 type: string
               description: URI indicating the ID of the new resource.
+  /{realm}/orgs/count:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organizations count
+      description: Get a count of organizations using an optional search query.
+      operationId: getOrganizationsCount
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
   /{realm}/orgs/me:
     parameters:
       - in: path
