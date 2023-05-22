@@ -3,7 +3,7 @@ id: service-agreement
 title: Phase Two SaaS Service Agreement
 ---
 
-*Last updated: January 11, 2023*
+*Last updated: May 22, 2023*
 
 This SaaS Service Agreement governs your use of the software-as-a-service solution identified below (the "Service"). "We" or "us" or "our" means Phase Two, Inc., a Washington corporation, with offices located at 140 Lakeside Avenue, Suite A49, Seattle, Washington 98122.
 
@@ -30,11 +30,11 @@ One year from the date you first access the Service.
 ### FEES	
 
 * Starter: FREE
-* Premium: $499 monthly
+* Premium: $749 billed monthly OR $5,988 billed annually ($499 monthtly effective)
 
 ### PAYMENT TERMS
 
-We will bill you according to the Tier of Service you select.  You shall pay the Fees on a NET 30 basis once invoice is received.
+We will bill you according to the Tier of Service you select.  You shall pay upfront at the beginning of each period.
 
 
 This Agreement is subject to the additional terms and conditions specified on Exhibit A hereto, which is an essential part of this Agreement.  
