@@ -364,7 +364,7 @@ paths:
       tags:
         - Organizations
       summary: Get organizations
-      description: Get a paginated list of organizations using an optional search query.
+      description: Get a paginated list of organizations using optional search query parameters.
       operationId: getOrganizations
       parameters:
         - in: query
@@ -372,6 +372,7 @@ paths:
           schema:
             type: string
           style: form
+          description: search by name
         - in: query
           name: first
           schema:
@@ -384,6 +385,12 @@ paths:
             type: integer
             format: int32
           style: form
+        - in: query
+          name: q
+          schema:
+            type: string
+          style: form
+          description: search by attributes using the format `k1:v1,k2:v2`
       responses:
         200:
           description: success
