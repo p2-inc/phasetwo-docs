@@ -76,23 +76,23 @@ components:
         $ref: "#/components/schemas/MyOrganizationRepresentation"
     MyOrganizationRepresentation:
       type: object
-    properties:
-      name:
-        type: string
-      displayName:
-        type: string
-      url:
-        type: string
-      attributes:
-        type: object
-        additionalProperties:
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        url:
+          type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        roles:
           type: array
           items:
             type: string
-      roles:
-        type: array
-        items:
-          type: string
     IdentityProviderRepresentation:
       type: object
       properties:
