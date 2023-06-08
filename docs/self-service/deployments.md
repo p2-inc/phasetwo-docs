@@ -3,7 +3,7 @@ id: deployments
 title: Deployments
 ---
 
-A Deployment is a Phase Two hosted instance of a Realm in a Phase Two enhanced Keycloak cluster. These clusters can be shared with other customers, or dedicated for customers in paid plans. Free, shared plans are allowed one Deployment per customer, and dedicated plans can create up to 20 Realms per cluster. If you need more, please contact your account representative or email [support@phasetwo.io](mailto:support@phasetwo.io).
+A Deployment is a Phase Two hosted instance of a Realm in a Phase Two enhanced Keycloak cluster. These clusters can be shared with other customers, or dedicated for customers in paid plans. Free, shared plans are allowed one Deployment per customer, and dedicated plans can create up to 20 Realms per cluster.
 
 ### Regions
 

@@ -3,7 +3,7 @@ id: your-organization
 title: Organization
 ---
 
-You can view and manage your organization for teams you are a member.
+Organizations allow you to create a team to manage your Phase Two Deployments and Clusters. You can use the Organizations link in the Dashboard to view and manage your organization for teams you are a member.
 
 ### Members
 

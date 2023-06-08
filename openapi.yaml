@@ -1340,7 +1340,6 @@ paths:
     get:
       tags:
         - Users
-        - Organizations
       summary: List organizations for the given user
       responses:
         200:

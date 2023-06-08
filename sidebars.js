@@ -16,6 +16,7 @@ module.exports = {
       link: {type: 'doc', id: 'self-service/index'},
       items: [
         'self-service/deployments',
+        'self-service/dedicated-clusters',
         'self-service/your-organization'
       ],
     },

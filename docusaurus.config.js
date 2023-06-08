@@ -199,6 +199,10 @@ module.exports = {
               label: "Service Agreement",
               to: "docs/service-agreement",
             },
+            {
+              label: "SLA",
+              to: "docs/sla",
+            },
           ],
         },
         {
