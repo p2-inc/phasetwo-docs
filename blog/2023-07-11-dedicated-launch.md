@@ -15,7 +15,7 @@ Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption 
 
 ### Why dedicated?
 
-Dedicated clusters allows us to provider our customers compute, network and storage isolation for your workloads, and to easily deploy in the region where your users are. This way, we can guarantee an SLA that meets your needs with no resource contention from other customers.
+Dedicated clusters allows us to provider our customers compute, network and storage isolation for your workloads, and to easily deploy in the region where your users are. This way, we can guarantee an [SLA](docs/sla) that meets your needs with no resource contention from other customers.
 
 ### How did you do it?
 
