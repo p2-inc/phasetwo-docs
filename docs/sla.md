@@ -33,12 +33,12 @@ The compensation will be in the form of Phase Two usage credits and may not be e
 Exclusions to the Uptime Guarantee
 Phase Two does all that we can to keep your service up and running. However, there are a few things that we can’t be held accountable for. Thus, they are excluded from our SLA. The following events will be exempt from Phase Two's availability guarantee:
 
-- Scheduled interruptions or network/hardware maintenance
-- Customer triggered redeployment (Keycloak version upgrade)
-- Load caused on the systems by client queries or usage (including, but not limited to, inaccurate installations and software configurations, abuse of the network, abuse of hardware or overuse of resources)
-- Failures or termination of the instance by the cloud providers used by Phase Two to implement the service
-- Failures due to hostile or abusive actions by third parties such as denial-of-service attacks that violate the Agreement
-- The system is not available due to technology failures on customer's side (network, hardware and software, third-party equipment)
-- Routing or other faults caused by intermediary or external networks
-- Errors caused by factors outside of Phase Two’s reasonable control
-- Features or Services designated Alpha or Beta or deprecated
+- Scheduled interruptions or network/hardware maintenance.
+- Customer triggered redeployment (Keycloak version upgrade).
+- Load caused on the systems by client queries or usage (including, but not limited to, inaccurate installations and software configurations, abuse of the network, abuse of hardware or overuse of resources).
+- Failures or termination of the instance by the cloud providers used by Phase Two to implement the service.
+- Failures due to hostile or abusive actions by third parties such as denial-of-service attacks that violate the Agreement.
+- The system is not available due to technology failures on customer's side (network, hardware and software, third-party equipment).
+- Routing or other faults caused by intermediary or external networks.
+- Errors caused by factors outside of Phase Two’s reasonable control.
+- Features or Services designated Alpha or Beta or deprecated.

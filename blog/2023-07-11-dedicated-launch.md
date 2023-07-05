@@ -15,7 +15,7 @@ Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption 
 
 ### Why dedicated?
 
-Dedicated clusters allow us to provide our customers compute, network and storage isolation for customer workloads, and to easily deploy in the region where cusetomer's users are. With dedicated cluseters, we can guarantee an SLA that meets customer's needs with no resource contention from other customers.
+Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where cusetomer's users are. With dedicated cluseters, we can guarantee an [SLA](docs/sla) that meets customer's needs with no resource contention from other customers.
 
 ### How did you do it?
 
