@@ -45,7 +45,7 @@ We will continue to support a robust Free tier.
 
 Many of our on-prem, suppport customers with large use cases asked us to build out a solution for massive-scale, fault-tolerant, multi-region use cases. One of the great parts of building support for Keycloak's existing storage system for CockroacDB is that we've been able to explore use cases that were previously impossible using the standard Keycloak distribution, or required complex, error-prone configurations. For use cases with these requirements, plus global proximity to users and regional failover, we built global clusters, backed by CockroachDB multi-region database, for which we are now in *beta*.
 
-These clusters provide a minimum of 3 global regions, with 3 instances of Phase Two enhanced Keycloaks per region. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
+These clusters provide a minimum of 3 global regions, with 3 instances of Phase Two enhanced Keycloak per region. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
 
 There will be two price tiers for global clusters, depending on your use of our shared CockroachDB clusters, or your own dedicated clusters. We expect to launch general availability of global clusters later in Q3 2023.
 
