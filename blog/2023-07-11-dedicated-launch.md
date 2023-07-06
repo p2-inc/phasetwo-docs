@@ -7,7 +7,7 @@ tags: [ release, keycloak, phase_two, cockroach ]
 
 We're excited today to announce the launch of our dedicated clusters offering. Our Phase Two enhanced Keycloak distribution is now available as a hosted, dedicated cluster in the region of your choice.
 
-About 9 months ago, we launched our self-service, shared deployments, offering customers the ability to [freely create](https://phasetwo.io/dashboard/) Phase Two enhanced Keycloak realms on our shared clusters. Over that period, we've provided over 700 free realms for testing and small production use cases. Many of you have reached out to us asking about an SLA, isolated resources, and ability to grow into larger use cases. Based on your requests and feedback, we built out our dedicated cluster offering.
+About 9 months ago, we launched our self-service, shared deployments, offering offering customers the ability to [create](https://phasetwo.io/dashboard/) Phase Two enhanced Keycloak realms on our shared clusters. Over that period, we've provided over 700 free realms for testing and small production use cases. Many of you have reached out to us asking about an SLA, isolated resources, and ability to grow into larger use cases. Based on your requests and feedback, we built out our dedicated cluster offering.
 
 ### What is Phase Two again?
 
@@ -15,7 +15,7 @@ Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption 
 
 ### Why dedicated?
 
-Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where cusetomer's users are. With dedicated cluseters, we can guarantee an [SLA](docs/sla) that meets customer's needs with no resource contention from other customers.
+Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where customer's users are. With dedicated clusters, we can guarantee an [SLA](docs/sla) that meets customer's needs with no resource contention from other customers.
 
 ### How did you do it?
 
