@@ -37,7 +37,7 @@ Following successful billing setup, you will be returned to the Dashboard while 
 
 ### How much does it cost?
 
-[Plans](https://phasetwo.io/#pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond those needs, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
+[Plans](https://phasetwo.io/#pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond that, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
 
 We will continue to support a robust Free tier. 
 
