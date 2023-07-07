@@ -9,6 +9,14 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
+    announcementBar: {
+      id: 'dedicated_clusters',
+      content:
+        '<a href="/blog/dedicated-launch">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
+      backgroundColor: '#3fa1e3',
+      textColor: '#fff',
+      isCloseable: false,
+    },
     metadata: [{property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},{property: 'og:logo', content: '/img/playstore.png', size: '512x512'}],
     navbar: {
       title: "",

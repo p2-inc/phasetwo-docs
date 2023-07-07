@@ -11,17 +11,19 @@ About 9 months ago, we launched our self-service, shared deployments, offering c
 
 ### What is Phase Two again?
 
-Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption with powerful SSO, identity and user management features. To that end, Phase Two has created an enhanced distribution of [Keycloak](https://www.keycloak.org/) that bundles several essential open source extensions for modern SaaS use cases. We support hosted and on-prem customers for a variety of use cases.
+Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption with powerful SSO, identity and user management features. To that end, Phase Two has created an enhanced distribution of [Keycloak](https://www.keycloak.org/) that bundles several essential [open source extensions](https://github.com/p2-inc) for modern SaaS use cases. We support hosted and on-prem customers for a variety of use cases.
 
 ### Why dedicated?
 
 Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where customer's users are. With dedicated clusters, we can guarantee an [SLA](docs/sla) that meets customer's needs with no resource contention from other customers.
 
+Furthermore, it allows us to support customer-provided domain names, and access to monitoring and management capabilities not available in the shared clusters.
+
 ### How did you do it?
 
 We built out our dedicated cluster offering using the best-of-breed open source tools and managed services.
 
-The core consists of Kubernetes clusters in each supported AWS and GCP region. New dedicated clusters are provisioned instantly using FluxCD, a continuous delivery solution that gives us the history and auditability of git. Monitoring and alerting is done using Prometheus, Grafana, and a suite of external services that give us a complete view of cluster health.
+The core consists of Kubernetes clusters in each [supported AWS and GCP region](/docs/self-service/dedicated-clusters#regions). New dedicated clusters are provisioned instantly using FluxCD, a continuous delivery solution that gives us the history and auditability of git. Monitoring and alerting is done using Prometheus, Grafana, and a suite of external services that give us a complete view of cluster health.
 
 The database tier uses a managed CockroachDB service provided by [Cockroach Labs](https://www.cockroachlabs.com/). Phase Two is the only provider that is capable of hosting the current Keycloak distribution (the "legacy" store) using CockroachDB. Working with Cockroach Labs gives us the expertise and reliability from hosting thousands of customer clusters at massive scale. 
 
@@ -35,9 +37,11 @@ Following successful billing setup, you will be returned to the Dashboard while 
 
 ![](/docs/dedicated-clusters-pending.png)
 
+Most clusters will be provisioned within 30 minutes, but some requests may take up to 24 hours. Additionally, for payment types such as ACH or SEPA, cluster provisioning will begin following payment clearing (up to 4 days in some cases).
+
 ### How much does it cost?
 
-[Plans](https://phasetwo.io/#pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond that, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
+[Plans](/#pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond that, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
 
 We will continue to support a robust Free tier. 
 
