@@ -1,23 +1,27 @@
-## Setting up Keycloak
+:::tip
+
+If you already have a functioning Keycloak instance, you can skip to the next section.
+
+:::
 
 Rather than trying to set up a "from scratch" instance of Keycloak, we're going to short-circuit that process by leveraging a free [Phase Two Starter](https://phasetwo.io/) instance. The Starter provides a free hosted instance of Phase Two's enhanced Keycloak ready for light production use cases.
 
 - Visit the sign-up [page](https://phasetwo.io/dashboard/).
 - Enter an email, use a Github account, or use an existing Google account to register.
 
-![](/blog/starter-instructions/2023-07-06/register.png)
+  ![](/blog/starter-instructions/2023-07-06/register.png)
 
 - Follow the register steps. This will include a sign-in link being sent to your email. Use that for password-less login.
 
-![](/blog/starter-instructions/2023-07-06/email_link.png)
+  ![](/blog/starter-instructions/2023-07-06/email_link.png)
 
 - After creating an account, a [realm](https://www.youtube.com/watch?v=ZTFlc-3pG1M) is automatically created for you with all of the Phase Two enhancements. You need to create a Deployment in the Shared Phase Two infrastructure in order to gain access to the realm. Without a deployment created, the Create Shared Deployment modal will automatically pop up.
 - Create a Shared Deployment by providing a region (pick something close to your existing infrastructure), a name for the deployment, and selecting the default organization that was created for you upon account creation. Hit "Confirm" when ready. Standby while our robots get to work generating your deployment. This can take a few seconds.
 
-![](/blog/starter-instructions/2023-07-06/create_shared_deployment.png)
+  ![](/blog/starter-instructions/2023-07-06/create_shared_deployment.png)
 
 - After the deployment is created and active, you can access the Keycloak Admin console by clicking "Open Console" for that deployment. Open it now to see the console.
 
-![](/blog/starter-instructions/2023-07-06/deployments.png)
+  ![](/blog/starter-instructions/2023-07-06/deployments.png)
 
 At this point, move on to the next step in the tutorial. We'll be coming back to the Admin Console when its time to start connecting our App to the Keycloak instance.

@@ -1,0 +1,84 @@
+---
+slug: instant-user-managemenet-and-sso-for-reactjs
+title: Instant User Management, SSO, and Secure Pages for ReactJS
+author: Phase Two
+tags: [phase_two, tutorial, frameworks]
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation.mdx";
+
+In the following article we'll be leveraging [Keycloak](https://www.keycloak.org/) to quickly augment an application with user management and SSO. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complicated integrations.
+
+:::info
+
+If you just want to skip to the code, visit the Phase Two [ReactJS example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
+
+:::
+
+## Setting up a Keycloak Instance
+
+<PhaseTwoStarterInstructions />
+
+## Setting up an OIDC Client
+
+<OIDC />
+
+## Setting up a ReactJS Project
+
+:::info
+We will use the Phase Two ReactJS example code here, but the logic could easily be applied to any existing application.
+:::
+
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
+1. Open the ReactJS [folder](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs) within `/frameworks/reactjs`.
+1. Run `npm install` and then `npm start`. This example leverages [react-oidc-context](https://github.com/authts/react-oidc-context/tree/f175dcba6ab09871b027d6a2f2224a17712b67c5) (which uses [oidc-client-ts](https://github.com/authts/oidc-client-ts)) to provide hook and HOC support.
+1. Open the `index.tsx` file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code.
+
+   ```js
+   const authServerUrl = "https://euc1.auth.ac/auth/";
+   const realm = "shared-deployment-001";
+   const client = "reg-example-1";
+   ```
+
+   Those are used to popluate the OIDC config
+
+   ```js
+   const oidcConfig = {
+     authority: `${authServerUrl}realms/${realm}`,
+     client_id: client,
+     redirect_uri: "http://localhost:3000/authenticated",
+     onSigninCallback: (args: any) =>
+       window.history.replaceState(
+         {},
+         document.title,
+         window.location.pathname
+       ),
+   };
+   ```
+
+   The config is then provided to the `AuthProvider`.
+
+   ```js
+   <AuthProvider {...oidcConfig}>
+     <App />
+   </AuthProvider>
+   ```
+
+   At this point our entire applicationw will be able to access all information and methods needed to perform authentication. View `Auth.tsx` for exactly how the code is authenticating your user.
+
+1. Open [localhost:3000](http://localhost:3000) and click **Log In**. This will redirect you to your login page.
+
+   :::info
+   It's possible you do not have a password set for the user. If not, you can set this by going to **Admin** (top right drop-down), then **Manage account**. Then select **Signing in** and follow instructions for setting a password.
+   :::
+
+1. After your first log in, click **Log out**. Then click **Log in** again. Notice how this time you will not be redirected to sign in as your state is already in the browser. Neat!
+
+## User Management
+
+TO DO
+
+## Learning more
+
+Phase Two's enhanced Keycloak provides a many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use case from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (password-less sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.

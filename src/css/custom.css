@@ -38,11 +38,11 @@
   --openapi-code-dim-light: #aaaaa1 !important;
 
   --color-wh: #fff;
-  --color-bg: #F4F4FC;
-  --color-main: #0D0F19;
-  --color-n1: #C2CAD0;
-  --color-n5: #3C474E;
-  --color-planbadge: #F36529;
+  --color-bg: #f4f4fc;
+  --color-main: #0d0f19;
+  --color-n1: #c2cad0;
+  --color-n5: #3c474e;
+  --color-planbadge: #f36529;
   --soft-shadow-branded: 0px 2px 12px rgba(248, 204, 241, 0.55);
   --soft-shadow-branded-strong: 0px 5px 12px rgba(248, 204, 241, 0.85);
 
@@ -75,10 +75,6 @@ body {
   height: auto;
   z-index: -1;
 }
-.page-identity {
-  background-image: url(/static/img/gradient-short-bg.png);
-}
-
 @media (min-width: 768px) {
   .page-home {
     left: 50%;
@@ -90,13 +86,16 @@ body {
   }
 }
 
+.page-identity {
+  background-image: url(/static/img/gradient-short-bg.png);
+}
+
 a {
-  transition: .2s all;
+  transition: 0.2s all;
 }
 a:hover {
   text-decoration: none;
 }
-
 
 .pt0 {
   padding-top: 0 !important;
@@ -109,8 +108,8 @@ a:hover {
   background-color: var(--ifm-color-primary);
   color: var(--color-wh);
   font-size: 16px;
-  font-weight: 550;;
-  transition: .2s all;
+  font-weight: 550;
+  transition: 0.2s all;
   padding: 18px 24px;
   box-shadow: 0px 16px 30px rgba(0, 0, 0, 0.2);
 }
@@ -127,8 +126,8 @@ a:hover {
   background-color: var(--ifm-color-primary);
   color: var(--color-wh);
   font-size: 13px;
-  font-weight: 700;;
-  transition: .2s all;
+  font-weight: 700;
+  transition: 0.2s all;
   padding: 12px 16px;
 }
 .btnPrimary:hover {
@@ -144,8 +143,8 @@ a:hover {
   color: var(--ifm-color-primary);
   box-shadow: inset 0 0 0 1px var(--ifm-color-primary);
   font-size: 13px;
-  font-weight: 700;;
-  transition: .2s all;
+  font-weight: 700;
+  transition: 0.2s all;
   padding: 12px 16px;
 }
 .btnSecondary:hover {
@@ -163,12 +162,11 @@ a:hover {
   line-height: 1.2em;
 }
 .btnReadMore img {
-  transition: .25s ease-out;
+  transition: 0.25s ease-out;
 }
 .btnReadMore:hover img {
   transform: translateX(4px);
 }
-
 
 .codeBox {
   background-color: var(--color-main);
@@ -177,7 +175,6 @@ a:hover {
   color: var(--color-wh);
   min-height: 390px;
 }
-
 
 .bgImg {
   position: absolute;
@@ -273,7 +270,6 @@ a:hover {
   }
 }
 
-
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
   display: block;
@@ -304,8 +300,8 @@ a:hover {
   color: var(--ifm-color-primary);
   box-shadow: inset 0 0 0 1px var(--ifm-color-primary);
   font-size: 13px;
-  font-weight: 700;;
-  transition: .2s all;
+  font-weight: 700;
+  transition: 0.2s all;
   padding: 12px 16px;
 }
 .navbar__items--right [buttontype="btnSecondary"]:hover {
@@ -321,8 +317,8 @@ a:hover {
   background-color: var(--ifm-color-primary);
   color: var(--color-wh);
   font-size: 13px;
-  font-weight: 700;;
-  transition: .2s all;
+  font-weight: 700;
+  transition: 0.2s all;
   padding: 12px 16px;
 }
 .navbar__items--right [buttontype="btnPrimary"]:hover {
@@ -362,7 +358,8 @@ a:hover {
   background-color: var(--color-bg);
 }
 .dropdown > .navbar__link:after {
-  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNiA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMC41IDAuNzVMMyAzLjI1TDUuNSAwLjc1IiBzdHJva2U9IiMxRjJDMzQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=") no-repeat center;
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNiA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMC41IDAuNzVMMyAzLjI1TDUuNSAwLjc1IiBzdHJva2U9IiMxRjJDMzQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=")
+    no-repeat center;
   width: 10px;
   height: 8px;
   border: none;
@@ -395,9 +392,7 @@ a:hover {
   width: 100%;
 }
 
-
 @media (min-width: 768px) {
-
 }
 @media (min-width: 1200px) {
   .pageHero {
@@ -432,7 +427,6 @@ a:hover {
   height: auto;
 }
 
-
 .contentBlock {
   margin: 80px auto;
   position: relative;
@@ -455,7 +449,7 @@ a:hover {
   margin: 0;
 }
 .contentBlockHead h2 + p {
-  margin-top: 24px; 
+  margin-top: 24px;
 }
 .contentBlockBody {
   max-width: 1120px;
@@ -472,7 +466,6 @@ a:hover {
     margin: 140px auto;
   }
 }
-
 
 .readMore {
   display: flex;
@@ -509,7 +502,6 @@ a:hover {
     width: calc(50% - 72px);
   }
 }
-
 
 @media (max-width: 996px) {
   .navbar .navbar__items {
@@ -623,7 +615,6 @@ a:hover {
 [data-theme="dark"] .footer .text--center {
   color: #999;
 }
-
 
 .markdown img {
   height: auto;
