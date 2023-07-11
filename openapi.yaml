@@ -315,13 +315,13 @@ components:
           type: string
         secret:
           type: string
-        created_by:
+        createdBy:
           type: string
-        created_at:
+        createdAt:
           type: string
         realm:
           type: string
-        event_types:
+        eventTypes:
           type: array
           items:
             type: string
