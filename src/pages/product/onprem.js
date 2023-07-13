@@ -20,8 +20,8 @@ function Sso() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="On Prem Deployment">
+      title="On Prem Deployment"
+      description="Bundle when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com.">
 
       <main>
 

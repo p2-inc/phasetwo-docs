@@ -72,8 +72,7 @@ function Home() {
 
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Tools for SaaS builders">
+      description={`${siteConfig.tagline}`}>
 
       <picture>
         <source media="(max-width: 767px)" srcset="/img/home-bg-mobile.jpg" />

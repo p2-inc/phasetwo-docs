@@ -21,8 +21,8 @@ function Sso() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Identity">
+      title="Organizations"
+      description="Enterprise SSO, Invitations, Authorization and self-managment for customer organizations">
 
       <main>
 

@@ -22,8 +22,8 @@ function Sso() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Admin Portal">
+      title="Admin Portal"
+      description="SSO onboarding and self-management for your customer administrators and users">
 
       <main>
 
