@@ -27,8 +27,8 @@ function Sso() {
 
   return (
     <Layout
-      title={`${siteConfig.title}`}
-      description="Identity">
+      title="Identity"
+      description="Identity - Authentication with Social Login, Multi-factor, Passwordless, Magic links and more - User self-management with a user account portal">
 
       <main>
 

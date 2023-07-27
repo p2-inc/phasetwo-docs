@@ -1,15 +1,28 @@
 module.exports = {
   plugins: [require.resolve('./sitePlugin')],
-  title: "Phase Two",
-  tagline: "Tools for SaaS builders",
-  url: "https://p2-inc.github.io",
+  title: "Phase Two enhanced Keycloak as a Service",
+  tagline: "Tools for SaaS builders - Enhanced Keycloak as a Service - Fully secured, managed and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+  url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "p2-inc",
   projectName: "p2-inc.github.io",
   deploymentBranch: "master",
   themeConfig: {
-    metadata: [{property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},{property: 'og:logo', content: '/img/playstore.png', size: '512x512'}],
+    announcementBar: {
+      id: 'dedicated_clusters',
+      content:
+        '<a href="/blog/dedicated-launch">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
+      backgroundColor: '#3fa1e3',
+      textColor: '#fff',
+      isCloseable: false,
+    },
+    metadata: [
+      {name: 'keywords', content:'keycloak, iam, sso'},
+      {name: 'description', content:'Tools for SaaS builders - Enhanced Keycloak as a Service'},
+      {property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},
+      {property: 'og:logo', content: '/img/playstore.png', size: '512x512'}
+    ],
     navbar: {
       title: "",
       logo: {
@@ -198,6 +211,10 @@ module.exports = {
             {
               label: "Service Agreement",
               to: "docs/service-agreement",
+            },
+            {
+              label: "SLA",
+              to: "docs/sla",
             },
           ],
         },
