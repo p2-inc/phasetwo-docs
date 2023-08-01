@@ -1,0 +1,59 @@
+We need to create a [OpenID Connect](https://www.keycloak.org/docs/latest/server_admin/#con-oidc_server_administration_guide) Client in Keycloak for the app to communicate with. Keycloak's [docs](https://www.keycloak.org/docs/latest/server_admin/#_oidc_clients) provide steps for how to create an OIDC client and all the various configurations that can be introduced. Follow the steps below to create a client and get the right information necessary for app configuration.
+
+1.  Open the Admin UI by clicking **Open Console** in the Phase Two Dashboard.
+1.  Click **Clients** in the menu.
+1.  Click **Create client**.
+1.  Leave **Client type** set to **OpenID Connect**.
+1.  Enter a **Client ID**. This ID is an alphanumeric string that is used in OIDC requests and in the Keycloak database to identify the client.
+1.  Supply a **Name** for the client.
+1.  Click **Next**.
+
+    ![](/blog/oidc_client_creation/general-settings.png)
+
+1.  Under the Capability Config section, leave the defaults as selected. This can be configured further later.
+
+    - Client authentication to Off.
+    - Authorization to Off.
+    - Standard flow checked. Direct access grants checked. All other items unchecked.
+
+1.  Click **Next**.
+
+    ![](/blog/oidc_client_creation/capability-config.png)
+
+1.  Under Login settings we need to add a redirect URI and Web origin in order. Assuming you are using the example applicaiton:
+
+    _Valid redirect URI_ (allows redirect back to application)
+
+    ```
+    http://localhost:3000/*
+    ```
+
+    _Web origins_ (allows for Token auth call)
+
+    ```
+    http://localhost:3000
+    ```
+
+    <details >
+
+    <summary>URI and Origin Details</summary>
+
+    The choice of `localhost` is arbitrary. If you are using an example application running locally, this will apply. If you are using an app that you actually have deployed somewhere, then you will need to substitute the appropriate URI for that.
+
+    </details>
+
+1.  Click **Save**
+
+    ![](/blog/oidc_client_creation/login-settings.png)
+
+### OIDC Config
+
+We will need values to configure our application. To get these values follow the instructions below.
+
+1. Click **Clients** in the menu.
+1. Find the Client you just created and click on it. In the top right click the **Action** dropdown and select **Download adapter config**.
+1. Select **Keycloak OIDC JSON** in the format option. The details section will populate with the details we will need.
+
+   - Note the `realm`, `auth-server-url`, and `resource` values.
+
+   ![](/blog/oidc_client_creation/adapter-config.png)
