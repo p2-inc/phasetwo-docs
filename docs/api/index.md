@@ -3,7 +3,7 @@ id: index
 title: API
 ---
 
-Phase Two has built an API for managing custom functionality as extension to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/20.0/rest-api/index.html).
+Phase Two has built an API for managing custom functionality as extension to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/22.0.1/rest-api/index.html).
 
 ### Base URI format
 Paths specified in the documentation are relative to the the base URI.
