@@ -504,7 +504,7 @@ auth.init({
                       <img
                         className={styles.featCardPicto}
                         src="img/plan-starter.svg"
-                        alt="Pictogram showing a sprout"
+                        alt="Starter plan"
                       />
                       <h3>Starter</h3>
                       <p>Always FREE *</p>
@@ -517,7 +517,7 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
-                          All features
+                          Shared cluster
                         </li>
                         <li>
                           <img
@@ -567,8 +567,8 @@ auth.init({
                     <div className={styles.planHead}>
                       <img
                         className={styles.featCardPicto}
-                        src="img/plan-premium.svg"
-                        alt="Pictogram showing a plant in a van"
+                        src="img/plan-supported.svg"
+                        alt="Premium plan"
                       />
                       <h3>Premium</h3>
                       <p>
@@ -584,7 +584,7 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
-                          All features
+                          Dedicated cluster
                         </li>
                         <li>
                           <img
@@ -608,6 +608,14 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
+                          Custom domain
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
                           Chat & email support
                         </li>
                       </ul>
@@ -621,6 +629,75 @@ auth.init({
                       </button>
                     </div>
                   </div>
+
+                  {/* Plan */}
+                  <div className={styles.plan}>
+                    <div className={styles.planHead}>
+                      <img
+                        className={styles.featCardPicto}
+                        src="img/plan-premium.svg"
+                        alt="Enterprise plan"
+                      />
+                      <h3>Enterprise</h3>
+                      <p>
+                        <span className={styles.planFrom}>from</span>{" "}
+                        <strong className={styles.planPrice}>$1999</strong>/mo
+                      </p>
+                    </div>
+                    <div className={styles.planBody}>
+                      <ul className={styles.checklist}>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          All Premium features
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          Global, multi-region deployment
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          Custom themes & extensions
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          Dedicated support
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          99.99% uptime guarantee
+                        </li>
+                      </ul>
+                    </div>
+                    <div className={styles.planFoot}>
+                      <button
+                        className={`btnPrimary ${styles.btnPlan}`}
+                        onClick={requestAccess}
+                      >
+                        Get started
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
