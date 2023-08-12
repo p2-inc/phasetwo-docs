@@ -44,7 +44,7 @@ info:
     | Python | https://github.com/p2-inc/phasetwo-python |
   version: "v1"
 servers:
-  - url: "{protocol}://{host}{port}/auth/realms"
+  - url: "{protocol}://{host}{port}{relativePath}/realms"
     variables:
       host:
         enum:
@@ -58,6 +58,12 @@ servers:
           - "8081"
         default: ""
         description: API port
+      relativePath:
+        enum:
+          - ""
+          - "/auth"
+        default: ""
+        description: Relative path
       protocol:
         enum:
           - http
