@@ -1,0 +1,170 @@
+---
+slug: secure-django
+title: Django Web and DRF Authentication With Keycloak
+author: Phase Two
+tags: [phase_two, tutorial, frameworks, django, drf]
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
+import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+
+[Django](https://www.djangoproject.com/) is a high-level, open-source web framework for building web applications using the Python programming language. It follows the Model-View-Controller (MVC) architectural pattern. Django Rest Framework (DRF) is a flexible toolkit built on top of Django, specifically designed for building RESTful APIs. 
+
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a Django Web and DRF application
+
+:::info
+
+If you just want to skip to the code, visit the Phase Two [Next.js example](https://github.com/p2-inc/examples/tree/main/frameworks/nextjs). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
+
+:::
+
+## Setting up a Django Project
+
+The following could be applied to an existing Django application, but we have chosen to use the excellent tutorial application built by [Mozilla](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django) as our example. If you aren't yet familiar with Django, we encourage you to follow the tutorial there.
+
+The completed code for that tutorial is available in their GitHub repositority. We'll clone it to get started.
+
+### Quick Start
+
+To get this project up and running locally on your computer:
+1. Set up the [Python development environment](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/development_environment).
+   We recommend using a Python virtual environment.
+1. Assuming you have Python setup, run the following commands (if you're on Windows you may use `py` or `py -3` instead of `python` to start Python):
+   ```
+   pip3 install -r requirements.txt
+   python3 manage.py makemigrations
+   python3 manage.py migrate
+   python3 manage.py collectstatic
+   python3 manage.py test # Run the standard tests. These should all pass.
+   python3 manage.py createsuperuser # Create a superuser
+   python3 manage.py runserver
+   ```
+1. Open a browser to `http://127.0.0.1:8000/admin/` to open the admin site
+1. Create a few test objects of each type.
+1. Open tab to `http://127.0.0.1:8000` to see the main site, with your new objects.
+
+
+## Setting up a Keycloak Instance
+
+Before customizing the Django app, we need to set up and configure our Keycloak instance.
+<PhaseTwoStarterInstructions />
+
+## Setting up an OIDC Client
+
+<OIDC />
+
+## Adding a Non-Admin User
+
+<NonAdminUser />
+
+
+## Install the Django OIDC library
+
+Now that we've installed and configured Keycloak, we need to setup Django to replace the native authentication method provided by the framework. The first task is to install a library that is compatible with Keycloak's OIDC implementation.
+
+The [mozilla-django-oidc](https://mozilla-django-oidc.readthedocs.io/) library provides an easy way to integrate Keycloak (or any OpenID Connect-compliant identity provider) with your Django app. It abstracts many of the complexities of integrating authentication and authorization. Here's how you can set it up:
+
+1. **Install the Package**:
+   Install the `mozilla-django-oidc` package using pip:
+
+   ```bash
+   pip install mozilla-django-oidc
+   ```
+
+2. **Configure Django Settings**:
+   Update your Django app's `settings.py` to include the necessary configurations for `mozilla-django-oidc`:
+
+   ```python
+   AUTHENTICATION_BACKENDS = (
+       'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+       'django.contrib.auth.backends.ModelBackend',
+   )
+
+   OIDC_RP_CLIENT_ID = 'your-client-id'
+   OIDC_RP_CLIENT_SECRET = 'your-client-secret'
+   OIDC_OP_AUTHORIZATION_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/auth'
+   OIDC_OP_TOKEN_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/token'
+   OIDC_OP_USER_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/userinfo'
+   OIDC_OP_JWKS_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/certs'
+
+   LOGIN_URL = 'oidc_authentication_init'
+   LOGOUT_REDIRECT_URL = '/'
+   LOGIN_REDIRECT_URL = '/'
+   ```
+
+   Replace `your-client-id`, `your-client-secret`, and the Keycloak URLs with your actual Keycloak configurations.
+
+3. **Add URLs**:
+   Update your Django app's `urls.py` to include the authentication URLs provided by `mozilla-django-oidc`:
+
+   ```python
+   from django.urls import path
+   from mozilla_django_oidc.views import OIDCAuthenticationInitView, OIDCAuthenticationCallbackView
+
+   urlpatterns = [
+       # ... other URLs ...
+       path('oidc/authentication/init/', OIDCAuthenticationInitView.as_view(), name='oidc_authentication_init'),
+       path('oidc/authentication/callback/', OIDCAuthenticationCallbackView.as_view(), name='oidc_authentication_callback'),
+   ]
+   ```
+
+4. **Use Decorators for Access Control**:
+   You can now use the `@oidc_protected` decorator to protect views that require authentication and potentially specific roles:
+
+   ```python
+   from mozilla_django_oidc.decorators import oidc_protected
+
+   @oidc_protected
+   def protected_view(request):
+       # Your view logic
+   ```
+
+5. **Single Sign-On (Optional)**:
+   With `mozilla-django-oidc`, Single Sign-On is already built-in. If a user is already authenticated with Keycloak, they won't need to re-enter credentials to access your Django app.
+
+6. **Handle User Info**:
+   You can access user information after authentication using the `request.oidc_user` attribute. For example:
+
+   ```python
+   def profile_view(request):
+       user_info = request.oidc_user.userinfo
+       # Access user_info['sub'], user_info['email'], etc.
+       # Your view logic
+   ```
+
+7. **Logging Out**:
+   You can use the `@oidc_logout` decorator to log the user out of both your app and Keycloak:
+
+   ```python
+   from mozilla_django_oidc.decorators import oidc_logout
+
+   @oidc_logout
+   def logout_view(request):
+       # Your logout view logic
+   ```
+
+## Add support for DRF
+
+DRF (Django REST Framework) integration
+If you want DRF to authenticate users based on an OAuth access token provided in the Authorization header, you can use the DRF-specific authentication class which ships with the package.
+
+Add this to your settings:
+
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # other authentication classes, if needed
+    ],
+}
+```
+
+Note that this only takes care of authenticating against an access token, and provides no options to create or renew tokens.
+
+If you’ve created a custom Django OIDCAuthenticationBackend and added that to your AUTHENTICATION_BACKENDS, the DRF class should be smart enough to figure that out. Alternatively, you can manually set the OIDC backend to use:
+
+```python
+OIDC_DRF_AUTH_BACKEND = 'mozilla_django_oidc.auth.OIDCAuthenticationBackend'
+```
