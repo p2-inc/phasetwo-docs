@@ -1,21 +1,21 @@
 ---
 slug: secure-django
-title: Django Web and DRF Authentication With Keycloak
+title: Django Web Authentication With Keycloak
 author: Phase Two
-tags: [phase_two, tutorial, frameworks, django, drf]
+tags: [phase_two, tutorial, frameworks, django]
 ---
 
 import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
-[Django](https://www.djangoproject.com/) is a high-level, open-source web framework for building web applications using the Python programming language. It follows the Model-View-Controller (MVC) architectural pattern. Django Rest Framework (DRF) is a flexible toolkit built on top of Django, specifically designed for building RESTful APIs. 
+[Django](https://www.djangoproject.com/) is a high-level, open-source web framework for building web applications using the Python programming language. It follows the Model-View-Controller (MVC) architectural pattern.
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a Django Web and DRF application
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a Django Web application.
 
 :::info
 
-If you just want to skip to the code, visit the Phase Two [Next.js example](https://github.com/p2-inc/examples/tree/main/frameworks/nextjs). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
+If you just want to skip to the code, visit the Phase Two [Django example](https://github.com/p2-inc/examples/tree/main/frameworks/django). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
 
 :::
 
@@ -48,15 +48,24 @@ To get this project up and running locally on your computer:
 ## Setting up a Keycloak Instance
 
 Before customizing the Django app, we need to set up and configure our Keycloak instance.
-<PhaseTwoStarterInstructions />
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
 
 ## Setting up an OIDC Client
 
-<OIDC />
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
 
 ## Adding a Non-Admin User
 
-<NonAdminUser />
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
 
 ## Install and configure the Django OIDC library
 
@@ -136,10 +145,67 @@ You can access user information after authentication using the `request.oidc_use
        # Your view logic
    ```
 
-By default, mozilla-django-oidc looks up a Django user matching the email field to the email address returned in the user info data from Keycloak.
 
-If a user logs into your site and doesn’t already have an account, by default, mozilla-django-oidc will create a new Django user account. It will create the User instance filling in the username (hash of the email address) and email fields.
+By default, `mozilla-django-oidc` looks up a Django user matching the email field to the email address returned in the user info data from Keycloak.
 
+If a user logs into your site and doesn’t already have an account, by default, `mozilla-django-oidc` will create a new Django user account. It will create the User instance filling in the username (hash of the email address) and email fields.
+
+#### Use Username rather than Email
+
+`mozilla-django-oidc` defaults to setting up Django users using the email address as the user name from keycloak was required. Fortunately, `preferred_username` is set up by default in Keycloak as a claim. The claim can used by overriding the `OIDCAuthenticationBackend` class in `mozilla_django_oidc.auth` and referring to this in `AUTHENTICATION_BACKENDS` as below:
+
+   ```python
+
+# Classes to override default OIDCAuthenticationBackend (Keycloak authentication)
+from mozilla_django_oidc.auth import OIDCAuthenticationBackend
+
+class KeycloakOIDCAuthenticationBackend(OIDCAuthenticationBackend):
+
+    def create_user(self, claims):
+        """ Overrides Authentication Backend so that Django users are 
+            created with the keycloak preferred_username.
+            If nothing found matching the email, then try the username.
+        """
+        user = super(KeycloakOIDCAuthenticationBackend, self).create_user(claims)
+        user.first_name = claims.get('given_name', '')
+        user.last_name = claims.get('family_name', '')
+        user.email = claims.get('email')
+        user.username = claims.get('preferred_username')
+        user.save()
+        return user
+
+    def filter_users_by_claims(self, claims):
+        """ Return all users matching the specified email.
+            If nothing found matching the email, then try the username
+        """
+        email = claims.get('email')
+        preferred_username = claims.get('preferred_username')
+
+        if not email:
+            return self.UserModel.objects.none()
+        users = self.UserModel.objects.filter(email__iexact=email)
+
+        if len(users) < 1:
+            if not preferred_username:
+                return self.UserModel.objects.none()
+            users = self.UserModel.objects.filter(username__iexact=preferred_username)
+        return users
+
+    def update_user(self, user, claims):
+        user.first_name = claims.get('given_name', '')
+        user.last_name = claims.get('family_name', '')
+        user.email = claims.get('email')
+        user.username = claims.get('preferred_username')
+        user.save()
+        return user
+   ```
+
+In settings.py, overide the new library you have just added in AUTHENTICATION_BACKENDS :
+
+   ```python
+    # mozilla_django_oidc - Keycloak authentication
+    "fragalysis.auth.KeycloakOIDCAuthenticationBackend",
+   ```
 
 ### Logging out
 
@@ -153,9 +219,10 @@ You can use the `@oidc_logout` decorator to log the user out of both your app an
        # Your logout view logic
    ```
 
-## Add support for DRF
+## Add support for Django Rest Framework
 
-DRF (Django REST Framework) integration
+Django Rest Framework (DRF) is a flexible toolkit built on top of Django, specifically designed for building RESTful APIs. 
+
 If you want DRF to authenticate users based on an OAuth access token provided in the Authorization header, you can use the DRF-specific authentication class which ships with the package.
 
 Add this to your settings:
@@ -177,3 +244,7 @@ If you’ve created a custom Django OIDCAuthenticationBackend and added that to 
 ```python
 OIDC_DRF_AUTH_BACKEND = 'mozilla_django_oidc.auth.OIDCAuthenticationBackend'
 ```
+
+## Learning more
+
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (password-less sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
