@@ -19,15 +19,24 @@ If you just want to skip to the code, visit the Phase Two [Next.js example](http
 
 ## Setting up a Keycloak Instance
 
-<PhaseTwoStarterInstructions />
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
 
 ## Setting up an OIDC Client
 
-<OIDC />
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
 
 ## Adding a Non-Admin User
 
-<NonAdminUser />
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
 
 ## Setting up a Next.js Project
 
@@ -74,7 +83,7 @@ This example uses Next.js 13 and splits `server` and `client` components accordi
    </AuthProvider>
    ```
 
-   At this point our entire applicationw will be able to access all information and methods needed to perform authentication. View the `providers.tsx` file for additional information about how the `SessionProvider` is used. The `SessionProvider` enables use of Hooks to derive the authenticated state. View `user.component.tsx` for exactly how the code is authenticating your user. The sections rendering the "Log in" and "Log out" buttons are conditional areas based on the authenticated context. The buttons invoke fuctions provided by NextAuth.
+   At this point our entire application will be able to access all information and methods needed to perform authentication. View the `providers.tsx` file for additional information about how the `SessionProvider` is used. The `SessionProvider` enables use of Hooks to derive the authenticated state. View `user.component.tsx` for exactly how the code is authenticating your user. The sections rendering the "Log in" and "Log out" buttons are conditional areas based on the authenticated context. The buttons invoke functions provided by NextAuth.
 
    The logic using the hook to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
 
