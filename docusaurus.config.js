@@ -192,6 +192,10 @@ module.exports = {
               href: "mailto:support@phasetwo.io",
             },
             {
+              label: "DEV.to",
+              href: "https://dev.to/phasetwo",
+            },
+            {
               label: "Youtube",
               href: "https://www.youtube.com/channel/UCUY2ZvxI0hxpTWO_8w7MjVw",
             },
