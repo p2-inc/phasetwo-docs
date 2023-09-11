@@ -15,17 +15,20 @@ You must replace the `{host}`, `{realm}` and `{clientId}` values with those from
     <script src="https://{host}/auth/js/keycloak.js"></script>
     <script>
       var auth = new Keycloak({
-        url: 'https://{host}/auth',
-        realm: '{realm}',
-        clientId: '{clientId}'
+        url: "https://{host}/auth",
+        realm: "{realm}",
+        clientId: "{clientId}",
       });
-      auth.init({
-        onLoad: 'login-required'
-      }).then(function(authenticated) {
-        alert(authenticated ? 'authenticated' : 'not authenticated');
-      }).catch(function() {
-        alert('failed to initialize');
-      });
+      auth
+        .init({
+          onLoad: "login-required",
+        })
+        .then(function (authenticated) {
+          alert(authenticated ? "authenticated" : "not authenticated");
+        })
+        .catch(function () {
+          alert("failed to initialize");
+        });
     </script>
   </head>
   <body>
@@ -35,4 +38,3 @@ You must replace the `{host}`, `{realm}` and `{clientId}` values with those from
 ```
 
 A complete specification of what is available in the keycloak-js library is available in their official documentation https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter
-
