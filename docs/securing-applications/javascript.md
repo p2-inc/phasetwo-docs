@@ -1,9 +1,9 @@
 ---
 id: javascript
-title: Javascript
+title: JavaScript
 ---
 
-Most modern applications are being built as single-page apps. The easiest way to secure these is with the Javascript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at `https://{host}/auth/js/keycloak.js
+Most modern applications are being built as single-page apps. The easiest way to secure these is with the JavaScript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at `https://{host}/auth/js/keycloak.js
 
 ### Example
 
@@ -15,17 +15,20 @@ You must replace the `{host}`, `{realm}` and `{clientId}` values with those from
     <script src="https://{host}/auth/js/keycloak.js"></script>
     <script>
       var auth = new Keycloak({
-        url: 'https://{host}/auth',
-        realm: '{realm}',
-        clientId: '{clientId}'
+        url: "https://{host}/auth",
+        realm: "{realm}",
+        clientId: "{clientId}",
       });
-      auth.init({
-        onLoad: 'login-required'
-      }).then(function(authenticated) {
-        alert(authenticated ? 'authenticated' : 'not authenticated');
-      }).catch(function() {
-        alert('failed to initialize');
-      });
+      auth
+        .init({
+          onLoad: "login-required",
+        })
+        .then(function (authenticated) {
+          alert(authenticated ? "authenticated" : "not authenticated");
+        })
+        .catch(function () {
+          alert("failed to initialize");
+        });
     </script>
   </head>
   <body>
@@ -35,4 +38,3 @@ You must replace the `{host}`, `{realm}` and `{clientId}` values with those from
 ```
 
 A complete specification of what is available in the keycloak-js library is available in their official documentation https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter
-
