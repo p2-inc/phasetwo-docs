@@ -3,7 +3,7 @@ id: nuxt
 title: Nuxt
 ---
 
-This example uses Nuxt3. There are a couple methods by which you can integrate Keycloak to your Nuxt application. We're going to explore two methods here, one uses [`keycloak-js`](https://www.npmjs.com/package/keycloak-js) and the other leverages [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts). The `keycloak-js` library provides a simple, client-only method, but lacks some of the sophistication provided by the `oidc-client` library that is heavily supported and more widely used.
+This example uses [Nuxt3](https://nuxt.com/). There are a couple methods by which you can integrate Keycloak to your Nuxt application. We're going to explore two methods here, one uses [`keycloak-js`](https://www.npmjs.com/package/keycloak-js) and the other leverages [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts). The `keycloak-js` library provides a simple, client-only method, but lacks some of the sophistication provided by the `oidc-client` library that is heavily supported and more widely used.
 
 ### Nuxt with `keycloak-js`
 

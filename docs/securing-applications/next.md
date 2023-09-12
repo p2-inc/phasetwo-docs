@@ -1,9 +1,9 @@
 ---
 id: next
-title: Next
+title: Next.js
 ---
 
-This example uses Next.js 13 and splits `server` and `client` components accordingly.
+This example uses [Next.js](https://nextjs.org/) 13 and splits `server` and `client` components accordingly.
 
 1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
 1. Open the Next.js [folder](https://github.com/p2-inc/examples/tree/main/frameworks/nextjs) within `/frameworks/nextjs`.
