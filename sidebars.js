@@ -40,9 +40,9 @@ module.exports = {
         "securing-applications/javascript",
         "securing-applications/react",
         "securing-applications/next",
+        "securing-applications/vue",
         "securing-applications/nuxt",
         "securing-applications/django",
-        "securing-applications/backend",
       ],
     },
     {

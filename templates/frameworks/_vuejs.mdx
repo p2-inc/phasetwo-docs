@@ -1,0 +1,88 @@
+:::info
+We will use the Phase Two Vue example code here, but the logic could easily be applied to any existing application.
+:::
+
+This example uses [Vue.js](https://vuejs.org/). We're going to leverage [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) to integrate OIDC authentication with the Vue app. The [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) package is a well-maintained and used library. It provides a lot of utilities for building out a fully production app.
+
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
+1. Open the Vue [folder](https://github.com/p2-inc/examples/tree/main/frameworks/vue) within `/frameworks/vue` and open the `/nuxt/oidc-client-ts` folder.
+1. Run `npm install` and then `npm run dev`.
+1. We'll review where we configure out Keycloak instance. First open `/auth.ts`. In this file you will want to update it with the values for the Keycloak instance we set-up earlier in the tutorial. Update the `clientSecret` with the value. Use and environment variable here if you wish.
+
+   ```json
+   export const keycloakConfig = {
+     authorityUrl: "https://euc1.auth.ac",
+     applicationUrl: "http://localhost:3000",
+     realm: "shared-deployment-001",
+     clientId: "reg-example-1",
+     clientSecret: "CLIENT_SECRET",
+   };
+   ```
+
+   After the config, you can see how the OIDC instance is started.
+
+   ```javascript
+   const settings = {
+     authority: `${keycloakConfig.authorityUrl}/auth/realms/${keycloakConfig.realm}`,
+     client_id: keycloakConfig.clientId,
+     client_secret: keycloakConfig.clientSecret,
+     redirect_uri: `${window.location.origin}/auth`,
+     silent_redirect_uri: `${window.location.origin}/silent-refresh`,
+     post_logout_redirect_uri: `${window.location.origin}`,
+     response_type: "code",
+     userStore: new WebStorageStateStore(),
+     loadUserInfo: true,
+   };
+   this.userManager = new UserManager(settings);
+   ```
+
+1. With the Keycloak instance defined, we attach this to the app instance for Vue. Switch to `/main.ts`
+
+   ```javascript
+   import Auth from "@/auth";
+   // ...
+   app.config.globalProperties.$auth = Auth;
+   ```
+
+   We pull in the `Auth` instance then expose it through the `$auth` variable.
+
+1. There are a few main pages in play here that we define to create paths the library can leverage. The `/view/auth` and `/view/silent-refresh` create paths at the same name. These are used to do the redirection during authentication. From within these we use the `Auth` instance to direct the user around within the app. For instance in `/views/AuthView`:
+
+   ```javascript
+   export default {
+     name: "AuthAuthenticated",
+     async mounted() {
+       try {
+         await this.$auth.signinCallback();
+         this.$router.push("/");
+       } catch (e) {
+         console.error(e);
+       }
+     },
+   };
+   ```
+
+   The `router.push` naively sends someone to the home page. This could be updated to go to any number of places, including the page one started the login flow from if you were to store that information to be retrieved.
+
+1. Now that we have all the things setup, we can define the user component `/components/User` to easily pull information about the user's state and display the appropriate UI.
+
+   ```javascript
+   export default {
+     name: "UserComponent",
+     data() {
+       return {
+         user: null,
+         signIn: () => this.$auth.signinRedirect(),
+         logout: () => this.$auth.signoutRedirect(),
+       };
+     },
+     async created() {
+       const user = await this.$auth.getUser();
+       if (user) {
+         this.user = user;
+       }
+     },
+   };
+   ```
+
+   With this, the user object is now easily available. A simple `v-if="user"` allows the app to determine what UI to show.
