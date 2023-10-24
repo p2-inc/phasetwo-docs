@@ -507,7 +507,7 @@ auth.init({
                         alt="Starter plan"
                       />
                       <h3>Starter</h3>
-                      <p>Always FREE *</p>
+                      <p>Always FREE <sup>1</sup></p>
                     </div>
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
@@ -573,7 +573,7 @@ auth.init({
                       <h3>Premium</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$499</strong>/mo
+                        <strong className={styles.planPrice}>$499</strong>/mo <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -641,7 +641,7 @@ auth.init({
                       <h3>Enterprise</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$1999</strong>/mo
+                        <strong className={styles.planPrice}>$1999</strong>/mo <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -668,7 +668,7 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
-                          Custom themes & extensions
+                          Custom themes & extensions <sup>3</sup>
                         </li>
                         <li>
                           <img
@@ -703,6 +703,7 @@ auth.init({
             </div>
           </div>
           <div className={`contentBlockCta`}>
+            <p>(1) Subject to availabilty (2) When paid annually (3) Additional fees based on extension complexity</p>
             <p>
               For on-prem support and bundling options, please{" "}
               <a href="mailto:sales@phasetwo.io">contact sales</a>.

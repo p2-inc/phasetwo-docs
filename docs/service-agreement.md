@@ -3,7 +3,7 @@ id: service-agreement
 title: Phase Two SaaS Service Agreement
 ---
 
-*Last updated: May 22, 2023*
+*Last updated: October 24, 2023*
 
 This SaaS Service Agreement governs your use of the software-as-a-service solution identified below (the "Service"). "We" or "us" or "our" means Phase Two, Inc., a Washington corporation, with offices located at 140 Lakeside Avenue, Suite A49, Seattle, Washington 98122.
 
@@ -19,25 +19,27 @@ Platform Description: Phase Two Keycloak user authentication and SSO service
 
 Available Tiers of Service:
 * Starter: all features; up to 1,000 users and <10 identity provider connections: community support 
-* Premium: all features; unlimited users and identity provider connections; custom theme and domain; email and chat support
+* Premium: all features; unlimited users and identity provider connections; custom domain; email and chat support
+* Enterprise: all premium features; multi-region deployment; custom themes and extensions; dedicated support; 99.99% uptime SLA
 
 You will select your Tier of Service upon deployment creation.
 
 ### ORDER FORM TERM
 
-One year from the date you first access the Service.  
+One year from the date you first access the Service.
 
 ### FEES	
 
 * Starter: FREE
 * Premium: $749 billed monthly OR $5,988 billed annually ($499 monthtly effective)
+* Enterprise: $2,499 billed monthly OR $23,988 billed annually ($1,999 monthtly effective)
 
 ### PAYMENT TERMS
 
-We will bill you according to the Tier of Service you select.  You shall pay upfront at the beginning of each period.
+We will bill you according to the Tier of Service you select. You shall pay upfront at the beginning of each period.
 
 
-This Agreement is subject to the additional terms and conditions specified on Exhibit A hereto, which is an essential part of this Agreement.  
+This Agreement is subject to the additional terms and conditions specified on Exhibit A hereto, which is an essential part of this Agreement. 
 
 -----
 
@@ -69,13 +71,13 @@ This Agreement is subject to the additional terms and conditions specified on Ex
 
 **3. CHANGE TO THE TERMS**. We may add to, change or remove any part of this Agreement, at any time without prior notice to you other than listing of a later effective date than the one set forth at the top of this Agreement. Such modification shall be effective immediately upon posting a notification within the Service or by contacting you via email at the address you provided. As your next use of the Service may be governed by different Terms, we encourage you to look for a new effective date on this Agreement when you use the Service. It is your responsibility to check this Agreement periodically for changes. If we make any material changes to this Agreement, we will endeavor to provide all registered users with additional notice of any changes, such as at your e-mail address of record or when you log-in to your account. Your use or continued use of the Service following the posting or notice of any changes to this Agreement shall constitute your acceptance of the changed Terms.
 
-**4. FEES**. You will pay the Fees in the amount and at the time specified on the first page of this Agreement. If no payment date is otherwise specified, you will pay all invoices issued within 30 days from the invoice date. A late charge of the lesser of 1.5% per month or the maximum amount permitted by law will be added to past due accounts until paid in full.  All reasonable costs and expenses, including but not limited to attorneys’ fees, court costs and service charges incurred by us in collecting payment will be paid by you.  Credit terms are at our discretion and are subject to change. You are responsible for all taxes associated with your purchase except taxes on our income. You will pay only in United States currency and are not entitled to set off any Fees against any other amounts for any reason.
+**4. FEES**. You will pay the Fees in the amount and at the time specified on the first page of this Agreement. If no payment date is otherwise specified, you will pay all invoices issued within 30 days from the invoice date. A late charge of the lesser of 1.5% per month or the maximum amount permitted by law will be added to past due accounts until paid in full. All reasonable costs and expenses, including but not limited to attorneys’ fees, court costs and service charges incurred by us in collecting payment will be paid by you. Credit terms are at our discretion and are subject to change. You are responsible for all taxes associated with your purchase except taxes on our income. You will pay only in United States currency and are not entitled to set off any Fees against any other amounts for any reason.
 
 **5. DATA**
 
 5.1 <ins>Data Transmission</ins>. We use commercially reasonable efforts designed to protect Your Data. You acknowledge that use of the Service involves transmission of Your Data and other communications over the Internet and other networks, and that such transmissions could potentially be accessed by unauthorized parties due to the inability to protect against all threats at all times arising from the use of the internet. You must protect your login name and password from access or use by unauthorized parties, and are solely responsible for any failure to do so. You must promptly notify us of any suspected security breach at [security@phasetwo.io](mailto:security@phasetwo.io). 
 
-5.2 <ins>Your Data</ins>. Your Data is your property. We use data in accordance with our privacy policy found at [https://phasetwo.io/docs/privacy](https://phasetwo.io/docs/privacy).  You grant us a non-exclusive, worldwide, perpetual, royalty-free license to use, copy, transmit, sub-license, index, store, aggregate, and display Your Data as required to provide or perform the Service, account management, account support, and technical services, and to publish, display, modify, and distribute de-identified information derived from Your Data and from your use of the Service for any lawful purposes, including, without limitation, improving our products and services, developing new products and services, and developing, displaying, and distributing benchmarks, analysis and similar reports, provided that we do so in accordance with all applicable laws.
+5.2 <ins>Your Data</ins>. Your Data is your property. We use data in accordance with our privacy policy found at [https://phasetwo.io/docs/privacy](https://phasetwo.io/docs/privacy). You grant us a non-exclusive, worldwide, perpetual, royalty-free license to use, copy, transmit, sub-license, index, store, aggregate, and display Your Data as required to provide or perform the Service, account management, account support, and technical services, and to publish, display, modify, and distribute de-identified information derived from Your Data and from your use of the Service for any lawful purposes, including, without limitation, improving our products and services, developing new products and services, and developing, displaying, and distributing benchmarks, analysis and similar reports, provided that we do so in accordance with all applicable laws.
 
 5.3 <ins>Removal of Data</ins>. If Phase Two is required by any third-party rights holder to remove any data, content or information, or receives information that any data, content or information provided by or to you may violate applicable law or third-party rights, we may discontinue your access to such data, content or information through the Service, and/or may notify you that you must discontinue all use of such data, content or information, and to the extent not prohibited by law, you will do so and promptly remove such data, content or information from your systems. Phase Two may disable access to the applicable data, content or information or Service until the potential violation is resolved. 
 
@@ -156,5 +158,3 @@ This Agreement is subject to the additional terms and conditions specified on Ex
 12.11 <ins>Headings</ins>. Headings are used in this Agreement for reference only and will not be considered when interpreting this Agreement.
 
 12.12 <ins>Entire Agreement</ins>. This Agreement contain the entire agreement of the parties with respect to the subject matter of this Agreement and supersede all previous communications, representations, understandings, and agreements, either oral or written, between the parties with respect to said subject matter. No usage of trade or other regular practice or method of dealing between the parties will be used to modify, interpret, supplement, or alter the terms of this Agreement. 
-
-
