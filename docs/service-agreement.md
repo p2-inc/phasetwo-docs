@@ -13,7 +13,7 @@ PLEASE READ THIS AGREEMENT CAREFULLY BEFORE USING THE SERVICE. THIS AGREEMENT CO
 
 -----
 
-### DESCRIPTION OF SERVICE 
+### Description of service
 
 Platform Description: Phase Two Keycloak user authentication and SSO service
 
@@ -24,17 +24,17 @@ Available Tiers of Service:
 
 You will select your Tier of Service upon deployment creation.
 
-### ORDER FORM TERM
+### Order form term
 
 One year from the date you first access the Service.
 
-### FEES	
+### Fees
 
 * Starter: FREE
 * Premium: $749 billed monthly OR $5,988 billed annually ($499 monthtly effective)
 * Enterprise: $2,499 billed monthly OR $23,988 billed annually ($1,999 monthtly effective)
 
-### PAYMENT TERMS
+### Payment terms
 
 We will bill you according to the Tier of Service you select. You shall pay upfront at the beginning of each period.
 
