@@ -37,9 +37,7 @@ If you wish to launch a dedicated cluster in one of the following regions, we ca
 
 #### Global clusters
 
-For use cases that require global proximity to users and region failover behavior, we are currently in *beta* for our global clusters.
-
-These clusters provide a minimum of 3 global regions, with 3 instances of Phase Two enhanced Keycloak per region. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
+For use cases that require global proximity to users and region failover behavior, we are currently in *beta* for our global clusters. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
 
 These clusters are backed by [CockroachDB](https://www.cockroachlabs.com/) multi-region clusters, which are hosted and operated by Cockroach Labs. There are two price tiers for global clusters, depending on your use of our shared CockroachDB clusters, or your own dedicated clusters. 
 

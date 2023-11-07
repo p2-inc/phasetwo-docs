@@ -543,6 +543,9 @@ auth.init({
                           ></img>
                           Community support
                         </li>
+                        <li>
+                          No SLA
+                        </li>
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
@@ -616,7 +619,15 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
-                          Chat & email support
+                          Email support
+                        </li>
+                        <li>
+                          <img
+                            className={styles.checklistIcon}
+                            src="img/checkmark.svg"
+                            alt="Checkmark"
+                          ></img>
+                          99.9% uptime guarantee
                         </li>
                       </ul>
                     </div>
@@ -660,7 +671,7 @@ auth.init({
                             src="img/checkmark.svg"
                             alt="Checkmark"
                           ></img>
-                          Global, multi-region deployment
+                          Global deployment
                         </li>
                         <li>
                           <img
