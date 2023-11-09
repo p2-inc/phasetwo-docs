@@ -507,7 +507,9 @@ auth.init({
                         alt="Starter plan"
                       />
                       <h3>Starter</h3>
-                      <p>Always FREE <sup>1</sup></p>
+                      <p>
+                        Always FREE <sup>1</sup>
+                      </p>
                     </div>
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
@@ -543,9 +545,7 @@ auth.init({
                           ></img>
                           Community support
                         </li>
-                        <li>
-                          No SLA
-                        </li>
+                        <li>No SLA</li>
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
@@ -576,7 +576,8 @@ auth.init({
                       <h3>Premium</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$499</strong>/mo <sup>2</sup>
+                        <strong className={styles.planPrice}>$499</strong>/mo{" "}
+                        <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -652,7 +653,8 @@ auth.init({
                       <h3>Enterprise</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$1999</strong>/mo <sup>2</sup>
+                        <strong className={styles.planPrice}>$1999</strong>/mo{" "}
+                        <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -708,17 +710,92 @@ auth.init({
                       </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
           <div className={`contentBlockCta`}>
-            <p>(1) Subject to availabilty (2) When paid annually (3) Additional fees based on extension complexity</p>
+            <p>
+              (1) Subject to availabilty (2) When paid annually (3) Additional
+              fees based on extension complexity
+            </p>
             <p>
               For on-prem support and bundling options, please{" "}
               <a href="mailto:sales@phasetwo.io">contact sales</a>.
             </p>
+          </div>
+          <div class="contentBlockBody">
+            <div className={styles.planSupport}>
+              <h2>or there when you need it</h2>
+              <div className={styles.plan}>
+                <div className={styles.planHead}>
+                  <img
+                    className={styles.featCardPicto}
+                    src="img/plan-community.svg"
+                    alt="Enterprise plan"
+                  />
+                  <h3>Enterprise Support Package</h3>
+                  <p>
+                    <span className={styles.planFrom}>from</span>{" "}
+                    <strong className={styles.planPrice}>$999</strong>/mo{" "}
+                  </p>
+                </div>
+                <div className={styles.planBody}>
+                  <ul className={styles.checklist}>
+                    <li>
+                      <img
+                        className={styles.checklistIcon}
+                        src="img/checkmark.svg"
+                        alt="Checkmark"
+                      ></img>
+                      Initial assessment
+                    </li>
+                    <li>
+                      <img
+                        className={styles.checklistIcon}
+                        src="img/checkmark.svg"
+                        alt="Checkmark"
+                      ></img>
+                      Onboarding assistance
+                    </li>
+                    <li>
+                      <img
+                        className={styles.checklistIcon}
+                        src="img/checkmark.svg"
+                        alt="Checkmark"
+                      ></img>
+                      Ongoing reviews
+                    </li>
+                    <li>
+                      <img
+                        className={styles.checklistIcon}
+                        src="img/checkmark.svg"
+                        alt="Checkmark"
+                      ></img>
+                      Dedicated support
+                    </li>
+                    <li>
+                      <img
+                        className={styles.checklistIcon}
+                        src="img/checkmark.svg"
+                        alt="Checkmark"
+                      ></img>
+                      Compliance fulfillment
+                    </li>
+                  </ul>
+                </div>
+                <div className={styles.planFoot}>
+                  <a href="mailto:sales@phasetwo.io">
+                    <button
+                      className={`btnPrimary ${styles.btnPlan}`}
+                      onClick={contactSales}
+                    >
+                      Contact sales
+                    </button>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>

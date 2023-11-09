@@ -1,12 +1,10 @@
-
-
 .formControl {
   padding: 12px 15px;
   border: 1px solid var(--form-outline);
   border-radius: 3px;
   flex: 1 1 auto;
   box-shadow: 0 2px 6px var(--form-outline);
-  transition: .2s all;
+  transition: 0.2s all;
   font-size: 14px;
 }
 .formControl::placeholder {
@@ -18,8 +16,6 @@
   outline: none;
 }
 
-
-
 .heroImage {
   text-align: center;
 }
@@ -28,7 +24,6 @@
   height: auto;
   max-width: 950px;
 }
-
 
 .heroSections {
   display: flex;
@@ -48,10 +43,10 @@
   flex: 1;
   position: relative;
   color: var(--color-main);
-  transition: .25s ease-out;
+  transition: 0.25s ease-out;
 }
 .heroSectionPicto {
-  transition: .25s ease-out;
+  transition: 0.25s ease-out;
   width: 32px;
   height: auto;
 }
@@ -71,7 +66,6 @@
 .heroSectionPlus {
   display: none;
 }
-
 
 @media (min-width: 800px) {
   .heroSections {
@@ -95,7 +89,7 @@
     justify-content: center;
     background-color: var(--color-wh);
     border-radius: 50%;
-    border: 3px solid #FED9CF;
+    border: 3px solid #fed9cf;
     position: absolute;
     right: -16px;
     top: calc(50% - 12px);
@@ -106,7 +100,6 @@
     height: auto;
   }
 }
-
 
 .heroFeats {
   display: flex;
@@ -131,7 +124,6 @@
     margin-top: 110px;
   }
 }
-
 
 .heroIntegrations {
   margin-top: 64px;
@@ -174,7 +166,6 @@
   max-width: inherit;
 }
 
-
 @media (min-width: 768px) {
   .heroIntegrationRow {
     grid-template-columns: repeat(5, 1fr);
@@ -193,8 +184,6 @@
     box-shadow: none;
   }
 }
-
-
 
 .listFeats {
   list-style: none;
@@ -220,7 +209,6 @@
   left: 0;
 }
 
-
 .featCards {
   display: flex;
   flex-direction: column;
@@ -242,7 +230,6 @@
   margin-bottom: 0;
 }
 
-
 @media (min-width: 800px) {
   .featCards {
     flex-direction: row;
@@ -255,7 +242,6 @@
     column-gap: 32px;
   }
 }
-
 
 .enterpriseSSO {
   align-items: center;
@@ -270,7 +256,8 @@
   flex-direction: column-reverse;
   row-gap: 24px;
 }
-.devsL, .devsR {
+.devsL,
+.devsR {
   width: 100%;
 }
 
@@ -282,7 +269,6 @@
   width: 100%;
   max-width: 1120px;
 }
-
 
 .keycloak {
   text-align: center;
@@ -310,17 +296,15 @@
     column-gap: 80px;
     row-gap: 0;
   }
-  .devsL, .devsR {
+  .devsL,
+  .devsR {
     width: 50%;
   }
 }
 
-
 .heart {
   margin: 0 8px;
 }
-
-
 
 .plans {
   display: flex;
@@ -376,7 +360,7 @@
   white-space: nowrap;
 }
 .planFrom {
-  font-size: .86em;
+  font-size: 0.86em;
   color: var(--color-n1);
 }
 .planPrice {
@@ -398,6 +382,40 @@
 .planFoot .btnPlan {
   width: 100%;
   display: block;
+}
+
+.planSupport {
+  padding-top: 2rem;
+  text-align: center;
+  /* max-width: 50%; */
+  margin: auto;
+
+  .plan {
+    margin-top: 24px;
+  }
+
+  .planBody {
+    min-height: auto;
+  }
+
+  .checklist {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+
+    > li + li {
+      margin-left: 1rem;
+      margin-top: 0;
+    }
+  }
+
+  .planFoot {
+    justify-content: center;
+  }
+}
+.featCardPicto {
+  height: 50px;
 }
 
 @media (min-width: 600px) {
@@ -429,16 +447,15 @@
   }
 }
 
-
 .btnVideo {
   display: inline-flex;
   align-items: center;
-  transition: .2s all;
+  transition: 0.2s all;
   font-size: 14px;
 }
 .btnVideo img {
   margin-right: 8px;
-  transition: .25s ease-out;
+  transition: 0.25s ease-out;
   flex: 0 0 auto;
 }
 .btnVideo:hover {
@@ -454,7 +471,8 @@
     display: flex;
     flex-direction: column-reverse;
   }
-  .heroIntro, .heroCta  {
+  .heroIntro,
+  .heroCta {
     margin-left: auto;
     margin-right: auto;
   }
@@ -523,7 +541,6 @@
   }
 }
 
-
 .sect {
   padding: 50px 0;
   position: relative;
@@ -538,7 +555,7 @@
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 2px;
-  margin-bottom: .6rem;
+  margin-bottom: 0.6rem;
 }
 .sectHeadline {
   max-width: 300px;
@@ -624,7 +641,6 @@
   max-width: 280px;
 }
 
-
 @media (max-width: 767px) {
   .featureCopy {
     text-align: center;
@@ -700,10 +716,8 @@
   }
 }
 
-
-
 .badgeSuccess {
-  background-color: rgba(24, 204, 109, .15);
+  background-color: rgba(24, 204, 109, 0.15);
   color: var(--success);
   padding: 5px 8px;
   font-size: 14px;
@@ -716,14 +730,14 @@
   list-style: none;
   padding-left: 0;
   text-align: left;
-  font-size: .875rem;
+  font-size: 0.875rem;
 }
 .checklist > li {
   position: relative;
   padding-left: 26px;
 }
 .checklist > li + li {
-  margin-top: .3rem;
+  margin-top: 0.3rem;
 }
 .checklistIcon {
   position: absolute;
@@ -743,7 +757,6 @@
   padding: 24px;
   text-align: center;
 }
-
 
 .featureImage {
   max-width: 60%;
@@ -765,9 +778,6 @@
   margin: 0 auto;
   max-width: 768px;
 }
-
-
-
 
 /* stylelint-disable docusaurus/copyright-header */
 /**
@@ -808,24 +818,23 @@
 
 /* Dark Theme TouchUp */
 
-[data-theme='dark'] .hero {
+[data-theme="dark"] .hero {
   background-color: transparent;
-  border-bottom: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-[data-theme='dark'] .pricing {
-  background-color: rgba(255,255,255,.1);
+[data-theme="dark"] .pricing {
+  background-color: rgba(255, 255, 255, 0.1);
 }
-[data-theme='dark'] h1,
-[data-theme='dark'] h2,
-[data-theme='dark'] h3,
-[data-theme='dark'] h4,
-[data-theme='dark'] h5,
-[data-theme='dark'] p {
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] p {
   color: #eee;
 }
 
-[data-theme='dark'] .planInner h5,
-[data-theme='dark'] .planInner p {
+[data-theme="dark"] .planInner h5,
+[data-theme="dark"] .planInner p {
   color: var(--main);
 }
-
