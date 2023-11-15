@@ -72,4 +72,3 @@ The syntax of the templates roughly follows that of [mustache.js](https://mustac
 
 Use the default templates to see the available variables for each template type.
 
-![](/docs/placeholder.png)

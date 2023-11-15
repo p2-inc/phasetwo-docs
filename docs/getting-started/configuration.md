@@ -16,7 +16,7 @@ In the **Realm settings** section, in the **Login** tab, you will find several i
 - *User registration* controls if users can register for your application, and enables the default registration screens.
 - *Email as username* controls if the users email address will be used as their username.
 - *Login with email* allows users to log in with their email address, regardless if their email is their username.
-- *Verify email* requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more informatio.
+- *Verify email* requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more information.
 
 ![](/docs/getting-started-configuration-settings.png)
 
@@ -30,7 +30,7 @@ In the **Realm settings** section, in the **General** tab, you must turn on *Use
 
 ### Realm setup
 
-Depending on how you are using Phase Two (i.e. self-service, dedicated deployments, Docker image, etc.), your initial configuration might differ sligtly. These options may already have been set by default, but they are documented here in case not. It is also useful to understand the purpose for each selection.
+Depending on how you are using Phase Two (i.e. self-service, dedicated deployments, Docker image, etc.), your initial configuration might differ slightly. These options may already have been set by default, but they are documented here in case not. It is also useful to understand the purpose for each selection.
 
 #### Themes
 
@@ -42,7 +42,7 @@ The `Attributes` login theme is the Phase Two default that allows customizing th
 
 ##### Admin console
 
-If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the *Admin console theme* to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back in to the Admin UI in order for this change to take effect. 
+If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the *Admin console theme* to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back into the Admin UI in order for this change to take effect. 
 
 ##### Email
 
