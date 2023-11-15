@@ -1,27 +1,31 @@
 module.exports = {
-  plugins: [require.resolve('./sitePlugin')],
+  plugins: [require.resolve("./sitePlugin")],
   title: "Phase Two enhanced Keycloak as a Service",
-  tagline: "Tools for SaaS builders - Enhanced Keycloak as a Service - Fully secured, managed and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+  tagline:
+    "Tools for SaaS builders - Enhanced Keycloak as a Service - Fully secured, managed and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "p2-inc",
   projectName: "p2-inc.github.io",
-  deploymentBranch: "master",
+  deploymentBranch: "main",
   themeConfig: {
     announcementBar: {
-      id: 'dedicated_clusters',
+      id: "dedicated_clusters",
       content:
         '<a href="/blog/dedicated-launch">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
-      backgroundColor: '#3fa1e3',
-      textColor: '#fff',
+      backgroundColor: "#3fa1e3",
+      textColor: "#fff",
       isCloseable: false,
     },
     metadata: [
-      {name: 'keywords', content:'keycloak, iam, sso'},
-      {name: 'description', content:'Tools for SaaS builders - Enhanced Keycloak as a Service'},
-      {property: 'og:logo', content: '/img/appstore.png', size: '1024x1024'},
-      {property: 'og:logo', content: '/img/playstore.png', size: '512x512'}
+      { name: "keywords", content: "keycloak, iam, sso" },
+      {
+        name: "description",
+        content: "Tools for SaaS builders - Enhanced Keycloak as a Service",
+      },
+      { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
+      { property: "og:logo", content: "/img/playstore.png", size: "512x512" },
     ],
     navbar: {
       title: "",
@@ -31,9 +35,9 @@ module.exports = {
       },
       items: [
         {
-          type: 'dropdown',
-          label: 'Product',
-          position: 'left',
+          type: "dropdown",
+          label: "Product",
+          position: "left",
           items: [
             {
               to: "product/sso",
@@ -60,12 +64,12 @@ module.exports = {
               activeBasePath: "product/onprem",
               label: "On-Prem Deployment",
             },
-          ]
+          ],
         },
         {
-          type: 'dropdown',
-          label: 'Developers',
-          position: 'left',
+          type: "dropdown",
+          label: "Developers",
+          position: "left",
           items: [
             {
               to: "docs/introduction",
@@ -81,7 +85,7 @@ module.exports = {
               to: "https://github.com/p2-inc/",
               label: "GitHub",
             },
-          ]
+          ],
         },
         {
           to: "/#pricing",
@@ -99,13 +103,13 @@ module.exports = {
           href: "https://phasetwo.io/dashboard/",
           label: "Dashboard",
           position: "right",
-          buttonType: "btnSecondary"
+          buttonType: "btnSecondary",
         },
         {
           href: "https://phasetwo.io/dashboard/",
           label: "Get Started",
           position: "right",
-          buttonType: "btnPrimary"
+          buttonType: "btnPrimary",
         },
       ],
     },
@@ -228,10 +232,10 @@ module.exports = {
             {
               html: `
                 <img class="footer-logo" src="https://phasetwo.io/img/logo_phase_slash.svg" alt="PhaseTwo" width="114" height="51" />
-              `
-            }
-          ]
-        }
+              `,
+            },
+          ],
+        },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Phase Two, Inc.`,
     },
@@ -253,7 +257,7 @@ module.exports = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/master",
+          editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/main",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -262,27 +266,28 @@ module.exports = {
           trackingID: "UA-160183620-1",
         },
         blog: {
-          blogSidebarTitle: 'News',
-          blogSidebarCount: 'ALL',
+          blogSidebarTitle: "News",
+          blogSidebarCount: "ALL",
         },
       }),
     ],
   ],
   plugins: [
     [
-      'docusaurus-plugin-openapi-docs',
+      "docusaurus-plugin-openapi-docs",
       {
         id: "openapi",
         docsPluginId: "api",
         config: {
-          phasetwo: { // Note: petstore key is treated as the <id> and can be used to specify an API doc instance when using CLI commands
+          phasetwo: {
+            // Note: petstore key is treated as the <id> and can be used to specify an API doc instance when using CLI commands
             specPath: "openapi.yaml", // Path to designated spec file
             outputDir: "api", // Output directory for generated .mdx docs
             sidebarOptions: {
               groupPathsBy: "tag",
             },
-          }
-        }
+          },
+        },
       },
     ],
     [
@@ -299,5 +304,5 @@ module.exports = {
       },
     ],
   ],
-  themes: ["@docusaurus/theme-live-codeblock","docusaurus-theme-openapi-docs"],
+  themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
 };

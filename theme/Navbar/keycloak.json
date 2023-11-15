@@ -1,5 +1,5 @@
 {
-  "realm": "master",
+  "realm": "main",
   "auth-server-url": "https://app.phasetwo.io/auth/",
   "ssl-required": "external",
   "public-client": true,
