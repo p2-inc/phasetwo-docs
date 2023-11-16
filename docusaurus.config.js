@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
   title: "Phase Two enhanced Keycloak as a Service",
@@ -248,6 +250,13 @@ module.exports = {
       sidebar: {
         autoCollapseCategories: true,
       },
+    },
+    algolia: {
+      appId: "W4PN7W5A70",
+      apiKey: "0a2a3edf5aedd6c4ec8388acc22b2a04",
+      indexName: "phasetwo",
+      // Optional: see doc section below
+      contextualSearch: true,
     },
   },
   presets: [
