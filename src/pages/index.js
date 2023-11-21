@@ -5,7 +5,6 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
-import { render } from "react-dom";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CodeBlock from "@theme/CodeBlock";
 
@@ -39,6 +38,53 @@ function githubHome() {
 function docsEntry() {
   window.location = `/docs/introduction`;
 }
+
+const CheckMark = () => <img src="img/checkmark.svg" alt="Checkmark"></img>;
+const Dash = () => <span className={styles.notPartOfPlan}>&mdash;</span>;
+
+const features = [
+  {
+    feature: "Architecture review",
+    silver: <CheckMark />,
+    gold: <CheckMark />,
+  },
+  {
+    feature: "Installation and configuration support",
+    silver: <CheckMark />,
+    gold: <CheckMark />,
+  },
+  { feature: "Email support", silver: <CheckMark />, gold: <CheckMark /> },
+  { feature: "Slack support", silver: <Dash />, gold: <CheckMark /> },
+  { feature: "Phone support", silver: <Dash />, gold: <CheckMark /> },
+  {
+    feature: (
+      <span>
+        Support Hours <span style={{ opacity: 0.5 }}>(US EST)</span>
+      </span>
+    ),
+    silver: "9x5",
+    gold: "24x7x365",
+  },
+  {
+    feature: (
+      <span>
+        Response time <span style={{ opacity: 0.5 }}>(hours)</span>
+      </span>
+    ),
+    silver: "24",
+    gold: "4",
+  },
+  { feature: "Health assessment", silver: "Quarterly", gold: "Monthly" },
+  {
+    feature: (
+      <span>
+        Incl. service hours <span style={{ opacity: 0.5 }}>(/mth)</span>
+      </span>
+    ),
+    silver: "10",
+    gold: "20",
+  },
+];
 
 function Home() {
   const context = useDocusaurusContext();
@@ -507,7 +553,9 @@ auth.init({
                         alt="Starter plan"
                       />
                       <h3>Starter</h3>
-                      <p>Always FREE <sup>1</sup></p>
+                      <p>
+                        Always FREE <sup>1</sup>
+                      </p>
                     </div>
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
@@ -543,9 +591,7 @@ auth.init({
                           ></img>
                           Community support
                         </li>
-                        <li>
-                          No SLA
-                        </li>
+                        <li>No SLA</li>
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
@@ -576,7 +622,8 @@ auth.init({
                       <h3>Premium</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$499</strong>/mo <sup>2</sup>
+                        <strong className={styles.planPrice}>$499</strong>/mo{" "}
+                        <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -652,7 +699,8 @@ auth.init({
                       <h3>Enterprise</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$1999</strong>/mo <sup>2</sup>
+                        <strong className={styles.planPrice}>$1999</strong>/mo{" "}
+                        <sup>2</sup>
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -708,17 +756,90 @@ auth.init({
                       </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
           </div>
           <div className={`contentBlockCta`}>
-            <p>(1) Subject to availabilty (2) When paid annually (3) Additional fees based on extension complexity</p>
+            <p>
+              (1) Subject to availabilty (2) When paid annually (3) Additional
+              fees based on extension complexity
+            </p>
             <p>
               For on-prem support and bundling options, please{" "}
               <a href="mailto:sales@phasetwo.io">contact sales</a>.
             </p>
+          </div>
+          <div class="contentBlockBody">
+            <div>
+              <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
+                Phase Two are Keycloak Experts{" "}
+              </h2>
+
+              <div
+                className={styles.planBody}
+                style={{ maxWidth: "760px", margin: "0 auto" }}
+              >
+                <p>
+                  Configuring, integrating and operating an Identity and Access
+                  Management system can be daunting.
+                </p>
+                <p>
+                  For both hosted, on-prem customers, or those with their own
+                  Keycloak deployment, our goal is to create an understanding in
+                  your organization of what is possible with Keycloak. We want
+                  to support your goals as you adopt and implement Keycloak in
+                  your products. Let us lend our expertise to every step of your
+                  journey.
+                </p>
+              </div>
+            </div>
+            <div className={styles.planSupport}>
+              <div className={styles.plan}>
+                <div className={styles.planHead}>
+                  <img
+                    className={styles.featCardPicto}
+                    src="img/plan-community.svg"
+                    alt="Enterprise plan"
+                  />
+                  <h3>Enterprise Support Packages</h3>
+                  <p>
+                    <span className={styles.planFrom}>from</span>{" "}
+                    <strong className={styles.planPrice}>$3500</strong>/mo{" "}
+                  </p>
+                </div>
+                <div className={styles.tableThemeWrapper}>
+                  <table className={styles.tableTheme}>
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Silver</th>
+                        <th>Gold</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {features.map(({ feature, silver, gold }) => (
+                        <tr>
+                          <td>{feature}</td>
+                          <td>{silver}</td>
+                          <td>{gold}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className={styles.planFoot}>
+                  <a href="mailto:sales@phasetwo.io">
+                    <button
+                      className={`btnPrimary ${styles.btnPlan}`}
+                      onClick={contactSales}
+                    >
+                      Contact sales
+                    </button>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
