@@ -451,14 +451,14 @@ a:hover {
 .contentBlockHead h2 + p {
   margin-top: 24px;
 }
+.contentBlockCta {
+  text-align: center;
+  padding-top: 48px;
+}
 .contentBlockBody {
   max-width: 1120px;
   margin: 0 auto;
   padding: 0 20px;
-}
-.contentBlockCta {
-  text-align: center;
-  padding-top: 48px;
 }
 
 @media (min-width: 768px) {
