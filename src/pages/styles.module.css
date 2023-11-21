@@ -420,6 +420,39 @@
   height: 50px;
 }
 
+.planSupport {
+  text-align: center;
+  max-width: 720px;
+  margin: auto;
+
+  .plan {
+    /* margin-top: 24px; */
+  }
+
+  .planBody {
+    min-height: auto;
+  }
+
+  .checklist {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+
+    > li + li {
+      margin-left: 1rem;
+      margin-top: 0;
+    }
+  }
+
+  .planFoot {
+    justify-content: center;
+  }
+}
+.featCardPicto {
+  height: 50px;
+}
+
 @media (min-width: 600px) {
   .plans {
     flex-direction: row;
