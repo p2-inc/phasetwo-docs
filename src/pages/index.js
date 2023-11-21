@@ -829,7 +829,10 @@ auth.init({
                   </table>
                 </div>
                 <div className={styles.planFoot}>
-                  <a href="mailto:sales@phasetwo.io">
+                  <a
+                    href="mailto:sales@phasetwo.io"
+                    className={styles.planFootA}
+                  >
                     <button
                       className={`btnPrimary ${styles.btnPlan}`}
                       onClick={contactSales}

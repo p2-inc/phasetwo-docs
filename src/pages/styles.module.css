@@ -383,6 +383,9 @@
   width: 100%;
   display: block;
 }
+.planFootA {
+  margin: 0 auto;
+}
 
 .planSupport {
   text-align: center;
@@ -790,7 +793,6 @@
   border-collapse: collapse;
   background: none;
   margin-bottom: 1rem;
-  width: 100%;
 }
 
 .tableTheme thead,
