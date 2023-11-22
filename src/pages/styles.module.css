@@ -868,7 +868,10 @@
 [data-theme="dark"] h3,
 [data-theme="dark"] h4,
 [data-theme="dark"] h5,
-[data-theme="dark"] p {
+[data-theme="dark"] p,
+[data-theme="dark"] li,
+[data-theme="dark"] th,
+[data-theme="dark"] td {
   color: #eee;
 }
 
