@@ -59,7 +59,7 @@ const features = [
   {
     feature: (
       <span>
-        Support Hours <span style={{ opacity: 0.5 }}>(US EST)</span>
+        Support hours <span style={{ opacity: 0.5 }}>(US EST)</span>
       </span>
     ),
     silver: "9x5",
@@ -81,8 +81,34 @@ const features = [
         Incl. service hours <span style={{ opacity: 0.5 }}>(/mth)</span>
       </span>
     ),
-    silver: "10",
+    silver: (
+      <span>
+        10 <span style={{ opacity: 0.5 }}>(max)</span>
+      </span>
+    ),
     gold: "20",
+  },
+  {
+    feature: "Custom development",
+    silver: <Dash />,
+    gold: <CheckMark />,
+  },
+  {
+    feature: (
+      <span>
+        Pricing <span style={{ opacity: 0.5 }}>(/mth)</span>
+      </span>
+    ),
+    silver: (
+      <span>
+        <span style={{ opacity: 0.5 }}>from</span> $3,500
+      </span>
+    ),
+    gold: (
+      <span>
+        <span style={{ opacity: 0.5 }}>from</span> $7,500
+      </span>
+    ),
   },
 ];
 
@@ -803,10 +829,6 @@ auth.init({
                     alt="Enterprise plan"
                   />
                   <h3>Enterprise Support Packages</h3>
-                  <p>
-                    <span className={styles.planFrom}>from</span>{" "}
-                    <strong className={styles.planPrice}>$3500</strong>/mo{" "}
-                  </p>
                 </div>
                 <div className={styles.tableThemeWrapper}>
                   <table className={styles.tableTheme}>
