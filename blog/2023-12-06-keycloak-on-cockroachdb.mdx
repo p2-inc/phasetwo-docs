@@ -1,0 +1,74 @@
+---
+slug: keycloak-on-cockroachdb
+title: "Keycloak on CockroachDB: Scalable, Resilient, Open Source, Identity and Access Management"
+author: Phase Two
+tags: [ keycloak, phase_two, cockroach ]
+---
+
+# Keycloak on CockroachDB: Scalable, resilient, open source, identity, and access management
+
+![](/blog/2023-12-06-keycloak-on-cockroachdb-kcpluscrdb.png)
+
+[Keycloak](https://www.keycloak.org/) has been a leader in the Identity and Access Management (IAM) world since its launch almost 9 years ago. The market for IAM tools had several commercial offerings that failed to meet many business model and price needs, and Keycloak filled the hole with an open-source offering. 
+
+Fast-forward to today, Keycloak still leads with mature protocol implementations, hardened security, and a reliable architecture that has been battle-tested for years, under the stewardship of the maintainers at [Red Hat](https://www.redhat.com/). Whether deploying an in-house identity provider, or a user management system for a SaaS offering, Keycloak is an obvious choice.
+
+With time, customer needs have evolved to include greater resiliency, expanded database selection, deploying in multiple regions, and operating across clouds. Because of operational complexity and architectural barriers, the Keycloak team decided to embark on a project to build a new underlying storage architecture. While promising, the project has taken longer than expected, and has yet to produce a production-ready result.
+
+One of the great aspects of open source, is that it allows anyone to participate. About 18 months ago, [Phase Two](https://phasetwo.io) decided to implement support for CockroachDB for the existing storage architecture in order to meet this growing customer demand. 
+
+## Remind me, what is Phase Two?
+
+Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption with powerful SSO, identity and user management features. To that end, Phase Two has created an enhanced distribution of Keycloak that bundles several essential [open source extensions](https://github.com/p2-inc) for modern SaaS use cases. Phase Two supports hosted and on-premise customers for a variety of use cases.
+
+## How we built support for CockroachDB
+
+We eagerly dove into the challenge of adding CockroachDB support, but we quickly encountered a few key issues:
+
+#### 1. SQL
+Keycloak internally uses the [Hibernate ORM framework](https://hibernate.org/), which generates the SQL for the database type selected (called a "dialect" by them). Fortunately for us, the [Cockroach Labs](https://www.cockroachlabs.com/) team had already built a custom [CockroachDB Hibernate dialect](https://www.cockroachlabs.com/blog/building-support-for-java-orm-hibernate-in-cockroachdb/) that we were able to use without modification.
+
+#### 2. Migrations
+The [Liquibase](https://www.liquibase.org/) library is used by Keycloak for tracking, managing, and applying database schema changes. However, the authors had not anticipated adding support for entirely new database types without making code changes. We had to add CRDB, the Hibernate dialect, and the correct JDBC driver classes to the code to enable first-class support.
+
+We ported the migrations that were incompatible with CRDB. This was required because of a few SQL semantics that are not supported in CRDB the same way they are in PostgreSQL.
+
+#### 3. Transactions
+Because CRDB uses [serializable isolation](https://www.cockroachlabs.com/docs/stable/transactions#serializable-isolation) by default, it was incompatible with Keycloak's use of distributed ("XA") or two-phase commit ("JTA") transaction managers. However, because the use of these is not necessary outside of an environment where other applications are using the same resources, it was possible to disable them. The Keycloak team was helpful in adding some environment variables to disable these, as they had also seen other database use cases that required it.
+
+#### 4. An **Incredible** Team
+It also wouldn't have been possible to complete the changes without tireless support from the Cockroach Labs engineering team. They patiently helped us understand how CRDB is different, wrote code examples and tests, and were never shy about giving us access to everyone in the organization, regardless of level and how busy they were. 
+
+A **HUGE** thank you to the whole Cockroach team!
+
+## How does it work?
+About 12 months ago, we launched our self-service, free product, built on our CRDB port and running on Cockroach Labs' managed serverless product. Over that period, we've provided over 900 free deployments, without a single production incident for both CockroachDB serverless and Phase Two enhanced Keycloak. 
+
+Furthermore, we've built out a test system that we run prior to releasing new versions in order to ensure that there are no regressions compared to the main Keycloak distributions. We run that test system and several benchmarks prior to releasing each new version of our fork.
+
+## Why is this important now?
+The Keycloak team had embarked on an ambitious project over 2 years ago to completely overhaul the storage architecture. The so-called "map store" was designed, among other things, to provide a basis for high-availability by replicating data with multiple data centers. However, after that time period, there was still a lot of uncertainty and risk involved in getting to the point where the store was production ready. Thus the team decided to drop the project. [See the announcement](https://www.keycloak.org/2023/10/map-store-removal).
+
+That leaves Phase Two's CRDB support in a unique position, as it is the only version of Keycloak that will support Cockroach's multi-region database. 
+
+## Take me to it!
+We get it! Here are a few links to help you jump-start your work:
+
+#### 1. Managed Hosting
+Phase Two provides self-service deployments of Keycloak hosted on multiple clouds. [Plans](https://phasetwo.io/#pricing) start with a free version for testing and small production use cases. Dedicated clusters are available for customers requiring an SLA, isolated resources, and the ability to grow into larger use cases.
+
+The database tier for our shared and dedicated clusters uses the [CockroachDB serverless](https://www.cockroachlabs.com/lp/serverless-database-p) service. Working with Cockroach Labs gives us the expertise and reliability of hosting thousands of customer clusters at a massive scale. 
+
+#### 2. Community Distribution
+If you're more DIY, and you're planning to run everything yourself, the base distribution image that contains our changes to Keycloak to enable CockroachDB support is available in the Phase Two [Keycloak CockroachDB docker repository](https://quay.io/repository/phasetwo/keycloak-crdb?tab=info). It's a drop-in replacement for Keycloak that doesn't require much configuration beyond the [official guides](https://www.keycloak.org/guides). We generally release a version within 1-2 days of the official Keycloak release.
+
+For the impatient, we've also put together a complete [docker compose](https://github.com/p2-inc/phasetwo-containers/blob/main/examples/cockroach/docker-compose.yml) example that includes a single node CockroachDB instance. You can also modify the configuration to use your own CockroachDB dedicated or serverless database.
+
+## The Future 
+#### Keycloak on CRDB
+Because of the uncertainty around the direction of the Keycloak storage architecture, Phase two is committed to maintaining support for the "legacy store" and our port to CRDB for the long term.
+
+#### Phase Two and Cockroach Labs
+Many of our on-premise, support customers with large use cases asked us to build out a solution for massive-scale, fault-tolerant, multi-region use cases. One of the great parts of building support for Keycloak's existing storage architecture for CRDB is that we've been able to explore use cases that were previously impossible using the standard Keycloak distribution. For use cases with these requirements, plus global proximity to users and regional failover, we built global clusters, backed by CRDB multi-region database, for which we are now in Beta.
+
+We're excited to see what you build with Keycloak and CRDB!
