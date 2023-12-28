@@ -3,14 +3,14 @@ id: invitations
 title: Invitations
 ---
 
-Invitations provide a way to allow Keycloak and organization administrators to invite new members to the organization. 
+Invitations provide a way to allow Keycloak and organization administrators to invite new members to the organization.
 Invitations can be managed by the Keycloak admin in the Organizations tab of the Admin UI. You can enable organization administrators to manage invitations using the organization portal or building it into your application using the API.
 
 ![](/docs/organizations-invitations-invite.png)
 
 ### Setup
 
-Invitees may or may not be existing users. If you choose to allow invitations to emails that are not represented by existing users, you must allow registration to your application, or use an authentication flow that automatically creates user accounts (such as [magic link](/docs/sso/magic-link) authentication). 
+Invitees may or may not be existing users. If you choose to allow invitations to emails that are not represented by existing users, you must allow registration to your application, or use an authentication flow that automatically creates user accounts (such as [magic link](/docs/authentication/magic-links) authentication).
 
 It is possible to pre-select any roles for a user by selecting in the Admin UI, or passing the `roles` array in the API. This will automatically add the user to the given roles upon user creation and acceptance of the invitation.
 
