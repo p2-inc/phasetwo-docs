@@ -145,8 +145,7 @@ The Company allows You to create an account and log in to use the Service
 through the following Third-party Social Media Services:
 
   * Google
-  * Facebook
-  * Twitter
+  * GitHub
 
 If You decide to register through or otherwise grant us access to a Third-
 Party Social Media Service, We may collect Personal data that is already
