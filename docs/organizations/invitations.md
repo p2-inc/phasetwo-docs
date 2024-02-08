@@ -12,7 +12,7 @@ Invitations can be managed by the Keycloak admin in the Organizations tab of the
 
 Invitees may or may not be existing users. If you choose to allow invitations to emails that are not represented by existing users, you must allow registration to your application, or use an authentication flow that automatically creates user accounts (such as [magic link](/docs/authentication/magic-links) authentication).
 
-It is possible to pre-select any roles for a user by selecting in the Admin UI, or passing the `roles` array in the API. This will automatically add the user to the given roles upon user creation and acceptance of the invitation.
+It is possible to pre-select any roles for a user by passing the `roles` array in the API (pre-selecting in the Admin UI is currently not implemented). This will automatically add the user to the given roles upon user creation and acceptance of the invitation.
 
 Invitees will receive an email indicating the realm, organization and inviter. It is possible to add a specific application redirect URI so that they will be redirected to a specific location in the application.
 
