@@ -76,6 +76,15 @@ components:
       scheme: bearer
       bearerFormat: ""
   schemas:
+    BulkResponseItem:
+      type: object
+      properties:
+        status:
+          type: integer
+        error:
+          type: string
+        item:
+          type: object
     MyOrganizationsRepresentation:
       type: object
       additionalProperties:
@@ -931,6 +940,51 @@ paths:
       responses:
         201:
           description: success
+    put:
+      tags:
+        - Organization Roles
+      summary: Create new roles for this organization
+      operationId: createOrganizationRoles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrganizationRoleRepresentation"
+        required: true
+      responses:
+        207: 
+          description: Multi Status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BulkResponseItem"
+    patch:
+      tags:
+        - Organization Roles
+      summary: Delete this organization roles
+      operationId: deleteOrganizationRoles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrganizationRoleRepresentation"
+        required: true
+      responses:
+        207: 
+          description: Multi Status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BulkResponseItem"
+      
   /{realm}/orgs/{orgId}/roles/{name}:
     parameters:
       - in: path
