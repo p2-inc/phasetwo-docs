@@ -1546,7 +1546,7 @@ paths:
                   $ref: "#/components/schemas/OrganizationRoleRepresentation"
     put:
       tags:
-        - Organization Roles
+        - Users
       summary: Grant a user organization roles
       requestBody:
         content:
@@ -1567,7 +1567,7 @@ paths:
                   $ref: "#/components/schemas/BulkResponseItem"
     patch:
       tags:
-        - Organization Roles
+        - Users
       summary: Revoke organization roles from a user
       requestBody:
         content:
