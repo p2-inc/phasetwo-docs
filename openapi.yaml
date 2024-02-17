@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Phase Two Admin REST API
   description: |
-    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).
+    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/23.0.6/rest-api/index.html).
 
     ### Base URI format
     Paths specified in the documentation are relative to the the base URI.
@@ -150,6 +150,15 @@ components:
           type: string
         name:
           type: string
+    LinkIdentityProviderRepresentation:
+      type: object
+      properties:
+        alias:
+          type: string
+        post_broker_flow:
+          type: string
+        sync_mode:
+          type: string
     RealmAttributeRepresentation:
       type: object
       properties:
@@ -232,6 +241,12 @@ components:
           type: array
           items:
             type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
     InvitationRepresentation:
       type: object
       properties:
@@ -247,6 +262,12 @@ components:
           type: array
           items:
             type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
     UserRepresentation:
       type: object
       properties:
@@ -865,6 +886,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/InvitationRepresentation"
+  # invitation methods
   /{realm}/orgs/{orgId}/invitations/{invitationId}:
     parameters:
       - in: path
@@ -888,11 +910,56 @@ paths:
         schema:
           type: string
         style: simple
+    get:
+      tags:
+        - Organization Invitation
+      summary: Get organization invitation by ID
+      operationId: getOrganizationInvitationById
+      description: Get an invitation to an organization by its uuid.
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationRepresentation"
     delete:
       tags:
         - Organization Invitations
       summary: Remove a pending invitation
       operationId: removeOrganizationInvitation
+      responses:
+        204:
+          description: success
+  /{realm}/orgs/{orgId}/invitations/{invitationId}/resend-email:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: invitationId
+        description: invitation id
+        required: true
+        schema:
+          type: string
+        style: simple
+    put:
+      tags:
+        - Organization Invitation
+      summary: Resend an Organization Invitation
+      operationId: resendOrganizationInvitation
+      description: Resend the email for an existing Organization Invitation
       responses:
         204:
           description: success
@@ -1206,6 +1273,37 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/IdentityProviderRepresentation"
+        required: true
+      responses:
+        201:
+          description: success
+  /{realm}/orgs/{orgId}/idps/link:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Identity Providers
+      summary: Link an existing identity provider to this organization
+      operationId: linkIdp
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkIdentityProviderRepresentation"
         required: true
       responses:
         201:
