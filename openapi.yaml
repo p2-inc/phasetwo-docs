@@ -887,6 +887,36 @@ paths:
                 items:
                   $ref: "#/components/schemas/InvitationRepresentation"
   # invitation methods
+  /{realm}/orgs/{orgId}/invitations/count:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Invitation
+      summary: Get organization invitation count
+      operationId: getOrganizationInvitationCount
+      description: Get a count of invitations to an organization
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
   /{realm}/orgs/{orgId}/invitations/{invitationId}:
     parameters:
       - in: path
