@@ -38,6 +38,12 @@ So, given Keycloak's inherent advantages, while solving all of the same problems
 
 Obviously, we think that the barriers are something that can be solved, and [Phase Two](https://phasetwo.io) has been working hard in its [open source extensions](https://github.com/p2-inc) and [cloud offerings](https://phasetwo.io/#pricing) to overcome these barriers. We've already made great strides, and believe that we're at the point where customers can realize the above advantages, while compromising relatively little -- All while achieving tremendous cost savings.
 
+### Migrating from your current identity provider
+
+Already using one of the commercial systems? Keycloak is a complete, robust and mature identity solution that can replace your identity provider and user management systems **today**. It has complete parity with all of the major features of commercial IAM systems, and because of reliance on standards, migration is easier than you think. By migrating to Keycloak, you gain full control over your authentication and authorization processes, enabling seamless integration, customization, and scalability tailored to your organization's unique needs. 
+
+Phase two has implemented [user migration](https://phasetwo.io/docs/user-migration/) support in the product for all tiers. This is meant to ease your transition from your existing user management system so that migration can occur incrementally with a complete fallback plan. For Premium and Enterprise subscribers, we include migration support. Contact [sales](mailto:sales@phasetwo.io) to get started with your migration.
+
 ### Conclusion
 
 In a landscape dominated by commercial IAM solutions, Keycloak shines as a compelling alternative that combines the power of open source with enterprise-grade features and flexibility. With its cost-effectiveness, customization capabilities, deployment flexibility, and active community support, Keycloak empowers organizations to take control of their identity infrastructure, unlock new possibilities, and adapt to evolving security and compliance requirements. Whether you're a startup looking to bootstrap your identity management or an enterprise seeking to streamline operations, Keycloak offers a compelling solution that puts you in the driver's seat of your IAM journey.
