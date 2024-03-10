@@ -13,11 +13,11 @@ In today's digital landscape, managing user identities and securing access to ap
 
 Companies such as [Auth0](https://www.auth0.com), [Okta](https://www.okta.com), Microsoft (through [AzureAD](https://www.microsoft.com/en-us/security/business/microsoft-entra)) had created cloud authentication services, and helped bring standardization to the market through implementation of standards, such as OIDC, SAML, SCIM, LDAP, etc. However, there was little differentiation among them, and despite their pricing models, were essentially commodities that were the same.
 
-Amazon released AWS Cognito, which did price it as a commodity, but failed so miserably in UI and developer ergonomics, that it failed to reach a dominant market position despite its de minimis cost.
+Amazon released [AWS Cognito](https://aws.amazon.com/cognito), which did price it as a commodity, but failed so miserably in UI and developer ergonomics, that it failed to reach a dominant market position despite its de minimis cost.
 
 More recently, nascent companies such as [WorkOS](https://workos.com) and [Frontegg](https://www.frontegg.com), while casting themselves as CIAM and “SSO made easy” to enterprise SaaS customers, are really just repackaging the same IAM features and protocol implementations that have been available in Keycloak for years. Furthermore, the pricing models have tilted back towards predatory on your company’s business model.
 
- ### Open source alternatives
+### Open source alternatives
 
 However, amidst this landscape, open-source alternatives like Keycloak are emerging as powerful contenders, offering unique advantages over their commercial counterparts. Because the market has settled on standard protocols, it opened the door for superior open source implementations to emerge with feature parity and standards compliance. Keycloak stands out as an alternative to commercial IAM solutions, enabling your business to unlock both flexibility and control.
 
