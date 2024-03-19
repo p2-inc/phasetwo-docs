@@ -33,7 +33,7 @@ At Phase Two, we’ve had a front row seat in solving this problem. Our customer
 ### Tools to empower the customer
 In addition to solving these core challenges, Phase Two has built tools to facilitate customer onboarding, one of the biggest drags on Customer Success hours, and ultimately a huge margin drain.
 
-To this end, the most valuable tool, from our customers’ perspectives is our Identity Provider Setup Wizard. This tool is meant as a guide for customers’ initial IdP connection. This had previously been the long pole in the onboarding tent. By giving the customers a tool to self-configure and manage their own IdP connection, Phase Two has gifted back valuable Customer Success hours and margin dollars.
+To this end, the most valuable tool, from our customers’ perspectives is our [Identity Provider Setup Wizard](https://github.com/p2-inc/idp-wizard). This tool is meant as a guide for customers’ initial IdP connection. This had previously been the long pole in the onboarding tent. By giving the customers a tool to self-configure and manage their own IdP connection, Phase Two has gifted back valuable Customer Success hours and margin dollars.
 
 ![idp-wizard-video-gif](https://github.com/p2-inc/idp-wizard/assets/244253/e9b421c0-b487-4c07-9eed-87ea89fc574b)
 
