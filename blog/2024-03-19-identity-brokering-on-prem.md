@@ -29,7 +29,7 @@ However, the reality is that for an application that is used by an entire enterp
 
 Fortunately, there is feature complete identity and access management system that is equally at home both on-premise and in the cloud. It can easily facilitate identity brokering with the customer identity provider, as well as give their IT staff access to critical access and operational information.
 
-At Phase Two, we’ve had a front row seat in solving this problem. Our customers have deployed [Keycloak](https://www.keycloak.org/), bundled with their application to over 300 combined sites. In these deployments, Keycloak is used for identity brokering to the customer identity provider, SSO authentication for all of their deployed applications, and role and access management to broker and manage authorization within their applications.
+At Phase Two, we’ve had a front row seat in solving this problem. Our customers have deployed [Keycloak](https://www.keycloak.org/), bundled with their application to over 300 of their customer sites. In these deployments, Keycloak is used for identity brokering to the customer identity provider, SSO authentication for all of their deployed applications, and role and access management to broker and manage authorization within their applications.
 
 ### Tools to empower the customer
 
