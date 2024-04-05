@@ -451,6 +451,13 @@ a:hover {
 .contentBlockHead h2 + p {
   margin-top: 24px;
 }
+.mt-1r,
+.contentBlockHead p.mt-1r {
+  margin-top: 1rem;
+}
+ {
+  margin-top: 1rem;
+}
 .contentBlockCta {
   text-align: center;
   padding-top: 48px;

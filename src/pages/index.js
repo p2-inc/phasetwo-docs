@@ -151,15 +151,14 @@ function Home() {
           <div className={styles.heroInner}>
             {/* Hero Message */}
             <div className={`pageHeroMsg`}>
-              {/* <picture>
-                <source media="(max-width: 767px)" srcset="/img/home-hero-mobile.png" />
-                <source media="(min-width: 768px)" srcset="/img/home-hero.png" />
-                <img className="pageHeroImg" src="/img/home-hero-mobile.png" alt="Illustration showing PhaseTwo solutions: SSO, Identity and User Management" />
-		</picture> */}
-              <h1>Future-Proof Your App</h1>
+              <h1>
+                Identity and Access Management (IAM) Solution to Future Proof
+                Your App
+              </h1>
               <p className={`pageHeroMsgIntro`}>
                 Accelerate SaaS time-to-market and enterprise adoption by
-                rapidly integrating the features you need.
+                rapidly integrating the features needed to support almost any
+                <b> authentication</b> and <b>authorization</b> use-cases.
               </p>
               <div className={`pageHeroCta`}>
                 <button className={`btnCta`} onClick={requestAccess}>
@@ -169,6 +168,30 @@ function Home() {
             </div>
           </div>
           <div className={styles.heroSections}>
+            <Link to={"hosting"} className={styles.heroSection}>
+              <img
+                className={styles.heroSectionPicto}
+                src="img/picto-sso.svg"
+                alt="Pictogram showing key"
+              />
+              <p>Hosting</p>
+            </Link>
+            <Link to={"#experts"} className={styles.heroSection}>
+              <img
+                className={styles.heroSectionPicto}
+                src="img/picto-sso.svg"
+                alt="Pictogram showing key"
+              />
+              <p>Support</p>
+            </Link>
+            <Link to={"#experts"} className={styles.heroSection}>
+              <img
+                className={styles.heroSectionPicto}
+                src="img/picto-sso.svg"
+                alt="Pictogram showing key"
+              />
+              <p>Customization</p>
+            </Link>
             <Link to={"product/sso"} className={styles.heroSection}>
               <img
                 className={styles.heroSectionPicto}
@@ -176,9 +199,6 @@ function Home() {
                 alt="Pictogram showing key"
               />
               <p>SSO</p>
-              <div className={styles.heroSectionPlus}>
-                <img src="img/plus.svg" alt="Plus" />
-              </div>
             </Link>
             <Link to={"product/identity"} className={styles.heroSection}>
               <img
@@ -187,9 +207,6 @@ function Home() {
                 alt="Pictogram showing a person"
               />
               <p>Identity</p>
-              <div className={styles.heroSectionPlus}>
-                <img src="img/plus.svg" alt="Plus" />
-              </div>
             </Link>
             <Link to={"product/organizations"} className={styles.heroSection}>
               <img
@@ -198,9 +215,6 @@ function Home() {
                 alt="Pictogram showing multiple persons interacting"
               />
               <p>Organizations</p>
-              <div className={styles.heroSectionPlus}>
-                <img src="img/plus.svg" alt="Plus" />
-              </div>
             </Link>
             <Link to={"product/adminportal"} className={styles.heroSection}>
               <img
@@ -209,9 +223,6 @@ function Home() {
                 alt="Pictogram showing a browser"
               />
               <p>Admin Portal</p>
-              <div className={styles.heroSectionPlus}>
-                <img src="img/plus.svg" alt="Plus" />
-              </div>
             </Link>
             <Link to={"product/onprem"} className={styles.heroSection}>
               <img
@@ -245,7 +256,7 @@ function Home() {
           </div>
 
           <div className={styles.heroIntegrations}>
-            <p>Integrates with</p>
+            <h2>REPLACES</h2>
             <picture>
               <source
                 media="(max-width: 767px)"
@@ -304,6 +315,11 @@ function Home() {
                 <p>+ many more</p>
               </div>
             </div>
+            <p className={styles.heroIntegrationsCopy}>
+              Phase Two provides a modern, open source alternative to private
+              identity and access management systems. Fully replace or integrate
+              with any IAM system available.
+            </p>
           </div>
         </div>
 
@@ -565,6 +581,11 @@ auth.init({
           <div className={`contentBlockHead`}>
             <h2>Phase Two is One Price Per Project</h2>
             <p>No hidden fees, no unpredictable costs.</p>
+            <p className="mt-1r">
+              We offer a premium hosted product to make getting started fast and
+              secure. Set up a free instance with our starter package to get a
+              sense of the simplicity that comes with Phase Two hosting.
+            </p>
           </div>
           <div className={`contentBlockBody`}>
             <div className={styles.plansBlocks}>
@@ -801,6 +822,7 @@ auth.init({
               <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
                 Phase Two are Keycloak Experts{" "}
               </h2>
+              <a href="#experts"></a>
 
               <div
                 className={styles.planBody}
