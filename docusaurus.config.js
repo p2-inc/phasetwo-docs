@@ -49,6 +49,11 @@ module.exports = {
           position: "left",
           items: [
             {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem Deployment",
+            },
+            {
               to: "product/sso",
               activeBasePath: "product/sso",
               label: "SSO",
@@ -67,11 +72,6 @@ module.exports = {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
               label: "Admin Portal",
-            },
-            {
-              to: "product/onprem",
-              activeBasePath: "product/onprem",
-              label: "On-Prem Deployment",
             },
           ],
         },
