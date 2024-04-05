@@ -38,6 +38,12 @@ module.exports = {
       },
       items: [
         {
+          label: "Hosting",
+          position: "left",
+          activeBasePath: "hosting",
+          to: "hosted",
+        },
+        {
           type: "dropdown",
           label: "Product",
           position: "left",
