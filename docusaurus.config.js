@@ -41,7 +41,7 @@ module.exports = {
           label: "Hosting",
           position: "left",
           activeBasePath: "hosting",
-          to: "hosted",
+          to: "hosting",
         },
         {
           type: "dropdown",
