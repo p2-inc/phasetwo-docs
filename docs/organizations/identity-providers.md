@@ -38,6 +38,12 @@ These are values that survive the duration of a user login session, and can be u
 
 ![](/docs/organizations-idps-mapper.png)
 
+### Handling user in multiple organization, each with a specific IdP
+
+When using organization specific IdP and users are part of multiple organizations, it may lead to a situation where a user is authenticated against IdP `acme-corp-idp` which is used by organization `acme-corp` while accessing organization `beta-corp` assets. In this case you might want to force the user to authenticate against `beta-corp-idp` while remaining authenticated against `acme-corp-idp` if they wish to switch back to `acme-corp` assets.
+
+This can be achieved by using `prompt=login` as the `idpHint` to force the user to log into the `beta-corp-idp`. This is described in more detail in the [SSO documentation](/docs/sso/sso-without-auth/#add-identity-provider-redirect-to-your-application).
+
 ### API access
 
 It is possible to manage all aspects of the identity provider and its relationship to the organization using the [API](/api/phase-two-admin-rest-api). You will notice that the method in the Phase Two API are similar to those in the Keycloak Admin API. If you are building software that is targeted at organization administrators, you should use the Phase Two API, as it uses the permission model for organizations, and is not compatible with the Keycloak Admin API.
