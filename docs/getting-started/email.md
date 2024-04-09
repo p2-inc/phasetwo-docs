@@ -40,7 +40,7 @@ Finally, before you click **Save**, click the **Test connection** button to send
 
 ### Content templates
 
-Email content can be modified in the **Styles** part of the **Extensions** section, in the *Emails* tab. There are several default email types that you can modify.
+Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab. There are several default email types that you can modify.
 
 - Execute Required Actions
 - Link to Identity Provider
@@ -57,6 +57,8 @@ Email content can be modified in the **Styles** part of the **Extensions** secti
 
 The templates are made in both text and HTML, as emails are assembled as multi-part messages that can display either type depending on the User's email client and accessibility settings. You must edit content for both types if you are making changes.
 
+We have created an example [Email Template](https://github.com/p2-inc/keycloak-themes/tree/main/examples/email) which we encourage use of.
+
 #### Templating syntax
 
 The syntax of the templates roughly follows that of [mustache.js](https://mustache.github.io/) which allows the replacement of values using tags enclosed by double braces, like this `{{name}}`. Each email template type exposes a set of named values and objects that can be used in your templates. At minimum, they are:
@@ -71,4 +73,3 @@ The syntax of the templates roughly follows that of [mustache.js](https://mustac
 - `url.registrationUrl`
 
 Use the default templates to see the available variables for each template type.
-
