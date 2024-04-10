@@ -27,7 +27,7 @@ The simple override of colors and logo can be access in the admin UI in the **St
 
 Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file will override the values from above. For more information on the styles used in the login pages, see [Patternfly v4](https://www.patternfly.org/v4/), and the Keycloak [base](https://github.com/keycloak/keycloak/tree/main/themes/src/main/resources/theme/base/login) and [keycloak](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) themes.
 
-Phase Two has assembled a few custom themes that can also be used. View them in our [Keycloak Themes Repository](https://github.com/p2-inc/keycloak-themes/tree/main/examples).
+Phase Two has assembled a few custom themes that can also be used. View them in our [Keycloak Themes Repository](https://github.com/p2-inc/keycloak-theme-template).
 
 If you need a lightweight customization to the variables that Phase Two exposes but want to use custom CSS, try this
 
