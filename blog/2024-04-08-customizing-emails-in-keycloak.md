@@ -31,7 +31,7 @@ Using a test user, visit the flow of the templates you changed to have those ema
 
 ## Example Template
 
-We've made a [sample template](https://github.com/p2-inc/keycloak-themes/tree/main/examples/email) to get you going. All you have to do is adjust the CSS colors and inject a link to your hosted logo file somewhere. There is a content section which you can copy/paste the default content from Keycloak into and customize. A simple HTML preview of the template lets you get an idea of how it will look.
+We've made a [sample template](https://github.com/p2-inc/keycloak-theme-template/examples) to get you going. All you have to do is adjust the CSS colors and inject a link to your hosted logo file somewhere. There is a content section which you can copy/paste the default content from Keycloak into and customize. A simple HTML preview of the template lets you get an idea of how it will look.
 
 ![Email example template](/blog/2024-04-08-email-example-phaseII.png)
 
