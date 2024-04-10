@@ -57,7 +57,7 @@ Email content can be modified in the **Styles** part of the **Extensions** secti
 
 The templates are made in both text and HTML, as emails are assembled as multi-part messages that can display either type depending on the User's email client and accessibility settings. You must edit content for both types if you are making changes.
 
-We have created an example [Email Template](https://github.com/p2-inc/keycloak-themes/tree/main/examples/email) which we encourage use of.
+We have created an example [Email Template](update/ui-customization/examples) which we encourage use of.
 
 #### Templating syntax
 
