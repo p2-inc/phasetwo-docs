@@ -17,20 +17,19 @@ In our example scenario, we will have some users authenticating using social pro
 
 ### Required actions
 
-As detailed in the previous sections, you may need to enable OTP and WebAuthn required actions in order to provide these options for 2FA for your users in this flow. If you want to force a method, you can also enable *Set as default action*.
+As detailed in the previous sections, you may need to enable OTP and WebAuthn required actions in order to provide these options for 2FA for your users in this flow. If you want to force a method, you can also enable _Set as default action_.
 
 ![](/docs/auth-complex-flows-ra.png)
 
 ### Social providers
 
-For information on setting up social identity providers, we covered setup in the [configuring social providers](social-login#configuring-social-providers) section.
+For information on setting up social identity providers, we covered setup in the [configuring social providers](../social-login#configuring-social-providers) section.
 
 ### Flow
 
 Let's start by showing the completed flow, and then describing what changes have been made and why.
 
 ![](/docs/placeholder.png)
-
 
 ### Login UI
 

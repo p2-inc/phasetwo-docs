@@ -13,18 +13,18 @@ There are a couple of default configuration choices you should be aware of befor
 
 In the **Realm settings** section, in the **Login** tab, you will find several important settings.
 
-- *User registration* controls if users can register for your application, and enables the default registration screens.
-- *Email as username* controls if the users email address will be used as their username.
-- *Login with email* allows users to log in with their email address, regardless if their email is their username.
-- *Verify email* requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more information.
+- _User registration_ controls if users can register for your application, and enables the default registration screens.
+- _Email as username_ controls if the users email address will be used as their username.
+- _Login with email_ allows users to log in with their email address, regardless if their email is their username.
+- _Verify email_ requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more information.
 
 ![](/docs/getting-started-configuration-settings.png)
 
 #### User profile
 
-By default, only username, email, first name and last name are collected. It is possible to add more requirements for your users. 
+By default, only username, email, first name and last name are collected. It is possible to add more requirements for your users.
 
-In the **Realm settings** section, in the **General** tab, you must turn on *User Profile Enabled* in order to allow additional fields. Once you save the configuration, another tab called **User profile** will appear. You can add additional fields, control who can view and manage those fields, set requirements, and add validation.
+In the **Realm settings** section, in the **General** tab, you must turn on _User Profile Enabled_ in order to allow additional fields. Once you save the configuration, another tab called **User profile** will appear. You can add additional fields, control who can view and manage those fields, set requirements, and add validation.
 
 ![](/docs/getting-started-configuration-user-profile.png)
 
@@ -38,14 +38,14 @@ In the **Realm settings** section, select the **Themes** tab.
 
 ##### Login
 
-The `Attributes` login theme is the Phase Two default that allows customizing the login UI without deploying a custom theme. This must be selected in order to use the options detailed in the [customizing UI](customizing-ui) section.
+The `Attributes` login theme is the Phase Two default that allows customizing the login UI without deploying a custom theme. This must be selected in order to use the options detailed in the [customizing UI](../customizing-ui) section.
 
 ##### Admin console
 
-If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the *Admin console theme* to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back into the Admin UI in order for this change to take effect. 
+If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the _Admin console theme_ to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back into the Admin UI in order for this change to take effect.
 
 ##### Email
 
-The `Attributes` email theme is the Phase Two default that allows the use of the email template UI detailed in the [emails](email#content-templates) section.
+The `Attributes` email theme is the Phase Two default that allows the use of the email template UI detailed in the [emails](../email#content-templates) section.
 
 ![](/docs/getting-started-configuration-themes.png)

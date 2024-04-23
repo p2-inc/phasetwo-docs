@@ -15,21 +15,21 @@ It is possible to use WebAuthn both as a second factor (2FA), in addition to use
 
 #### Required action
 
-Prior to authentication setup, go to the **Required actions** tab and enable the *Webauthn Register* action. If you wish to make it mandatory that your users set up a WebAuthn device, also turn on *Set as default action*.
+Prior to authentication setup, go to the **Required actions** tab and enable the _Webauthn Register_ action. If you wish to make it mandatory that your users set up a WebAuthn device, also turn on _Set as default action_.
 
 ![](/docs/auth-webauthn-2fa-ra.png)
 
 #### Flow
 
-Use of WebAuthn for is similar to how we used [one-time passcodes](otps) in the previous section. We'll start by duplicating the `browser` authentication flow we used there. In the **Flows** tab, duplicate the `browser` flow. Name it something like `webauthn 2fa`.
+Use of WebAuthn for is similar to how we used [one-time passcodes](../otps) in the previous section. We'll start by duplicating the `browser` authentication flow we used there. In the **Flows** tab, duplicate the `browser` flow. Name it something like `webauthn 2fa`.
 
-Delete the *OTP Forms* step, and replace it with *WebAuthn Authenticator*. Make sure it is set to *Required*
+Delete the _OTP Forms_ step, and replace it with _WebAuthn Authenticator_. Make sure it is set to _Required_
 
 ![](/docs/auth-webauthn-2fa-flow.png)
 
 #### Login UI
 
-After binding the new flow to the *Browser flow*, go back and reload your login screen. It will be a normal username and password entry screen. Following username-password authentication, if you have set *Webauthn Register* as a required action, the user will be prompted to set up their WebAuthn device. 
+After binding the new flow to the _Browser flow_, go back and reload your login screen. It will be a normal username and password entry screen. Following username-password authentication, if you have set _Webauthn Register_ as a required action, the user will be prompted to set up their WebAuthn device.
 
 ![](/docs/auth-webauthn-register.png)
 
@@ -51,16 +51,17 @@ Because of the superior security inherent in many devices, it is becoming popula
 
 #### Required action
 
-Again, prior to authentication setup, go to the **Required actions** tab and enable the *Webauthn Register Passwordless* action. If you wish to make it mandatory that your users set up a WebAuthn device instead of using a password, also turn on *Set as default action*.
+Again, prior to authentication setup, go to the **Required actions** tab and enable the _Webauthn Register Passwordless_ action. If you wish to make it mandatory that your users set up a WebAuthn device instead of using a password, also turn on _Set as default action_.
 
 ![](/docs/auth-webauthn-passwordless-ra.png)
 
 #### Flow
 
 In the **Flows** tab, duplicate the `browser` flow. Name it something like `webauthn passwordless`.
-- Delete the *Username Password Form* and replace it with *Username Form*. Make it *Required*. This will allow collection of only the username or email before the WebAuthn challenge.
-- Delete the *Conditional OTP* sub-flow.
-- In the forms section, below the *Username Form*, add the *WebAuthn Passwordless Authenticator* step. Make it *Required*.
+
+- Delete the _Username Password Form_ and replace it with _Username Form_. Make it _Required_. This will allow collection of only the username or email before the WebAuthn challenge.
+- Delete the _Conditional OTP_ sub-flow.
+- In the forms section, below the _Username Form_, add the _WebAuthn Passwordless Authenticator_ step. Make it _Required_.
 
 ![](/docs/auth-webauthn-passwordless-flow.png)
 
@@ -68,7 +69,7 @@ Note that this flow makes an assumption that the user has registered a WebAuthn 
 
 #### Login UI
 
-After binding the new flow to the *Browser flow*, go back and reload your login screen. You will see that there is only a field for the username or email address, and the password field is gone.
+After binding the new flow to the _Browser flow_, go back and reload your login screen. You will see that there is only a field for the username or email address, and the password field is gone.
 
 ![](/docs/auth-webauthn-passwordless-login.png)
 
