@@ -11,6 +11,7 @@ module.exports = {
   organizationName: "p2-inc",
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
+  trailingSlash: true,
   themeConfig: {
     announcementBar: {
       id: "dedicated_clusters",
