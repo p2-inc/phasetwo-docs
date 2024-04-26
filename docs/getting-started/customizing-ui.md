@@ -14,14 +14,14 @@ The simple override of colors and logo can be access in the admin UI in the **St
   - Favicon: URL of your favicon.
   - App Icon Url: Url of the App Icon used within the [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal)
 
-![](/docs/getting-started-customizing-ui-logos.png)
+![Keycloak Phase Two General Style Customization](/docs/getting-started-customizing-ui-logos.png)
 
 - **Login** tab
   - Background color: Hex color for background.
   - Primary color: Hex color for primary.
   - Secondary color: Hex color for secondary.
 
-![](/docs/getting-started-customizing-ui-colors.png)
+![Keycloak Phase Two Login Style Customization](/docs/getting-started-customizing-ui-colors.png)
 
 ### Full CSS
 

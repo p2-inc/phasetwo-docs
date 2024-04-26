@@ -6,7 +6,7 @@ title: Invitations
 Invitations provide a way to allow Keycloak and organization administrators to invite new members to the organization.
 Invitations can be managed by the Keycloak admin in the Organizations tab of the Admin UI. You can enable organization administrators to manage invitations using the organization portal or building it into your application using the API.
 
-![](/docs/organizations-invitations-invite.png)
+![Keycloak Phase Two Organizations Invites](/docs/organizations-invitations-invite.png)
 
 ### Setup
 
@@ -32,8 +32,8 @@ Invitees will receive an email indicating the realm, organization and inviter. I
 
 This approach uses another extension in order to provide a [magic link](https://github.com/p2-inc/keycloak-magic-link) that will first register the user, authenticate them, and then present them with the required action to accept the invitation. This approach is preferred when user registration is disabled. It requires the following steps:
 
-* [Create a magic link](https://phasetwo.io/api/create-magic-link) using `force_create=true` (to create a user if one does not exist) and `send_email=false` to skip sending the magic link to the user.
-* Use the returned magic link when [creating an invitation](https://phasetwo.io/api/add-organization-invitation). Set the `redirectUri={magic-link}`.
+- [Create a magic link](https://phasetwo.io/api/create-magic-link) using `force_create=true` (to create a user if one does not exist) and `send_email=false` to skip sending the magic link to the user.
+- Use the returned magic link when [creating an invitation](https://phasetwo.io/api/add-organization-invitation). Set the `redirectUri={magic-link}`.
 
 ### API access
 

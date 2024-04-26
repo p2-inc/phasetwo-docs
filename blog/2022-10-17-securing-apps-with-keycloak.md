@@ -21,7 +21,7 @@ A "flow" in OIDC terms is a mechanism of authenticating a user, and obtaning acc
 
 However, it is useful to see what is going on in the login process, so that you understand your user's experience.
 
-![](/blog/2022-10-17-authentication-flow.png)
+![Keycloak Authentication Flow Diagram](/blog/2022-10-17-authentication-flow.png)
 
 ### Setup
 
@@ -47,7 +47,7 @@ Every application that Keycloak protects is considered a **Client**. Log into yo
 4. Click _Save_
 5. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click _Download_ and move the file to the `debug-app` repo you cloned under the `frontend` folder.
 
-![](/blog/2022-10-17-client-setup.png)
+![Keycloak Client Details Setup Example](/blog/2022-10-17-client-setup.png)
 
 ### Make a user
 

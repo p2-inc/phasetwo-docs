@@ -9,30 +9,30 @@ Members of an organization can have role assignments that are specific to that o
 
 The default roles can be assigned to users to give them access to view and manage organization data.
 
-| Name | Access |
-| --- | --- |
-| view-organization | View organization details. |
-| manage-organization | Update organization details. Delete the organization. |
-| view-members | View memberships. |
-| manage-members | Add and remove memberships. |
-| view-roles | View roles and assignements. |
-| manage-roles | Create and remove roles and assignments. |
-| view-invitations | View outstanding invitations. |
-| manage-invitations | Create and remove pending invitations. |
-| view-identity-providers | View configured identity providers for SSO. |
+| Name                      | Access                                                |
+| ------------------------- | ----------------------------------------------------- |
+| view-organization         | View organization details.                            |
+| manage-organization       | Update organization details. Delete the organization. |
+| view-members              | View memberships.                                     |
+| manage-members            | Add and remove memberships.                           |
+| view-roles                | View roles and assignements.                          |
+| manage-roles              | Create and remove roles and assignments.              |
+| view-invitations          | View outstanding invitations.                         |
+| manage-invitations        | Create and remove pending invitations.                |
+| view-identity-providers   | View configured identity providers for SSO.           |
 | manage-identity-providers | Create, manage and remove identity providers for SSO. |
- 
-![](/docs/organizations-roles-list.png)
- 
+
+![Keycloak Phase Two Organizations Roles List](/docs/organizations-roles-list.png)
+
 ### Custom roles
 
 Custom roles can be created in the Roles section of each organization in the Organizations tab of the Admin UI. It is important to note that a role is created for **each organization individually**. If you wish to have the same role name for multiple organization, it is recommended that you create them programmatically on organization creation.
 
-![](/docs/organizations-roles-create.png)
+![Keycloak Phase Two Organizations Roles Create](/docs/organizations-roles-create.png)
 
 ### Adding roles to the token
 
-It is possible to map organization roles into the access token, ID token or userinfo endpoint response using the **Organization Role** token claim mapper for OIDC. If you have users that will have a large number of organization memberships or roles per organization, it is recommended that you only add the claim to the userinfo endpoint response, as it may cause large token sizes. 
+It is possible to map organization roles into the access token, ID token or userinfo endpoint response using the **Organization Role** token claim mapper for OIDC. If you have users that will have a large number of organization memberships or roles per organization, it is recommended that you only add the claim to the userinfo endpoint response, as it may cause large token sizes.
 
 ### API access
 

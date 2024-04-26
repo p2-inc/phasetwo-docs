@@ -18,7 +18,7 @@ In the **Realm settings** section, in the **Login** tab, you will find several i
 - _Login with email_ allows users to log in with their email address, regardless if their email is their username.
 - _Verify email_ requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more information.
 
-![](/docs/getting-started-configuration-settings.png)
+![Keyclaok Realm Login Settings](/docs/getting-started-configuration-settings.png)
 
 #### User profile
 
@@ -26,7 +26,7 @@ By default, only username, email, first name and last name are collected. It is 
 
 In the **Realm settings** section, in the **General** tab, you must turn on _User Profile Enabled_ in order to allow additional fields. Once you save the configuration, another tab called **User profile** will appear. You can add additional fields, control who can view and manage those fields, set requirements, and add validation.
 
-![](/docs/getting-started-configuration-user-profile.png)
+![Keycloak Realm User Profile](/docs/getting-started-configuration-user-profile.png)
 
 ### Realm setup
 
@@ -48,4 +48,4 @@ If you are not seeing an **Extensions** section at the bottom of the left nav, y
 
 The `Attributes` email theme is the Phase Two default that allows the use of the email template UI detailed in the [emails](../email#content-templates) section.
 
-![](/docs/getting-started-configuration-themes.png)
+![Keycloak Realm Themes](/docs/getting-started-configuration-themes.png)

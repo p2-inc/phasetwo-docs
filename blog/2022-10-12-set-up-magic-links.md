@@ -2,7 +2,7 @@
 slug: set-up-magic-links
 title: Magic Links Guide, and 5 Minute Setup
 author: Phase Two
-tags: [ tutorial, keycloak, phase_two, magic_links ]
+tags: [tutorial, keycloak, phase_two, magic_links]
 ---
 
 Someone who is reading this article is probably very different that the average internet user when it comes to passwords. Developers and IT admins, either because of security savvy or compliance, use password managers, multi-factor authentication (MFA) mechanisms, or prefer sites that offer password-less authentication. Furthermore, they are keenly aware of the weaknesses in their personal "attack surface", and search for ways to balance convenience with risk.
@@ -15,7 +15,7 @@ Magic links are a type of password-less authentication that allow your users to 
 
 In a magic link flow, the application's authentication provider asks users for an email address rather than a password. The authentication provider generates a link with an embedded token, and sends to the user's email. There may be some other steps taken by the provider, such as verifying the provided email address matches an existing user. The user then opens the email, clicks the link, is verified by the authentication provider, and is granted access to the application
 
-![](/blog/2022-10-12-set-up-magic-links-flow.png)
+![Keycloak Phase Two Magic Link Extension Flow Diagram](/blog/2022-10-12-set-up-magic-links-flow.png)
 
 ### Pros and cons
 
@@ -46,36 +46,36 @@ Your user can:
 
 ### Setup guide
 
-Sorry for the wait! We wanted to give you an overview of magic links before diving into how to set them up with Phase Two. 
+Sorry for the wait! We wanted to give you an overview of magic links before diving into how to set them up with Phase Two.
 
 If you haven't already, get an account on [Phase Two](https://phasetwo.io/dashboard). You'll notice that we use magic links in addition to social login options. As we said above, we're trying to make it as frictionless as possible to get in and start using the product.
 
-Once you log in and create your first deployment, open the Phase Two enhanced Keycloak console. In order to email links to your users, you'll need to set up email. If you haven't already done that, head over to our [email setup guide](/blog/2022-10-05-set-up-email.md). 
+Once you log in and create your first deployment, open the Phase Two enhanced Keycloak console. In order to email links to your users, you'll need to set up email. If you haven't already done that, head over to our [email setup guide](/blog/2022-10-05-set-up-email.md).
 
 After you've completed email setup, select the **Authentication** menu item, and then select the **Magic link** flow from the list.
 
-![](/blog/2022-10-12-set-up-magic-links-magiclinkauth.png)
+![Keycloak Phase Two Magic Link Authentication Page Flow Name](/blog/2022-10-12-set-up-magic-links-magiclinkauth.png)
 
 Open the configuration for the **Magic Link Authenticator** by clicking the gear icon on the last line with the **Magic Link** execution. You'll notice two options:
+
 - **Force create user** creates a new user when an email is provided that does not match an existing user. This allows the use of magic links to register new users that have not been previously seen.
-- **Update profile on create** adds an UPDATE_PROFILE required action if the user was created. This means that the user will need to fill out other required fields such as first/last name, etc. 
+- **Update profile on create** adds an UPDATE_PROFILE required action if the user was created. This means that the user will need to fill out other required fields such as first/last name, etc.
 
 For the purpose of our demonstration, let's set **Force create user** to ON and **Update profile on create** to OFF (remember, low friction). Save the configuration, and go back to the flow page.
 
 In the **Action** menu of the flow page, select **Bind**, and select **Browser flow**.
 
-![](/blog/2022-10-12-set-up-magic-links-bind.png)
+![Keycloak Phase Two Magic Link Bind Flow](/blog/2022-10-12-set-up-magic-links-bind.png)
 
-Now you're ready to test it out. If you don't have an application that is setup and protected by Keycloak, you can use the built-in account console to try it out. Navigate to the **Clients** menu, and open the link next to the **account** client in an incognito window (this will prevent conflict, as you are already logged in to the admin console as the administrator). 
+Now you're ready to test it out. If you don't have an application that is setup and protected by Keycloak, you can use the built-in account console to try it out. Navigate to the **Clients** menu, and open the link next to the **account** client in an incognito window (this will prevent conflict, as you are already logged in to the admin console as the administrator).
 
-Click **Sign In** and you'll be redirected to the authentication page. Enter your email address, and you'll be sent a magic link. Click on the link in your email, and you'll see your details in the account console. 
+Click **Sign In** and you'll be redirected to the authentication page. Enter your email address, and you'll be sent a magic link. Click on the link in your email, and you'll see your details in the account console.
 
-![](/blog/2022-10-12-set-up-magic-links-login.png)
-![](/blog/2022-10-12-set-up-magic-links-confirm.png)
+![Keycloak Phase Two Magic Link Login Page](/blog/2022-10-12-set-up-magic-links-login.png)
+![Keycloak Phase Two Magic Link Confirm Page](/blog/2022-10-12-set-up-magic-links-confirm.png)
 
 Go back to the admin console in the other browser window, and navigate to the **Users** section. You will be able to find the user that was just created.
 
-![](/blog/2022-10-12-set-up-magic-links-admin-user.png)
+![Keycloak Phase Two Magic Link Admin User View](/blog/2022-10-12-set-up-magic-links-admin-user.png)
 
 Magic links are a great way to streamline your user onboarding and experience to help you easily drive engagement across your application. Phase Two makes it quick and easy to integrate magic links (and social login, and enterprise SSO, and much more). Stay tuned for more guides that will help you build the authentication experience that is right for your app.
-

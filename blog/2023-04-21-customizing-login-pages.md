@@ -2,7 +2,7 @@
 slug: customizing-login-pages
 title: How To Customize Login Pages
 author: Phase Two
-tags: [ phase_two, themes, login, keycloak ]
+tags: [phase_two, themes, login, keycloak]
 ---
 
 Brand is important to modern SaaS companies, and nowhere is that more apparent than at the front door: the login experience. Unfortunately, the default design of the Keycloak login experience has a "face only a mother could love".
@@ -11,15 +11,15 @@ In order to allow customers to customize that experience, we've extended the def
 
 ## Simple customization
 
-If you're in a hurry, logo and color customization can be achieved by adding your logo's URL and three color choices. These are available in the *General* and *Login* tabs of the **Styles** section.
+If you're in a hurry, logo and color customization can be achieved by adding your logo's URL and three color choices. These are available in the _General_ and _Login_ tabs of the **Styles** section.
 
-![](/blog/2023-04-21-styles-general.png)
+![Keycloak Phase Two Login Page Customization Logo URL](/blog/2023-04-21-styles-general.png)
 
-![](/blog/2023-04-21-styles-login.png)
+![Keycloak Phase Two Login Page Customization Styles Configuration](/blog/2023-04-21-styles-login.png)
 
-In order for these setting to take effect, your **Realm Settings** *Themes* must also be set to `Attributes` for the *Login theme* type
+In order for these setting to take effect, your **Realm Settings** _Themes_ must also be set to `Attributes` for the _Login theme_ type
 
-![](/blog/2023-04-21-theme-attributes.png)
+![Keycloak Phase Two Login Page Theme Setting](/blog/2023-04-21-theme-attributes.png)
 
 ## Full customization using CSS
 
@@ -27,13 +27,14 @@ Many of you will have more stringent branding requirements. For this, you can ov
 
 Note that using CSS overrides will cause the colors from simple customization not to work.
 
-In order to load your CSS, paste it into the "CSS" field in the *Login* tab of the **Styles** section.
+In order to load your CSS, paste it into the "CSS" field in the _Login_ tab of the **Styles** section.
 
-![](/blog/2023-04-21-styles-css.png)
+![Keycloak Phase Two Login Page Custom CSS](/blog/2023-04-21-styles-css.png)
 
-This CSS will be the last CSS loaded, overridding the styles in the default `keycloak` login theme. 
+This CSS will be the last CSS loaded, overridding the styles in the default `keycloak` login theme.
 
 References:
+
 - [Keycloak login CSS](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) - The default CSS for the `keycloak` login theme.
 - [Patternfly 4](https://www.patternfly.org/v4/) - The styling library used by the theme.
 
@@ -41,14 +42,14 @@ References:
 
 To get you started with some ideas, we've created 3 example login themes that were done by overridding the CSS. These are free of license restriction, so feel free to download, use and customize the CSS at the links with the example images.
 
-* Consumer - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/consumer/login.css)
-![](/blog/2023-04-21-consumer-theme.png)
+- Consumer - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/consumer/login.css)
+  ![Keycloak Phase Two Login Page Consumer Theme](/blog/2023-04-21-consumer-theme.png)
 
-* Enterprise - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/enterprise/login.css)
-![](/blog/2023-04-21-enterprise-theme.png)
+- Enterprise - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/enterprise/login.css)
+  ![Keycloak Phase Two Login Page Enterprise Theme](/blog/2023-04-21-enterprise-theme.png)
 
-* SaaS - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/saas/login.css)
-![](/blog/2023-04-21-saas-theme.png)
+- SaaS - [CSS](https://github.com/p2-inc/keycloak-themes/blob/main/examples/saas/login.css)
+  ![Keycloak Phase Two Login Page SaaS Theme](/blog/2023-04-21-saas-theme.png)
 
 #### Images and other assets
 

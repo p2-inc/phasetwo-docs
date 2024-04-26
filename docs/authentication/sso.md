@@ -25,17 +25,14 @@ Once the identity provider setup is complete, note the alias in the **Identity p
 
 In the **Organizations** section, create a new organization or navigate to an existing one. In the **Identity Provider** tab of that organization, select the alias of the identity provider you create that you wish to associate with the organization.
 
-![](/docs/placeholder.png)
+![Organization Setup Placeholder](/docs/placeholder.png)
 
 In order to restrict the use of the identity provider to specific email domains associated with this organization, go to the **Settings** tab for the organization and add email domains owned by the organization.
 
-![](/docs/placeholder.png)
+![Organization Settings Placeholder](/docs/placeholder.png)
 
 ### Flow
 
 ### Login UI
 
-After binding the SSO flow to the *Browser flow*, go back and reload your login screen. You will see that there is only a field for the email address.
-
-
-
+After binding the SSO flow to the _Browser flow_, go back and reload your login screen. You will see that there is only a field for the email address.
