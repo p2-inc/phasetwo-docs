@@ -13,23 +13,23 @@ As part of the default `browser` flow, you may have noticed in the forms section
 
 #### Required action
 
-In order to force users to configure OTP, you must go to the **Required actions** tab of the **Authentication** section and set *Enabled* and *Set as default action* both to **ON** for *Configure OTP*. This will force the user to set up an OTP method as a barrier to registration and login.
+In order to force users to configure OTP, you must go to the **Required actions** tab of the **Authentication** section and set _Enabled_ and _Set as default action_ both to **ON** for _Configure OTP_. This will force the user to set up an OTP method as a barrier to registration and login.
 
-![](/docs/auth-otps-required-action.png)
+![Keycloak OTP Default Action Configure](/docs/auth-otps-required-action.png)
 
-However, this setting will only apply to new users. For existing users, you must go to the **Users** section, select the user you wish to edit, and add *Configure OTP* to the *Required user actions* field. 
+However, this setting will only apply to new users. For existing users, you must go to the **Users** section, select the user you wish to edit, and add _Configure OTP_ to the _Required user actions_ field.
 
-![](/docs/auth-otps-user-action.png)
+![Keycloak Required User Actions Configure OTP](/docs/auth-otps-user-action.png)
 
 ### Login UI
 
 After updating the required action default or giving a test user the action, nothing will change until the user has successfully passed the username-password challenge. After that, the user is presented with a QR code and instructions for setting up their authenticator application.
 
-![](/docs/auth-otps-app-setup.png)
+![Keycloak OTP Setup Instructions](/docs/auth-otps-app-setup.png)
 
 On subsequent logins, users will be prompted to enter the OTP from their app during each authentication attempt.
 
-![](/docs/auth-otps-code-challenge.png)
+![Keycloak OTP Challenge Code Screen](/docs/auth-otps-code-challenge.png)
 
 ### Create OTP flow
 

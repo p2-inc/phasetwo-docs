@@ -5,7 +5,7 @@ title: Membership
 
 Users who are associated with an organization are considered members. The relationship of users to organizations can be managed in the Organizations tab of the Admin UI. [Invitations](../invitations) also provide a way to allow organization administrators to invite new members to the organization. If you are associating an identity provider with an organization, all users who authenticate through an associated identity provider will automatically be added as members to the organization.
 
-![](/docs/organizations-membership-list.png)
+![Keycloak Phase Two Organizations Membership List](/docs/organizations-membership-list.png)
 
 ### Anonymous organization administrator
 

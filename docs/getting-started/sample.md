@@ -11,19 +11,18 @@ https://github.com/p2-inc/debug-app
 
 Before you configure and start the sample application, you must build a Client configuration. In Keycloak, a "Client" is synonymous with an application you are securing.
 
-Log into your Keycloak realm, and click on **Clients** in the left navigation, and click *Create client*. 
+Log into your Keycloak realm, and click on **Clients** in the left navigation, and click _Create client_.
 
-1. Enter `frontend` as the **Client ID** and click *Next* (you can name this whatever you want)
-2. In the **Capability config** screen, keep the defaults and click *Save*
+1. Enter `frontend` as the **Client ID** and click _Next_ (you can name this whatever you want)
+2. In the **Capability config** screen, keep the defaults and click _Save_
 3. In the **Access settings** screen, enter the following values:
-    1. `http://localhost:3001/*` for **Valid redirect URIs**
-	2. `+` in **Valid post logout redirect URIs**
-	3. `+` in **Web origins**
-4. Click *Save*
-4. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click *Download* and save the file for the next step.
+   1. `http://localhost:3001/*` for **Valid redirect URIs**
+   2. `+` in **Valid post logout redirect URIs**
+   3. `+` in **Web origins**
+4. Click _Save_
+5. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click _Download_ and save the file for the next step.
 
-![](/blog/2022-10-17-client-setup.png)
-
+![Keycloak Client Details](/blog/2022-10-17-client-setup.png)
 
 ### Sample configuration
 
@@ -48,6 +47,7 @@ Once you have cloned the repo, edit the `keycloak.json` file and switch it with 
 ```
 
 Then run the server using the included script:
+
 ```bash
 ./start.sh
 ```

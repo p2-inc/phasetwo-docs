@@ -2,7 +2,7 @@
 slug: set-up-email
 title: Set Up Email in Phase Two
 author: Phase Two
-tags: [ tutorial, keycloak, phase_two, email ]
+tags: [tutorial, keycloak, phase_two, email]
 ---
 
 One of the first things you will need to do when getting a Keycloak Realm ready for use is to set up your email server configuration. There are many system emails that are sent to users in the course of verifying and updating user accounts: Email address verification, magic links, password reset, account update, login failure notifications, identity provider linking, etc.
@@ -11,7 +11,7 @@ In order to provide your users with a positive experience, these messages need a
 
 If you are using a Phase Two Deployment, log in to the self-service dashboard, and click on the **Open Console** link for the Deployment you wish to use. Once in the Keycloak admin console, click **Realm settings** in the left menu, and then click the **Email** tab.
 
-![](/blog/2022-10-05-set-up-email-template.png)
+![Keycloak Email Configuration](/blog/2022-10-05-set-up-email-template.png)
 
 In the first section, labeled **Template**, you will set options that will be used in the templates for the emails that are sent to your users. The only required field is the **From** field, which must contain the email address the user will see the email originating from. This should be an email address that your email server is expecting, and it will not block for authorization reasons.
 
@@ -23,7 +23,7 @@ The other fields in the **Template** section are not required, but will enhance 
 - **Reply to display name** a user-friendly name displayed along **Reply to**
 - **Envelope from** Bounce Address used for the mails that are rejected
 
-![](/blog/2022-10-05-set-up-email-connection.png)
+![Keycloak Email Server Connection and Authentication](/blog/2022-10-05-set-up-email-connection.png)
 
 In the **Connection & Authentication** section, you will provide details of your SMTP server:
 
@@ -32,7 +32,7 @@ In the **Connection & Authentication** section, you will provide details of your
 - **Encryption** support encryption for communication with your SMTP server
 - **Authentication** if your SMTP server requires authentication, and supply the **Username** and **Password**
 
-![](/blog/2022-10-05-set-up-email-buttons.png)
+![Keycloak email setup buttons](/blog/2022-10-05-set-up-email-buttons.png)
 
 Finally, before you click **Save**, click the **Test connection** button to send a test email to the email address of the currently logged in user. If you don't have that set, you might have click **Save** and edit your user before you come back. You'll receive a success message, or information that will help you resolve problems.
 

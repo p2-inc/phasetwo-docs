@@ -4,7 +4,7 @@ module.exports = {
   plugins: [require.resolve("./sitePlugin")],
   title: "Phase Two enhanced Keycloak as a Service",
   tagline:
-    "Tools for SaaS builders - Enhanced Keycloak as a Service - Fully secured, managed and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+    "Making Keycloak Easy - Enhanced Keycloak as a Service - Fully secured, managed, simple and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
