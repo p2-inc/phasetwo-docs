@@ -50,25 +50,21 @@ We will use the Phase Two Remix example code here, but the logic could easily be
 4. Open the `app/services/keycloak.server.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`:
 
   ```tsx
-  const useSSL = true;
-  const authServerDomain = "euc1.auth.ac/auth";
-  const realm = "shared-deployment-001";
-  const clientID = "reg-example-1";
-  const clientSecret = "CLIENT_SECRET"; // Paste "Client secret" here. Use Environment variables in prod
+  const kcConfig = {
+      useSSL: true,
+      domain: "usw2.auth.ac/auth",
+      realm: "shared-deployment-001",
+      clientID: "reg-example-1",
+      clientSecret: "CLIENT_SECRET", // Paste "Client secret" here. Use Environment variables in prod
+      callbackURL: "http://localhost:3000/auth/keycloak/callback",
+  }
   ```
 
   Those are used to popluate the config for the `KeycloakStrategy`:
 
   ```tsx
   export default new KeycloakStrategy(
-    {
-      realm,
-      useSSL,
-      clientID,
-      clientSecret,
-      domain: authServerDomain,
-      callbackURL: "http://localhost:3000/auth/keycloak/callback",
-    },
+    kcConfig,
     ({ profile }) => profile
   );
   ```
