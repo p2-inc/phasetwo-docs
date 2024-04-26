@@ -1,6 +1,7 @@
 ---
 id: kubernetes
 title: Kubernetes
+description: Use Phase Two's enhanced Keycloak offering via Kubernetes Helm.
 ---
 
 Phase Two's enhanced Keycloak offering is available to use via Kubernetes Helm.
