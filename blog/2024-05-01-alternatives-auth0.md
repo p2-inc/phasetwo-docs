@@ -37,7 +37,13 @@ Auth0 offers a wide range of authentication features out-of-the-box, including s
 **Keycloak:**
 Keycloak matches Auth0 in terms of functionality, supporting similar authentication protocols and user federation. It also offers customizable user interfaces for login, registration, and account management, which can be tailored to match the specific needs of a business. Being open-source, Keycloak allows developers to modify the codebase and integrate with other systems more freely than Auth0, offering a higher degree of customization at the cost of additional developer effort.
 
-#### Which one is best for me?
+#### Integrating Keycloak with External Systems like Auth0
+
+For organizations looking to transition from Auth0 to Keycloak or integrate Keycloak with systems that are already using Auth0, Keycloak's flexibility offers significant advantages. Keycloak can be configured to act as a broker that sits between Auth0 and your applications. This setup allows organizations to leverage the strengths of both platforms. For example, an organization can use Auth0 for external user management due to its robust third-party integrations while using Keycloak to handle more sensitive internal authentication needs.
+
+The identity brokering capability of Keycloak enables it to delegate authentication to external Identity Providers (IdPs), such as Auth0. This means that Keycloak can manage internal permissions and roles, provide additional security checks, and maintain a user-friendly, consistent login experience across different systems. The ability to integrate seamlessly with services like Auth0 simplifies the migration process for companies transitioning from one authentication system to another and provides a layer of flexibility for new authentication strategies without disrupting user access or security.
+
+#### Which One Is Best for Me?
 
 Choosing between Auth0 and Keycloak largely depends on your organization’s specific needs and capabilities. Auth0 is an excellent choice for those who need a hassle-free, fully managed solution with predictable costs linked to user numbers. However, for organizations that prioritize cost savings, have the capability to manage their infrastructure, or require extensive customization, Keycloak emerges as a powerful, budget-friendly alternative.
 
