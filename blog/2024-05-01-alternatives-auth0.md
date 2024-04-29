@@ -51,7 +51,7 @@ Keycloak matches Auth0 in terms of functionality, supporting similar authenticat
 
 **Winner**
 
-Keyclaok
+Keycloak
 
 Auth0 and Keycloak offer much of the same functionality for Authenication and Authorization, however Keycloak is extremely flexible to extend and configure. It's a system that can adjust and grow with an application.
 
