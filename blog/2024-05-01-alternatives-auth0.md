@@ -16,10 +16,16 @@ When it comes to implementing authentication and authorization in web applicatio
 There are many factors to think about with a total cost-of-ownership. We've written extensively about [choosing an Open-Source IAM](./2024-03-11-open-source-iam.md) over a managed service.
 
 **Auth0:**
-Auth0 operates on a subscription model, which can be quite cost-effective for startups or small projects with minimal authentication needs. It offers a free tier limited by the number of authentications per month and features. Beyond this, prices increase based on the number of users and the level of features required. For large enterprises, this can translate into a significant ongoing expense.
+Auth0 operates on a subscription model, which can be quite enticing for startups or small projects with minimal authentication needs. It offers a free tier limited by the number of authentications per month, active users, MFA setups, and more. As needs quickly increase for a business to setup a modest number of IDP connections, include minimal additional "users" (which could be people or devices), extract logs, customize deployments, and more, those bills can quickly spiral into $100K+. For SMB's to Enterprise, dedicating that amount of resources to your Auth solution can be untenable.
 
 **Keycloak:**
-Keycloak, on the other hand, is an open-source solution developed by Red Hat. It is free to use, regardless of the number of users or the scale of the project. This makes Keycloak particularly attractive for businesses looking to cut costs or those who prefer not to be tied to vendor-specific pricing structures. The primary cost associated with Keycloak comes from the need to self-host and manage the software, which includes server costs and potential overhead for setup and maintenance.
+Keycloak, on the other hand, is an open-source solution developed by Red Hat. It is free to use, regardless of the number of users or the scale of the project. This makes Keycloak particularly attractive for businesses looking to cut costs or those who prefer not to be tied to vendor-specific pricing structures. The primary cost associated with Keycloak comes from the need to self-host and manage the software, which includes server costs and potential overhead for setup and maintenance. This can mean the ongoing cost is fixed since its not driven by features or users.
+
+**Winner**
+
+Keycloak
+
+Leveraging Phase Two's managed hosting provides a more capable free tier to test out and integrate Authorization and Authentication into an application(s). When that application's needs grow, Keycloak quickly becomes a far more cost-effective choice.
 
 #### Maintenance
 
@@ -29,6 +35,12 @@ One of the main advantages of Auth0 is that being a managed service, it requires
 **Keycloak:**
 Conversely, Keycloak requires more attention since it's self-hosted. Organizations must allocate resources for installing, configuring, and updating the software, as well as managing the underlying infrastructure. This can be a drawback for teams without the necessary technical expertise or resources. However, it also offers greater control over the deployment and security standards, which can be a significant advantage for certain regulatory environments.
 
+**Winner**
+
+Auth0.
+
+As a fully managed service, Auth0 abstracts away this work.
+
 #### Functionality and Flexibility
 
 **Auth0:**
@@ -36,6 +48,12 @@ Auth0 offers a wide range of authentication features out-of-the-box, including s
 
 **Keycloak:**
 Keycloak matches Auth0 in terms of functionality, supporting similar authentication protocols and user federation. It also offers customizable user interfaces for login, registration, and account management, which can be tailored to match the specific needs of a business. Being open-source, Keycloak allows developers to modify the codebase and integrate with other systems more freely than Auth0, offering a higher degree of customization at the cost of additional developer effort.
+
+**Winner**
+
+Keyclaok
+
+Auth0 and Keycloak offer much of the same functionality for Authenication and Authorization, however Keycloak is extremely flexible to extend and configure. It's a system that can adjust and grow with an application.
 
 #### Integrating Keycloak with External Systems like Auth0
 
@@ -45,8 +63,8 @@ The identity brokering capability of Keycloak enables it to delegate authenticat
 
 #### Which One Is Best for Me?
 
-Choosing between Auth0 and Keycloak largely depends on your organization’s specific needs and capabilities. Auth0 is an excellent choice for those who need a hassle-free, fully managed solution with predictable costs linked to user numbers. However, for organizations that prioritize cost savings, have the capability to manage their infrastructure, or require extensive customization, Keycloak emerges as a powerful, budget-friendly alternative.
+Choosing between Auth0 and Keycloak largely depends on your organization’s specific needs and capabilities. Auth0 is an excellent choice for those who need a fully managed solution with costs linked to user numbers and features. However, for organizations that prioritize cost savings and predictability, have the capability to manage their infrastructure, or require extensive customization, Keycloak emerges as a powerful, budget-friendly alternative.
 
-Both platforms offer extensive documentation and community support, which can help mitigate some of the challenges associated with implementation and maintenance. Ultimately, the decision should align with your business goals, technical capacity, and budget constraints.
+Both platforms offer extensive documentation and community support, which can help mitigate some of the challenges associated with implementation and maintenance.
 
-Ultimately, we at Phase Two believe marrying the two together is the strongest match. We offer a robust [hosting options](https://phasetwo.io/) for multiple business sizes. This allows teams to take advantage of a managed service with the capability of an open-source package.
+Ultimately, we at Phase Two believe marrying the two together is the strongest match. We offer robust [hosting options](https://phasetwo.io/) that fit well for multiple business sizes. Coupling the capabilities of Keycloak and the advantages of a managed service translates directly to implementation and cost control. **Leveraging Keycloak means that ongoing costs are relatively fixed**, since concerns about user growth or feature needs don't have to factor into every decision.
