@@ -80,6 +80,7 @@ Those are used to popluate the config for the provider `Keycloak` in `src/auth.t
 ```tsx
 export const { handle, signIn, signOut } = SvelteKitAuth({
   trustHost: true,
+  secret: authjsSecret,
   providers: [
     Keycloak(kcConfig),
   ],
