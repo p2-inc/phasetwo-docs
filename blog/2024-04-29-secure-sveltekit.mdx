@@ -60,12 +60,18 @@ We will use the Phase Two SvelteKit example code here, but the logic could easil
 4. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`. 
 
 ```tsx
+// Use Environment Variables AUTH_SECRET in prod
+const authjsSecret = "f18d48ce9bea32e44b5591b2c89185729d4559435f77ca76872a83a0850563a4";
+
 const realm = "shared-deployment-001";
 
 const kcConfig = {
+  // Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
   issuer: `https://usw2.auth.ac/auth/realms/${realm}`,
+  // Paste "Client id" here. Use Environment Variables AUTH_KEYCLOAK_ID in prod
   clientId: "reg-example-1",
-  clientSecret: "CLIENT_SECRET", // Paste "Client secret" here. Use Environment variables in prod
+  // Paste "Client secret" here. Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
+  clientSecret: "CLIENT_SECRET",
 };
 ```
 
