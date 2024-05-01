@@ -318,6 +318,17 @@ module.exports = {
         docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
       },
     ],
+    [
+      "@docusaurus/plugin-client-redirects",
+      {
+        redirects: [
+          {
+            to: "/docs/hosting/kubernetes/",
+            from: ["/helm-charts"],
+          },
+        ],
+      },
+    ],
   ],
   themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
 };
