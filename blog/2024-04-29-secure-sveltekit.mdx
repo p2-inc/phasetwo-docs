@@ -57,7 +57,8 @@ We will use the Phase Two SvelteKit example code here, but the logic could easil
 1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
 2. Open the SvelteKit [folder](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit) within `/frameworks/sveltekit`.
 3. Run `npm install` and then `npm run dev`. This example leverages [@auth/sveltekit](https://github.com/nextauthjs/next-auth) to provide HOC support.
-4. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`. 
+4. The project makes use of the following SvelteKit items: hooks, components, layout, and `@auth/sveltekit` module. We'll review each in kind.
+5. We'll review where we configure out Keycloak instance. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`. 
 
 ```tsx
 // Use Environment Variables AUTH_SECRET in prod
@@ -75,30 +76,47 @@ const kcConfig = {
 };
 ```
 
-Those are used to popluate the config for the provider `Keycloak` in `src/auth.ts` file:
+Those are used to popluate the config for the provider `Keycloak`:
 
 ```tsx
 export const { handle, signIn, signOut } = SvelteKitAuth({
   trustHost: true,
   secret: authjsSecret,
-  providers: [
-    Keycloak(kcConfig),
-  ],
+  providers: [Keycloak(kcConfig)],
 });
 ```
 
-At this point our entire application will be able to access all information and methods needed to perform authentication. View `src/components/user.svelte` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `@auth/sveltekit`.
+6. Next, let's review the hooks (`src/hooks.server.ts`) file. This imports the `handle` method by the `src/auth.ts` and re-exports it. This allows the hooks to act as a middleware and include the authentication status of the user in each request.
+
+```tsx
+export { handle } from "./auth.js";
+```
+
+7. To retrieve the authentication status of the user in server-side rendering on the index route, it's using the `+layout.server.ts` and `+page.svelte` files. The `+layout.server.ts` retrieves the authentication status via the `getSession` function from [SvelteKit Locals](https://kit.svelte.dev/docs/types#app-locals) set by `src/hook.server.ts`.
+
+```tsx
+import type { LayoutServerLoad } from "./$types.js";
+
+export const load: LayoutServerLoad = async (event) => {
+  const session = await event.locals.getSession();
+  return {
+    session,
+  };
+};
+```
+
+8. At this point our entire application will be able to access all information and methods needed to perform authentication. View `src/components/user.svelte` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `@auth/sveltekit`.
 
 The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
 
-5. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
+6. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
 
    :::info
    Use the non-admin user created in the previous section to sign in.
    :::
 
-6. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
-7. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+7. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
+8. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
 
 ## Learning more
 
