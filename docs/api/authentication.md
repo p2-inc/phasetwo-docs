@@ -11,7 +11,7 @@ It is recommended that you use a Keycloak Admin Client, such as [this one for Ja
 
 #### Client credentials grant example
 
-The `client_credentials` grant type is used if you are following the recommended convention of making a service account to call the APIs. See the previous section on [service accounts](service-accounts) if you need to set one up.
+The `client_credentials` grant type is used if you are following the recommended convention of making a service account to call the APIs. See the previous section on [service accounts](../service-accounts) if you need to set one up.
 
 ```
 POST /auth/realms/test-realm/protocol/openid-connect/token

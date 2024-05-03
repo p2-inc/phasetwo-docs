@@ -5,34 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, {useCallback, useState} from 'react';
-import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import isInternalUrl from '@docusaurus/isInternalUrl';
+import React, { useCallback, useState } from "react";
+import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import isInternalUrl from "@docusaurus/isInternalUrl";
 
-import SearchBar from '@theme/SearchBar';
-import Toggle from '@theme/Toggle';
+import SearchBar from "@theme/SearchBar";
+import Toggle from "@theme/Toggle";
 
-import classnames from 'classnames';
+import classnames from "classnames";
 
-import useThemeContext from '@theme/hooks/useThemeContext';
-import useHideableNavbar from '@theme/hooks/useHideableNavbar';
-import useLockBodyScroll from '@theme/hooks/useLockBodyScroll';
+import useThemeContext from "@theme/hooks/useThemeContext";
+import useHideableNavbar from "@theme/hooks/useHideableNavbar";
+import useLockBodyScroll from "@theme/hooks/useLockBodyScroll";
 
-import styles from './styles.module.css';
+import styles from "./styles.module.css";
 
-import keycloak from './auth'
+import keycloak from "./auth";
 
 function AuthLink() {
-  const opts = {redirectUri:window.location.href};
+  const opts = { redirectUri: window.location.href };
 
   return (
     <div>
       <div>{`User is ${
-        !keycloak.authenticated ? 'NOT ' : ''
+        !keycloak.authenticated ? "NOT " : ""
       }authenticated`}</div>
-    {!!keycloak.authenticated && (
+      {!!keycloak.authenticated && (
         <button type="button" onClick={() => keycloak.logout()}>
           Logout
         </button>
@@ -41,7 +41,7 @@ function AuthLink() {
   );
 }
 
-function NavLink({activeBasePath, to, href, label, position, ...props}) {
+function NavLink({ activeBasePath, to, href, label, position, ...props }) {
   const toUrl = useBaseUrl(to);
   const activeBaseUrl = useBaseUrl(activeBasePath);
 
@@ -50,12 +50,12 @@ function NavLink({activeBasePath, to, href, label, position, ...props}) {
       className="navbar__item navbar__link"
       {...(href
         ? {
-            target: '_blank',
-            rel: 'noopener noreferrer',
+            target: "_blank",
+            rel: "noopener noreferrer",
             href,
           }
         : {
-            activeclassname: 'navbar__link--active',
+            activeclassname: "navbar__link--active",
             to: toUrl,
             ...(activeBasePath
               ? {
@@ -64,23 +64,24 @@ function NavLink({activeBasePath, to, href, label, position, ...props}) {
                 }
               : null),
           })}
-      {...props}>
+      {...props}
+    >
       {label}
     </Link>
   );
 }
 
 function Navbar() {
-  const {siteConfig = {}, isClient} = useDocusaurusContext();
-  const {baseUrl, themeConfig = {}} = siteConfig;
-  const {navbar = {}, disableDarkMode = false} = themeConfig;
-  const {title, logo = {}, links = [], hideOnScroll = false} = navbar;
+  const { siteConfig = {}, isClient } = useDocusaurusContext();
+  const { baseUrl, themeConfig = {} } = siteConfig;
+  const { navbar = {}, disableDarkMode = false } = themeConfig;
+  const { title, logo = {}, links = [], hideOnScroll = false } = navbar;
 
   const [sidebarShown, setSidebarShown] = useState(false);
   const [isSearchBarExpanded, setIsSearchBarExpanded] = useState(false);
 
-  const {isDarkTheme, setLightTheme, setDarkTheme} = useThemeContext();
-  const {navbarRef, isNavbarVisible} = useHideableNavbar(hideOnScroll);
+  const { isDarkTheme, setLightTheme, setDarkTheme } = useThemeContext();
+  const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
 
   useLockBodyScroll(sidebarShown);
 
@@ -92,19 +93,19 @@ function Navbar() {
   }, [setSidebarShown]);
 
   const onToggleChange = useCallback(
-    e => (e.target.checked ? setDarkTheme() : setLightTheme()),
-    [setLightTheme, setDarkTheme],
+    (e) => (e.target.checked ? setDarkTheme() : setLightTheme()),
+    [setLightTheme, setDarkTheme]
   );
 
   const logoLink = logo.href || baseUrl;
   let logoLinkProps = {};
 
   if (logo.target) {
-    logoLinkProps = {target: logo.target};
+    logoLinkProps = { target: logo.target };
   } else if (!isInternalUrl(logoLink)) {
     logoLinkProps = {
-      rel: 'noopener noreferrer',
-      target: '_blank',
+      rel: "noopener noreferrer",
+      target: "_blank",
     };
   }
 
@@ -114,11 +115,12 @@ function Navbar() {
   return (
     <nav
       ref={navbarRef}
-      className={classnames('navbar', 'navbar--light', 'navbar--fixed-top', {
-        'navbar-sidebar--show': sidebarShown,
+      className={classnames("navbar", "navbar--light", "navbar--fixed-top", {
+        "navbar-sidebar--show": sidebarShown,
         [styles.navbarHideable]: hideOnScroll,
         [styles.navbarHidden]: !isNavbarVisible,
-      })}>
+      })}
+    >
       <div className="navbar__inner">
         <div className="navbar__items">
           <div
@@ -127,14 +129,16 @@ function Navbar() {
             role="button"
             tabIndex={0}
             onClick={showSidebar}
-            onKeyDown={showSidebar}>
+            onKeyDown={showSidebar}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="30"
               height="30"
               viewBox="0 0 30 30"
               role="img"
-              focusable="false">
+              focusable="false"
+            >
               <title>Menu</title>
               <path
                 stroke="currentColor"
@@ -156,9 +160,10 @@ function Navbar() {
             )}
             {title != null && (
               <strong
-                className={classnames('navbar__title', {
+                className={classnames("navbar__title", {
                   [styles.hideLogoText]: isSearchBarExpanded,
-                })}>
+                })}
+              >
                 {title}
               </strong>
             )}
@@ -166,20 +171,20 @@ function Navbar() {
         </div>
         <div className={styles.navbarMain}>
           {links
-            .filter(linkItem => linkItem.position !== 'right')
+            .filter((linkItem) => linkItem.position !== "right")
             .map((linkItem, i) => (
               <NavLink {...linkItem} key={i} />
-          ))}
+            ))}
         </div>
         {links
-          .filter(linkItem => linkItem.position !== 'right')
+          .filter((linkItem) => linkItem.position !== "right")
           .map((linkItem, i) => (
             <NavLink {...linkItem} key={i} />
-        ))}
+          ))}
 
         <div className="navbar__items navbar__items--right">
           {links
-            .filter(linkItem => linkItem.position === 'right')
+            .filter((linkItem) => linkItem.position === "right")
             .map((linkItem, i) => (
               <NavLink {...linkItem} key={i} />
             ))}
@@ -208,7 +213,8 @@ function Navbar() {
             className="navbar__brand"
             onClick={hideSidebar}
             to={logoLink}
-            {...logoLinkProps}>
+            {...logoLinkProps}
+          >
             {logo != null && (
               <img
                 key={isClient}

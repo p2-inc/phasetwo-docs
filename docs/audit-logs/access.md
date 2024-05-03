@@ -3,7 +3,7 @@ id: access
 title: Access
 ---
 
-Phase Two records access event types that pertain to end users use of the Phase Two and customer systems. These are primarily registration, login and account management actions. 
+Phase Two records access event types that pertain to end users use of the Phase Two and customer systems. These are primarily registration, login and account management actions.
 
 ## Example
 
@@ -33,11 +33,11 @@ The following is an example of the detail contained in an `access.LOGIN` event:
 }
 ```
 
-Field definitions can be viewed in the [API documentation](api).
+Field definitions can be viewed in the [API documentation](../api).
 
 ## Event types
 
-All access event types are indicated in the `type` field of the json event with the `access.` prefix. 
+All access event types are indicated in the `type` field of the json event with the `access.` prefix.
 
 ### Login events
 
@@ -61,4 +61,3 @@ All access event types are indicated in the `type` field of the json event with 
 - VERIFY_EMAIL - The email address for an account has been verified.
 
 For all events, there is a corresponding error event, suffixed with `_ERROR`, which indicates a problem when performing the indicated action.
-

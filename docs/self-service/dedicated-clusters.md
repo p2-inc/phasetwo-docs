@@ -9,21 +9,23 @@ Dedicated clusters are available with paid plans. These Clusters use isolated co
 
 Clusters can be created on the home page of the [Dashboard](https://phasetwo.io/dashboard/) by selecting the **Create Cluster** button. You must select a region, select an owning organization, and input a name to identify the cluster, and optionally provide a domain name you wish to use.
 
-![](/docs/dedicated-clusters-create.png)
+![Keycloak Phase Two Dedicated Cluster Creation](/docs/dedicated-clusters-create.png)
 
-Once you have input the required information, you will be sent to [Stripe](https://stripe.com), our payment partner, to set up your billing account and payment method. 
+Once you have input the required information, you will be sent to [Stripe](https://stripe.com), our payment partner, to set up your billing account and payment method.
 
 Following successful billing setup, you will be returned to the Dashboard while your Cluster is provisioned. This is usually fast, but can take up to 24 hours in some cases. You will be notified by email and in the Dashboard when the Cluster is live.
 
-![](/docs/dedicated-clusters-pending.png)
+![Keycloak Phase Two Dedicatd Cluster Creation Status](/docs/dedicated-clusters-pending.png)
 
 ### Regions
 
 Dedicated clusters are currently available in the following regions using the self-service dashboard:
+
 - AWS US West (Oregon) `us-west-2`
 - AWS Europe (Frankfurt) `eu-central-1`
 
 If you wish to launch a dedicated cluster in one of the following regions, we can provision it for you with an additional monthly fee. Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) for more information.
+
 - AWS Asia-Pacific (Mumbai) `ap-south-1`
 - AWS Asia-Pacific (Singapore) `ap-southeast-1`
 - AWS Europe (Ireland) `eu-west-1`
@@ -37,20 +39,22 @@ If you wish to launch a dedicated cluster in one of the following regions, we ca
 
 #### Global clusters
 
-For use cases that require global proximity to users and region failover behavior, we are currently in *beta* for our global clusters. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
+For use cases that require global proximity to users and region failover behavior, we are currently in _beta_ for our global clusters. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
 
-These clusters are backed by [CockroachDB](https://www.cockroachlabs.com/) multi-region clusters, which are hosted and operated by Cockroach Labs. There are two price tiers for global clusters, depending on your use of our shared CockroachDB clusters, or your own dedicated clusters. 
+These clusters are backed by [CockroachDB](https://www.cockroachlabs.com/) multi-region clusters, which are hosted and operated by Cockroach Labs. There are two price tiers for global clusters, depending on your use of our shared CockroachDB clusters, or your own dedicated clusters.
 
 Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) to talk to us about your global cluster use case.
 
 ### Custom domains
 
-Support for custom domains is avao;ab;e for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster. Following setup of your cluster, you will need to create 2 DNS records. 
+Support for custom domains is avao;ab;e for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster. Following setup of your cluster, you will need to create 2 DNS records.
 
 For all cloud providers:
+
 - CNAME `yourdomain.com` TO `{cluster_name}.{region}.{cloud_provider}.auth.ac`
 
 For AWS:
+
 - CNAME (the record name and value will be provided to you in an email from Support).
 
 Your cluster will be available from your custom domain within 24 hours of correct configuration of the DNS records.
@@ -65,7 +69,7 @@ Clusters are used much as our shared deployments. You can create up to 20 Realms
 
 ### Creating Deployments in your Cluster
 
-Once your Cluster has been provisioned, you can create Deployments as before, but you will open the create Deployment modal from the Cluster. Access to the admin console for those Realms is the same, using the *Open Console* link next to each Deployment. 
+Once your Cluster has been provisioned, you can create Deployments as before, but you will open the create Deployment modal from the Cluster. Access to the admin console for those Realms is the same, using the _Open Console_ link next to each Deployment.
 
 ### Billing
 

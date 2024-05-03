@@ -2,10 +2,10 @@
 slug: securing-apps-with-keycloak
 title: Protecting Your Application With Keycloak
 author: Phase Two
-tags: [ tutorial, keycloak, phase_two ]
+tags: [tutorial, keycloak, phase_two, sso, authentication, authorization]
 ---
 
-There are a lot of guides out there, official and unofficial, for how to secure applications with Keycloak. The subject is rather broad, so it's difficult to know where to start. To begin, we'll be focusing on Keycloak's use of OpenID Connect (OIDC), and how to use that standard, along with some helpful libraries, to secure a simple but instructive application. 
+There are a lot of guides out there, official and unofficial, for how to secure applications with Keycloak. The subject is rather broad, so it's difficult to know where to start. To begin, we'll be focusing on Keycloak's use of OpenID Connect (OIDC), and how to use that standard, along with some helpful libraries, to secure a simple but instructive application.
 
 For the purposes of the sample, we'll actually be using two common applications, a frontend single-page application (SPA) written in JavaScript, and a backend REST API written for Node.js. The language we selected for the sample is JavaScript, but the principles apply no matter the implementation technology you choose.
 
@@ -17,11 +17,11 @@ For the purpose of this guide, it is sufficient to know that OIDC is an open aut
 
 ### Login flow
 
-A "flow" in OIDC terms is a mechanism of authenticating a user, and obtaning access tokens. The flow we'll be using in this guide is called the authorization code flow. Fortunately, the internals of the flow are not necessary to understand, as Keycloak handles the details for you. 
+A "flow" in OIDC terms is a mechanism of authenticating a user, and obtaning access tokens. The flow we'll be using in this guide is called the authorization code flow. Fortunately, the internals of the flow are not necessary to understand, as Keycloak handles the details for you.
 
 However, it is useful to see what is going on in the login process, so that you understand your user's experience.
 
-![](/blog/2022-10-17-authentication-flow.png)
+![Keycloak Authentication Flow Diagram](/blog/2022-10-17-authentication-flow.png)
 
 ### Setup
 
@@ -36,39 +36,43 @@ cd debug-app
 
 ### Client
 
-Every application that Keycloak protects is considered a **Client**. Log into your Keycloak realm, and click on **Clients** in the left navigation, and click *Create client*. 
+Every application that Keycloak protects is considered a **Client**. Log into your Keycloak realm, and click on **Clients** in the left navigation, and click _Create client_.
 
-1. Enter `frontend` as the **Client ID** and click *Next*
-2. In the **Capability config** screen, keep the defaults and click *Save*
+1. Enter `frontend` as the **Client ID** and click _Next_
+2. In the **Capability config** screen, keep the defaults and click _Save_
 3. In the **Access settings** screen, enter the following values:
-    1. `http://localhost:3001/*` for **Valid redirect URIs**
-	2. `+` in **Valid post logout redirect URIs**
-	3. `+` in **Web origins**
-4. Click *Save*
-4. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click *Download* and move the file to the `debug-app` repo you cloned under the `frontend` folder.
+   1. `http://localhost:3001/*` for **Valid redirect URIs**
+   2. `+` in **Valid post logout redirect URIs**
+   3. `+` in **Web origins**
+4. Click _Save_
+5. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click _Download_ and move the file to the `debug-app` repo you cloned under the `frontend` folder.
 
-![](/blog/2022-10-17-client-setup.png)
+![Keycloak Client Details Setup Example](/blog/2022-10-17-client-setup.png)
 
 ### Make a user
 
-Before we run the application, we need to create a user to log in. Click on **Users** in the left navigation, and click *Add user*. You only need to give the user a username and click *Create*. Find the **Credentials** tab and click **Set password** to give the user a password.
+Before we run the application, we need to create a user to log in. Click on **Users** in the left navigation, and click _Add user_. You only need to give the user a username and click _Create_. Find the **Credentials** tab and click **Set password** to give the user a password.
 
 ### Running the sample apps
 
 Open two terminal windows and go to the directory of the repo you cloned in both. To start, run the following commands in each terminal:
 
 Frontend:
+
 ```
 cd frontend/
 npm install
 npm start
 ```
+
 Backend:
+
 ```
 cd backend/
 npm install
 KC_REALM=<your-realm-name> KC_URL=<your-keycloak-url> npm start
 ```
+
 Be sure to replace the realm name, and the URL of your Keycloak installation (e.g. `https://usw2.auth.ac/auth/`).
 
 This will install the necessary components using npm, and will start the servers for both applications. Note: the applications use ports 3001 and 3002 by default. If you have other applications running on these ports, you may have to temporarily shut them down.
@@ -81,7 +85,7 @@ Once you log in, you'll see your profile, and several menu items. First click to
 
 Next, click **ID token**. You'll see similar information to what we saw in the access token, but limited to a standardized set of information that identifies the authentication state of the user. ID tokens are not meant for calling resource servers, and because of that, don't contain claims that are meant to be validated by backend services.
 
-Clicking **Service** will call the backend service. You'll see a message that indicates the frontend called the backend, passing the access token, and was authorized to access a secured service. 
+Clicking **Service** will call the backend service. You'll see a message that indicates the frontend called the backend, passing the access token, and was authorized to access a secured service.
 
 You can also try the built-in Keycloak Account Management console by clicking **Account**, which gives the user a simple way to manage their information that is stored in Keycloak. It is not necessary to use this with your applications, as you may choose to build it in to your app. However, it's a good tool to have out of the box.
 
@@ -91,7 +95,7 @@ Finally, clicking **Logout** will take you back to the login page. This is actua
 
 ### What just happened?
 
-There's a lot that goes into implementation of the OIDC flow we used to secure our sample applications. Part of the reason to use Keycloak is the mature implementation and client libraries that make protecting applications in a secure way almost trivial. 
+There's a lot that goes into implementation of the OIDC flow we used to secure our sample applications. Part of the reason to use Keycloak is the mature implementation and client libraries that make protecting applications in a secure way almost trivial.
 
 We encourage you to look at the source in the sample applications (specifically `frontend/app.js` and `backend/app.js`) and observe how the Keycloak client libraries are used to secure these applications. This will be a good place to start when you are working on securing your own applications.
 

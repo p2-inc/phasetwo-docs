@@ -4,13 +4,44 @@ module.exports = {
   plugins: [require.resolve("./sitePlugin")],
   title: "Phase Two enhanced Keycloak as a Service",
   tagline:
-    "Tools for SaaS builders - Enhanced Keycloak as a Service - Fully secured, managed and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+    "Making Keycloak Easy - Enhanced Keycloak as a Service - Fully secured, managed, simple and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
   organizationName: "p2-inc",
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
+  trailingSlash: true,
+  headTags: [
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://www.google-analytics.com",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://www.googletagmanager.com",
+      },
+    },
+  ],
+  scripts: [
+    {
+      src: "https://www.termsfeed.com/public/cookie-consent/4.1.0/cookie-consent.js",
+      type: "text/javascript",
+      charset: "UTF-8",
+      defer: true,
+    },
+    {
+      type: "text/javascript",
+      src: "https://www.googletagmanager.com/gtag/js?id=UA-160183620-1",
+      async: true,
+      "data-cookie-consent": "tracking",
+    },
+  ],
   themeConfig: {
     announcementBar: {
       id: "dedicated_clusters",
@@ -237,6 +268,11 @@ module.exports = {
               label: "SLA",
               to: "docs/sla",
             },
+            {
+              label: "Cookies Policy",
+              id: "open_preferences_center",
+              to: "#open_preferences_center",
+            },
           ],
         },
         {
@@ -281,9 +317,6 @@ module.exports = {
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
-        },
-        gtag: {
-          trackingID: "UA-160183620-1",
         },
         blog: {
           blogSidebarTitle: "News",

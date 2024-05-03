@@ -8,6 +8,7 @@ A Deployment is a Phase Two hosted instance of a Realm in a Phase Two enhanced K
 ### Regions
 
 Shared clusters are currently operating in the following regions:
+
 - AWS US West (Oregon) `us-west-2`
 - AWS Europe (Frankfurt) `eu-central-1`
 
@@ -21,5 +22,4 @@ Once you have logged in the self-service tool, click on the **Deployments** menu
 
 Next to active Deployments in the list, you can select the **Open Console** link to create a login link and open it in another browser window.
 
-![](/docs/self-service-deployments-console-link.png)
-
+![Phase Two Self Service Open Console Link](/docs/self-service-deployments-console-link.png)
