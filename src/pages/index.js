@@ -7,6 +7,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CodeBlock from "@theme/CodeBlock";
+import useTrackPageViews from "../useTrackPageViews";
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
