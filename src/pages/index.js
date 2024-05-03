@@ -6,7 +6,6 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
-import useTrackPageViews from "../useTrackPageViews";
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);

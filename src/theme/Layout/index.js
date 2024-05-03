@@ -40,6 +40,7 @@ function CookieAndAnalytics() {
         ></div>
       </>
     );
+  return null;
 }
 
 export default function LayoutWrapper(props) {
