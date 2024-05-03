@@ -12,6 +12,36 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
+  headTags: [
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://www.google-analytics.com",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://www.googletagmanager.com",
+      },
+    },
+  ],
+  scripts: [
+    {
+      src: "https://www.termsfeed.com/public/cookie-consent/4.1.0/cookie-consent.js",
+      type: "text/javascript",
+      charset: "UTF-8",
+      defer: true,
+    },
+    {
+      type: "text/javascript",
+      src: "https://www.googletagmanager.com/gtag/js?id=UA-160183620-1",
+      async: true,
+      "data-cookie-consent": "tracking",
+    },
+  ],
   themeConfig: {
     announcementBar: {
       id: "dedicated_clusters",
@@ -232,6 +262,11 @@ module.exports = {
               label: "SLA",
               to: "docs/sla",
             },
+            {
+              label: "Cookies Policy",
+              id: "open_preferences_center",
+              to: "#open_preferences_center",
+            },
           ],
         },
         {
@@ -277,9 +312,6 @@ module.exports = {
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-        gtag: {
-          trackingID: "UA-160183620-1",
-        },
         blog: {
           blogSidebarTitle: "News",
           blogSidebarCount: "ALL",
@@ -316,17 +348,6 @@ module.exports = {
         sidebarPath: require.resolve("./api/sidebar.js"),
         docLayoutComponent: "@theme/DocPage",
         docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
-      },
-    ],
-    [
-      "@docusaurus/plugin-client-redirects",
-      {
-        redirects: [
-          {
-            to: "/docs/hosting/kubernetes/",
-            from: ["/helm-charts"],
-          },
-        ],
       },
     ],
   ],

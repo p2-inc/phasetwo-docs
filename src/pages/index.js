@@ -7,6 +7,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import CodeBlock from "@theme/CodeBlock";
+import useTrackPageViews from "../useTrackPageViews";
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -158,8 +159,8 @@ function Home() {
 		</picture> */}
               <h1>Future-Proof Your App</h1>
               <p className={`pageHeroMsgIntro`}>
-                Accelerate SaaS time-to-market and enterprise adoption by
-                rapidly integrating the features you need.
+                CONTENT SaaS time-to-market and enterprise adoption by rapidly
+                integrating the features you need.
               </p>
               <div className={`pageHeroCta`}>
                 <button className={`btnCta`} onClick={requestAccess}>
