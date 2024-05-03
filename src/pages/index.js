@@ -159,8 +159,8 @@ function Home() {
 		</picture> */}
               <h1>Future-Proof Your App</h1>
               <p className={`pageHeroMsgIntro`}>
-                CONTENT SaaS time-to-market and enterprise adoption by rapidly
-                integrating the features you need.
+                Accelerate SaaS time-to-market and enterprise adoption by
+                rapidly integrating the features you need.
               </p>
               <div className={`pageHeroCta`}>
                 <button className={`btnCta`} onClick={requestAccess}>
