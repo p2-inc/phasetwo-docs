@@ -2,11 +2,7 @@ import React from "react";
 import Layout from "@theme/Layout";
 import styles from "./onprem.module.css";
 
-function contactSales() {
-  window.open(`mailto:support@phasetwo.io`);
-}
-
-function Sso() {
+function OnPrem() {
   return (
     <Layout
       title="On Prem Deployment"
@@ -27,9 +23,9 @@ function Sso() {
               or compliance reasons.
             </p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`} onClick={contactSales}>
-                Contact Sales
-              </button>
+              <a href="mailto:support@phasetwo.io">
+                <button className={`btnPrimary`}>Contact Sales</button>
+              </a>
             </div>
           </div>
         </div>
@@ -102,4 +98,4 @@ function Sso() {
   );
 }
 
-export default Sso;
+export default OnPrem;

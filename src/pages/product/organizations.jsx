@@ -1,14 +1,8 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./organizations.module.css";
 
-function getStarted() {
-  window.open(`https://phasetwo.io/dashboard/`, "_blank");
-}
-
-function Sso() {
-  const context = useDocusaurusContext();
+function Organizations() {
   return (
     <Layout
       title="Organizations"
@@ -30,9 +24,13 @@ function Sso() {
               manage and customize workflows for their end customers at scale.
             </p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`} onClick={getStarted}>
-                Get Started
-              </button>
+              <a
+                href="http://phasetwo.io/dashboard/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className={`btnPrimary`}>Get Started</button>
+              </a>
             </div>
           </div>
         </div>
@@ -106,4 +104,4 @@ function Sso() {
   );
 }
 
-export default Sso;
+export default Organizations;

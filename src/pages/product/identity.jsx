@@ -1,19 +1,14 @@
 import React, { useEffect } from "react";
 import Layout from "@theme/Layout";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./identity.module.css";
 
-function getStarted() {
-  window.open(`https://phasetwo.io/dashboard/`, "_blank");
-}
-
-function Sso() {
-  const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
-
+function Identity() {
   useEffect(() => {
     document.body.classList.add("page-identity", "page-bg");
-  });
+    return () => {
+      document.body.classList.remove("page-identity", "page-bg");
+    };
+  }, [third]);
 
   return (
     <Layout
@@ -30,9 +25,13 @@ function Sso() {
               the first click to the last.
             </p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`} onClick={getStarted}>
-                Get Started
-              </button>
+              <a
+                href="http://phasetwo.io/dashboard/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className={`btnPrimary`}>Get Started</button>
+              </a>
             </div>
           </div>
         </div>
@@ -167,4 +166,4 @@ function Sso() {
   );
 }
 
-export default Sso;
+export default Identity;

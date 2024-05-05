@@ -1,15 +1,9 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./adminportal.module.css";
 import CodeBlock from "@theme/CodeBlock";
 
-function getStarted() {
-  window.open(`https://phasetwo.io/dashboard/`, "_blank");
-}
-
-function Sso() {
-  const context = useDocusaurusContext();
+function AdminPortal() {
   return (
     <Layout
       title="Admin Portal"
@@ -30,9 +24,13 @@ function Sso() {
               Drastically reduce customer support.
             </p>
             <div className={`pageHeroCta`}>
-              <button className={`btnPrimary`} onClick={getStarted}>
-                Get Started
-              </button>
+              <a
+                href="http://phasetwo.io/dashboard/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className={`btnPrimary`}>Get Started</button>
+              </a>
             </div>
           </div>
         </div>
@@ -137,4 +135,4 @@ const portalLink = await portalLinkPromise.then((resp) => {
   );
 }
 
-export default Sso;
+export default AdminPortal;
