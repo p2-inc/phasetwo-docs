@@ -36,9 +36,9 @@ function AdminPortal() {
         </div>
 
         {/* Automated SSO onboarding */}
-        <div className={`contentBlock`}>
+        <div className={`contentBlock z-5`}>
           <div className={`contentBlockHead`}>
-            <h2>Automated SSO onboarding</h2>
+            <h2>Automated SSO Onboarding</h2>
             <p>
               Self-service onboarding wizards for your customers’ IT teams that
               guide them through step-by-step setup. This "live" documentation

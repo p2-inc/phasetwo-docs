@@ -8,7 +8,7 @@ function Identity() {
     return () => {
       document.body.classList.remove("page-identity", "page-bg");
     };
-  }, [third]);
+  }, []);
 
   return (
     <Layout
