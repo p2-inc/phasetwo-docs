@@ -686,10 +686,10 @@ a.menu__link.menu__link--sublist {
     }
     .pillars {
       padding: 1rem;
-      h4 {
-        padding: 1rem 0;
-        border: 1px solid #ccc;
-      }
+    }
+    .pillars h4 {
+      padding: 1rem 0;
+      border: 1px solid #ccc;
     }
   }
 }
