@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two enhanced Keycloak as a Service",
+  title: "Phase Two - Make Keycloak Easy",
   tagline:
     "Making Keycloak Easy - Enhanced Keycloak as a Service - Fully secured, managed, simple and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
   url: "https://phasetwo.io",
@@ -69,10 +69,21 @@ module.exports = {
       },
       items: [
         {
+          label: "Hosting",
+          position: "left",
+          activeBasePath: "hosting",
+          to: "hosting",
+        },
+        {
           type: "dropdown",
           label: "Product",
           position: "left",
           items: [
+            {
+              to: "product/onprem",
+              activeBasePath: "product/onprem",
+              label: "On-Prem Deployment",
+            },
             {
               to: "product/sso",
               activeBasePath: "product/sso",
@@ -92,11 +103,6 @@ module.exports = {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
               label: "Admin Portal",
-            },
-            {
-              to: "product/onprem",
-              activeBasePath: "product/onprem",
-              label: "On-Prem Deployment",
             },
           ],
         },

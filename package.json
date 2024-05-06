@@ -19,8 +19,6 @@
     "keycloak-js": "^19.0.2",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
-    "react-responsive-carousel": "^3.2.8",
-    "react-rotating-text": "^1.4.1",
     "swagger-ui-react": "^4.18.2"
   },
   "resolutions": {
