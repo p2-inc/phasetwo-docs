@@ -1,0 +1,278 @@
+---
+slug: secure-spring-boot
+title: Securing SPA Application with Spring Boot and Keycloak
+author: Phase Two
+tags:
+  [phase_two, tutorial, frameworks, spring-boot, authentication, authorization, sso]
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
+import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+
+[SpringBoot](spring.io/projects/spring-boot) is a open-source tool which uses Java based frameworks for building web applications.
+
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a SPA and access secured resources from Spring Boot Web application.
+
+:::info
+
+If you just want to skip to the code, visit the Phase Two [SpringBoot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
+
+:::
+
+## Setting up a SpringBoot project
+
+In order to setup a SpringBoot project a JDK version must be chosen. To be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDk versions can also be used for developing the resource server according to the preference of the developer.
+
+Starting with SpringBoot 2.x the Keycloak client adapters were deprecated. In SpringBoot 3.x their use is not possible, so the native functionalities of the `spring-boot-oauth2-resource-server` to be able to configure the application security context.
+
+### Quick Start
+
+To get this project up and running locally on your computer:
+
+1. Set up the SpringBoot project.
+
+   We recommend using the `SpringBoot Initializr. The [spring-boot-initializr](https://start.spring.io/) Spring Initializr is a Web-based tool that provides simple web UI to generate the Spring Boot project structure provides.
+   Here's how you can set it up:
+   ![SpringBoot Initializr](/blog/2024-05-10-create-spring-boot-project-template.png)
+
+2. Add the required dependencies.
+   For the purpose of this project we added the following dependencies:
+   ```
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+   ```
+
+3. Install and assign JDK 17 to the project settings. [!JDK setup](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/)
+
+## Setting up a Keycloak Instance
+
+Before customizing the SpringBoot app, we need to set up and configure our Keycloak instance.
+
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
+
+## Setting up an OIDC Client
+
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
+
+## Adding a Non-Admin User
+
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
+
+## Install and configure Spring Boot
+
+Now that we've installed and configured Keycloak and created our SpringBoot application template we will need to configure it.
+
+1. **Configure application.yaml Settings**:
+
+   Update your `application.yaml` configuration file with the Keycloak security configuration:
+
+   ```yaml
+     security:
+       oauth2:
+         resourceserver:
+           jwt:
+             issuer-uri: http://localhost:8888/auth/realms/$your-realm
+             jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+   ```
+
+   Replace `$your-realm` with your actual Keycloak configurations.
+
+2. **Configure SpringBoot resource server **:
+   Add to the SpringBoot server app the `HttpSecurity` settings configuration class :
+
+   ```java
+   @Configuration
+   @EnableWebSecurity
+   @EnableMethodSecurity
+   public class SecurityConfig {
+
+       private final JwtClaimsConverter jwtAuthConverter;
+
+       public SecurityConfig(JwtClaimsConverter jwtAuthConverter) {
+           this.jwtAuthConverter = jwtAuthConverter;
+       }
+
+       @Bean
+       public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+           http.authorizeHttpRequests(authz ->
+                   authz
+                           .requestMatchers("/api/**")
+                           .authenticated()
+           );
+           http.oauth2ResourceServer(oauth2ResourceServer ->
+                   oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
+           );
+           http.csrf(AbstractHttpConfigurer::disable);
+
+           http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+           return http.build();
+       }
+   }
+   ```
+
+This configuration will make the SpringBoot to act as a OAuth2 Resource Server’s  with JWT authentication.
+
+3. ** Add jwt token convert configuration **:
+
+Add a converter for extracting the security context attributes from the `access_token` received from Keycloak.
+``` java
+@Component
+public class JwtClaimsConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+    @Override
+    public AbstractAuthenticationToken convert(Jwt jwt) {
+       var authorities = extractRealmRoles(jwt);
+        return new JwtAuthenticationToken(jwt, authorities, getPrincipalFromClaim(jwt));
+    }
+
+    private String getPrincipalFromClaim(Jwt jwt) {
+        var claimName = "preferred_username";
+        return jwt.getClaim(claimName);
+    }
+
+    private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
+        Map<String, Object> resource = jwt.getClaim("realm_access");
+        Collection<String> roles;
+        if (resource == null
+                || (roles = (Collection<String>) resource.get("roles")) == null) {
+            return Set.of();
+        }
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toSet());
+    }
+}
+```
+
+The provided example uses the `preferred_username` claim for populating the principal of the security context and the `realm_access.roles` to populate the authorities.
+
+4. ** Create the secured API resources **:
+
+To test the security integration two resource endpoints are defined:
+
+```java
+@RestController
+@RequestMapping("/api/test")
+public class TestController {
+
+    @RequestMapping(value = "/anonymous", method = RequestMethod.GET)
+    public ResponseEntity<String> getAnonymous() {
+        return ResponseEntity.ok("Hello Anonymous");
+    }
+
+    @PreAuthorize("hasRole('ROLE_user')")
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    public ResponseEntity<String> getUser()
+    {
+        return ResponseEntity.ok("Hello Secured with user role.");
+    }
+}
+
+```
+
+Because both endpoints have the prefix `/api` they will require a secure context in order to access them. Furthermore the `/api/test/user` endpoint is secured using a predefined authority `ROLE_user`.
+
+### Testing the secured endpoints
+
+The secured endpoints can be tested using `curl` with the `Authorization` header. The `Authorization` header must contain the `access_token`
+
+```
+curl --location 'http://localhost:8080/api/test/anonymous' \
+    --header 'Authorization: Bearer {{$access_token}}'
+````
+```
+curl --location 'http://localhost:8080/api/test/user' \
+    --header 'Authorization: Bearer {{$access_token}}'
+````
+
+## Integration with the Angular SPA
+
+In order to access the secured resource of the SpringBoot resource server we will need to create client application which will authenticate our users.
+
+### Quick start
+
+To setup a new Angular application we can follow the instructions here:
+[!Angular application quick start](https://angular.io/start)
+
+For easy integration of the Angular application with the oidc protocol we can use the following library [!angular-oauth2-oidc](https://github.com/manfredsteyer/angular-oauth2-oidc):
+
+### Securing views
+
+The Angular application will need to be configured in order to access user information after authentication. For example:
+
+```javascript
+    @NgModule({
+      imports: [
+        ...
+        AppRoutingModule,
+        HttpClientModule,
+        OAuthModule.forRoot()
+      ],
+      declarations: [
+        AppComponent,
+        MainpageComponent
+      ],
+      bootstrap: [
+        AppComponent
+      ]
+    })
+    export class AppModule {
+    ...
+    }
+```
+
+To configure the `authorization code` login flow with the `angular-oauth2-oidc` library add the following configuration:
+```javascript
+   function configure() {
+      oauthService.configure({
+        // URL of the SPA to redirect the user to after login
+        redirectUri: window.location.origin + "/index.html",
+        // The SPA's id. The SPA is registered with this id at the auth-server
+        clientId: "$your-public-keycloak-client",
+        // set the scope for the permissions the client should request
+        scope: "openid",
+        // url for  /.well-known/openid-configuration endpoint
+        issuer: 'http://localhost:8888/auth/realms/$your-keycloak-realm',
+        disablePKCE: true,
+        //initialize the code flow
+        responseType: 'code',
+        showDebugInformation: true
+      })
+    }
+```
+
+Replace `$your-public-keycloak-client` and `$your-keycloak-realm` with your actual Keycloak configurations.
+
+#### Use Angular guards to secure routes
+
+We can achieve route restriction by using guards. If the access token is not valid the guard will initiate the login flow once again:
+
+```javascript
+export class AuthGuard implements CanActivate {
+
+  constructor(private oauthService: OAuthService) {
+  }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree>{
+    if(!this.oauthService.hasValidAccessToken()) {
+      this.oauthService.initLoginFlow();
+    }
+    return of(true);
+  }
+}
+```
+
+## Learning more
+
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (password-less sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
