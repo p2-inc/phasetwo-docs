@@ -10,7 +10,7 @@ import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_inst
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
-[SpringBoot](spring.io/projects/spring-boot) is a open-source tool which uses Java based frameworks for building web applications.
+[SpringBoot](https://spring.io/projects/spring-boot) is a open-source tool which uses Java based frameworks for building web applications.
 
 In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a SPA and access secured resources from Spring Boot Web application.
 
@@ -24,7 +24,7 @@ If you just want to skip to the code, visit the Phase Two [SpringBoot example](h
 
 In order to setup a SpringBoot project a JDK version must be chosen. To be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDk versions can also be used for developing the resource server according to the preference of the developer.
 
-Starting with SpringBoot 2.x the Keycloak client adapters were deprecated. In SpringBoot 3.x their use is not possible, so the native functionalities of the `spring-boot-oauth2-resource-server` to be able to configure the application security context.
+Starting with SpringBoot 2.x the Keycloak client adapters were deprecated. In SpringBoot 3.x we will use native functionalities of the `spring-boot-oauth2-resource-server` to be able to configure the application security context.
 
 ### Quick Start
 
@@ -44,7 +44,7 @@ To get this project up and running locally on your computer:
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
    ```
 
-3. Install and assign JDK 17 to the project settings. [!JDK setup](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/)
+3. Setup JDK 17 to the project. [!JDK setup](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/)
 
 ## Setting up a Keycloak Instance
 
@@ -209,7 +209,7 @@ For easy integration of the Angular application with the oidc protocol we can us
 
 ### Securing views
 
-The Angular application will need to be configured in order to access user information after authentication. For example:
+The Angular application will need to be configured in order to access user information only after authentication. For example:
 
 ```javascript
     @NgModule({
