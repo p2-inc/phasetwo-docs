@@ -1,40 +1,40 @@
 ---
 slug: secure-spring-boot
-title: Securing SPA Application with Spring Boot and Keycloak
+title: Securing a SPA Application with Spring Boot and Keycloak
 author: Phase Two
 tags:
-  [phase_two, tutorial, frameworks, spring-boot, authentication, authorization, sso]
+  [phase_two, tutorial, frameworks, spring_boot, authentication, authorization, sso]
 ---
 
 import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
-[SpringBoot](https://spring.io/projects/spring-boot) is a open-source tool which uses Java based frameworks for building web applications.
+[Spring Boot](https://spring.io/projects/spring-boot) is a open-source tool which uses Java-based frameworks for building web applications.
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a SPA and access secured resources from Spring Boot Web application.
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure a SPA and access secured resources from a Spring Boot Web application.
 
 :::info
 
-If you just want to skip to the code, visit the Phase Two [SpringBoot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
+If you just want to skip to the code, visit the Phase Two [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
 
 :::
 
-## Setting up a SpringBoot project
+## Setting up a Spring Boot project
 
-In order to setup a SpringBoot project a JDK version must be chosen. To be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDk versions can also be used for developing the resource server according to the preference of the developer.
+In order to setup a Spring Boot project a JDK version must be chosen. To be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDK versions can also be used for developing the resource server according to the preference of the developer.
 
-Starting with SpringBoot 2.x the Keycloak client adapters were deprecated. In SpringBoot 3.x we will use native functionalities of the `spring-boot-oauth2-resource-server` to be able to configure the application security context.
+Starting with Spring Boot 2.x the Keycloak client adapters were deprecated. In Spring Boot 3.x we will use native functionalities of the `spring-boot-oauth2-resource-server` to be able to configure the application security context.
 
 ### Quick Start
 
 To get this project up and running locally on your computer:
 
-1. Set up the SpringBoot project.
+1. Set up the Spring Boot project.
 
-   We recommend using the `SpringBoot Initializr. The [spring-boot-initializr](https://start.spring.io/) Spring Initializr is a Web-based tool that provides simple web UI to generate the Spring Boot project structure provides.
+   We recommend using the `Spring Boot Initializr. The [spring-boot-initializr](https://start.spring.io/) Spring Initializr is a Web-based tool that provides simple web UI to generate the Spring Boot project structure provides.
    Here's how you can set it up:
-   ![SpringBoot Initializr](/blog/2024-05-10-create-spring-boot-project-template.png)
+   ![Spring Boot Initializr](/blog/2024-05-10-create-spring-boot-project-template.png)
 
 2. Add the required dependencies.
    For the purpose of this project we added the following dependencies:
@@ -48,7 +48,7 @@ To get this project up and running locally on your computer:
 
 ## Setting up a Keycloak Instance
 
-Before customizing the SpringBoot app, we need to set up and configure our Keycloak instance.
+Before customizing the Spring Boot app, we need to set up and configure our Keycloak instance.
 
 <details>
   <summary>Instructions</summary>
@@ -71,7 +71,7 @@ Before customizing the SpringBoot app, we need to set up and configure our Keycl
 
 ## Install and configure Spring Boot
 
-Now that we've installed and configured Keycloak and created our SpringBoot application template we will need to configure it.
+Now that we've installed and configured Keycloak and created our Spring Boot application template we will need to configure it.
 
 1. **Configure application.yaml Settings**:
 
@@ -88,8 +88,8 @@ Now that we've installed and configured Keycloak and created our SpringBoot appl
 
    Replace `$your-realm` with your actual Keycloak configurations.
 
-2. **Configure SpringBoot resource server **:
-   Add to the SpringBoot server app the `HttpSecurity` settings configuration class :
+2. **Configure Spring Boot resource server **:
+   Add to the Spring Boot server app the `HttpSecurity` settings configuration class :
 
    ```java
    @Configuration
@@ -121,7 +121,7 @@ Now that we've installed and configured Keycloak and created our SpringBoot appl
    }
    ```
 
-This configuration will make the SpringBoot to act as a OAuth2 Resource Server’s  with JWT authentication.
+This configuration will make the Spring Boot to act as an OAuth2 Resource Server’s  with JWT authentication.
 
 3. ** Add jwt token convert configuration **:
 
@@ -198,7 +198,7 @@ curl --location 'http://localhost:8080/api/test/user' \
 
 ## Integration with the Angular SPA
 
-In order to access the secured resource of the SpringBoot resource server we will need to create client application which will authenticate our users.
+In order to access the secured resource of the Spring Boot resource server we will need to create client application which will authenticate our users.
 
 ### Quick start
 
