@@ -305,6 +305,9 @@ module.exports = {
       // Optional: see doc section below
       contextualSearch: true,
     },
+    prism: {
+      additionalLanguages: ["java", "yaml"],
+    },
   },
   presets: [
     [
