@@ -129,7 +129,7 @@ Now that we've setup and configured Keycloak using [Phase Two](https://phasetwo.
 
 2. Configure Spring Boot resource server
 
-   In `/src/main/java/com/springbootkeycloak` create a new folder, `config`, and create a file `SecurityConfig.java` within the FileSystemDirectoryReader. In that File, add the `HttpSecurity` settings configuration class:
+   Under `src.main.java.com.springbootkeycloak` create a new package, `config`, and create a class `SecurityConfig.java`. In this class, add the `HttpSecurity` settings:
 
    ```java
    @Configuration
@@ -165,7 +165,7 @@ Now that we've setup and configured Keycloak using [Phase Two](https://phasetwo.
 
 3. Add JWT token convert configuration
 
-   In the same `config` folder, create another File, `JwtClaimsConverter.java`. Add a converter for extracting the security context attributes from the `access_token` received from Keycloak.
+   In the same `config` package, create another class, `JwtClaimsConverter.java`. Add a converter for extracting the security context attributes from the `access_token` received from Keycloak.
 
    ```java
    @Component
@@ -202,7 +202,7 @@ Now that we've setup and configured Keycloak using [Phase Two](https://phasetwo.
 
 4. Create the secured API resources:
 
-   In `/src/main/java/com/springbootkeycloak` create a new folder, `web`, and create a file `TestController.java`.
+   In `src.main.java.com.springbootkeycloak` create a new package, `web`, and create a new class `TestController.java`.
 
    To test the security integration two resource endpoints are defined:
 
@@ -235,7 +235,7 @@ Now that we've setup and configured Keycloak using [Phase Two](https://phasetwo.
 
    This logic can be used to extend access and authorization to any part of the application.
 
-   Start the application running with `./gradelw bootRun`.
+   Start the application running with `./gradlew bootRun`.
 
 ### Testing the secured endpoints
 
@@ -306,7 +306,7 @@ In the `/angularclient/src/app` folder, the `app.module.ts` file is the entry po
       multi: true
     },
     {provide: LOCAL_STORAGE_TOKEN, useFactory: localStorageFactory},
-    {provide: OAuthStorage, useFactory: localStorageFactory},
+    {provide: OAuthStorage, useFactory: localStorageFactory}
   ],
   bootstrap: [AppComponent]
 })
