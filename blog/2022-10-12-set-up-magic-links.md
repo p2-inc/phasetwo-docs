@@ -9,6 +9,8 @@ Someone who is reading this article is probably very different that the average 
 
 But you are here because you want to find a way to implement magic links quickly. First, some background.
 
+<!--truncate-->
+
 ### What are magic links?
 
 Magic links are a type of password-less authentication that allow your users to log in to your application following a link that is emailed to them, rather than typing a username and password. Magic links can also be used as a part of a multi-factor authentication (MFA) strategy.

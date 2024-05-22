@@ -842,6 +842,29 @@ p.heroIntegrationsCopy {
   width: 200px;
 }
 
+.questionsBox {
+  background-color: var(--color-wh);
+  border-radius: 16px;
+  box-shadow: var(--soft-shadow-branded);
+  border: 1px solid var(--color-n1);
+}
+.questionsBox > * {
+  border-bottom: 1px solid var(--color-n1);
+}
+.questionsBox > *:last-child {
+  border-bottom: none;
+}
+.questionBox {
+  padding: 0.5rem 1rem;
+}
+.question {
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: var(--color-main);
+}
+.answer > * {
+  margin-bottom: 0.4rem;
+}
 /* Dark Theme TouchUp */
 
 [data-theme="dark"] .hero {

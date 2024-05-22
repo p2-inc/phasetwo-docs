@@ -2,12 +2,14 @@
 slug: licensing-change
 title: We're Changing Our License
 author: Phase Two
-tags: [ oss, license, phase_two ]
+tags: [oss, license, phase_two]
 ---
 
 ### tl;dr
 
 We’ve changed the license of our [core extensions](/docs/introduction/open-source#components-and-repos) from the [AGPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html) to the [Elastic License v2](https://github.com/elastic/elasticsearch/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). We wanted to share why we made this change and what it means for our customers and community.
+
+<!--truncate-->
 
 ### Why?
 

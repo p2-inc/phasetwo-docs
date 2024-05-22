@@ -2,12 +2,14 @@
 slug: open-source-iam
 title: "Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ..."
 author: Phase Two
-tags: [ keycloak, phase_two, open_source, auth0, workos, okta, cognito ]
+tags: [keycloak, phase_two, open_source, auth0, workos, okta, cognito]
 ---
 
 # Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ...
 
 In today's digital landscape, managing user identities and securing access to applications and services is paramount for businesses of all sizes. As the demand for robust identity and access management (IAM) solutions grows, so does the market, with various commercial options vying for attention. When we first started using [Keycloak](https://keycloak.org) over 7 years ago, we were surprised that there was a relatively unknown, but completely open-source alternative to commercial offerings in the Identity and Access Management market.
+
+<!--truncate-->
 
 ### Commercial offerings
 
@@ -40,7 +42,7 @@ Obviously, we think that the barriers are something that can be solved, and [Pha
 
 ### Migrating from your current identity provider
 
-Already using one of the commercial systems? Keycloak is a complete, robust and mature identity solution that can replace your identity provider and user management systems **today**. It has complete parity with all of the major features of commercial IAM systems, and because of reliance on standards, migration is easier than you think. By migrating to Keycloak, you gain full control over your authentication and authorization processes, enabling seamless integration, customization, and scalability tailored to your organization's unique needs. 
+Already using one of the commercial systems? Keycloak is a complete, robust and mature identity solution that can replace your identity provider and user management systems **today**. It has complete parity with all of the major features of commercial IAM systems, and because of reliance on standards, migration is easier than you think. By migrating to Keycloak, you gain full control over your authentication and authorization processes, enabling seamless integration, customization, and scalability tailored to your organization's unique needs.
 
 Phase two has implemented [user migration](https://phasetwo.io/docs/user-migration/) support in the product for all tiers. This is meant to ease your transition from your existing user management system so that migration can occur incrementally with a complete fallback plan. For Premium and Enterprise subscribers, we include migration support. Contact [sales](mailto:sales@phasetwo.io) to get started with your migration.
 

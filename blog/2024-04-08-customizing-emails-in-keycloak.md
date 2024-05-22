@@ -19,6 +19,8 @@ Keeping your brand consistent across user touch-points is important to modern Sa
 
 Keycloak starts out with simple text templates, but unless you like spending your days looking at Unix terminals, you probably prefer some color and images in your emails.
 
+<!--truncate-->
+
 ## Template Customization
 
 Phase Two exposes an interface in the Admin UI to adjust the HTML and Text template. In the Styles > _Emails_ tab, select a template to edit.

@@ -9,6 +9,8 @@ Brand is important to modern SaaS companies, and nowhere is that more apparent t
 
 In order to allow customers to customize that experience, we've extended the default Keycloak theming functionality to allow you to easily customize the login pages from the admin console. This eliminates the need to package and deploy a custom theme, and allows fast iteration without restart.
 
+<!--truncate-->
+
 ## Simple customization
 
 If you're in a hurry, logo and color customization can be achieved by adding your logo's URL and three color choices. These are available in the _General_ and _Login_ tabs of the **Styles** section.

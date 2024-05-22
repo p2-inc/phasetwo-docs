@@ -9,6 +9,8 @@ We're excited today to announce the launch of our dedicated clusters offering. O
 
 About 9 months ago, we launched our self-service, shared deployments, offering customers the ability to [create](https://phasetwo.io/dashboard/) Phase Two enhanced Keycloak realms on our shared clusters. Over that period, we've provided over 700 free realms for testing and small production use cases. Many of you have reached out to us asking about an SLA, isolated resources, and ability to grow into larger use cases. Based on your requests and feedback, we built out our dedicated cluster offering.
 
+<!--truncate-->
+
 ### What is Phase Two again?
 
 Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption with powerful SSO, identity and user management features. To that end, Phase Two has created an enhanced distribution of [Keycloak](https://www.keycloak.org/) that bundles several essential [open source extensions](https://github.com/p2-inc) for modern SaaS use cases. We support hosted and on-prem customers for a variety of use cases.

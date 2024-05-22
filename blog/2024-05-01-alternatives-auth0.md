@@ -10,6 +10,8 @@ tags: [phase_two, open_source, authentication, authorization, auth0, keycloak]
 
 When it comes to implementing authentication and authorization in web applications, Auth0 and Keycloak are two prominent solutions that offer robust security features. While Auth0 is a popular choice for many developers due to its comprehensive, cloud-based platform, Keycloak presents a compelling alternative, especially in terms of cost and flexibility. This blog post will delve into how Keycloak stacks up against Auth0, focusing on cost of ownership, maintenance, and functionality.
 
+<!--truncate-->
+
 #### Cost of Ownership
 
 There are many factors to think about with a total cost-of-ownership. We've written extensively about [choosing an Open-Source IAM](./2024-03-11-open-source-iam.md) over a managed service.
