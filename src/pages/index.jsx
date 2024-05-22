@@ -170,7 +170,7 @@ function Home() {
             <Link to={"hosting"} className={styles.heroSection}>
               <img
                 className={styles.heroSectionPicto}
-                src="img/picto-sso.svg"
+                src="img/picto-hosting.svg"
                 alt="Pictogram showing key"
               />
               <p>Hosting</p>
@@ -178,7 +178,7 @@ function Home() {
             <Link to={"#experts"} className={styles.heroSection}>
               <img
                 className={styles.heroSectionPicto}
-                src="img/picto-sso.svg"
+                src="img/picto-support.svg"
                 alt="Pictogram showing key"
               />
               <p>Support</p>
@@ -186,7 +186,7 @@ function Home() {
             <Link to={"#experts"} className={styles.heroSection}>
               <img
                 className={styles.heroSectionPicto}
-                src="img/picto-sso.svg"
+                src="img/picto-customization.svg"
                 alt="Pictogram showing key"
               />
               <p>Customization</p>
@@ -255,7 +255,7 @@ function Home() {
           </div>
 
           <div className={styles.heroIntegrations}>
-            <h2>REPLACES</h2>
+            <h2>REPLACE IAMs</h2>
             <picture>
               <source
                 media="(max-width: 767px)"
@@ -314,10 +314,10 @@ function Home() {
                 <p>+ many more</p>
               </div>
             </div>
+            <h1 className="margin-top--lg">Managed Keycloak Hosting</h1>
             <p className={styles.heroIntegrationsCopy}>
-              Phase Two provides a modern, open source alternative to private
-              identity and access management systems. Fully replace or integrate
-              with any IAM system available.
+              Phase Two provides a modern, open source alternative to fully
+              replace or integrate with any IAMs available.
             </p>
           </div>
         </div>
@@ -328,9 +328,10 @@ function Home() {
             <img src="/img/enterprise-sso-bg.png" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>No-code Enterprise SSO</h2>
+            <h2>Open Source Enterprise Single Sign-on</h2>
             <p>
-              Leap up market into enterprise adoption with seamless SSO support.
+              Leap up market into enterprise adoption with seamless, no-code SSO
+              support.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -578,12 +579,16 @@ auth.init({
             <img src="/img/gradient-bg.png" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Phase Two is One Price Per Project</h2>
-            <p>No hidden fees, no unpredictable costs.</p>
+            <h2>Premium Keycloak Hosting</h2>
+            <p>
+              Phase Two is one price per project. No hidden fees, no
+              unpredictable costs.
+            </p>
             <p className="mt-1r">
               We offer a premium hosted product to make getting started fast and
               secure. Set up a free instance with our starter package to get a
-              sense of the simplicity that comes with Phase Two hosting.
+              sense of the simplicity that comes with Phase Two Keycloak
+              hosting.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -819,7 +824,7 @@ auth.init({
           <div class="contentBlockBody">
             <div>
               <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
-                Phase Two are Keycloak Experts{" "}
+                Enterprise Keycloak Support Packages
               </h2>
               <a href="#experts"></a>
 
@@ -985,6 +990,17 @@ auth.init({
                     all things that will be encountered during that process. To
                     that end, we offer Enterprise Support to enable companies to
                     adopt Keycloak.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    Why should I migrate to Keycloak?
+                  </div>
+                  <div className={styles.answer}>
+                    Migrate to Keycloak and gain full control over your
+                    authentication and authorization processes. User migration
+                    support is provide so that migration can occur quickly and
+                    seamlessly.
                   </div>
                 </div>
                 <div className={styles.questionBox}>
