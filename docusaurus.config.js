@@ -58,7 +58,11 @@ module.exports = {
         content: "Tools for SaaS builders - Enhanced Keycloak as a Service",
       },
       { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
-      { property: "og:image", content: "/img/appstore.png", size: "1024x1024" },
+      {
+        property: "og:image",
+        content: "/img/og_image_app.png",
+        size: "1200x630",
+      },
       { property: "og:logo", content: "/img/playstore.png", size: "512x512" },
     ],
     navbar: {
