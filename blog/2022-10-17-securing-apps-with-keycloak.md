@@ -9,6 +9,8 @@ There are a lot of guides out there, official and unofficial, for how to secure 
 
 For the purposes of the sample, we'll actually be using two common applications, a frontend single-page application (SPA) written in JavaScript, and a backend REST API written for Node.js. The language we selected for the sample is JavaScript, but the principles apply no matter the implementation technology you choose.
 
+<!--truncate-->
+
 ### What is OIDC?
 
 When learning about identity and access management technologies, you'll be confronted with an alphabet-soup of acronyms to learn. OIDC, or OpenID Connect is one of the most important ones for securing applications, be it browser-based, APIs, mobile or native. Our friend over at OneLogin does a great job of explaining [OIDC in plain english](https://www.onelogin.com/blog/openid-connect-explained-in-plain-english-2) for those that are curious.

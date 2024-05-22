@@ -21,6 +21,8 @@ import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
 In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly augment an application with user management and SSO. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
 
+<!--truncate-->
+
 :::info
 
 If you just want to skip to the code, visit the Phase Two [SvelteKit example](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit). We also have a plain [React example](https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs).
@@ -58,11 +60,12 @@ We will use the Phase Two SvelteKit example code here, but the logic could easil
 2. Open the SvelteKit [folder](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit) within `/frameworks/sveltekit`.
 3. Run `npm install` and then `npm run dev`. This example leverages [@auth/sveltekit](https://github.com/nextauthjs/next-auth) to provide HOC support.
 4. The project makes use of the following SvelteKit items: hooks, components, layout, and `@auth/sveltekit` module. We'll review each in kind.
-5. We'll review where we configure out Keycloak instance. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`. 
+5. We'll review where we configure out Keycloak instance. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`.
 
 ```tsx
 // Use Environment Variables AUTH_SECRET in prod
-const authjsSecret = "f18d48ce9bea32e44b5591b2c89185729d4559435f77ca76872a83a0850563a4";
+const authjsSecret =
+  "f18d48ce9bea32e44b5591b2c89185729d4559435f77ca76872a83a0850563a4";
 
 const realm = "shared-deployment-001";
 
@@ -115,14 +118,8 @@ export const load: LayoutServerLoad = async (event) => {
   export let data: LayoutServerData;
 </script>
 
-// ... Rest of the index route ... //
-
-<User
-  data={{
-    user: data?.session?.user,
-    status: Boolean(data?.session),
-  }}
-/>
+// ... Rest of the index route ... // <User data={{ user: data?.session?.user,
+status: Boolean(data?.session), }} />
 ```
 
 The props, **user** and **status** represent the user information object and whether the user is signed in, respectively.
@@ -133,9 +130,9 @@ The logic using the authenticator to conditionally determine the Authenticated s
 
 10. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
 
-   :::info
-   Use the non-admin user created in the previous section to sign in.
-   :::
+:::info
+Use the non-admin user created in the previous section to sign in.
+:::
 
 11. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
 12. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
