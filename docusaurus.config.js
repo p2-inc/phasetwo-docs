@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two - Make Keycloak Easy",
+  title: "Phase Two - Keycloak Hosting | Support | Migration | Customization",
   tagline:
-    "Making Keycloak Easy - Enhanced Keycloak as a Service - Fully secured, managed, simple and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+    "Fully secured, managed, and hosted Keycloak with custom extensions for SSO, organizations, migrations and user management. Making Keycloak and Authentication easy.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
