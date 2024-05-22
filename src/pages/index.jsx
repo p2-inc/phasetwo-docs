@@ -887,6 +887,239 @@ auth.init({
               </div>
             </div>
           </div>
+          <div class="contentBlock">
+            <div class="contentBlockBody">
+              <div className={styles.questionsBox}>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What is the difference between Phase Two and Keycloak?
+                  </div>
+                  <div className={styles.answer}>
+                    <div>
+                      Phase Two is a company that specializes in Enterprise
+                      level Keycloak Hosting and Support.{" "}
+                      <i>
+                        We are active contributors to the Keycloak project and
+                        community
+                      </i>
+                      . We issue pull requests for issues and take active part
+                      in community discussions whether on at{" "}
+                      <a href="https://phasetwo.io/blog/keycloak-orgs-presentation/">
+                        Keycloak Dev Day
+                      </a>{" "}
+                      Github, Forums, or mailing lists. We've been working with
+                      Keycloak for a long time and have a deep understanding of
+                      the project and because of this have built some of the
+                      most successful{" "}
+                      <a
+                        href="https://github.com/p2-inc#our-extensions-"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        extensions
+                      </a>
+                      .
+                    </div>
+                    <div>
+                      Keycloak is an open source Identity and Access Management
+                      server software developed and maintained by Red Hat. It is
+                      widely used across the world for a multitude of
+                      Authentication and Authorization use cases.
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What are the advantages to Keycloak Open Source Identity and
+                    Access Management System?
+                  </div>
+                  <div className={styles.answer}>
+                    <div>
+                      Keycloak offers SSO, identity brokering, user federation,
+                      fine-grained authorization, and customizable themes. It
+                      supports various protocols (OAuth2, OpenID Connect, SAML)
+                      and integrates with many platforms.
+                    </div>
+                    <div>
+                      It's been under development for over 7 years and is an
+                      accepted{" "}
+                      <a
+                        href="https://www.cncf.io/projects/keycloak/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        project
+                      </a>{" "}
+                      at the <b>Incubating</b> level of the Cloud Native
+                      Computing Foundation (CNCF).
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    Why does Phase Two offer hosting?
+                  </div>
+                  <div className={styles.answer}>
+                    We've seen a lot of Keycloak deployments at scale and know
+                    what it takes to be successful. We've put that expertise to
+                    use by building and offering a{" "}
+                    <a href="https://phasetwo.io/hosting/">hosted</a> solution
+                    to make it easier to adopt{" "}
+                    <a href="https://phasetwo.io/blog/identity-brokering-on-prem/">
+                      Authentication and Authorization
+                    </a>{" "}
+                    to any application at any size. This offloads the burden of
+                    DevOps, maintenance, and upgrades to us, allowing teams to
+                    focus on shipping product.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What support is provided and included?
+                  </div>
+                  <div className={styles.answer}>
+                    Many customers use Keycloak precisely because its Open
+                    Source and can be hosted themselves. However, getting that
+                    right, how to migrate from another solution, knowing where
+                    the pitfalls are, how to scale it, how to troubleshoot, are
+                    all things that will be encountered during that process. To
+                    that end, we offer Enterprise Support to enable companies to
+                    adopt Keycloak.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    How quickly can I migrate to Keycloak?
+                  </div>
+                  <div className={styles.answer}>
+                    The answer is, it depends. Migrating to Keycloak can take
+                    from a few days to several weeks, depending on the
+                    complexity of your current authentication system, data
+                    migration needs, and integration requirements. A
+                    straightforward setup might be quick, but extensive
+                    customization or large user bases will require more time. We
+                    spent some time writing up what it takes to{" "}
+                    <a href="https://phasetwo.io/blog/open-source-iam/#migrating-from-your-current-identity-provider">
+                      migrate to Keycloak
+                    </a>{" "}
+                    from an existing identity provider.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    How much does it cost to run Keycloak on my own and is Phase
+                    Two a cost effective solution?
+                  </div>
+                  <div className={styles.answer}>
+                    The answer is less about the cost to run the server and more
+                    about the time it takes to manage a system that runs a
+                    scaled, resilient Keycloak solution. Depending on the needs
+                    of your Applications, it will determine the resources
+                    required to support such a deployment. Our{" "}
+                    <a href="https://phasetwo.io/hosting/">hosted</a> solution
+                    allows for fast, globally distributed, resilient systems
+                    immediately.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What servers and frameworks does Keycloak support?
+                  </div>
+                  <div className={styles.answer}>
+                    Keycloak combines a strong API with a powerful Admin portal
+                    to make integration with any server or frontend framework
+                    possible. Use it for apps running{" "}
+                    <a href="https://phasetwo.io/blog/secure-spring-boot/">
+                      Spring Boot
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/secure-django/">Django</a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nextjs/">
+                      Next.js
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nuxt/">
+                      Nuxt
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs/">
+                      React
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-vue/">
+                      Vue
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-management-and-sso-for-remix/">
+                      Remix
+                    </a>
+                    ,{" "}
+                    <a href="https://phasetwo.io/blog/instant-user-management-and-sso-for-sveltekit/">
+                      Sveltekit
+                    </a>
+                    , or any other server or frontend framework.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    How is Keycloak a an alternative to Auth0, WorkOS, Okta, and
+                    Cognito?
+                  </div>
+                  <div className={styles.answer}>
+                    We put some thoughts together about this specific topic in a
+                    blog post about Keycloak being a{" "}
+                    <a href="https://phasetwo.io/blog/open-source-iam/#migrating-from-your-current-identity-provider">
+                      open source alternative
+                    </a>{" "}
+                    to these offerings.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What is the difference between Keycloak and{" "}
+                    <a href="https://authjs.dev/">Auth.js</a>?
+                  </div>
+                  <div className={styles.answer}>
+                    <div>
+                      AuthJs is a flexible, client-side <b>authentication</b>{" "}
+                      library for JavaScript apps, offering simple integration
+                      and customization to various providers. Keycloak is a
+                      full-featured, server-side identity and access management
+                      solution, providing SSO, identity brokering, user
+                      federation, and advanced security features.
+                    </div>
+                    <div>
+                      The biggest difference is that Keycloak does{" "}
+                      <b>authentication</b> AND <b>authorization</b>. That means
+                      Keycloak provides a way to federate login to any SAML or
+                      OIDC provider and then manage the permissions of the users
+                      in your application. When trying to do this with multiple
+                      providers, it quickly becomes a very complex problem. In
+                      addition, when you start to layer in things like
+                      authentication flows with MFA,{" "}
+                      <a href="https://phasetwo.io/blog/set-up-magic-links/">
+                        Magin Links
+                      </a>
+                      , or other advanced use cases, managing that quickly
+                      becomes a full-time job.
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    Why can't I just integrate SAML into my own app and be done?
+                  </div>
+                  <div className={styles.answer}>
+                    Its not just people logging into your app, which Keycloak
+                    can easily do, but it's about handling the use case for your
+                    customers and letting them tie their own identity providers
+                    into your application.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </Layout>
