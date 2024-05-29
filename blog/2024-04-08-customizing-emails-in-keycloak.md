@@ -1,6 +1,7 @@
 ---
 slug: customizing-email-templates
-title: "How to Customize Email Templates in Keycloak"
+title: How to Customize Email Templates in Keycloak
+description: Customize email templates and branding for use in Keycloak
 authors: phasetwo
 tags:
   [

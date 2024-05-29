@@ -15,6 +15,6 @@ We've also implemented a web service that allows you to create a magic link with
 
 Both methods have the option of forcing the creation of a new user when an unknown email address is used. This allows a combination login/registration flow that combines an email verification. We think this really nails reducing friction in a new user flow.
 
-We're open sourcing the Keycloak extensionsso that the broad Keycloak community can benefit right away. We are doing this in line with our committment to keeping our core extensions [open source](/docs/introduction/open-source). We hope you find these extensions valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
+We're open sourcing the Keycloak extensionsso that the broad Keycloak community can benefit right away. We are doing this in line with our commitment to keeping our core extensions [open source](/docs/introduction/open-source). We hope you find these extensions valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
 
 The extension is available on GitHub https://github.com/p2-inc/keycloak-magic-link
