@@ -1,6 +1,7 @@
 ---
 slug: identity-brokering-on-prem
-title: "User Management and Identity Brokering for On-Prem Apps"
+title: User Management and Identity Brokering for On-Prem Apps
+description: A deep-dive into the process to use an open-source software, Keycloak, to solve an important need of Identity Brokering within modern Saas applications.
 authors: phasetwo
 tags: [keycloak, phase_two, open_source, idp_wizard, on_prem, private_cloud]
 ---

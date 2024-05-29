@@ -1,6 +1,7 @@
 ---
 slug: keycloak-orgs-presentation
-title: Presentation on Multi-Tenancy in Keycloak
+title: Presentation on Multi-Tenancy within a Single Realm in Keycloak
+description: A detailed talk on how the Phase Two Organization Keycloak extension provides a single realm multi-tenancy solution for modern Saas Applications.
 authors: phasetwo
 tags: [release, keycloak, phase_two, organizations, multi_tenancy]
 ---
