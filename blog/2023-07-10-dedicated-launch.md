@@ -1,7 +1,7 @@
 ---
 slug: dedicated-launch
 title: Launching Dedicated Clusters
-author: Phase Two
+authors: phasetwo
 tags: [release, keycloak, phase_two, cockroach]
 ---
 

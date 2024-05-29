@@ -1,7 +1,7 @@
 ---
 slug: set-up-email
 title: Set Up Email in Phase Two
-author: Phase Two
+authors: phasetwo
 tags: [tutorial, keycloak, phase_two, email]
 ---
 

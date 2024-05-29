@@ -1,7 +1,7 @@
 ---
 slug: open-source-iam
 title: "Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ..."
-author: Phase Two
+authors: phasetwo
 tags: [keycloak, phase_two, open_source, auth0, workos, okta, cognito]
 ---
 
