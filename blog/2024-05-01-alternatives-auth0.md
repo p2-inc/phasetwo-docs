@@ -2,7 +2,7 @@
 title: "Keycloak vs. Auth0, a Open-Source Alternative"
 slug: keycloak-vs-auth0-open-source-alternative
 date: 2024-05-01
-author: Phase Two
+authors: phasetwo
 tags: [phase_two, open_source, authentication, authorization, auth0, keycloak]
 ---
 

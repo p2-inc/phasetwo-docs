@@ -1,7 +1,7 @@
 ---
 slug: identity-brokering-on-prem
 title: "User Management and Identity Brokering for On-Prem Apps"
-author: Phase Two
+authors: phasetwo
 tags: [keycloak, phase_two, open_source, idp_wizard, on_prem, private_cloud]
 ---
 

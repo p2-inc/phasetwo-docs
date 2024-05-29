@@ -1,8 +1,8 @@
 ---
 slug: self-service
 title: Self-service (beta) Launch
-author: Phase Two
-tags: [ release, keycloak, phase_two, cockroach ]
+authors: phasetwo
+tags: [release, keycloak, phase_two, cockroach]
 ---
 
 We've been pretty quiet over the summer. Since we released the [Organizations](https://github.com/p2-inc/keycloak-orgs) and [Magic Link](https://github.com/p2-inc/keycloak-magic-link) extensions and open sourced them, there has been a lot of interest in using Phase Two.
@@ -20,4 +20,3 @@ The clusters that run our deployments are available in two regions (AWS, us-west
 We hope you find this new tool valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
 
 [TRY IT NOW!](https://phasetwo.io/dashboard/)
-

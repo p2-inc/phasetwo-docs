@@ -1,7 +1,7 @@
 ---
 slug: securing-apps-with-keycloak
 title: Protecting Your Application With Keycloak
-author: Phase Two
+authors: phasetwo
 tags: [tutorial, keycloak, phase_two, sso, authentication, authorization]
 ---
 

@@ -1,7 +1,7 @@
 ---
 slug: set-up-magic-links
 title: Magic Links Guide, and 5 Minute Setup
-author: Phase Two
+authors: phasetwo
 tags: [tutorial, keycloak, phase_two, magic_links]
 ---
 

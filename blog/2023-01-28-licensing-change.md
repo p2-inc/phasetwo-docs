@@ -1,7 +1,7 @@
 ---
 slug: licensing-change
 title: We're Changing Our License
-author: Phase Two
+authors: phasetwo
 tags: [oss, license, phase_two]
 ---
 
