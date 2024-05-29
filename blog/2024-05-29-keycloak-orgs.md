@@ -19,6 +19,8 @@ Since we first released our (most) popular Keycloak extension, Keycloak [Organiz
 
 This begs the question? What is different between Keycloak's upcoming organizations feature and the Phase Two Organization Extension?
 
+<!--truncate-->
+
 To understand the difference it's important to first understand what the Phase Two Organization extension is. When we initially built this extension, we were struggling to solve the problem of "multi-tenant" Keycloak. During that process we learned a lot.
 
 Other approaches that we tried and decided against were:
