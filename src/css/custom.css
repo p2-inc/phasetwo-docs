@@ -223,7 +223,7 @@ a:hover {
 .entSocialLoginBgCircles {
   top: -310px;
   width: 280vw;
-  z-index: 0;
+  z-index: -10;
 }
 .entSocialLoginBgImg {
   width: 170vw;
@@ -404,6 +404,7 @@ a:hover {
 .pageHeroMsgIntro {
   font-size: 1.125rem;
   line-height: 1.4em;
+  font-weight: 400;
 }
 .pageHeroImg {
   margin-bottom: 12px;

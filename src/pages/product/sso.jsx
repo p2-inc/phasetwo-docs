@@ -23,17 +23,17 @@ function SSO() {
           </div>
           <div className={`pageHeroMsg`}>
             <h1>One Simple Integration to Support Many Identity Providers</h1>
-            <p className={`pageHeroMsgIntro`}>
+            <h2 className={`pageHeroMsgIntro`}>
               In just 5 minutes, integrate Keycloak SSO with most popular
               identity and access management providers. SSO enables a universal
               login flow for a secure and consistent experience.
-            </p>
-            <p className={`pageHeroMsgIntro`}>
-              By choosing Phase Two and Keycloak, you are choosing a cost-effect
-              SSO solution that will scale with your application. As your
-              customers expand, you have a solution that will not balloon in
-              cost.
-            </p>
+            </h2>
+            <h2 className={`pageHeroMsgIntro`}>
+              By choosing Phase Two and Keycloak, you are choosing a
+              cost-effective SSO solution that will scale with your application.
+              As your customers expand, you have a solution that will not
+              balloon in cost.
+            </h2>
             <div className={`pageHeroCta`}>
               <a
                 href="http://phasetwo.io/dashboard/"

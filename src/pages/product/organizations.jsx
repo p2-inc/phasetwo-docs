@@ -12,13 +12,16 @@ function Organizations() {
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroMsg`}>
-            <h1>Simple Business Customer Identity</h1>
-            <p className={`pageHeroMsgIntro`}>
+            <h1>
+              Customize Authentication and Authorization for Business Customer
+              Identity
+            </h1>
+            <h2 className={`pageHeroMsgIntro`}>
               Organizations is a SaaS identity solution that delivers
               self-management for your customers and APIs for your developers,
               so that you can start to build workflows for your customers at
               scale.
-            </p>
+            </h2>
             <p className={`pageHeroMsgIntro`}>
               Programmatic toolset of APIs and SDKs for app development teams to
               manage and customize workflows for their end customers at scale.
@@ -44,9 +47,12 @@ function Organizations() {
             <img src="/img/social-login-bg.svg" alt="Social Login Symbols" />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Enterprise SSO Login for Each Customer</h2>
+            <h2>Enterprise Single Sign-on (SSO) Login for Each Customer</h2>
             <p>
-              Eliminate the barriers to onboarding and engagement by adopting.
+              Eliminate the barriers to onboarding and engagement by adopting a
+              corporate identity provider for each customer organization to
+              leverage SSO with existing identity provider systems. Extend with
+              common enterprise social login providers like Google or Microsoft.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -65,9 +71,11 @@ function Organizations() {
             <img src="/img/gradient-bg.png" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Streamlined Invitations</h2>
+            <h2>Streamlined Invitations for User Management</h2>
             <p>
               Empower users and organization administrators to invite users.
+              Delegate the responsibility of onboarding to the organization
+              admin and save precious customer support time.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -83,11 +91,13 @@ function Organizations() {
         {/* Roles & Permissions */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
-            <h2>Roles, Permissions And authorization per Customer</h2>
+            <h2>Roles, Permissions and Authorization per Customer</h2>
             <p>
               Build your own custom roles and permissions for each organization.
               Build authorization logic that includes the organization as a
-              first-class entity.
+              first-class entity.{" "}
+              <a href="/blog/organgizations-multi-tenant-update">Learn more</a>{" "}
+              why roles at the organization level are important.
             </p>
           </div>
           <div className={`contentBlockBody`}>
