@@ -893,6 +893,9 @@ auth.init({
             </div>
           </div>
           <div class="contentBlock">
+            <div className="contentBlockHead">
+              <h2>Frequently Asked Questions?</h2>
+            </div>
             <div class="contentBlockBody">
               <div className={styles.questionsBox}>
                 <div className={styles.questionBox}>

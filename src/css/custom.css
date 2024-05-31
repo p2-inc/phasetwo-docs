@@ -388,7 +388,7 @@ a:hover {
   background-color: transparent;
   position: relative;
   text-align: center;
-  z-index: 3;
+  /* z-index: 3; */
 }
 .pageHeroMsg {
   max-width: 782px;
