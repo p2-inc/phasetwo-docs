@@ -154,11 +154,12 @@ function Home() {
                 Identity and Access Management (IAM) Solution to Future Proof
                 Your App
               </h1>
-              <p className={`pageHeroMsgIntro`}>
+              <h2 className={`pageHeroMsgIntro`}>
                 Accelerate SaaS time-to-market and enterprise adoption by
                 rapidly integrating the features needed to support almost any
-                <b> authentication</b> and <b>authorization</b> use-cases.
-              </p>
+                <b>authentication</b> and <b>authorization</b> use-cases with
+                Phase Two's Keycloak as a Service offering.
+              </h2>
               <div className={`pageHeroCta`}>
                 <button className={`btnCta`} onClick={requestAccess}>
                   Try Phase Two for Free
@@ -395,8 +396,8 @@ function Home() {
             <p>
               Seamless onboarding and self-management for your customer
               administrators and users. Empower your users and customers to
-              easily manage every aspect of identity, organization and SSO.
-              Drastically reduce customer support.
+              self-service Keycloak and easily manage every aspect of identity,
+              organization and SSO. Drastically reduce customer support.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -585,10 +586,10 @@ auth.init({
               unpredictable costs.
             </p>
             <p className="mt-1r">
-              We offer a premium hosted product to make getting started fast and
-              secure. Set up a free instance with our starter package to get a
-              sense of the simplicity that comes with Phase Two Keycloak
-              hosting.
+              We offer a premium hosted Keycloak product to make getting started
+              fast and secure. Set up a free instance with our starter package
+              to get a sense of the simplicity that comes with Phase Two
+              Keycloak hosting.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -854,7 +855,7 @@ auth.init({
                     src="img/plan-community.svg"
                     alt="Enterprise plan"
                   />
-                  <h3>Enterprise Support Packages</h3>
+                  <h3>Enterprise Keycloak Support Packages</h3>
                 </div>
                 <div className={styles.tableThemeWrapper}>
                   <table className={styles.tableTheme}>
@@ -893,6 +894,9 @@ auth.init({
             </div>
           </div>
           <div class="contentBlock">
+            <div className="contentBlockHead">
+              <h2>Frequently Asked Questions?</h2>
+            </div>
             <div class="contentBlockBody">
               <div className={styles.questionsBox}>
                 <div className={styles.questionBox}>

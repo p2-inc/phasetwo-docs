@@ -1,5 +1,5 @@
 ---
-slug: orgs
+slug: organgizations-multi-tenant-update
 title: Phase Two's Organizations, a Keycloak Multi-Tenant Extension and Keycloak's Upcoming Organization's Feature
 description: Phase Two's Organization extensions bring single-realm multi-tenancy to Keycloak. Keycloak is officially developing a native version, but it's not a one-to-one replacement.
 authors: phasetwo
@@ -13,7 +13,6 @@ tags:
     multi_tenant,
     multi_tenancy,
   ]
-draft: true
 ---
 
 Since we first released our (most) popular Keycloak extension, Keycloak [Organizations](https://phasetwo.io/product/organizations/) (Orgs) and made it available as open source on [Github](https://github.com/p2-inc/keycloak-orgs), the Keycloak maintainers have decided to build into native organization support.
