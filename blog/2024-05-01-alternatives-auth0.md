@@ -51,11 +51,13 @@ Auth0 offers a wide range of authentication features out-of-the-box, including s
 **Keycloak:**
 Keycloak matches Auth0 in terms of functionality, supporting similar authentication protocols and user federation. It also offers customizable user interfaces for login, registration, and account management, which can be tailored to match the specific needs of a business. Being open-source, Keycloak allows developers to modify the codebase and integrate with other systems more freely than Auth0, offering a higher degree of customization at the cost of additional developer effort.
 
+A key feature of keycloak is it's ability to be [hosted on-premise](/product/onprem) in a variety of ways. This means that as you choose to deploy something within your own systems, you'll be able to do this with Keycloak. If your requirements include an on-premise solution, [learn more](./2024-03-19-identity-brokering-on-prem.md) about this how Keycloak can help with user management and identity brokering for on-premise.
+
 **Winner**
 
 Keycloak
 
-Auth0 and Keycloak offer much of the same functionality for Authenication and Authorization, however Keycloak is extremely flexible to extend and configure. It's a system that can adjust and grow with an application.
+Auth0 and Keycloak offer much of the same functionality for Authentication and Authorization, however Keycloak is extremely flexible to extend and configure. It's a system that can adjust and grow with an application. Lastly, the ability to host Keycloak on-premise makes it a strong option for companies.
 
 ### Integrating Keycloak with External Systems like Auth0
 
@@ -69,4 +71,4 @@ Choosing between Auth0 and Keycloak largely depends on your organization’s spe
 
 Both platforms offer extensive documentation and community support, which can help mitigate some of the challenges associated with implementation and maintenance.
 
-Ultimately, we at Phase Two believe marrying the two together is the strongest match. We offer robust [hosting options](https://phasetwo.io/) that fit well for multiple business sizes. Coupling the capabilities of Keycloak and the advantages of a managed service translates directly to implementation and cost control. **Leveraging Keycloak means that ongoing costs are relatively fixed**, since concerns about user growth or feature needs don't have to factor into every decision.
+Ultimately, we at Phase Two believe marrying the two together is the strongest match. We offer robust [hosting options](https://phasetwo.io/hosting/) that fit well for multiple business sizes. Coupling the capabilities of Keycloak and the advantages of a managed service translates directly to implementation and cost control. **Leveraging Keycloak means that ongoing costs are relatively fixed**, since concerns about user growth or feature needs don't have to factor into every decision.
