@@ -53,10 +53,6 @@ module.exports = {
     },
     metadata: [
       { name: "keywords", content: "keycloak, iam, sso" },
-      {
-        name: "description",
-        content: "Tools for SaaS builders - Enhanced Keycloak as a Service",
-      },
       { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
       {
         property: "og:image",
