@@ -25,7 +25,7 @@ function AdminPortal() {
             </h2>
             <div className={`pageHeroCta`}>
               <a
-                href="http://phasetwo.io/dashboard/"
+                href="https://phasetwo.io/dashboard/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

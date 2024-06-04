@@ -1,0 +1,22 @@
+# robots.txt for Docusaurus site
+
+# Allow all user agents to crawl the site
+User-agent: *
+
+# Block specific directories
+Disallow: /private/
+Disallow: /temp/
+Disallow: /scripts/
+
+# Allow the following important directories (adjust according to your site structure)
+Allow: /docs/
+Allow: /api/
+Allow: /hosting/
+Allow: /product/
+Allow: /search/
+Allow: /blog/
+Allow: /img/
+Allow: /css/
+
+# Sitemap location (replace with your actual sitemap URL)
+Sitemap: https://phasetwo.io/sitemap.xml

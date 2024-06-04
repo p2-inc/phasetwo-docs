@@ -5,7 +5,7 @@ import styles from "./organizations.module.css";
 function Organizations() {
   return (
     <Layout
-      title="Organizations"
+      title="Enterprise Organizations"
       description="Enterprise SSO, Invitations, Authorization and self-managment for customer organizations"
     >
       <main>
@@ -28,7 +28,7 @@ function Organizations() {
             </p>
             <div className={`pageHeroCta`}>
               <a
-                href="http://phasetwo.io/dashboard/"
+                href="https://phasetwo.io/dashboard/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

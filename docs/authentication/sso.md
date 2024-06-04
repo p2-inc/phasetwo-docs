@@ -1,6 +1,6 @@
 ---
 id: sso
-title: SSO
+title: Enterprise SSO
 ---
 
 :::caution

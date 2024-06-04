@@ -1,6 +1,6 @@
 ---
 id: index
-title: Organizations
+title: Organizations Docs
 ---
 
 The Organizations feature represents an significant enhancement to standard Keycloak that allows business-to-business (B2B) customers to better manage their partners and customers, and to customize the ways that end-users access their applications. Phase Two customers can use Organizations to:
