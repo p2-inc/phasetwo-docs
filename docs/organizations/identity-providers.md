@@ -1,6 +1,7 @@
 ---
 id: identity-providers
-title: Identity providers
+title: Organization Identity Providers
+sidebar_label: Identity Providers
 ---
 
 Identity providers (IdPs) can be associated with an organization for the purpose of directing users to authenticate with the IdP via a verified email domain, and for automatically granting membership to users who authenticate with that IdP.

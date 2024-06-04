@@ -1,6 +1,7 @@
 ---
 id: authentication
-title: Authentication
+sidebar_label: Authentication
+title: Authentication API
 ---
 
 Authentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.
