@@ -137,7 +137,7 @@ function SSO() {
           <div className={`contentBlockHead`}>
             <h2>Dive Deeper into our SSO Integrations</h2>
             <p>
-              See our <a href="/articles">articles</a>,{" "}
+              See our <a href="/blog/tags/sso">articles</a>,{" "}
               <a href="/docs/sso/">SSO setup guides</a>, and{" "}
               <a href="/docs/sso/wizards/">SSO Wizards</a> for customer self
               setup for a more in-depth look at our SSO features.
