@@ -5,7 +5,7 @@ import styles from "./organizations.module.css";
 function Organizations() {
   return (
     <Layout
-      title="Organizations"
+      title="Enterprise Organizations"
       description="Enterprise SSO, Invitations, Authorization and self-managment for customer organizations"
     >
       <main>
