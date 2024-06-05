@@ -3,12 +3,6 @@ id: sso
 title: Enterprise SSO
 ---
 
-:::caution
-
-This section is currently under construction. Check back soon for updates.
-
-:::
-
 The goal of enterprise SSO is to allow corporate or other organization users to securely access all of the applications and resources available to them with a single authentication. Support for SSO in this context is allowing organizations to use their own identity providers to authenticate with your application.
 
 ## Configuring SSO
