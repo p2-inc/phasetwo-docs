@@ -3,7 +3,7 @@ id: service-agreement
 title: Phase Two SaaS Service Agreement
 ---
 
-_Service Agreement Last updated: October 24, 2023_
+_Service Agreement Last updated: June 6, 2024_
 
 This SaaS Service Agreement governs your use of the software-as-a-service solution identified below (the "Service"). "We" or "us" or "our" means Phase Two, Inc., a Washington corporation, with offices located at 140 Lakeside Avenue, Suite A49, Seattle, Washington 98122.
 
@@ -158,3 +158,5 @@ This Agreement is subject to the additional terms and conditions specified on Ex
 12.11 <ins>Headings</ins>. Headings are used in this Agreement for reference only and will not be considered when interpreting this Agreement.
 
 12.12 <ins>Entire Agreement</ins>. This Agreement contain the entire agreement of the parties with respect to the subject matter of this Agreement and supersede all previous communications, representations, understandings, and agreements, either oral or written, between the parties with respect to said subject matter. No usage of trade or other regular practice or method of dealing between the parties will be used to modify, interpret, supplement, or alter the terms of this Agreement.
+
+12.13 <ins>Publicity; Use of Your Marks</ins>. We shall have the right to use your name and logo for marketing or promotional purposes on our website, in our advertising and marketing materials and in other communications with existing or potential Phase Two, Inc. customers. Upon successful implementation of the Service and promptly upon our request, you agree to provide us with at least two (2) testimonials regarding the Service. Such testimonials may be displayed on our website and any other advertising or marketing materials in connection with the Service.
