@@ -1,7 +1,8 @@
 ---
 slug: dedicated-launch
-title: Launching Dedicated Clusters
-author: Phase Two
+title: Launching Dedicated Clusters of Phase Two's Enhanced Keycloak Distribution
+description: Phase Two launches dedicated clusters to host their enhanced Keycloak distribution for better compute, network, and storage isolation for customer workloads.
+authors: phasetwo
 tags: [release, keycloak, phase_two, cockroach]
 ---
 

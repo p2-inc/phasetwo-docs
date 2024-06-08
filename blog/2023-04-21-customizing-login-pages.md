@@ -1,7 +1,7 @@
 ---
 slug: customizing-login-pages
 title: How To Customize Login Pages
-author: Phase Two
+authors: phasetwo
 tags: [phase_two, themes, login, keycloak]
 ---
 

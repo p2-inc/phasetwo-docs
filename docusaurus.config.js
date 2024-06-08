@@ -46,17 +46,13 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dedicated-launch">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
+        '<a href="/blog/dedicated-launch/">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
     },
     metadata: [
       { name: "keywords", content: "keycloak, iam, sso" },
-      {
-        name: "description",
-        content: "Tools for SaaS builders - Enhanced Keycloak as a Service",
-      },
       { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
       {
         property: "og:image",

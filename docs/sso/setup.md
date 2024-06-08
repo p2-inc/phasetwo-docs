@@ -3,12 +3,6 @@ id: setup
 title: Setup
 ---
 
-:::caution
-
-This section is currently under construction. Check back soon for updates.
-
-:::
-
 Once you have setup the authentication flow for SSO as described in the previous section [SSO](../../authentication/sso), you can create connections to the Organizations' identity providers and then associating them with the Organizations they represent.
 
 ### Configuring identity providers

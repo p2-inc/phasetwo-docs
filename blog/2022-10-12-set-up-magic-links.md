@@ -1,19 +1,21 @@
 ---
 slug: set-up-magic-links
-title: Magic Links Guide, and 5 Minute Setup
-author: Phase Two
+title: Magic Links Guide, and 5 Minute Setup for Open Source Passwordless Authentication and Better Security
+authors: phasetwo
 tags: [tutorial, keycloak, phase_two, magic_links]
 ---
 
-Someone who is reading this article is probably very different that the average internet user when it comes to passwords. Developers and IT admins, either because of security savvy or compliance, use password managers, multi-factor authentication (MFA) mechanisms, or prefer sites that offer password-less authentication. Furthermore, they are keenly aware of the weaknesses in their personal "attack surface", and search for ways to balance convenience with risk.
+Someone who is reading this article is probably very different that the average internet user when it comes to passwords. Developers and IT admins, either because of security savvy or compliance, use password managers, multi-factor authentication (MFA) mechanisms, or prefer sites that offer passwordless authentication. Furthermore, they are keenly aware of the weaknesses in their personal "attack surface", and search for ways to balance convenience with risk.
 
 But you are here because you want to find a way to implement magic links quickly. First, some background.
+
+The extension is available on [Github](https://github.com/p2-inc/keycloak-magic-link).
 
 <!--truncate-->
 
 ### What are magic links?
 
-Magic links are a type of password-less authentication that allow your users to log in to your application following a link that is emailed to them, rather than typing a username and password. Magic links can also be used as a part of a multi-factor authentication (MFA) strategy.
+Magic links are a type of passwordless authentication that allow your users to log in to your application following a link that is emailed to them, rather than typing a username and password. Magic links can also be used as a part of a multi-factor authentication (MFA) strategy.
 
 In a magic link flow, the application's authentication provider asks users for an email address rather than a password. The authentication provider generates a link with an embedded token, and sends to the user's email. There may be some other steps taken by the provider, such as verifying the provided email address matches an existing user. The user then opens the email, clicks the link, is verified by the authentication provider, and is granted access to the application
 

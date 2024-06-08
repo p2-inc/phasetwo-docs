@@ -16,12 +16,12 @@ function OnPrem() {
           </div>
           <div className={`pageHeroMsg`}>
             <h1>Bundle Identity and SSO When You Deploy On-Prem</h1>
-            <p className={`pageHeroMsgIntro`}>
+            <h2 className={`pageHeroMsgIntro`}>
               Sophisticated SaaS providers are realizing the value in bundling
               and deploying their solutions to customers in governments and
               regulated industries that can’t use cloud offerings for regulatory
               or compliance reasons.
-            </p>
+            </h2>
             <div className={`pageHeroCta`}>
               <a href="mailto:support@phasetwo.io">
                 <button className={`btnPrimary`}>Contact Sales</button>

@@ -1,7 +1,8 @@
 ---
 slug: licensing-change
-title: We're Changing Our License
-author: Phase Two
+title: Changing Our License to Elastic License v2 to Enable Hosting and Derivative Works
+description: Phase Two changes to Elastic License v2 to enable hosting and usage of extensions by customers.
+authors: phasetwo
 tags: [oss, license, phase_two]
 ---
 
@@ -13,7 +14,7 @@ We’ve changed the license of our [core extensions](/docs/introduction/open-sou
 
 ### Why?
 
-From our earliest stages, Phase Two has been built as a set of extensions to [Keycloak](https://keycloak.org). We have made a commitment that source code for our core exetensions will always be available so that our customers can migrate to their own deployment, while maintaining the extension functionality provided by Phase Two.
+From our earliest stages, Phase Two has been built as a set of extensions to [Keycloak](https://keycloak.org). We have made a commitment that source code for our core extensions will always be available so that our customers can migrate to their own deployment, while maintaining the extension functionality provided by Phase Two.
 
 As our product matured and found a market fit, it became clear to us that our current license was failing to give our customers that guarantee, and failing to give our company the protection to ensure we could build a business and continue to invest in our extensions.
 

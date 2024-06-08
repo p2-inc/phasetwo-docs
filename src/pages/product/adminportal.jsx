@@ -16,16 +16,16 @@ function AdminPortal() {
             <img src="/img/circles.svg" alt="Concentric Circles" />
           </div>
           <div className={`pageHeroMsg`}>
-            <h1>Admin Portal</h1>
-            <p className={`pageHeroMsgIntro`}>
-              Seamless onboarding and self-management for your customer
-              administrators and users. Empower your users and customers to
-              easily manage every aspect of identity, organization and SSO.
-              Drastically reduce customer support.
-            </p>
+            <h1>Customizable User Management</h1>
+            <h2 className={`pageHeroMsgIntro`}>
+              User management is a core part of Identity and Access Management
+              (IAM). Empower your users and customers to easily manage every
+              aspect of identity, authentication, organization, and SSO to
+              drastically reduce customer support.
+            </h2>
             <div className={`pageHeroCta`}>
               <a
-                href="http://phasetwo.io/dashboard/"
+                href="https://phasetwo.io/dashboard/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -73,8 +73,9 @@ function AdminPortal() {
             <h2>Organization Self-Management</h2>
             <p>
               Enable complete self-service of identity and organization. The
-              move to SaaS is accelerating, and enterprises expect full control
-              over their experience. Give it to them with a simple link.
+              move to SaaS is accelerating, and enterprises expect full,
+              customizable control over their experience. Give it to them with a
+              simple link.
             </p>
           </div>
           <div className={`contentBlockBody`}>
