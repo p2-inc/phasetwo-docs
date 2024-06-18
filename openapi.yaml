@@ -1051,7 +1051,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1073,7 +1073,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1081,7 +1081,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BulkResponseItem"
-      
+
   /{realm}/orgs/{orgId}/roles/{name}:
     parameters:
       - in: path
@@ -1338,6 +1338,37 @@ paths:
       responses:
         201:
           description: success
+  /{realm}/orgs/{orgId}/idps/${idpAlias}/unlink:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: idpAlias
+        description: idp alias
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Identity Providers
+      summary: Unlink an existing and linked identity provider from this organization
+      operationId: unlinkIdp
+      responses:
+        204:
+          description: success
   /{realm}/orgs/{orgId}/idps/{alias}:
     parameters:
       - in: path
@@ -1587,7 +1618,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1608,7 +1639,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
