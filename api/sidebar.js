@@ -157,6 +157,20 @@ module.exports = {
           label: "Remove a pending invitation",
           className: "api-method delete",
         },
+        {
+          type: "doc",
+          id: "get-organization-invitation-by-id",
+          label: "Get organization invitation by id",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "get-organization-invitation-count",
+        },
+        {
+          type: "doc",
+          id: "resend-organization-invitation",
+        },
       ],
     },
     {
@@ -299,6 +313,18 @@ module.exports = {
           label: "Delete a mapper for the identity provider",
           className: "api-method delete",
         },
+        {
+          type: "doc",
+          id: "link-idp",
+        },
+        {
+          type: "doc",
+          id: "unlink-idp",
+        },
+        {
+          type: "doc",
+          id: "import-idp-json",
+        },
       ],
     },
     {
@@ -327,6 +353,14 @@ module.exports = {
           id: "create-magic-link",
           label: "Create a magic link to log in a user",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "grant-a-user-organization-roles",
+        },
+        {
+          type: "doc",
+          id: "revoke-organization-roles-from-a-user",
         },
       ],
     },
