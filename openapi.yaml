@@ -1338,7 +1338,7 @@ paths:
       responses:
         201:
           description: success
-  /{realm}/orgs/{orgId}/idps/${idpAlias}/unlink:
+  /{realm}/orgs/{orgId}/idps/{alias}/unlink:
     parameters:
       - in: path
         name: realm
@@ -1355,7 +1355,7 @@ paths:
           type: string
         style: simple
       - in: path
-        name: idpAlias
+        name: alias
         description: idp alias
         required: true
         schema:
