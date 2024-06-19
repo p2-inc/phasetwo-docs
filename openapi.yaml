@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Phase Two Admin REST API
   description: |
-    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/23.0.6/rest-api/index.html).
+    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
 
     ### Base URI format
     Paths specified in the documentation are relative to the the base URI.
