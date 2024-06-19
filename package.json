@@ -8,7 +8,8 @@
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
-    "gen-api-docs": "docusaurus gen-api-docs all"
+    "gen-api-docs": "docusaurus gen-api-docs all",
+    "clean-api-docs": "docusaurus clean-api-docs all"
   },
   "dependencies": {
     "@docusaurus/core": ">=2.0.1 <2.3.0",

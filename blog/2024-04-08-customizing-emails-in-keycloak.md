@@ -34,7 +34,7 @@ Using a test user, visit the flow of the templates you changed to have those ema
 
 ## Example Template
 
-The Attributes theme in our Phase Two deployment automatically make use of these themes. The [sample template](https://github.com/p2-inc/keycloak-theme/examples) can be customized to fit your need. All you have to do is adjust the CSS colors and inject a link to your hosted logo file somewhere. There is a content section which you can copy/paste the default content from Keycloak into and customize. A simple HTML preview of the template lets you get an idea of how it will look.
+The Attributes theme in our Phase Two deployment automatically make use of these themes. The [sample template](https://github.com/p2-inc/keycloak-themes) can be customized to fit your need. All you have to do is adjust the CSS colors and inject a link to your hosted logo file somewhere. There is a content section which you can copy/paste the default content from Keycloak into and customize. A simple HTML preview of the template lets you get an idea of how it will look.
 
 ![Email example template](/blog/2024-04-08-email-example-phaseII.png)
 
