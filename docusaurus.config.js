@@ -75,6 +75,12 @@ module.exports = {
           to: "hosting",
         },
         {
+          label: "Support",
+          position: "left",
+          activeBasePath: "support",
+          to: "support",
+        },
+        {
           type: "dropdown",
           label: "Product",
           position: "left",

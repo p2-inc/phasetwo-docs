@@ -1,15 +1,10 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import styles from "./styles.module.css";
+import faqStyles from "../../css/faq.module.css";
 
-const {
-  questionBlock,
-  answer,
-  trustUsReasonsCol,
-  trustUsReasonsColNumber,
-  callout,
-  calloutHeader,
-} = styles;
+const { trustUsReasonsCol, trustUsReasonsColNumber, callout, calloutHeader } =
+  styles;
 
 export default function Hosted() {
   return (
@@ -47,7 +42,7 @@ export default function Hosted() {
               .
             </p>
           </div>
-          <div className={`bgImg`}>
+          <div className={styles.bgImg}>
             <img src="/img/gradient-bg.png" alt="Color Gradient" />
           </div>
           <div className={`pageHeroBgCircles`}>
@@ -135,7 +130,6 @@ export default function Hosted() {
             <div className="main-pillars text--center">
               <picture>
                 <img
-                  className={styles.heroIntegrationsLines}
                   src="/img/integration-lines-mobile.svg"
                   alt="Integration Lines"
                 />
@@ -159,12 +153,12 @@ export default function Hosted() {
             <div className="row margin-top--xl">
               <div className="col">
                 <div
-                  className={`${questionBlock} card card--full-height text--center`}
+                  className={`${faqStyles.questionBlock} card card--full-height text--center`}
                 >
                   <div className="card__header">
                     <h4>Just starting out. Testing out Keycloak or IAM.</h4>
                   </div>
-                  <div className={`${answer} card__body`}>
+                  <div className={`${faqStyles.answer} card__body`}>
                     <b>Free (forever) tier</b> will make it possible to figure
                     out how to start leveraging Phase Two and Keycloak.
                   </div>
@@ -172,7 +166,7 @@ export default function Hosted() {
               </div>
               <div className="col">
                 <div
-                  className={`${questionBlock} card card--full-height text--center`}
+                  className={`${faqStyles.questionBlock} card card--full-height text--center`}
                 >
                   <div className="card__header">
                     <h4>
@@ -180,7 +174,7 @@ export default function Hosted() {
                       use or are transitioning to Keycloak.
                     </h4>
                   </div>
-                  <div className={`${answer} card__body`}>
+                  <div className={`${faqStyles.answer} card__body`}>
                     You will want a <b>Dedicated Cluster</b> available in one of
                     our paid plans: Premium or Enterprise.
                   </div>
@@ -188,12 +182,12 @@ export default function Hosted() {
               </div>
               <div className="col">
                 <div
-                  className={`${questionBlock} card card--full-height text--center`}
+                  className={`${faqStyles.questionBlock} card card--full-height text--center`}
                 >
                   <div className="card__header">
                     <h4>You have a global user base.</h4>
                   </div>
-                  <div className={`${answer} card__body`}>
+                  <div className={`${faqStyles.answer} card__body`}>
                     You need a <b>Dedicated Cluster</b> to support a global
                     deployment that keeps your clusters and sessions
                     synchronized, available in our <b>Enterprise</b> plan.
@@ -202,7 +196,7 @@ export default function Hosted() {
               </div>
               <div className="col">
                 <div
-                  className={`${questionBlock} card card--full-height text--center`}
+                  className={`${faqStyles.questionBlock} card card--full-height text--center`}
                 >
                   <div className="card__header">
                     <h4>
@@ -210,7 +204,7 @@ export default function Hosted() {
                       cases.
                     </h4>
                   </div>
-                  <div className={`${answer} card__body`}>
+                  <div className={`${faqStyles.answer} card__body`}>
                     Our <b>Enterprise</b> offering ensures that no matter how
                     you plan to use Phase Two and Keycloak it will be handled
                     through dedicated support and consultation.
@@ -306,10 +300,9 @@ export default function Hosted() {
                   href="https://phasetwo.io/dashboard/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="margin-right--md"
                 >
-                  <button className="btnTertiary margin-right--md">
-                    Get Started For Free
-                  </button>
+                  <button className="btnTertiary ">Get Started For Free</button>
                 </a>
                 <a
                   href="https://app.simplymeet.me/phasetwo"
@@ -330,12 +323,12 @@ export default function Hosted() {
             <h2>Frequently Asked Questions?</h2>
           </div>
           <div class="contentBlockBody">
-            <div className={styles.questionsBox}>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+            <div className={faqStyles.questionsBox}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   What is the difference between Phase Two and Keycloak?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   <div>
                     Phase Two is a company that specializes in Enterprise level
                     Keycloak Hosting and Support.{" "}
@@ -370,11 +363,11 @@ export default function Hosted() {
                 </div>
               </div>
 
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   How does Phase Two charge me?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   We offer subscriptions that can be paid via Credit Card or
                   Bank Account. This can all be setup online and automated. Our
                   subscriptions are project based and not user based. This means
@@ -382,49 +375,49 @@ export default function Hosted() {
                   Provider predatorily encroaching on your margins.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   What type of Support does Phase Two offer?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   Phase Two has a few options for Keycloak Support. Read more
                   about our <a href="/#experts">support options</a>.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   Which cloud providers does Phase Two use?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   We leverage many cloud native solutions and best practices to
                   deploy our systems in AWS in various regions. This allows us
                   to best match your use-cases and region needs.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   Where can I deploy Phase Two?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   We offer Global deployments depending on your needs.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   Can I deploy Phase Two on-premise or to my existing cloud
                   infrastructure?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   Yes! <a href="/product/onprem/">Read more</a> about our
                   on-premise options.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   When does Phase Two upgrade Keycloak distributions? How does
                   that affect me?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   <div>
                     Phase Two fast-follows Keycloak releases and upgrades our
                     instances as soon as we can. We test and harden the releases
@@ -439,22 +432,22 @@ export default function Hosted() {
                   </div>
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   How many Keycloak realms are available through Phase Two's
                   Hosted Keycloak?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   The free-forever tier provides a single realm. Our paid plans,
                   Premium or Enterprise, provide multiple realms.
                 </div>
               </div>
-              <div className={styles.questionBox}>
-                <div className={styles.question}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
                   Can Phase Two help me migrate from another Identity Provider
                   to Keycloak?
                 </div>
-                <div className={styles.questionAnswer}>
+                <div className={faqStyles.questionAnswer}>
                   Yes! Phase Two does this all the time. We can assist with
                   consolidating multiple identity providers to Keycloak, moving
                   single apps to using Keycloak, setting up complex use cases,

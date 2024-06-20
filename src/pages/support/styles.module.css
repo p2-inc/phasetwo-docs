@@ -1,0 +1,58 @@
+.bgImg {
+  width: 100vw;
+  left: 0;
+  top: -1%;
+  rotate: 90deg;
+  position: absolute;
+  z-index: -1;
+}
+.bgImg img {
+  width: 100%;
+  height: auto;
+}
+
+.statsCard {
+  background-color: var(--ifm-color-primary-lightest);
+}
+
+.contentBlockRow {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  margin: 4rem 0;
+}
+.contentBlockRow .contentBlockHead {
+  max-width: 700px;
+}
+.lightBlueBg {
+  background: rgba(230, 239, 247, 0.5);
+}
+.pinkGradBg {
+  background: linear-gradient(152deg, #f4ddf7, #fdf3fd);
+}
+
+.callout {
+  background: radial-gradient(
+    48.79% 108.39% at 50.15% 134.9%,
+    #77cfe9 0%,
+    #3ebbdf 100%
+  );
+  padding: 3rem 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+.calloutHeader {
+  font-size: 2rem;
+  color: #ffffff;
+  margin-bottom: 0;
+}
+
+.frameworkGridCol {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-size: 1.2rem;
+  border: 1px solid #e0e0e0;
+}

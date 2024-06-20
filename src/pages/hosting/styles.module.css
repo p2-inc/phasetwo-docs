@@ -1,32 +1,3 @@
-.questionBlock {
-  background: #ecf8fc;
-  padding: 0.5rem;
-  justify-content: space-between;
-}
-.answer {
-  font-size: 15px;
-  line-height: 20px;
-  color: #ffffff;
-  background: radial-gradient(
-    48.79% 108.39% at 50.15% 134.9%,
-    #77cfe9 0%,
-    #3ebbdf 100%
-  );
-  border-radius: var(--ifm-card-border-radius);
-  position: relative;
-  margin-top: 2rem;
-}
-.answer::before {
-  content: "";
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 10px solid #3ebbdf;
-}
-
 .trustUsReasonsCol {
   border-left: 1px solid #c2cad0;
 }
@@ -57,26 +28,14 @@
   margin-bottom: 0;
 }
 
-.questionsBox {
-  background-color: var(--color-wh);
-  border-radius: 16px;
-  box-shadow: var(--soft-shadow-branded);
-  border: 1px solid var(--color-n1);
+.bgImg {
+  width: 100vw;
+  left: 0;
+  top: -50%;
+  position: absolute;
+  z-index: -1;
 }
-.questionsBox > * {
-  border-bottom: 1px solid var(--color-n1);
-}
-.questionsBox > *:last-child {
-  border-bottom: none;
-}
-.questionBox {
-  padding: 0.5rem 1rem;
-}
-.question {
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: var(--color-main);
-}
-.questionAnswer > * {
-  margin-bottom: 0.4rem;
+.bgImg img {
+  width: 100%;
+  height: auto;
 }

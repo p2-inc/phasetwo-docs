@@ -15,6 +15,8 @@
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
 */
+@import "./helpers.css";
+
 :root {
   --ifm-color-primary: #3fa1e3;
   --ifm-color-primary-dark: #2695df;
@@ -95,10 +97,6 @@ a {
 }
 a:hover {
   text-decoration: none;
-}
-
-.pt0 {
-  padding-top: 0 !important;
 }
 
 .btnCta {
@@ -358,10 +356,6 @@ a:hover {
   }
 }
 
-.text-center {
-  text-align: center;
-}
-
 .dropdown__menu {
   border-radius: 16px;
   padding: 8px;
@@ -474,9 +468,10 @@ a:hover {
 .contentBlockHead p.mt-1r {
   margin-top: 1rem;
 }
- {
-  margin-top: 1rem;
+.contentBlockRow .contentBlockHead {
+  max-width: 700px;
 }
+
 .contentBlockCta {
   text-align: center;
   padding-top: 48px;
@@ -675,10 +670,6 @@ a.menu__link.menu__link--sublist {
   --ifm-h1-font-size: 2.5rem;
 }
 
-.z-5 {
-  z-index: 5;
-}
-
 /* Hosting Page */
 .main-pillars {
   @media (max-width: 996px) {
@@ -693,4 +684,18 @@ a.menu__link.menu__link--sublist {
       border: 1px solid #ccc;
     }
   }
+}
+
+/* Support page */
+.frameworkGridTop .col:first-of-type {
+  border-top-left-radius: 5px;
+}
+.frameworkGridTop .col:last-of-type {
+  border-top-right-radius: 5px;
+}
+.frameworkGridBottom .col:first-of-type {
+  border-bottom-left-radius: 5px;
+}
+.frameworkGridBottom .col:last-of-type {
+  border-bottom-right-radius: 5px;
 }
