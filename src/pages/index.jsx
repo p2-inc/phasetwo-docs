@@ -6,6 +6,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
+import { KeycloakSupportPackages } from "../components/keycloak-support-packages";
 
 function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
@@ -24,10 +25,6 @@ function Feature({ imageUrl, title, description }) {
 
 function requestAccess() {
   window.open(`https://phasetwo.io/dashboard/`, "_blank");
-}
-
-function contactSales() {
-  window.open(`mailto:support@phasetwo.io`);
 }
 
 function githubHome() {
@@ -822,75 +819,33 @@ auth.init({
               <a href="mailto:sales@phasetwo.io">contact sales</a>.
             </p>
           </div>
-          <div class="contentBlockBody">
-            <div>
-              <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
-                Enterprise Keycloak Support Packages
-              </h2>
-              <a href="#experts"></a>
+          <div className="contentBlock">
+            <div className="contentBlockBody">
+              <div>
+                <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
+                  Enterprise Keycloak Support Packages
+                </h2>
+                <a href="#experts"></a>
 
-              <div
-                className={styles.planBody}
-                style={{ maxWidth: "760px", margin: "0 auto" }}
-              >
-                <p>
-                  Configuring, integrating and operating an Identity and Access
-                  Management system can be daunting.
-                </p>
-                <p>
-                  For both hosted, on-prem customers, or those with their own
-                  Keycloak deployment, our goal is to create an understanding in
-                  your organization of what is possible with Keycloak. We want
-                  to support your goals as you adopt and implement Keycloak in
-                  your products. Let us lend our expertise to every step of your
-                  journey.
-                </p>
-              </div>
-            </div>
-            <div className={styles.planSupport}>
-              <div className={styles.plan}>
-                <div className={styles.planHead}>
-                  <img
-                    className={styles.featCardPicto}
-                    src="img/plan-community.svg"
-                    alt="Enterprise plan"
-                  />
-                  <h3>Enterprise Keycloak Support Packages</h3>
-                </div>
-                <div className={styles.tableThemeWrapper}>
-                  <table className={styles.tableTheme}>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th>Silver</th>
-                        <th>Gold</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {features.map(({ feature, silver, gold }) => (
-                        <tr>
-                          <td>{feature}</td>
-                          <td>{silver}</td>
-                          <td>{gold}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className={styles.planFoot}>
-                  <a
-                    href="mailto:sales@phasetwo.io"
-                    className={styles.planFootA}
-                  >
-                    <button
-                      className={`btnPrimary ${styles.btnPlan}`}
-                      onClick={contactSales}
-                    >
-                      Contact sales
-                    </button>
-                  </a>
+                <div
+                  className={styles.planBody}
+                  style={{ maxWidth: "760px", margin: "0 auto" }}
+                >
+                  <p>
+                    Configuring, integrating and operating an Identity and
+                    Access Management system can be daunting.
+                  </p>
+                  <p>
+                    For both hosted, on-prem customers, or those with their own
+                    Keycloak deployment, our goal is to create an understanding
+                    in your organization of what is possible with Keycloak. We
+                    want to support your goals as you adopt and implement
+                    Keycloak in your products. Let us lend our expertise to
+                    every step of your journey.
+                  </p>
                 </div>
               </div>
+              <KeycloakSupportPackages />
             </div>
           </div>
           <div class="contentBlock">

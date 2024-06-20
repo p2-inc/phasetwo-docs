@@ -300,10 +300,9 @@ export default function Hosted() {
                   href="https://phasetwo.io/dashboard/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="margin-right--md"
                 >
-                  <button className="btnTertiary margin-right--md">
-                    Get Started For Free
-                  </button>
+                  <button className="btnTertiary ">Get Started For Free</button>
                 </a>
                 <a
                   href="https://app.simplymeet.me/phasetwo"
