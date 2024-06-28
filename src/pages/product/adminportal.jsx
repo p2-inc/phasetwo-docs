@@ -7,7 +7,7 @@ function AdminPortal() {
   return (
     <Layout
       title="Admin Portal"
-      description="SSO onboarding and self-management for your customer administrators and users"
+      description="Administrators and users can easily manage identity, authentication, organization, and SSO to drastically reduce customer support."
     >
       <main>
         {/* Hero */}
@@ -52,14 +52,14 @@ function AdminPortal() {
               <picture>
                 <source
                   media="(max-width: 767px)"
-                  srcset="/img/img-customer-portal-mobile.png"
+                  srcset="/img/img-customer-portal-mobile.webp"
                 />
                 <source
                   media="(min-width: 768px)"
-                  srcset="/img/img-customer-portal.png"
+                  srcset="/img/img-customer-portal.webp"
                 />
                 <img
-                  src="/img/img-customer-portal.png"
+                  src="/img/img-customer-portal.webp"
                   alt="Person interacting with touch screen with key button"
                 />
               </picture>
@@ -83,14 +83,14 @@ function AdminPortal() {
               <picture>
                 <source
                   media="(max-width: 767px)"
-                  srcset="/img/img-admin-portal-new2-mobile.png"
+                  srcset="/img/img-admin-portal-new2-mobile.webp"
                 />
                 <source
                   media="(min-width: 768px)"
-                  srcset="/img/img-admin-portal-new2.png"
+                  srcset="/img/img-admin-portal-new2.webp"
                 />
                 <img
-                  src="/img/img-admin-portal-new1.png"
+                  src="/img/img-admin-portal-new2.webp"
                   alt="Screenshots showing management of users, domains and SSO"
                 />
               </picture>
@@ -101,7 +101,7 @@ function AdminPortal() {
         {/* Add to Your App */}
         <div className={`contentBlock`}>
           <div className={`addToAppBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Add it to Your App with Minimal Code</h2>

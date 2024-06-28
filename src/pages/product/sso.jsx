@@ -75,7 +75,7 @@ function SSO() {
         {/* Integrations Galore */}
         <div className={`contentBlock`}>
           <div className={`integrationsBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Identity Provider Integrations Galore</h2>
@@ -148,7 +148,7 @@ function SSO() {
               <div className={`readMoreL`}>
                 <img
                   className={`readMoreImg`}
-                  src="/img/read-more-sso.jpg"
+                  src="/img/server-lock.svg"
                   alt="Person interacting with touch screen with key button"
                 />
               </div>
@@ -182,11 +182,11 @@ function SSO() {
           </div>
         </div>
 
-        <div class="contentBlock">
+        <div className="contentBlock">
           <div className="contentBlockHead">
             <h2>Frequently Asked Questions?</h2>
           </div>
-          <div class="contentBlockBody">
+          <div className="contentBlockBody">
             <div className={styles.questionsBox}>
               <div className={styles.questionBox}>
                 <div className={styles.question}>

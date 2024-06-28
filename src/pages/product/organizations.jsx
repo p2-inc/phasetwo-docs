@@ -6,7 +6,7 @@ function Organizations() {
   return (
     <Layout
       title="Enterprise Organizations"
-      description="Enterprise SSO, Invitations, Authorization and self-managment for customer organizations"
+      description="Cost effective SSO, Invitations, Authorization and self-management to easily customize workflows at scale."
     >
       <main>
         {/* Hero */}
@@ -68,7 +68,7 @@ function Organizations() {
         {/* Invitations */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Streamlined Invitations for User Management</h2>

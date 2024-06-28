@@ -6,7 +6,7 @@ function OnPrem() {
   return (
     <Layout
       title="On Prem Deployment"
-      description="Bundle when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com."
+      description="Bundle Identity and SSO when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com"
     >
       <main>
         {/* Hero */}
@@ -74,7 +74,7 @@ function OnPrem() {
         {/* Kubernetes & Replicated.com */}
         <div className={`contentBlock`}>
           <div className={`kubernetesBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Kubernetes and Replicated.com Compatible</h2>

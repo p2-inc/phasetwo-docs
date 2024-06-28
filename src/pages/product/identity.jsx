@@ -72,7 +72,7 @@ function Identity() {
         {/* MFA */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Multi-Factor Authentication</h2>
@@ -147,11 +147,11 @@ function Identity() {
             </p>
           </div>
           <div className={`contentBlockBody`}>
-            <a href="#" className={`readMore`}>
+            <div className={`readMore`}>
               <div className={`readMoreL`}>
                 <img
                   className={`readMoreImg`}
-                  src="/img/read-more-magic-link.jpg"
+                  src="/img/icon-lock-access.svg"
                   alt="A magician with a hat and magic wand"
                 />
               </div>
@@ -169,7 +169,7 @@ function Identity() {
                   <img src="/img/arrow-long-right.svg" alt="Arrow" />
                 </a>
               </div>
-            </a>
+            </div>
           </div>
         </div>
       </main>
