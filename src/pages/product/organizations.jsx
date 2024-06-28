@@ -68,7 +68,7 @@ function Organizations() {
         {/* Invitations */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Streamlined Invitations for User Management</h2>

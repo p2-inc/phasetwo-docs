@@ -35,7 +35,7 @@ export default function Hosted() {
             </div>
           </div>
           <div className={styles.bgImg}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`pageHeroBgCircles`}>
             <img src="/img/circles.svg" alt="Concentric Circles" />

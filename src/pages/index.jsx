@@ -131,11 +131,11 @@ function Home() {
   return (
     <Layout description={`${siteConfig.tagline}`}>
       <picture>
-        <source media="(max-width: 767px)" srcset="/img/home-bg-mobile.jpg" />
-        <source media="(min-width: 768px)" srcset="/img/home-bg.jpg" />
+        <source media="(max-width: 767px)" srcset="/img/home-bg-mobile.webp" />
+        <source media="(min-width: 768px)" srcset="/img/home-bg.webp" />
         <img
           className="page-home"
-          src="/img/home-bg-mobile.jpg"
+          src="/img/home-bg-mobile.webp"
           alt="Gradient Background"
         />
       </picture>
@@ -323,7 +323,7 @@ function Home() {
         {/* Enterprise SSO */}
         <div className={`contentBlock`}>
           <div className={`enterpriseSsoBgImg bgImg`}>
-            <img src="/img/enterprise-sso-bg.png" alt="Color Gradient" />
+            <img src="/img/enterprise-sso-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Open Source Enterprise Single Sign-on</h2>
@@ -337,7 +337,7 @@ function Home() {
               <div className={styles.enterpriseSSOL}>
                 <img
                   className={styles.listFeatsImg}
-                  src="img/hero-feature-sso.png"
+                  src="img/hero-feature-sso.webp"
                   alt="SSO Login Examples"
                 />
               </div>
@@ -402,14 +402,14 @@ function Home() {
               <picture>
                 <source
                   media="(max-width: 767px)"
-                  srcset="/img/img-admin-portal-new1-mobile.png"
+                  srcset="/img/img-admin-portal-new1-mobile.webp"
                 />
                 <source
                   media="(min-width: 768px)"
-                  srcset="/img/img-admin-portal-new1.png"
+                  srcset="/img/img-admin-portal-new1.webp"
                 />
                 <img
-                  src="/img/img-admin-portal-new1.png"
+                  src="/img/img-admin-portal-new1.webp"
                   alt="Screenshots showing management of users, domains and SSO"
                 />
               </picture>
@@ -490,7 +490,7 @@ auth.init({
                 </CodeBlock>
               </div>
             </div>
-            <div class={`contentBlockCta`}>
+            <div className={`contentBlockCta`}>
               <button className={`btnPrimary`} onClick={docsEntry}>
                 Go to Documentation
               </button>
@@ -528,7 +528,7 @@ auth.init({
             </div>
 
             <div className={styles.featCards}>
-              <div class={styles.featCard}>
+              <div className={styles.featCard}>
                 <img
                   className={styles.featCardPicto}
                   src="img/picto-open-source-alt.svg"
@@ -541,7 +541,7 @@ auth.init({
                   operate and scale, in the cloud or on prem.
                 </p>
               </div>
-              <div class={styles.featCard}>
+              <div className={styles.featCard}>
                 <img
                   className={styles.featCardPicto}
                   src="img/picto-hardened.svg"
@@ -554,7 +554,7 @@ auth.init({
                   from small startups to governments and Fortune 500 companies.
                 </p>
               </div>
-              <div class={styles.featCard}>
+              <div className={styles.featCard}>
                 <img
                   className={styles.featCardPicto}
                   src="img/picto-community.svg"
@@ -574,7 +574,7 @@ auth.init({
         {/* Plan */}
         <div id="pricing" className={`contentBlock`}>
           <div className={`plansBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Premium Keycloak Hosting</h2>
@@ -848,11 +848,11 @@ auth.init({
               <KeycloakSupportPackages />
             </div>
           </div>
-          <div class="contentBlock">
+          <div className="contentBlock">
             <div className="contentBlockHead">
               <h2>Frequently Asked Questions?</h2>
             </div>
-            <div class="contentBlockBody">
+            <div className="contentBlockBody">
               <div className={styles.questionsBox}>
                 <div className={styles.questionBox}>
                   <div className={styles.question}>

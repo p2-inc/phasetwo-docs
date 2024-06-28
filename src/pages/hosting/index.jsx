@@ -43,7 +43,7 @@ export default function Hosted() {
             </p>
           </div>
           <div className={styles.bgImg}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`pageHeroBgCircles`}>
             <img src="/img/circles.svg" alt="Concentric Circles" />
@@ -318,11 +318,11 @@ export default function Hosted() {
           </div>
         </div>
 
-        <div class="contentBlock">
+        <div className="contentBlock">
           <div className="contentBlockHead">
             <h2>Frequently Asked Questions?</h2>
           </div>
-          <div class="contentBlockBody">
+          <div className="contentBlockBody">
             <div className={faqStyles.questionsBox}>
               <div className={faqStyles.questionBox}>
                 <div className={faqStyles.question}>

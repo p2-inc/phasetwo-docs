@@ -74,7 +74,7 @@ function OnPrem() {
         {/* Kubernetes & Replicated.com */}
         <div className={`contentBlock`}>
           <div className={`kubernetesBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Kubernetes and Replicated.com Compatible</h2>
