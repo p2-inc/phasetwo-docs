@@ -137,6 +137,7 @@ function Home() {
           className="page-home"
           src="/img/home-bg-mobile.webp"
           alt="Gradient Background"
+          loading="lazy"
         />
       </picture>
 
@@ -170,6 +171,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-hosting.svg"
                 alt="Pictogram showing key"
+                loading="lazy"
               />
               <p>Hosting</p>
             </Link>
@@ -178,6 +180,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-support.svg"
                 alt="Pictogram showing key"
+                loading="lazy"
               />
               <p>Support</p>
             </Link>
@@ -186,6 +189,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-customization.svg"
                 alt="Pictogram showing key"
+                loading="lazy"
               />
               <p>Customization</p>
             </Link>
@@ -194,6 +198,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-sso.svg"
                 alt="Pictogram showing key"
+                loading="lazy"
               />
               <p>SSO</p>
             </Link>
@@ -202,6 +207,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-identity.svg"
                 alt="Pictogram showing a person"
+                loading="lazy"
               />
               <p>Identity</p>
             </Link>
@@ -210,6 +216,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-organizations.svg"
                 alt="Pictogram showing multiple persons interacting"
+                loading="lazy"
               />
               <p>Organizations</p>
             </Link>
@@ -218,6 +225,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-admin-portal.svg"
                 alt="Pictogram showing a browser"
+                loading="lazy"
               />
               <p>Admin Portal</p>
             </Link>
@@ -226,6 +234,7 @@ function Home() {
                 className={styles.heroSectionPicto}
                 src="img/picto-on-prem.svg"
                 alt="Pictogram showing on prem servers"
+                loading="lazy"
               />
               <p>On-Prem Deployment</p>
             </Link>
@@ -233,13 +242,18 @@ function Home() {
 
           <div className={styles.heroFeats}>
             <div className={styles.heroFeat}>
-              <img src="img/picto-open-source.svg" alt="Open Source Logo" />
+              <img
+                src="img/picto-open-source.svg"
+                alt="Open Source Logo"
+                loading="lazy"
+              />
               <p>We are open source</p>
             </div>
             <div className={styles.heroFeat}>
               <img
                 src="img/picto-fixed-pricing.svg"
                 alt="Pictogram showing fixed US dollar sign"
+                loading="lazy"
               />
               <p>Fixed pricing for peace of mind</p>
             </div>
@@ -247,6 +261,7 @@ function Home() {
               <img
                 src="img/picto-cloud-or-on-prem.svg"
                 alt="Pictogran showing cloud and on-prem servers"
+                loading="lazy"
               />
               <p>Cloud or on-prem deployment</p>
             </div>
@@ -267,44 +282,60 @@ function Home() {
                 className={styles.heroIntegrationsLines}
                 src="/img/integration-lines.svg"
                 alt="Integration Lines"
+                loading="lazy"
               />
             </picture>
             <div className={styles.heroIntegrationRow}>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-okta.svg" alt="Okta Logo" />
+                <img src="img/logo-okta.svg" alt="Okta Logo" loading="lazy" />
               </div>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-auth0.svg" alt="Auth0 Logo" />
+                <img src="img/logo-auth0.svg" alt="Auth0 Logo" loading="lazy" />
               </div>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-azure.svg" alt="Azure Logo" />
+                <img src="img/logo-azure.svg" alt="Azure Logo" loading="lazy" />
               </div>
               <div className={styles.heroIntegration}>
                 <img
                   src="img/logo-google-workspace.svg"
                   alt="Google Workspace Logo"
+                  loading="lazy"
                 />
               </div>
               <div className={styles.heroIntegration}>
                 <img
                   src="img/logo-active-directory.svg"
                   alt="Active Directory Logo"
+                  loading="lazy"
                 />
               </div>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-jump-cloud.svg" alt="JumpCloud Logo" />
+                <img
+                  src="img/logo-jump-cloud.svg"
+                  alt="JumpCloud Logo"
+                  loading="lazy"
+                />
               </div>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-onelogin.svg" alt="Onelogin Logo" />
+                <img
+                  src="img/logo-onelogin.svg"
+                  alt="Onelogin Logo"
+                  loading="lazy"
+                />
               </div>
               <div className={styles.heroIntegration}>
                 <img
                   src="img/logo-ping-identity.svg"
                   alt="Ping Identity Logo"
+                  loading="lazy"
                 />
               </div>
               <div className={styles.heroIntegration}>
-                <img src="img/logo-duo-security.svg" alt="Duo Security Logo" />
+                <img
+                  src="img/logo-duo-security.svg"
+                  alt="Duo Security Logo"
+                  loading="lazy"
+                />
               </div>
               <div
                 className={`${styles.heroIntegration} ${styles.heroIntegrationMore}`}
@@ -323,7 +354,11 @@ function Home() {
         {/* Enterprise SSO */}
         <div className={`contentBlock`}>
           <div className={`enterpriseSsoBgImg bgImg`}>
-            <img src="/img/enterprise-sso-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/enterprise-sso-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Open Source Enterprise Single Sign-on</h2>
@@ -339,6 +374,7 @@ function Home() {
                   className={styles.listFeatsImg}
                   src="img/hero-feature-sso.webp"
                   alt="SSO Login Examples"
+                  loading="lazy"
                 />
               </div>
               <div className={styles.enterpriseSSOR}>
@@ -348,6 +384,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-5-min-integration.svg"
                       alt="Pictogram showing 5 minutes on a hour"
+                      loading="lazy"
                     />
                     <h5>5-minute integration</h5>
                     <p>
@@ -361,6 +398,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-integrate-once.svg"
                       alt="Pictogram showing puzzle pieces"
+                      loading="lazy"
                     />
                     <h5>Integrate Once</h5>
                     <p>
@@ -373,6 +411,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-no-variable-cost.svg"
                       alt="Pictogram showing US dollar sign"
+                      loading="lazy"
                     />
                     <h5>No variable cost</h5>
                     <p>
@@ -411,6 +450,7 @@ function Home() {
                 <img
                   src="/img/img-admin-portal-new1.webp"
                   alt="Screenshots showing management of users, domains and SSO"
+                  loading="lazy"
                 />
               </picture>
             </div>
@@ -435,6 +475,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-simple-integration.svg"
                       alt="Pictogram showing a code"
+                      loading="lazy"
                     />
                     <h5>Simple Integration</h5>
                     <p>
@@ -449,6 +490,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-documentation.svg"
                       alt="Pictogram showing documents"
+                      loading="lazy"
                     />
                     <h5>Full Documentation</h5>
                     <p>
@@ -462,6 +504,7 @@ function Home() {
                       className={styles.listFeatsPicto}
                       src="img/picto-secure.svg"
                       alt="Pictogram showing a key inside the shield"
+                      loading="lazy"
                     />
                     <h5>Secure and Standardized</h5>
                     <p>
@@ -510,6 +553,7 @@ auth.init({
                 className={styles.heart}
                 src="img/heart-filled.svg"
                 alt="Heart symbols"
+                loading="lazy"
               />{" "}
               Keycloak
             </h2>
@@ -524,6 +568,7 @@ auth.init({
                 className={styles.keycloakImg}
                 src="img/diagram-keycloak.svg"
                 alt="Diagram showing how Keycloak works with Phase Two"
+                loading="lazy"
               />
             </div>
 
@@ -533,6 +578,7 @@ auth.init({
                   className={styles.featCardPicto}
                   src="img/picto-open-source-alt.svg"
                   alt="Pictogram showing Open Source logo"
+                  loading="lazy"
                 />
                 <h5>Always Open Source</h5>
                 <p>
@@ -546,6 +592,7 @@ auth.init({
                   className={styles.featCardPicto}
                   src="img/picto-hardened.svg"
                   alt="Pictogram showing a fortress"
+                  loading="lazy"
                 />
                 <h5>Battle-tested and hardened</h5>
                 <p>
@@ -559,6 +606,7 @@ auth.init({
                   className={styles.featCardPicto}
                   src="img/picto-community.svg"
                   alt="Pictogram showing a group of poeple interconnected"
+                  loading="lazy"
                 />
                 <h5>Community Superpower</h5>
                 <p>
@@ -574,7 +622,11 @@ auth.init({
         {/* Plan */}
         <div id="pricing" className={`contentBlock`}>
           <div className={`plansBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Premium Keycloak Hosting</h2>
@@ -600,6 +652,7 @@ auth.init({
                         className={styles.featCardPicto}
                         src="img/plan-starter.svg"
                         alt="Starter plan"
+                        loading="lazy"
                       />
                       <h3>Starter</h3>
                       <p>
@@ -613,6 +666,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Shared cluster
                         </li>
@@ -621,6 +675,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           &#60;1,000 users
                         </li>
@@ -629,6 +684,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           &#60;10 SSO connections
                         </li>
@@ -637,6 +693,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Community support
                         </li>
@@ -667,6 +724,7 @@ auth.init({
                         className={styles.featCardPicto}
                         src="img/plan-supported.svg"
                         alt="Premium plan"
+                        loading="lazy"
                       />
                       <h3>Premium</h3>
                       <p>
@@ -682,6 +740,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Dedicated cluster
                         </li>
@@ -698,6 +757,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Unlimited SSO connections
                         </li>
@@ -706,6 +766,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Custom domain
                         </li>
@@ -714,6 +775,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Email support
                         </li>
@@ -722,6 +784,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           99.9% uptime guarantee
                         </li>
@@ -744,6 +807,7 @@ auth.init({
                         className={styles.featCardPicto}
                         src="img/plan-premium.svg"
                         alt="Enterprise plan"
+                        loading="lazy"
                       />
                       <h3>Enterprise</h3>
                       <p>
@@ -759,6 +823,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           All Premium features
                         </li>
@@ -767,6 +832,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Global deployment
                         </li>
@@ -775,6 +841,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Custom themes & extensions <sup>3</sup>
                         </li>
@@ -783,6 +850,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           Dedicated support
                         </li>
@@ -791,6 +859,7 @@ auth.init({
                             className={styles.checklistIcon}
                             src="img/checkmark.svg"
                             alt="Checkmark"
+                            loading="lazy"
                           ></img>
                           99.99% uptime guarantee
                         </li>
