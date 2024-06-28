@@ -7,6 +7,7 @@ const CheckMark = () => (
     src="/img/checkmark.svg"
     alt="Checkmark"
     style={{ height: ".9rem" }}
+    loading="lazy"
   ></img>
 );
 const Dash = () => <span className={styles.notPartOfPlan}>&mdash;</span>;
@@ -90,6 +91,7 @@ export const KeycloakSupportPackages = () => {
             className={styles.featCardPicto}
             src="/img/plan-community.svg"
             alt="Enterprise plan"
+            loading="lazy"
           />
           <h3>Enterprise Keycloak Support Packages</h3>
         </div>

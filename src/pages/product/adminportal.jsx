@@ -13,7 +13,11 @@ function AdminPortal() {
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`pageHeroMsg`}>
             <h1>Customizable User Management</h1>
@@ -61,6 +65,7 @@ function AdminPortal() {
                 <img
                   src="/img/img-customer-portal.webp"
                   alt="Person interacting with touch screen with key button"
+                  loading="lazy"
                 />
               </picture>
             </div>
@@ -92,6 +97,7 @@ function AdminPortal() {
                 <img
                   src="/img/img-admin-portal-new2.webp"
                   alt="Screenshots showing management of users, domains and SSO"
+                  loading="lazy"
                 />
               </picture>
             </div>
@@ -101,7 +107,11 @@ function AdminPortal() {
         {/* Add to Your App */}
         <div className={`contentBlock`}>
           <div className={`addToAppBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Add it to Your App with Minimal Code</h2>

@@ -41,10 +41,18 @@ function Organizations() {
         {/* Enterprise SSO Login */}
         <div className={`contentBlock`}>
           <div className={`entSocialLoginBgCircles bgImg`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`entSocialLoginBgImg bgImg`}>
-            <img src="/img/social-login-bg.svg" alt="Social Login Symbols" />
+            <img
+              src="/img/social-login-bg.svg"
+              alt="Social Login Symbols"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Enterprise Single Sign-on (SSO) Login for Each Customer</h2>
@@ -60,6 +68,7 @@ function Organizations() {
               <img
                 src="/img/img-social-login.svg"
                 alt="Illustration showing Google and Microsoft social login buttons"
+                loading="lazy"
               />
             </div>
           </div>
@@ -68,7 +77,11 @@ function Organizations() {
         {/* Invitations */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Streamlined Invitations for User Management</h2>
@@ -83,6 +96,7 @@ function Organizations() {
               <img
                 src="/img/img-invitations.svg"
                 alt="Illustration showing inviting users"
+                loading="lazy"
               />
             </div>
           </div>
@@ -105,6 +119,7 @@ function Organizations() {
               <img
                 src="/img/img-roles-permissions.svg"
                 alt="Illustration showing three users with different roles and permissions"
+                loading="lazy"
               />
             </div>
           </div>

@@ -13,12 +13,17 @@ function SSO() {
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`ssoBgImb bgImg`}>
             <img
               src="/img/sso-bg.svg"
               alt="Authentication symbols in different colors"
+              loading="lazy"
             />
           </div>
           <div className={`pageHeroMsg`}>
@@ -67,6 +72,7 @@ function SSO() {
               <img
                 src="/img/diagram-connect-users-apps.svg"
                 alt="Diagram showing connecting user's apps"
+                loading="lazy"
               />
             </div>
           </div>
@@ -75,7 +81,11 @@ function SSO() {
         {/* Integrations Galore */}
         <div className={`contentBlock`}>
           <div className={`integrationsBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Identity Provider Integrations Galore</h2>
@@ -92,39 +102,57 @@ function SSO() {
         <div className={styles.integrationRows}>
           <div className={styles.integrationRow}>
             <div className={styles.integration}>
-              <img src="/img/logo-okta.svg" alt="Okta Logo" />
+              <img src="/img/logo-okta.svg" alt="Okta Logo" loading="lazy" />
             </div>
             <div className={styles.integration}>
-              <img src="/img/logo-auth0.svg" alt="Auth0 Logo" />
+              <img src="/img/logo-auth0.svg" alt="Auth0 Logo" loading="lazy" />
             </div>
             <div className={styles.integration}>
-              <img src="/img/logo-azure.svg" alt="Azure Logo" />
+              <img src="/img/logo-azure.svg" alt="Azure Logo" loading="lazy" />
             </div>
             <div className={styles.integration}>
               <img
                 src="/img/logo-google-workspace.svg"
                 alt="Google Workspace Logo"
+                loading="lazy"
               />
             </div>
             <div className={styles.integration}>
               <img
                 src="/img/logo-active-directory.svg"
                 alt="Active Directory Logo"
+                loading="lazy"
               />
             </div>
           </div>
           <div className={styles.integrationRow}>
             <div className={styles.integration}>
-              <img src="/img/logo-jump-cloud.svg" alt="JumpCloud Logo" />
+              <img
+                src="/img/logo-jump-cloud.svg"
+                alt="JumpCloud Logo"
+                loading="lazy"
+              />
             </div>
             <div className={styles.integration}>
-              <img src="/img/logo-onelogin.svg" alt="Onelogin Logo" />
+              <img
+                src="/img/logo-onelogin.svg"
+                alt="Onelogin Logo"
+                loading="lazy"
+              />
             </div>
             <div className={styles.integration}>
-              <img src="/img/logo-ping-identity.svg" alt="Ping Identity Logo" />
+              <img
+                src="/img/logo-ping-identity.svg"
+                alt="Ping Identity Logo"
+                loading="lazy"
+              />
             </div>
             <div className={styles.integration}>
-              <img src="/img/logo-duo-security.svg" alt="Duo Security Logo" />
+              <img
+                src="/img/logo-duo-security.svg"
+                alt="Duo Security Logo"
+                loading="lazy"
+              />
             </div>
           </div>
           <div className={styles.integrationMore}>
@@ -150,6 +178,7 @@ function SSO() {
                   className={`readMoreImg`}
                   src="/img/server-lock.svg"
                   alt="Person interacting with touch screen with key button"
+                  loading="lazy"
                 />
               </div>
               <div className={`readMoreR`}>
@@ -163,7 +192,11 @@ function SSO() {
                 </p>
                 <a href="/blog/sso-setup" className={`btnReadMore`}>
                   Read More
-                  <img src="/img/arrow-long-right.svg" alt="Arrow" />
+                  <img
+                    src="/img/arrow-long-right.svg"
+                    alt="Arrow"
+                    loading="lazy"
+                  />
                 </a>
               </div>
             </a>

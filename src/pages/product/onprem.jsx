@@ -12,7 +12,11 @@ function OnPrem() {
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`pageHeroMsg`}>
             <h1>Bundle Identity and SSO When You Deploy On-Prem</h1>
@@ -46,6 +50,7 @@ function OnPrem() {
               <img
                 src="/img/img-data-residency.svg"
                 alt="Illustration showing a world map in dots with some dots highlighted in different color"
+                loading="lazy"
               />
             </div>
           </div>
@@ -66,6 +71,7 @@ function OnPrem() {
               <img
                 src="/img/img-idp.svg"
                 alt="Diagram showing accessing customer app via IdP and PhaseTwo Connect"
+                loading="lazy"
               />
             </div>
           </div>
@@ -74,7 +80,11 @@ function OnPrem() {
         {/* Kubernetes & Replicated.com */}
         <div className={`contentBlock`}>
           <div className={`kubernetesBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Kubernetes and Replicated.com Compatible</h2>
@@ -89,6 +99,7 @@ function OnPrem() {
               <img
                 src="/img/img-kubernetes-replicated.svg"
                 alt="Illustration showing Kubernetes and Replicated.com logos"
+                loading="lazy"
               />
             </div>
           </div>

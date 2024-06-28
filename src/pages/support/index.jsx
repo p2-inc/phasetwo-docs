@@ -35,10 +35,18 @@ export default function Hosted() {
             </div>
           </div>
           <div className={styles.bgImg}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
         </div>
         <div className="contentBlock z-5 stats">
@@ -138,6 +146,7 @@ export default function Hosted() {
               src="/img/team-planning.svg"
               alt="Team Planning"
               style={{ maxHeight: "400px" }}
+              loading="lazy"
             />
           </div>
         </div>
@@ -152,6 +161,7 @@ export default function Hosted() {
                     src="/img/server-network-technology.svg"
                     alt="Architecture Review"
                     style={{ maxHeight: "300px" }}
+                    loading="lazy"
                   />
                 </div>
                 <div className="col col--4 col--offset-1 flex flex-align-center">
@@ -212,6 +222,7 @@ export default function Hosted() {
                     src="/img/software-engineer-developing.svg"
                     alt="Architecture Review"
                     style={{ maxHeight: "300px" }}
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -230,6 +241,7 @@ export default function Hosted() {
                     src="/img/health-checklist.svg"
                     alt="Health Assessment"
                     style={{ maxHeight: "300px" }}
+                    loading="lazy"
                   />
                 </div>
                 <div className="col col--4  flex flex-align-center">
@@ -283,6 +295,7 @@ export default function Hosted() {
                     src="/img/dev-team.svg"
                     alt="Custom Keycloak Development"
                     style={{ maxHeight: "400px" }}
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -314,6 +327,7 @@ export default function Hosted() {
               src="/img/kc-migration.svg"
               alt="Migration to Keycloak from Other Identity Provider Systems"
               style={{ maxHeight: "400px" }}
+              loading="lazy"
             />
           </div>
         </div>
@@ -349,6 +363,7 @@ export default function Hosted() {
                     src="/img/sso-security.svg"
                     alt="SSO Connections and Identity Provider (IdP) Onboarding"
                     style={{ maxHeight: "300px" }}
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -482,6 +497,7 @@ export default function Hosted() {
                     src="/img/kc-updates.svg"
                     alt="Keycloak Version Upgrades to Keep Up-to-Date with Latest Releases"
                     style={{ maxHeight: "300px" }}
+                    loading="lazy"
                   />
                 </div>
                 <div className="col col--5  flex flex-align-center">
@@ -539,6 +555,7 @@ export default function Hosted() {
                     src="/img/happy-customers.svg"
                     alt="Phase Two Happy Customers"
                     style={{ maxHeight: "400px" }}
+                    loading="lazy"
                   />
                 </div>
               </div>

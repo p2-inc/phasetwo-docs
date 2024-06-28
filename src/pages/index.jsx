@@ -8,21 +8,6 @@ import styles from "./styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { KeycloakSupportPackages } from "../components/keycloak-support-packages";
 
-function Feature({ imageUrl, title, description }) {
-  const imgUrl = useBaseUrl(imageUrl);
-  return (
-    <div className={classnames("col col--4", styles.feature)}>
-      {imgUrl && (
-        <div className="text--center">
-          <img className={styles.featureImage} src={imgUrl} alt={title} />
-        </div>
-      )}
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
-  );
-}
-
 function requestAccess() {
   window.open(`https://phasetwo.io/dashboard/`, "_blank");
 }
@@ -35,94 +20,18 @@ function docsEntry() {
   window.location = `/docs/introduction`;
 }
 
-const CheckMark = () => <img src="img/checkmark.svg" alt="Checkmark"></img>;
-const Dash = () => <span className={styles.notPartOfPlan}>&mdash;</span>;
-
-const features = [
-  {
-    feature: "Architecture review",
-    silver: <CheckMark />,
-    gold: <CheckMark />,
-  },
-  {
-    feature: "Installation and configuration support",
-    silver: <CheckMark />,
-    gold: <CheckMark />,
-  },
-  { feature: "Email support", silver: <CheckMark />, gold: <CheckMark /> },
-  { feature: "Slack support", silver: <Dash />, gold: <CheckMark /> },
-  { feature: "Phone support", silver: <Dash />, gold: <CheckMark /> },
-  {
-    feature: (
-      <span>
-        Support hours <span style={{ opacity: 0.5 }}>(US EST)</span>
-      </span>
-    ),
-    silver: "9x5",
-    gold: "24x7x365",
-  },
-  {
-    feature: (
-      <span>
-        Response time <span style={{ opacity: 0.5 }}>(hours)</span>
-      </span>
-    ),
-    silver: "24",
-    gold: "4",
-  },
-  { feature: "Health assessment", silver: "Quarterly", gold: "Monthly" },
-  {
-    feature: (
-      <span>
-        Incl. service hours <span style={{ opacity: 0.5 }}>(/mth)</span>
-      </span>
-    ),
-    silver: (
-      <span>
-        10 <span style={{ opacity: 0.5 }}>(max)</span>
-      </span>
-    ),
-    gold: "20",
-  },
-  {
-    feature: "Custom development",
-    silver: <Dash />,
-    gold: <CheckMark />,
-  },
-  {
-    feature: (
-      <span>
-        Pricing <span style={{ opacity: 0.5 }}>(/mth)</span>
-      </span>
-    ),
-    silver: (
-      <span>
-        <span style={{ opacity: 0.5 }}>from</span> $3,500
-      </span>
-    ),
-    gold: (
-      <span>
-        <span style={{ opacity: 0.5 }}>from</span> $7,500
-      </span>
-    ),
-  },
-];
+const CheckMark = () => (
+  <img
+    className={styles.checklistIcon}
+    src="img/checkmark.svg"
+    alt="Checkmark"
+    loading="lazy"
+  ></img>
+);
 
 function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
-  /*
-  constructor () {
-    super()
-    this.state = {
-      isOpen: false
-    }
-    this.openModal = this.openModal.bind(this)
-  }
-  openModal () {
-    this.setState({isOpen: true})
-  }
-*/
 
   useEffect(() => {
     document.body.classList.add("page-bg");
@@ -544,7 +453,11 @@ auth.init({
         {/* PhaseTwo Loves Keycoak */}
         <div className={`contentBlock`}>
           <div className={`keycloakBgCircles bgImg`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>
@@ -662,39 +575,19 @@ auth.init({
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Shared cluster
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           &#60;1,000 users
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           &#60;10 SSO connections
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Community support
                         </li>
                         <li>No SLA</li>
@@ -736,56 +629,27 @@ auth.init({
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Dedicated cluster
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                          ></img>
+                          <CheckMark />
                           Unlimited users
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Unlimited SSO connections
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Custom domain
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Email support
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           99.9% uptime guarantee
                         </li>
                       </ul>
@@ -819,48 +683,23 @@ auth.init({
                     <div className={styles.planBody}>
                       <ul className={styles.checklist}>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           All Premium features
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Global deployment
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Custom themes & extensions <sup>3</sup>
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           Dedicated support
                         </li>
                         <li>
-                          <img
-                            className={styles.checklistIcon}
-                            src="img/checkmark.svg"
-                            alt="Checkmark"
-                            loading="lazy"
-                          ></img>
+                          <CheckMark />
                           99.99% uptime guarantee
                         </li>
                       </ul>

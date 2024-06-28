@@ -45,10 +45,18 @@ function Identity() {
         {/* Social Login */}
         <div className={`contentBlock`}>
           <div className={`socialLoginBgCircles bgImg`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`socialLoginBgImg bgImg`}>
-            <img src="/img/social-login-bg.svg" alt="Social Login Symbols" />
+            <img
+              src="/img/social-login-bg.svg"
+              alt="Social Login Symbols"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Social Login or Corporate IDPs</h2>
@@ -64,6 +72,7 @@ function Identity() {
               <img
                 src="/img/img-social-login.svg"
                 alt="Illustration showing Google and Microsoft social login buttons"
+                loading="lazy"
               />
             </div>
           </div>
@@ -72,7 +81,11 @@ function Identity() {
         {/* MFA */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Multi-Factor Authentication</h2>
@@ -87,6 +100,7 @@ function Identity() {
               <img
                 src="/img/img-mfa.svg"
                 alt="Illustration showing various Multi-Factor Authentiation Means"
+                loading="lazy"
               />
             </div>
           </div>
@@ -108,6 +122,7 @@ function Identity() {
               <img
                 src="/img/img-magic-links.svg"
                 alt="Illustration showing logging in with magic link"
+                loading="lazy"
               />
             </div>
           </div>
@@ -128,6 +143,7 @@ function Identity() {
               <img
                 src="/img/img-user-management.svg"
                 alt="Illustration showing managing users"
+                loading="lazy"
               />
             </div>
           </div>
@@ -153,6 +169,7 @@ function Identity() {
                   className={`readMoreImg`}
                   src="/img/icon-lock-access.svg"
                   alt="A magician with a hat and magic wand"
+                  loading="lazy"
                 />
               </div>
               <div className={`readMoreR`}>
@@ -166,7 +183,11 @@ function Identity() {
                 </p>
                 <a href="/blog/set-up-magic-links" className={`btnReadMore`}>
                   Read More
-                  <img src="/img/arrow-long-right.svg" alt="Arrow" />
+                  <img
+                    src="/img/arrow-long-right.svg"
+                    alt="Arrow"
+                    loading="lazy"
+                  />
                 </a>
               </div>
             </div>
