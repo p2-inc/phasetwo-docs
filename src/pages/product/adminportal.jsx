@@ -7,7 +7,7 @@ function AdminPortal() {
   return (
     <Layout
       title="Admin Portal"
-      description="SSO onboarding and self-management for your customer administrators and users"
+      description="Administrators and users can easily manage identity, authentication, organization, and SSO to drastically reduce customer support."
     >
       <main>
         {/* Hero */}

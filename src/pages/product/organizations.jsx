@@ -6,7 +6,7 @@ function Organizations() {
   return (
     <Layout
       title="Enterprise Organizations"
-      description="Enterprise SSO, Invitations, Authorization and self-managment for customer organizations"
+      description="Cost effective SSO, Invitations, Authorization and self-management to easily customize workflows at scale."
     >
       <main>
         {/* Hero */}

@@ -4,7 +4,7 @@ module.exports = {
   plugins: [require.resolve("./sitePlugin")],
   title: "Phase Two - Keycloak Hosting | Support | Migration | Customization",
   tagline:
-    "Fully secured, managed, and hosted Keycloak with custom extensions for SSO, organizations, migrations and user management. Making Keycloak and Authentication easy.",
+    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, orgs, migrations and user management.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -330,6 +330,8 @@ module.exports = {
         blog: {
           blogSidebarTitle: "News",
           blogSidebarCount: "ALL",
+          blogDescription:
+            "Learn more about how we make Keycloak Hosting and Authentication easy.",
         },
       }),
     ],

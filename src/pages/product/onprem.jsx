@@ -6,7 +6,7 @@ function OnPrem() {
   return (
     <Layout
       title="On Prem Deployment"
-      description="Bundle when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com."
+      description="Bundle Identity and SSO when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com"
     >
       <main>
         {/* Hero */}
