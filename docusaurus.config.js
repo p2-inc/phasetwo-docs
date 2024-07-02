@@ -133,12 +133,12 @@ module.exports = {
             },
           ],
         },
-        // {
-        //   to: "/#pricing",
-        //   label: "Pricing",
-        //   position: "left",
-        //   activeBasePath: "random",
-        // },
+        {
+          to: "/#pricing",
+          label: "Pricing",
+          position: "left",
+          activeBasePath: "random",
+        },
         {
           to: "blog",
           activeBasePath: "blog",

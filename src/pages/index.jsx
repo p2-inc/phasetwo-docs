@@ -177,7 +177,7 @@ function Home() {
           </div>
 
           <div className={styles.heroIntegrations}>
-            <h2>REPLACE IAMs</h2>
+            <h2 id="replaceIAMs">REPLACE IAMs</h2>
             <picture>
               <source
                 media="(max-width: 767px)"
@@ -270,7 +270,7 @@ function Home() {
             />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Open Source Enterprise Single Sign-on</h2>
+            <h2 id="openSourceSSO">Open Source Enterprise Single Sign-on</h2>
             <p>
               Leap up market into enterprise adoption with seamless, no-code SSO
               support.
@@ -337,7 +337,7 @@ function Home() {
         {/* Admin Portal */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
-            <h2>Admin Portal</h2>
+            <h2 id="adminPortal">Admin Portal</h2>
             <p>
               Seamless onboarding and self-management for your customer
               administrators and users. Empower your users and customers to
@@ -369,7 +369,7 @@ function Home() {
         {/* Developers */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
-            <h2>By Developers, For Developers</h2>
+            <h2 id="devleopers">By Developers, For Developers</h2>
             <p>
               Create delightful, seamless experiences for your customers. In
               just a few minutes!
@@ -460,7 +460,7 @@ auth.init({
             />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>
+            <h2 id="phaseTwoLovesKeycloak">
               Phase Two{" "}
               <img
                 className={styles.heart}
@@ -542,7 +542,7 @@ auth.init({
             />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Premium Keycloak Hosting</h2>
+            <h2 id="phaseTwoPricing">Premium Keycloak Hosting</h2>
             <p>
               Phase Two is one price per project. No hidden fees, no
               unpredictable costs.
@@ -730,7 +730,10 @@ auth.init({
           <div className="contentBlock">
             <div className="contentBlockBody">
               <div>
-                <h2 style={{ textAlign: "center", marginTop: "3rem" }}>
+                <h2
+                  id="supportPackages"
+                  style={{ textAlign: "center", marginTop: "3rem" }}
+                >
                   Enterprise Keycloak Support Packages
                 </h2>
                 <a href="#experts"></a>
@@ -758,7 +761,7 @@ auth.init({
           </div>
           <div className="contentBlock">
             <div className="contentBlockHead">
-              <h2>Frequently Asked Questions?</h2>
+              <h2 id="faqs">Frequently Asked Questions?</h2>
             </div>
             <div className="contentBlockBody">
               <div className={styles.questionsBox}>
