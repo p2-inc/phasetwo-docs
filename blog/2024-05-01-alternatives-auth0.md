@@ -1,5 +1,5 @@
 ---
-title: "Keycloak vs. Auth0, a Open-Source Alternative"
+title: "Keycloak vs. Auth0, an Open-Source Alternative"
 description: An in-depth comparison of Keycloak versus Auth0 and why Keycloak is a strong alternative to a paid Authentication and Authorization service.
 slug: keycloak-vs-auth0-open-source-alternative
 date: 2024-05-01
