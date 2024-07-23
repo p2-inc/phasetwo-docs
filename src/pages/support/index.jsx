@@ -22,8 +22,11 @@ export default function Hosted() {
               <a href="https://phasetwo.io/hosting">hosted</a> and{" "}
               <a href="https://phasetwo.io/product/onprem/">on-prem</a>{" "}
               customers, or those with their own Keycloak deployment, we can
-              provide expert help, custom Keycloak development, help with
-              migration to Keycloak, and around the clock support.
+              provide expert help, custom Keycloak development, help with{" "}
+              <a href="https://phasetwo.io/support/migrate-to-keycloak">
+                migration to Keycloak
+              </a>
+              , and around the clock support.
             </p>
             <div className={`pageHeroCta`}>
               <a href="mailto:sales@phasetwo.io">
@@ -312,9 +315,13 @@ export default function Hosted() {
               Many customers come to Keycloak from other Identity Providers like
               Okta, Auth0, WorkOS, Cognito and more, and need a path to{" "}
               <a href="https://phasetwo.io/blog/open-source-iam/">adopting</a>{" "}
-              and migrating their system usage to Keycloak. From initial testing
-              of migration to the final cutover and production launch, we will
-              have your back the entire way. To help make it easy to set up your
+              and{" "}
+              <a href="https://phasetwo.io/support/migrate-to-keycloak">
+                migrating
+              </a>{" "}
+              their system usage to Keycloak. From initial testing of migration
+              to the final cut-over and production launch, we will have your
+              back the entire way. To help make it easy to set up your
               application, we have multiple examples demonstrating how to secure
               your application with user management and single sign on (SSO)
               using Keycloak for Authentication and Authorization. Just clone an

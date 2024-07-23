@@ -56,3 +56,11 @@
   font-size: 1.2rem;
   border: 1px solid #e0e0e0;
 }
+.frameworkGridColMigrate {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-size: 1.2rem;
+  border: none;
+}

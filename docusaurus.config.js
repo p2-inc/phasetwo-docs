@@ -75,10 +75,20 @@ module.exports = {
           to: "hosting",
         },
         {
+          type: "dropdown",
           label: "Support",
           position: "left",
-          activeBasePath: "support",
-          to: "support",
+          items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+              activeBaseRegex: "^/support/$",
+            },
+            {
+              label: "Migration to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
+          ],
         },
         {
           type: "dropdown",
