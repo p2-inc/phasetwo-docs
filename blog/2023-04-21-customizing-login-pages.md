@@ -38,7 +38,7 @@ This CSS will be the last CSS loaded, overridding the styles in the default `key
 References:
 
 - [Keycloak login CSS](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) - The default CSS for the `keycloak` login theme.
-- [Patternfly 4](https://www.patternfly.org/v4/) - The styling library used by the theme.
+- [Patternfly 4](https://www.patternfly.org/) - The styling library used by the theme.
 
 ### CSS Examples
 
