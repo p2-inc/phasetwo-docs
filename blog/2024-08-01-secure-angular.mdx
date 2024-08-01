@@ -1,0 +1,145 @@
+---
+slug: instant-user-management-and-sso-for-angular
+title: Securing Angular Apps with Keycloak
+description: Learn how to quickly secure a Angular application with user management and SSO using the open source IAMs Keycloak for Authentication and Authorization
+authors: phasetwo
+tags:
+  [phase_two, tutorial, frameworks, angular, authentication, authorization, sso]
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation.mdx";
+import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a Angular application with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+
+<!--truncate-->
+
+:::info
+
+If you just want to skip to the code, visit the Phase Two [Angular example](https://github.com/p2-inc/examples/tree/main/frameworks/angular).
+
+If you want to see a live example, visit the [Phase Two Angular example](https://phasetwo-angular-example.vercel.app).
+
+:::
+
+## Setting up a Keycloak Instance
+
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
+
+## Setting up an OIDC Client
+
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
+
+## Adding a Non-Admin User
+
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
+
+## Setting up a Angular Project
+
+:::info
+We will use the Phase Two Angular example code here, but the logic could easily be applied to any existing application.
+:::
+
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
+2. Open the Angular [folder](https://github.com/p2-inc/examples/tree/main/frameworks/angular) within `/frameworks/angular`.
+3. Run `npm install` and then `npm run start`. This example leverages [angular-oauth2-oidc](https://github.com/manfredsteyer/angular-oauth2-oidc) OIDC methods.
+4. We'll review where we configure out Keycloak instance. Open the `src/app/auth.config.ts` file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code.
+
+```tsx
+export const authCodeFlowConfig: AuthConfig = {
+  // Update this with the url and realm of your hosted Keycloak instance
+  issuer: "https://app.phasetwo.io/auth/realms/p2examples",
+  redirectUri: window.location.origin + "/index.html",
+  // Update this to the Client ID you created in the OIDC Client section
+  clientId: "angular",
+  responseType: "code",
+  scope: "openid profile email offline_access",
+  showDebugInformation: true,
+};
+```
+
+Those are used to configure the `oauthService` in the `src/app/user/user.component.ts` file. In the constructor of the component, this is passed in.
+
+```tsx
+// ...
+constructor(private oauthService: OAuthService) {
+  this.oauthService.configure(authCodeFlowConfig);
+
+  // required to initialize the client
+  this.oauthService.loadDiscoveryDocumentAndTryLogin();
+  this.oauthService.setupAutomaticSilentRefresh();
+
+  this.oauthService.events
+    .pipe(filter((e) => e.type === 'token_received'))
+    .subscribe((_) => this.oauthService.loadUserProfile());
+}
+```
+
+6. The `UserActivation.component.ts` file contains additional methods that will assist with the interaction of the html template.
+
+For handling login and logout, the following methods are used:
+
+```tsx
+  signIn() {
+    return this.oauthService.initLoginFlow();
+  }
+
+  signOut() {
+    return this.oauthService.logOut();
+  }
+```
+
+while we also define additional helper methods to get user information (username, email, etc) along with raw Token values. A couple are provided below as an example.
+
+```tsx
+get userName(): string {
+  const claims = this.oauthService.getIdentityClaims();
+  if (!claims) return '';
+  return claims['given_name'];
+}
+
+get idToken(): string {
+  const token = this.oauthService.getIdToken();
+  if (token) {
+    return this.decodeAndStringifyToken(token);
+  }
+  return '';
+}
+```
+
+7. Switching to the html template for the user component, `src/app/user/user.component.html`, we can see how the login and logout buttons are rendered. The buttons are conditionally rendered based on the user's authentication status based on the presence of the `idToken`.
+
+```html
+<div *ngIf="idToken">
+  <!-- show user data -->
+  <!-- show logout button -->
+</div>
+<div *ngIf="!idToken">
+  <!-- show login button -->
+</div>
+```
+
+The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
+
+10. Open [localhost:4200](http://localhost:4200). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
+
+:::info
+Use the non-admin user created in the previous section to sign in.
+:::
+
+11. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
+12. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+
+## Learning more
+
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (passwordless sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
