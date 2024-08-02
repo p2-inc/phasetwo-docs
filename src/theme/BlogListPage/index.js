@@ -12,7 +12,6 @@ import SearchMetadata from "@theme/SearchMetadata";
 import BlogPostItems from "@theme/BlogPostItems";
 function BlogListPageMetadata(props) {
   const { metadata } = props;
-  console.log("🚀 ~ BlogListPageMetadata ~ metadata:", metadata);
   const {
     siteConfig: { title: siteTitle },
   } = useDocusaurusContext();
