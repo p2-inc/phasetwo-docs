@@ -47,7 +47,7 @@ While OneLogin offers a customizable interface, its options are more limited com
 
 **Winner**
 
-Keycloak wins in customization and flexibility; OneLogin provides some simplicity without the ability to adapt to specific needs..
+Keycloak wins in customization and flexibility; OneLogin provides some simplicity without the ability to adapt to specific needs.
 
 ### Scalability and Performance
 
