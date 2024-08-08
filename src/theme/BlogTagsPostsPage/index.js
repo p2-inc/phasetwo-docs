@@ -12,6 +12,8 @@ import BlogLayout from "@theme/BlogLayout";
 import BlogListPaginator from "@theme/BlogListPaginator";
 import SearchMetadata from "@theme/SearchMetadata";
 import BlogPostItems from "@theme/BlogPostItems";
+import Unlisted from "@theme/Unlisted";
+import Heading from "@theme/Heading";
 // Very simple pluralization: probably good enough for now
 function useBlogPostsPlural() {
   const { selectMessage } = usePluralForm();
@@ -46,19 +48,19 @@ function BlogTagsPostsPageMetadata({ tag, listMetadata }) {
     listMetadata.page > 1 ? `${title} (page ${listMetadata.page})` : title;
   return (
     <>
-      <PageMetadata title={uniqueTitle} />
+      <PageMetadata title={uniqueTitle} description={tag.description} />
       <SearchMetadata tag="blog_tags_posts" />
     </>
   );
 }
 function BlogTagsPostsPageContent({ tag, items, sidebar, listMetadata }) {
   const title = useBlogTagsPostsPageTitle(tag);
-
   return (
     <BlogLayout sidebar={sidebar}>
+      {tag.unlisted && <Unlisted />}
       <header className="margin-bottom--xl">
-        <h1>{title}</h1>
-
+        <Heading as="h1">{title}</Heading>
+        {tag.description && <p>{tag.description}</p>}
         <Link href={tag.allTagsPath}>
           <Translate
             id="theme.tags.tagsPageLink"
