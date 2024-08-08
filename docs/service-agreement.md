@@ -19,7 +19,7 @@ Platform Description: Phase Two Keycloak user authentication and SSO service
 
 Available Tiers of Service:
 
-- Starter: all features; up to 1,000 users and <10 identity provider connections: community support
+- Starter: all features; up to 1,000 users and &lt; 10 identity provider connections: community support
 - Premium: all features; unlimited users and identity provider connections; custom domain; email and chat support
 - Enterprise: all premium features; multi-region deployment; custom themes and extensions; dedicated support; 99.99% uptime SLA
 

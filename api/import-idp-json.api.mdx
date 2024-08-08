@@ -5,30 +5,163 @@ description: "Import identity provider from uploaded JSON file"
 sidebar_label: "Import identity provider from uploaded JSON file"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Identity Providers"],"operationId":"importIdpJson","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","additionalProperties":true}}}}},"description":"Import identity provider from uploaded JSON file","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"post","path":"/{realm}/orgs/{orgId}/idps/import-config","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Import identity provider from uploaded JSON file","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","idps","import-config"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"POST"}}
+api: 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
 sidebar_class_name: "post api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Import identity provider from uploaded JSON file
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Import identity provider from uploaded JSON file"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/{realm}/orgs/{orgId}/idps/import-config"}
+>
+  
+</MethodEndpoint>
 
 
 
 Import identity provider from uploaded JSON file
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"{}"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <SchemaItem
+                        name={"property name*"}
+                        required={false}
+                        schemaName={"any"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"object","additionalProperties":true}}
+                        collapsible={false}
+                        discriminator={false}
+                      >
+                        
+                      </SchemaItem>
+                    </ul>
+                  </details>
+                </TabItem><TabItem
+                  label={"Example (from schema)"}
+                  value={"Example (from schema)"}
+                >
+                  <ResponseSamples
+                    responseExample={"{}"}
+                    language={"json"}
+                  >
+                    
+                  </ResponseSamples>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

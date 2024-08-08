@@ -46,7 +46,7 @@ For the purposes of this Privacy Policy:
   for election of directors or other managing authority.
 - **Account** means a unique account created for You to access our Service or
   parts of our Service.
-- **Website** refers to Phase Two, accessible from <https://phasetwo.io>
+- **Website** refers to Phase Two, accessible from [https://phasetwo.io](https://phasetwo.io)
 - **Service** refers to the Website.
 - **Country** refers to: Washington, United States
 - **Service** Provider means any natural or legal person who processes the data
@@ -371,8 +371,7 @@ Service.
   about visits activity.
 
   For more information on the privacy practices of Google, please visit the
-  Google Privacy &amp; Terms web page:
-  <https://policies.google.com/privacy?hl=en>
+  Google Privacy &amp; Terms web page: [https://policies.google.com/privacy?hl=en](https://policies.google.com/privacy?hl=en)
 
 ### Email Marketing
 
@@ -400,7 +399,7 @@ the secure handling of payment information.
 
 - **Stripe**
 
-  Their Privacy Policy can be viewed at <https://stripe.com/us/privacy>
+  Their Privacy Policy can be viewed at [https://stripe.com/us/privacy](https://stripe.com/us/privacy)
 
 ## GDPR Privacy
 

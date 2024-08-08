@@ -5,30 +5,107 @@ description: "Delete the identity provider"
 sidebar_label: "Delete the identity provider"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Identity Providers"],"operationId":"deleteIdp","responses":{"204":{"description":"success"}},"description":"Delete the identity provider","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"alias","description":"Identity Provider alias","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"delete","path":"/{realm}/orgs/{orgId}/idps/{alias}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Delete the identity provider","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","idps",":alias"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) Identity Provider alias","type":"text/plain"},"type":"any","value":"","key":"alias"}]},"method":"DELETE"}}
+api: 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
 sidebar_class_name: "delete api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Delete the identity provider
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Delete the identity provider"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/{realm}/orgs/{orgId}/idps/{alias}"}
+>
+  
+</MethodEndpoint>
 
 
 
 Delete the identity provider
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"alias","description":"Identity Provider alias","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"204"} value={"204"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"alias","description":"Identity Provider alias","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"204"}
+        value={"204"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

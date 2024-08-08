@@ -5,30 +5,107 @@ description: "Initiate a verification check for the domain name owned by this or
 sidebar_label: "Start domain verification"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Domains"],"operationId":"verifyDomain","description":"Initiate a verification check for the domain name owned by this organization","responses":{"202":{"description":"success"}},"parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"domainName","description":"domain name","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"post","path":"/{realm}/orgs/{orgId}/domains/{domainName}/verify","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Start domain verification","description":{"content":"Initiate a verification check for the domain name owned by this organization","type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","domains",":domainName","verify"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) domain name","type":"text/plain"},"type":"any","value":"","key":"domainName"}]},"method":"POST"}}
+api: eJzVV21v28gR/ivTDRDEACkmuTSXI+KgvuSK+t5ixL4CrWXE492RuDG5y9sdSlYV/vfDLClZst32kLYf+kEiuS/z8uwzszNrxTiPqjxX78Mcnf0HsvUO3vkGrYvqIlO+pZAGj40q1YKCna2GaZUpQ1EH28q0KtWxs2yRCRDSOqsHaboifQ0zH4ArApM2g8OGwC8dGbhaAVc2gt8xQWUqUGy9ixRVuVbPnz6Xx77C2GlNMaq+z1SLARtiCuLNWlmZb5ErlSlRpUoVCOvmntFpdLDmifMM1vzhICn/tbOBjCo5dJSpqCtqUEzgVSvSIgfr5qrPVORVnUZs09ak+uxB7T7Mj8097bsugzX/C8UD3j/Lx13tO0fxn2m+yFRDXHmhSOsjq2wwolTFOgHcFz7MY7FOKPTFoDgW61vj+mLglspUpLDYnGMXalWqdRs8e+3rviyKdeUj9+vWB+7XgWpku6AT5Kovkq6oMrXAYPGqHrgj6+VJrmuE6ti2k7bCSLz0E+tVpmqvsU7LLgSjGXY1q/KBhfv4HZ0cQ9ol/PNhT4nK1Kunr57tC3xQQtrZC/63rtyRVGDH1b8R9WHcDgl5sWjEbFdWxdyqLD3ivrxhqO/lLCPpLlhepRPAFGMf2V+TU+X5xe6CU6HIAPL+si1nRoWJS/J9RRgoqGx8+bMPDSZ3JIatm/m013Ki14lgD2dLD0emsQ4+fHd6Bkcnx/d8P5P0YSPgdgkEmlEgp2mbeG6l/UArXXu8Bt1F9g0Eir4LmuIEziqKBBgI6IbJRetdBPZJQGR0BoOB862AfbsuniQUy6JYLpeT63HRxId5YbyOOba2qJEpchEocvq2ztDNpOKmPphM3dQ9evQIvhVDf/lwLKY3yFMnlIgQW9J2ZsmAdWMq1V1Djof0IUZvOLQxWX5Xo7TJ1OUwAF7C5cbS10LgN+VrYeGbxLMxii5l+Xc3KBG+s/5OTNzZMdh/1HFFjsf8P3X73+mgdGVpMeT+Llo3T5Ze7i8s4dtEEnidWPXmEipCQ0Hcx7oGSVgUOZ3acP5kuaLhtAc+QtoJgTRZUTcLvgEEJyjUgHvqMvBB7MGNYDA2kOZ6tUHzfUvu+B289c6R5lE2OdN66zid3jGLGYG0bxpyhgxwhQwr30EnvII7zHlbW3KcQex0BRjhfLgI3cDa73GBA81vmTW3XHVXE+2bYkOw7UvuvKFPMUeRnesk+yATuVzRChivCbTQxM/u+T4nZjkHdHvQZYDOSDAFipXMW4ZlRU6edNPaQHFD20ejN6ADGRGNdYR5QCcrE42m7vLycupO3p+ewS5xCgmJPL0Xm6xV+JacNbkewC6SNVP3Fx+5hDsknLojrakdJurRpeJTFO699Y7JcS75aH/+Jl8ul7mEWN6Fmpz2hoz4kmz+KBsOBww/7nj0eByy5nAL82Yskg7EhzPz8sU3r56+yL/Cr1/kL8zLb3LUiPmr2dOXf9Qvr742+GyEYgTuBGNc+mD+3+FqRz8ed5GClBWHnfz/aea9MPbxZv6wXZpnz786+vvfHoJzFxs4ffdDnLqfvKHgUmKv7VXAYCmmhIcLtLXc9ClgIi0oYA0Sft5BjW7e4Xw/r9/uwAiCGgzJH5BTkNfWXUe4otovU0aQ2NUoVaz3MSXWOTmpiUmmgtSwYwqTr3PJEWKmJGuY2ZpuQzfgcjKEr8CjB6RTJLfPc+t0sTmjXG6LQiqjdKzY2skKNxfEZ/hxdAs+w48JjBV8lvE8z2H8l0/JHvBEwtenrPj9X39KiMQD+AwPpJO7RnyS/VtJpykPFWerlobX3ykkDiJOVlx59/v2tOPaqXQBUgkOl/zi2VBnRW4wlRhjgXvKGHjTVuw2HnfLhLUaMf/v9ypjtcN0w0VbS3PUZ0Ptuh4r4XNVbhoQKYVVpsptSzB2W5kq94r1sSC+yMYK9lyt13KZ/xLqvpfhXzsKUqRd3Ba8qWQzNsq7UeUM60j/AoYnH8ai/wD+SSP0oGfjILpVqrXrjoaK9JpW20ZL2pEvMuR+T/QFNgzYfrEN+53RF+jfOcj+ot9pjySbq77/DSVedmA=
 sidebar_class_name: "post api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Start domain verification
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Start domain verification"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/{realm}/orgs/{orgId}/domains/{domainName}/verify"}
+>
+  
+</MethodEndpoint>
 
 
 
 Initiate a verification check for the domain name owned by this organization
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"domainName","description":"domain name","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"202"} value={"202"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"domainName","description":"domain name","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"202"}
+        value={"202"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

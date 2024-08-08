@@ -5,30 +5,170 @@ description: "Get a count of organizations using an optional search query."
 sidebar_label: "Get organizations count"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organizations"],"description":"Get a count of organizations using an optional search query.","operationId":"getOrganizationsCount","parameters":[{"in":"query","name":"search","schema":{"type":"string"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}],"responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"integer","format":"int32"}}}}},"method":"get","path":"/{realm}/orgs/count","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get organizations count","description":{"content":"Get a count of organizations using an optional search query.","type":"text/plain"},"url":{"path":[":realm","orgs","count"],"host":["{{baseUrl}}"],"query":[{"disabled":false,"key":"search","value":""}],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Get organizations count
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get organizations count"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/orgs/count"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get a count of organizations using an optional search query.
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Query Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"query","name":"search","schema":{"type":"string"},"style":"form"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><li><div><strong>integer</strong><span style={{"opacity":"0.6"}}> int32</span></div></li></ul></details></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Query Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"query","name":"search","schema":{"type":"string"},"style":"form"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <div
+                        style={{"marginTop":".5rem","marginBottom":".5rem"}}
+                      >
+                        
+                        
+                        integer
+                        
+                        
+                      </div>
+                    </ul>
+                  </details>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       
