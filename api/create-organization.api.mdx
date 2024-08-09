@@ -5,34 +5,309 @@ description: "Create a new organization"
 sidebar_label: "Create a new organization"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organizations"],"operationId":"createOrganization","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"displayName":{"type":"string"},"url":{"type":"string"},"realm":{"type":"string"},"domains":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"OrganizationRepresentation"}}},"required":true},"responses":{"201":{"description":"success","headers":{"Location":{"schema":{"type":"string"},"description":"URI indicating the ID of the new resource."}}}},"description":"Create a new organization","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"post","path":"/{realm}/orgs","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"jsonRequestBodyExample":{"id":"string","name":"string","displayName":"string","url":"string","realm":"string","domains":["string"],"attributes":{}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Create a new organization","description":{"type":"text/plain"},"url":{"path":[":realm","orgs"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"}]},"header":[{"key":"Content-Type","value":"application/json"}],"method":"POST","body":{"mode":"raw","raw":"\"\"","options":{"raw":{"language":"json"}}}}}
+api: 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
 sidebar_class_name: "post api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Create a new organization
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a new organization"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/{realm}/orgs"}
+>
+  
+</MethodEndpoint>
 
 
 
 Create a new organization
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><MimeTabs><TabItem label={"application/json"} value={"application/json-schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Request Body</strong><strong style={{"fontSize":"var(--ifm-code-font-size)","color":"var(--openapi-required)"}}> required</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><SchemaItem collapsible={false} name={"id"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"name"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"displayName"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"url"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"realm"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"domains"} required={false} schemaName={"string[]"} qualifierMessage={undefined} schema={{"type":"array","items":{"type":"string"}}}></SchemaItem><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>attributes</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>property name*</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}>Array [</div></li><li><div><strong>string</strong></div></li><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}>]</div></li></div></details></SchemaItem></div></details></SchemaItem></ul></details></TabItem></MimeTabs><div><ApiTabs><TabItem label={"201"} value={"201"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><details style={{"textAlign":"left","marginBottom":"1rem"}} data-collaposed={true} open={false}><summary style={{}}><strong>Response Headers</strong></summary><ul style={{"marginLeft":"1rem"}}><li className={"schemaItem"}><summary style={{}}><strong>Location</strong><span style={{"opacity":"0.6"}}> string</span></summary><div><div style={{"marginTop":".5rem","marginBottom":".5rem"}}>
-
-URI indicating the ID of the new resource.
-
-</div></div></li></ul></details><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><MimeTabs
+  className={"openapi-tabs__mime"}
+>
+  <TabItem
+    label={"application/json"}
+    value={"application/json-schema"}
+  >
+    <details
+      style={{}}
+      className={"openapi-markdown__details mime"}
+      data-collapsed={false}
+      open={true}
+    >
+      <summary
+        style={{}}
+        className={"openapi-markdown__details-summary-mime"}
+      >
+        <h3
+          className={"openapi-markdown__details-summary-header-body"}
+        >
+          Body
+        </h3><strong
+          className={"openapi-schema__required"}
+        >
+          required
+        </strong>
+      </summary><div
+        style={{"textAlign":"left","marginLeft":"1rem"}}
+      >
+        
+      </div><ul
+        style={{"marginLeft":"1rem"}}
+      >
+        <SchemaItem
+          collapsible={false}
+          name={"id"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"name"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"displayName"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"url"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"realm"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"domains"}
+          required={false}
+          schemaName={"string[]"}
+          qualifierMessage={undefined}
+          schema={{"type":"array","items":{"type":"string"}}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={true}
+          className={"schemaItem"}
+        >
+          <details
+            style={{}}
+            className={"openapi-markdown__details"}
+          >
+            <summary
+              style={{}}
+            >
+              <span
+                className={"openapi-schema__container"}
+              >
+                <strong
+                  className={"openapi-schema__property"}
+                >
+                  attributes
+                </strong><span
+                  className={"openapi-schema__name"}
+                >
+                   object
+                </span>
+              </span>
+            </summary><div
+              style={{"marginLeft":"1rem"}}
+            >
+              <SchemaItem
+                collapsible={true}
+                className={"schemaItem"}
+              >
+                <details
+                  style={{}}
+                  className={"openapi-markdown__details"}
+                >
+                  <summary
+                    style={{}}
+                  >
+                    <span
+                      className={"openapi-schema__container"}
+                    >
+                      <strong
+                        className={"openapi-schema__property"}
+                      >
+                        property name*
+                      </strong><span
+                        className={"openapi-schema__name"}
+                      >
+                         string[]
+                      </span>
+                    </span>
+                  </summary><div
+                    style={{"marginLeft":"1rem"}}
+                  >
+                    <li>
+                      <div
+                        style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}
+                      >
+                        Array [
+                      </div>
+                    </li><div
+                      style={{"marginTop":".5rem","marginBottom":".5rem"}}
+                    >
+                      
+                      
+                      string
+                      
+                      
+                    </div><li>
+                      <div
+                        style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}
+                      >
+                        ]
+                      </div>
+                    </li>
+                  </div>
+                </details>
+              </SchemaItem>
+            </div>
+          </details>
+        </SchemaItem>
+      </ul>
+    </details>
+  </TabItem>
+</MimeTabs><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"201"}
+        value={"201"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><details
+          style={{"textAlign":"left","marginBottom":"1rem"}}
+          className={"openapi-markdown__details"}
+          data-collapsed={true}
+          open={false}
+        >
+          <summary
+            style={{}}
+          >
+            <strong>
+              Response Headers
+            </strong>
+          </summary><ul
+            style={{"marginLeft":"1rem"}}
+          >
+            <li
+              className={"schemaItem"}
+            >
+              <summary
+                style={{}}
+              >
+                <strong>
+                  Location
+                </strong><span
+                  style={{"opacity":"0.6"}}
+                >
+                   string
+                </span>
+              </summary><div>
+                <div
+                  style={{"marginTop":".5rem","marginBottom":".5rem"}}
+                >
+                  
+                  
+                  URI indicating the ID of the new resource.
+                  
+                  
+                </div>
+              </div>
+            </li>
+          </ul>
+        </details><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

@@ -193,6 +193,11 @@ module.exports = {
           title: "Product",
           items: [
             {
+              to: "hosting",
+              activeBasePath: "hosting",
+              label: "Hosting",
+            },
+            {
               to: "product/sso",
               activeBasePath: "product/sso",
               label: "SSO",
@@ -238,11 +243,19 @@ module.exports = {
               label: "GitHub",
               href: "https://github.com/p2-inc",
             },
+            {
+              label: "Migrate to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
           ],
         },
         {
           title: "Support",
           items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+            },
             {
               label: "Bugs & Feature Requests",
               href: "https://github.com/p2-inc/phasetwo/issues",
@@ -368,12 +381,10 @@ module.exports = {
       {
         id: "api",
         path: "api",
-        breadcrumbs: true,
         routeBasePath: "api",
         include: ["**/*.md", "**/*.mdx"],
-        sidebarPath: require.resolve("./api/sidebar.js"),
-        docLayoutComponent: "@theme/DocPage",
-        docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
+        sidebarPath: require.resolve("./api-sidebar.js"),
+        docItemComponent: "@theme/ApiItem",
       },
     ],
   ],

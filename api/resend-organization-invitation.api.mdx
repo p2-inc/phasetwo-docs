@@ -5,30 +5,107 @@ description: "Resend the email for an existing Organization Invitation"
 sidebar_label: "Resend an Organization Invitation"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Invitation"],"operationId":"resendOrganizationInvitation","description":"Resend the email for an existing Organization Invitation","responses":{"204":{"description":"success"}},"parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"put","path":"/{realm}/orgs/{orgId}/invitations/{invitationId}/resend-email","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Resend an Organization Invitation","description":{"content":"Resend the email for an existing Organization Invitation","type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","invitations",":invitationId","resend-email"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) invitation id","type":"text/plain"},"type":"any","value":"","key":"invitationId"}]},"method":"PUT"}}
+api: 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
 sidebar_class_name: "put api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Resend an Organization Invitation
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Resend an Organization Invitation"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/{realm}/orgs/{orgId}/invitations/{invitationId}/resend-email"}
+>
+  
+</MethodEndpoint>
 
 
 
 Resend the email for an existing Organization Invitation
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"204"} value={"204"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"204"}
+        value={"204"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

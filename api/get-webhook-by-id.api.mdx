@@ -5,34 +5,247 @@ description: "Get webhook by id"
 sidebar_label: "Get webhook by id"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Events"],"operationId":"getWebhookById","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"attributes":{"type":"object"},"id":{"type":"string"},"enabled":{"type":"boolean"},"url":{"type":"string"},"secret":{"type":"string"},"createdBy":{"type":"string"},"createdAt":{"type":"string"},"realm":{"type":"string"},"eventTypes":{"type":"array","items":{"type":"string"}}},"title":"WebhookRepresentation"}}}},"404":{"description":"Webhook doesn't exist"}},"description":"Get webhook by id","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/webhooks/{webhookId}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get webhook by id","description":{"type":"text/plain"},"url":{"path":[":realm","webhooks",":webhookId"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) webhook id","type":"text/plain"},"type":"any","value":"","key":"webhookId"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Get webhook by id
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get webhook by id"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/webhooks/{webhookId}"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get webhook by id
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><SchemaItem collapsible={false} name={"attributes"} required={false} schemaName={"object"} qualifierMessage={undefined} schema={{"type":"object"}}></SchemaItem><SchemaItem collapsible={false} name={"id"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"enabled"} required={false} schemaName={"boolean"} qualifierMessage={undefined} schema={{"type":"boolean"}}></SchemaItem><SchemaItem collapsible={false} name={"url"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"secret"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"createdBy"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"createdAt"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"realm"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"eventTypes"} required={false} schemaName={"string[]"} qualifierMessage={undefined} schema={{"type":"array","items":{"type":"string"}}}></SchemaItem></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"{\n  \"attributes\": {},\n  \"id\": \"string\",\n  \"enabled\": true,\n  \"url\": \"string\",\n  \"secret\": \"string\",\n  \"createdBy\": \"string\",\n  \"createdAt\": \"string\",\n  \"realm\": \"string\",\n  \"eventTypes\": [\n    \"string\"\n  ]\n}"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem><TabItem label={"404"} value={"404"}><div>
-
-Webhook doesn't exist
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <SchemaItem
+                        collapsible={false}
+                        name={"attributes"}
+                        required={false}
+                        schemaName={"object"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"object"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"id"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"enabled"}
+                        required={false}
+                        schemaName={"boolean"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"boolean"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"url"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"secret"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"createdBy"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"createdAt"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"realm"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"eventTypes"}
+                        required={false}
+                        schemaName={"string[]"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"array","items":{"type":"string"}}}
+                      >
+                        
+                      </SchemaItem>
+                    </ul>
+                  </details>
+                </TabItem><TabItem
+                  label={"Example (from schema)"}
+                  value={"Example (from schema)"}
+                >
+                  <ResponseSamples
+                    responseExample={"{\n  \"attributes\": {},\n  \"id\": \"string\",\n  \"enabled\": true,\n  \"url\": \"string\",\n  \"secret\": \"string\",\n  \"createdBy\": \"string\",\n  \"createdAt\": \"string\",\n  \"realm\": \"string\",\n  \"eventTypes\": [\n    \"string\"\n  ]\n}"}
+                    language={"json"}
+                  >
+                    
+                  </ResponseSamples>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem><TabItem
+        label={"404"}
+        value={"404"}
+      >
+        <div>
+          
+          
+          Webhook doesn't exist
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

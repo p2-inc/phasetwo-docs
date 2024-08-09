@@ -5,30 +5,107 @@ description: "Remove a pending invitation"
 sidebar_label: "Remove a pending invitation"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Invitations"],"operationId":"removeOrganizationInvitation","responses":{"204":{"description":"success"}},"description":"Remove a pending invitation","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"delete","path":"/{realm}/orgs/{orgId}/invitations/{invitationId}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Remove a pending invitation","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","invitations",":invitationId"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) invitation id","type":"text/plain"},"type":"any","value":"","key":"invitationId"}]},"method":"DELETE"}}
+api: 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
 sidebar_class_name: "delete api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Remove a pending invitation
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Remove a pending invitation"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/{realm}/orgs/{orgId}/invitations/{invitationId}"}
+>
+  
+</MethodEndpoint>
 
 
 
 Remove a pending invitation
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"204"} value={"204"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"invitationId","description":"invitation id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"204"}
+        value={"204"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

@@ -5,46 +5,395 @@ description: "Create a new audit log event"
 sidebar_label: "Create a new audit log event"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Events"],"operationId":"createEvent","requestBody":{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"uid":{"type":"string"},"time":{"type":"integer"},"realmId":{"type":"string"},"organizationId":{"type":"string"},"type":{"type":"string"},"representation":{"type":"string"},"operationType":{"type":"string"},"resourcePath":{"type":"string"},"resourceType":{"type":"string"},"error":{"type":"string"},"authDetails":{"type":"object","properties":{"realmId":{"type":"string"},"clientId":{"type":"string"},"userId":{"type":"string"},"ipAddress":{"type":"string"},"username":{"type":"string"},"sessionId":{"type":"string"}},"title":"AuthDetailsRepresentation"},"details":{"type":"object","additionalProperties":true}},"title":"EventRepresentation"}}},"required":true},"responses":{"202":{"description":"Event received"},"400":{"description":"Malformed event"},"403":{"description":"Rate limit exceeded"},"409":{"description":"Reserved event type"}},"description":"Create a new audit log event","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"post","path":"/{realm}/events","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"jsonRequestBodyExample":{"uid":"string","time":0,"realmId":"string","organizationId":"string","type":"string","representation":"string","operationType":"string","resourcePath":"string","resourceType":"string","error":"string","authDetails":{"realmId":"string","clientId":"string","userId":"string","ipAddress":"string","username":"string","sessionId":"string"},"details":{}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Create a new audit log event","description":{"type":"text/plain"},"url":{"path":[":realm","events"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"}]},"header":[{"key":"Content-Type","value":"application/json"}],"method":"POST","body":{"mode":"raw","raw":"\"\"","options":{"raw":{"language":"json"}}}}}
+api: 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
 sidebar_class_name: "post api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Create a new audit log event
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a new audit log event"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/{realm}/events"}
+>
+  
+</MethodEndpoint>
 
 
 
 Create a new audit log event
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><MimeTabs><TabItem label={"application/json"} value={"application/json-schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Request Body</strong><strong style={{"fontSize":"var(--ifm-code-font-size)","color":"var(--openapi-required)"}}> required</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}><div style={{"marginTop":"1rem","marginBottom":"1rem"}}>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-JSON body
-
-</div></div><ul style={{"marginLeft":"1rem"}}><SchemaItem collapsible={false} name={"uid"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"time"} required={false} schemaName={"integer"} qualifierMessage={undefined} schema={{"type":"integer"}}></SchemaItem><SchemaItem collapsible={false} name={"realmId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"organizationId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"type"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"representation"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"operationType"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"resourcePath"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"resourceType"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"error"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>authDetails</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}><SchemaItem collapsible={false} name={"realmId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"clientId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"userId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"ipAddress"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"username"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"sessionId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem></div></details></SchemaItem><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>details</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}></div></details></SchemaItem></ul></details></TabItem></MimeTabs><div><ApiTabs><TabItem label={"202"} value={"202"}><div>
-
-Event received
-
-</div><div></div></TabItem><TabItem label={"400"} value={"400"}><div>
-
-Malformed event
-
-</div><div></div></TabItem><TabItem label={"403"} value={"403"}><div>
-
-Rate limit exceeded
-
-</div><div></div></TabItem><TabItem label={"409"} value={"409"}><div>
-
-Reserved event type
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><MimeTabs
+  className={"openapi-tabs__mime"}
+>
+  <TabItem
+    label={"application/json"}
+    value={"application/json-schema"}
+  >
+    <details
+      style={{}}
+      className={"openapi-markdown__details mime"}
+      data-collapsed={false}
+      open={true}
+    >
+      <summary
+        style={{}}
+        className={"openapi-markdown__details-summary-mime"}
+      >
+        <h3
+          className={"openapi-markdown__details-summary-header-body"}
+        >
+          Body
+        </h3><strong
+          className={"openapi-schema__required"}
+        >
+          required
+        </strong>
+      </summary><div
+        style={{"textAlign":"left","marginLeft":"1rem"}}
+      >
+        <div
+          style={{"marginTop":"1rem","marginBottom":"1rem"}}
+        >
+          
+          
+          JSON body
+          
+          
+        </div>
+      </div><ul
+        style={{"marginLeft":"1rem"}}
+      >
+        <SchemaItem
+          collapsible={false}
+          name={"uid"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"time"}
+          required={false}
+          schemaName={"integer"}
+          qualifierMessage={undefined}
+          schema={{"type":"integer"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"realmId"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"organizationId"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"type"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"representation"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"operationType"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"resourcePath"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"resourceType"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={false}
+          name={"error"}
+          required={false}
+          schemaName={"string"}
+          qualifierMessage={undefined}
+          schema={{"type":"string"}}
+        >
+          
+        </SchemaItem><SchemaItem
+          collapsible={true}
+          className={"schemaItem"}
+        >
+          <details
+            style={{}}
+            className={"openapi-markdown__details"}
+          >
+            <summary
+              style={{}}
+            >
+              <span
+                className={"openapi-schema__container"}
+              >
+                <strong
+                  className={"openapi-schema__property"}
+                >
+                  authDetails
+                </strong><span
+                  className={"openapi-schema__name"}
+                >
+                   object
+                </span>
+              </span>
+            </summary><div
+              style={{"marginLeft":"1rem"}}
+            >
+              <SchemaItem
+                collapsible={false}
+                name={"realmId"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem><SchemaItem
+                collapsible={false}
+                name={"clientId"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem><SchemaItem
+                collapsible={false}
+                name={"userId"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem><SchemaItem
+                collapsible={false}
+                name={"ipAddress"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem><SchemaItem
+                collapsible={false}
+                name={"username"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem><SchemaItem
+                collapsible={false}
+                name={"sessionId"}
+                required={false}
+                schemaName={"string"}
+                qualifierMessage={undefined}
+                schema={{"type":"string"}}
+              >
+                
+              </SchemaItem>
+            </div>
+          </details>
+        </SchemaItem><SchemaItem
+          collapsible={true}
+          className={"schemaItem"}
+        >
+          <details
+            style={{}}
+            className={"openapi-markdown__details"}
+          >
+            <summary
+              style={{}}
+            >
+              <span
+                className={"openapi-schema__container"}
+              >
+                <strong
+                  className={"openapi-schema__property"}
+                >
+                  details
+                </strong><span
+                  className={"openapi-schema__name"}
+                >
+                   object
+                </span>
+              </span>
+            </summary><div
+              style={{"marginLeft":"1rem"}}
+            >
+              <SchemaItem
+                name={"property name*"}
+                required={false}
+                schemaName={"any"}
+                qualifierMessage={undefined}
+                schema={{"type":"object","additionalProperties":true}}
+                collapsible={false}
+                discriminator={false}
+              >
+                
+              </SchemaItem>
+            </div>
+          </details>
+        </SchemaItem>
+      </ul>
+    </details>
+  </TabItem>
+</MimeTabs><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"202"}
+        value={"202"}
+      >
+        <div>
+          
+          
+          Event received
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem><TabItem
+        label={"400"}
+        value={"400"}
+      >
+        <div>
+          
+          
+          Malformed event
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem><TabItem
+        label={"403"}
+        value={"403"}
+      >
+        <div>
+          
+          
+          Rate limit exceeded
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem><TabItem
+        label={"409"}
+        value={"409"}
+      >
+        <div>
+          
+          
+          Reserved event type
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

@@ -5,30 +5,324 @@ description: "Get a paginated list of invitations to an organization, using an o
 sidebar_label: "Get organization invitations"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Invitations"],"operationId":"getOrganizationInvitations","description":"Get a paginated list of invitations to an organization, using an optional search query for email address.","parameters":[{"in":"query","name":"search","schema":{"type":"string"},"style":"form"},{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}],"responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"email":{"type":"string"},"inviterId":{"type":"string"},"organizationId":{"type":"string"},"roles":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"InvitationRepresentation"}}}}}},"method":"get","path":"/{realm}/orgs/{orgId}/invitations","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get organization invitations","description":{"content":"Get a paginated list of invitations to an organization, using an optional search query for email address.","type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","invitations"],"host":["{{baseUrl}}"],"query":[{"disabled":false,"key":"search","value":""},{"disabled":false,"key":"first","value":""},{"disabled":false,"key":"max","value":""}],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Get organization invitations
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get organization invitations"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/orgs/{orgId}/invitations"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get a paginated list of invitations to an organization, using an optional search query for email address.
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Query Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"query","name":"search","schema":{"type":"string"},"style":"form"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}>Array [</div></li><SchemaItem collapsible={false} name={"id"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"email"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"inviterId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"organizationId"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"roles"} required={false} schemaName={"string[]"} qualifierMessage={undefined} schema={{"type":"array","items":{"type":"string"}}}></SchemaItem><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>attributes</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>property name*</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}>Array [</div></li><li><div><strong>string</strong></div></li><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}>]</div></li></div></details></SchemaItem></div></details></SchemaItem><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}>]</div></li></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"[\n  {\n    \"id\": \"string\",\n    \"email\": \"string\",\n    \"inviterId\": \"string\",\n    \"organizationId\": \"string\",\n    \"roles\": [\n      \"string\"\n    ],\n    \"attributes\": {}\n  }\n]"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Query Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"query","name":"search","schema":{"type":"string"},"style":"form"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <li>
+                        <div
+                          style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}
+                        >
+                          Array [
+                        </div>
+                      </li><SchemaItem
+                        collapsible={false}
+                        name={"id"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"email"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"inviterId"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"organizationId"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"roles"}
+                        required={false}
+                        schemaName={"string[]"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"array","items":{"type":"string"}}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={true}
+                        className={"schemaItem"}
+                      >
+                        <details
+                          style={{}}
+                          className={"openapi-markdown__details"}
+                        >
+                          <summary
+                            style={{}}
+                          >
+                            <span
+                              className={"openapi-schema__container"}
+                            >
+                              <strong
+                                className={"openapi-schema__property"}
+                              >
+                                attributes
+                              </strong><span
+                                className={"openapi-schema__name"}
+                              >
+                                 object
+                              </span>
+                            </span>
+                          </summary><div
+                            style={{"marginLeft":"1rem"}}
+                          >
+                            <SchemaItem
+                              collapsible={true}
+                              className={"schemaItem"}
+                            >
+                              <details
+                                style={{}}
+                                className={"openapi-markdown__details"}
+                              >
+                                <summary
+                                  style={{}}
+                                >
+                                  <span
+                                    className={"openapi-schema__container"}
+                                  >
+                                    <strong
+                                      className={"openapi-schema__property"}
+                                    >
+                                      property name*
+                                    </strong><span
+                                      className={"openapi-schema__name"}
+                                    >
+                                       string[]
+                                    </span>
+                                  </span>
+                                </summary><div
+                                  style={{"marginLeft":"1rem"}}
+                                >
+                                  <li>
+                                    <div
+                                      style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}
+                                    >
+                                      Array [
+                                    </div>
+                                  </li><div
+                                    style={{"marginTop":".5rem","marginBottom":".5rem"}}
+                                  >
+                                    
+                                    
+                                    string
+                                    
+                                    
+                                  </div><li>
+                                    <div
+                                      style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}
+                                    >
+                                      ]
+                                    </div>
+                                  </li>
+                                </div>
+                              </details>
+                            </SchemaItem>
+                          </div>
+                        </details>
+                      </SchemaItem><li>
+                        <div
+                          style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}
+                        >
+                          ]
+                        </div>
+                      </li>
+                    </ul>
+                  </details>
+                </TabItem><TabItem
+                  label={"Example (from schema)"}
+                  value={"Example (from schema)"}
+                >
+                  <ResponseSamples
+                    responseExample={"[\n  {\n    \"id\": \"string\",\n    \"email\": \"string\",\n    \"inviterId\": \"string\",\n    \"organizationId\": \"string\",\n    \"roles\": [\n      \"string\"\n    ],\n    \"attributes\": {}\n  }\n]"}
+                    language={"json"}
+                  >
+                    
+                  </ResponseSamples>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

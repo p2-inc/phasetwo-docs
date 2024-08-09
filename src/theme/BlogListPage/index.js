@@ -10,6 +10,7 @@ import BlogLayout from "@theme/BlogLayout";
 import BlogListPaginator from "@theme/BlogListPaginator";
 import SearchMetadata from "@theme/SearchMetadata";
 import BlogPostItems from "@theme/BlogPostItems";
+import BlogListPageStructuredData from "@theme/BlogListPage/StructuredData";
 function BlogListPageMetadata(props) {
   const { metadata } = props;
   const {
@@ -49,6 +50,7 @@ export default function BlogListPage(props) {
       )}
     >
       <BlogListPageMetadata {...props} />
+      <BlogListPageStructuredData {...props} />
       <BlogListPageContent {...props} />
     </HtmlClassNameProvider>
   );

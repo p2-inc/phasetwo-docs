@@ -5,34 +5,193 @@ description: "Get realm attribute by key"
 sidebar_label: "Get realm attribute by key"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Attributes"],"operationId":"getRealmAttributeByKey","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"},"realm":{"type":"string"}},"title":"RealmAttributeRepresentation"}}}},"404":{"description":"Realm attribute doesn't exist"}},"description":"Get realm attribute by key","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"attributeKey","description":"attribute key","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/attributes/{attributeKey}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get realm attribute by key","description":{"type":"text/plain"},"url":{"path":[":realm","attributes",":attributeKey"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) attribute key","type":"text/plain"},"type":"any","value":"","key":"attributeKey"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Get realm attribute by key
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get realm attribute by key"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/attributes/{attributeKey}"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get realm attribute by key
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"attributeKey","description":"attribute key","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><SchemaItem collapsible={false} name={"name"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"value"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"realm"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"{\n  \"name\": \"string\",\n  \"value\": \"string\",\n  \"realm\": \"string\"\n}"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem><TabItem label={"404"} value={"404"}><div>
-
-Realm attribute doesn't exist
-
-</div><div></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"attributeKey","description":"attribute key","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <SchemaItem
+                        collapsible={false}
+                        name={"name"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"value"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"realm"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem>
+                    </ul>
+                  </details>
+                </TabItem><TabItem
+                  label={"Example (from schema)"}
+                  value={"Example (from schema)"}
+                >
+                  <ResponseSamples
+                    responseExample={"{\n  \"name\": \"string\",\n  \"value\": \"string\",\n  \"realm\": \"string\"\n}"}
+                    language={"json"}
+                  >
+                    
+                  </ResponseSamples>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem><TabItem
+        label={"404"}
+        value={"404"}
+      >
+        <div>
+          
+          
+          Realm attribute doesn't exist
+          
+          
+        </div><div>
+          
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       

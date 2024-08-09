@@ -5,30 +5,291 @@ description: "Get users with this organization role"
 sidebar_label: "Get users with this organization role"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Roles"],"operationId":"getUserOrganizationRoles","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"attributes":{"type":"object","additionalProperties":true},"createdTimestamp":{"type":"integer","format":"int64"},"email":{"type":"string"},"emailVerified":{"type":"boolean"},"enabled":{"type":"boolean"},"firstName":{"type":"string"},"groups":{"type":"array","items":{"type":"string"}},"id":{"type":"string"},"lastName":{"type":"string"},"username":{"type":"string"}},"title":"UserRepresentation"}}}}}},"description":"Get users with this organization role","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"name","description":"organization role name","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/orgs/{orgId}/roles/{name}/users","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get users with this organization role","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","roles",":name","users"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) organization role name","type":"text/plain"},"type":"any","value":"","key":"name"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: eJzVWG1v28gR/ivTDRDEACk6OdeXE+Kgvlzu6ntpDNs5oLWMeESOxI2Xu7zdoWVV4X8vZknKkq27Bmn7oQZskrvztjPPzM54pRjnQY0v1Ts/R6v/iaydhTNnKKirRLmafFw6KdRYzYnfB/KbpB1lojyF2tlAQY1X6sX+vjwKCrnXtZCpsQpNnlMQ2txZJstCgnVtdB4lZR+D0K1UyEuqUN54WZMaK/QelypRmqkKG+tu+pFyVomqvdjJutOOzF5PG6adtFgUWtShOd3gYt9Qm6jcEzIVF7qiwFjVGwK0ZZqTV4maOV8hd0uHB6pNFFWozQZtYK/tfL3zK3k901RsUEydM4Q2klicmt/bnGkf+G9Y0U7pc++aOnyGpwaWNlG62CnK4B/oaQJ5u3uzTRRrNrIk0Dij2lMgyzGkqo0/yQMk/EAMIjLAQnMJXOoAbhN+3hmSsKLHipi8AHSltPDWyKVKVGeN8oSmUg/lx1UQEnhmHYMu/rQXIfpbo714WqKdPMbZ/YEDL+ORgq5qQ6pNdmp3fn5SPNK+dRJd/C8Ux8cf6hUPQk/2H6i/SlRFXLo++WNMuFRjla2ik9vM+XnIVtETbSZaQ7YSvW0WI6wSFcjfDiFsvFFjtaq9Y5c7046zbFW6wO2qdp7blSeDrG/pFLlss6hCRNyi15IkEdJCL0+yTSWFC+t6VJcYiBdupJ1KlHE5mkh2JU6aYWMkXR8Tbjvw+PQEIlebKDFnU4lK1Mv9l8+3Be6UEDlb8fr9UR5IyrDh8t+IOuvZITq8jTUu+mxTVslcqyQ+wra8bqltJYKB8sZrXsYIYCzCH9jdkFXjy6tNgnMBRl9Dt8jWSOkVRgTFSkXoY03sXr4fKmNXaezMRd6+PpyK7+Fi4eC4qLSFs7fnF3B8evLo7BdSEHQAXJOApxl5sjnBzHngkuBe2k+0zI3DG8ibwK4CT8E1PqcwgouSAgF6ArpjskE7G4BdFBAYbYG+gMu1gG27rp5FL46zbLFYjG56opHz86xweUix1plBpsCZp8DxW9uC7kYlV2ZvNLET++TJE/hWDH1/dgLdxTGxAokAoaY8XgugbTSocHlTDaUzGj1gaDBZfqe9tNHEptA5fAzXg6WvBMCvx68Eha8jzvosuhbyt3coeb1B/yAnHnB09h83XJLl/pqe2O3vGKi81HRLBUyX0ARt59HS623CMXwbQQKvIqpeX0NJWJCX46MxIGWKAseodfEnzSV10e7wCJETPOWkRd3MuwoQrHjBAG6pS8B5sQcHwVBoTzmb5eDNdzXZk+/gjbOWcu5lky1qpy3H6J2wmOEpd1VFtqACuESGpWvk/gKEB8h5YzRZTiA0eQkY4LK72myH2h/xFjuY3yNrrrlspqPcVdkAsPVLal1BH0OKIjvNo+y9RORySUtgvCHIBSZu9ujsc2KWOKDdcl0CaAtJJk+hlH3NsCjJypPuau0pDLB90p8Gck+FiEYTYO7RCmWE0cReX19P7Om78wvYBE4mKZHG92yoWpmryeoizTtnZ9Gaif2rCzyGByCc2OM8p7rb2OoOJ/ZN1zqmUo+29+/SxWKRSoqljTdkc1dQIWeJNn8QhqPOhx82TvS0X9LF0drNw1qg3BMfzYrDg29e7h+kX+HXB+lBcfhNijli+nK2f/jn/HD6dYHPe1f0jjvFEBbOF//v7qr7czwd+r+jRv7+ZeacIPbpsH9UL4rnL746/sffd7lz0zdw/t1PYWJ/cQV5Gwu70VOPXlOIBQ9vURu56WPCBLoljwYk/ZwFg3be4Hy7rt9zYADxGnTFH5BjkhttbwJMybhFrAiSuzlayEvnQiysc7Iy45BseXAL25cw+bqUGiFmSrGGmTZ0n7oeF6MufcU9/UwTM7l+kWqbZ0OMUrktsgq1jWHFWo+WOFwQn+Dn/ljwCX6OzljCJ1lP0xT6v/Ip1QOeSfq6WBV//PWX6JGwB59gRzl5aMRH4V9LOo91KLtY1tS9fqaQ0Ik4XXLp7Ofx1D3txEonRz50l/zt867PClxhbDH63vZzh4OtlmHdoDDdcVYb1HF6iu3mqu9ZL9V4GBekaVWJGg8NvO+H2HHfMXet61XS95qXarWSa/e9N20ry7815KWdurpvTWNzVejQz3IzNIEeGbkefNWzs74p34PfmVZ2HmgY8+wydsWmoa53vKHlehqSmeGLDHk8uHyBDZ1L/zs2bA4xX2BK5Gyv2kR1jUYMUbfVVcwNpkf/h9gafX54e6Ha9l8hkgx2
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
 import ApiTabs from "@theme/ApiTabs";
+import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import SecuritySchemes from "@theme/ApiExplorer/SecuritySchemes";
 import MimeTabs from "@theme/MimeTabs";
 import ParamsItem from "@theme/ParamsItem";
 import ResponseSamples from "@theme/ResponseSamples";
 import SchemaItem from "@theme/SchemaItem";
 import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import Markdown from "@theme/Markdown";
+import Heading from "@theme/Heading";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
 
-## Get users with this organization role
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get users with this organization role"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/orgs/{orgId}/roles/{name}/users"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get users with this organization role
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"name","description":"organization role name","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
-
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}>Array [</div></li><SchemaItem collapsible={true} className={"schemaItem"}><details style={{}}><summary style={{}}><strong>attributes</strong><span style={{"opacity":"0.6"}}> object</span></summary><div style={{"marginLeft":"1rem"}}></div></details></SchemaItem><SchemaItem collapsible={false} name={"createdTimestamp"} required={false} schemaName={"int64"} qualifierMessage={undefined} schema={{"type":"integer","format":"int64"}}></SchemaItem><SchemaItem collapsible={false} name={"email"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"emailVerified"} required={false} schemaName={"boolean"} qualifierMessage={undefined} schema={{"type":"boolean"}}></SchemaItem><SchemaItem collapsible={false} name={"enabled"} required={false} schemaName={"boolean"} qualifierMessage={undefined} schema={{"type":"boolean"}}></SchemaItem><SchemaItem collapsible={false} name={"firstName"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"groups"} required={false} schemaName={"string[]"} qualifierMessage={undefined} schema={{"type":"array","items":{"type":"string"}}}></SchemaItem><SchemaItem collapsible={false} name={"id"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"lastName"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"username"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}>]</div></li></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"[\n  {\n    \"attributes\": {},\n    \"createdTimestamp\": 0,\n    \"email\": \"string\",\n    \"emailVerified\": true,\n    \"enabled\": true,\n    \"firstName\": \"string\",\n    \"groups\": [\n      \"string\"\n    ],\n    \"id\": \"string\",\n    \"lastName\": \"string\",\n    \"username\": \"string\"\n  }\n]"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+<details
+  style={{"marginBottom":"1rem"}}
+  className={"openapi-markdown__details"}
+  data-collapsed={false}
+  open={true}
+>
+  <summary
+    style={{}}
+  >
+    <h3
+      className={"openapi-markdown__details-summary-header-params"}
+    >
+      Path Parameters
+    </h3>
+  </summary><div>
+    <ul>
+      <ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem><ParamsItem
+        className={"paramsItem"}
+        param={{"in":"path","name":"name","description":"organization role name","required":true,"schema":{"type":"string"},"style":"simple"}}
+      >
+        
+      </ParamsItem>
+    </ul>
+  </div>
+</details><div>
+  <div>
+    <ApiTabs
+      label={undefined}
+      id={undefined}
+    >
+      <TabItem
+        label={"200"}
+        value={"200"}
+      >
+        <div>
+          
+          
+          success
+          
+          
+        </div><div>
+          <MimeTabs
+            className={"openapi-tabs__mime"}
+            schemaType={"response"}
+          >
+            <TabItem
+              label={"application/json"}
+              value={"application/json"}
+            >
+              <SchemaTabs
+                className={"openapi-tabs__schema"}
+              >
+                <TabItem
+                  label={"Schema"}
+                  value={"Schema"}
+                >
+                  <details
+                    style={{}}
+                    className={"openapi-markdown__details response"}
+                    data-collapsed={false}
+                    open={true}
+                  >
+                    <summary
+                      style={{}}
+                      className={"openapi-markdown__details-summary-response"}
+                    >
+                      <strong>
+                        Schema
+                      </strong>
+                    </summary><div
+                      style={{"textAlign":"left","marginLeft":"1rem"}}
+                    >
+                      
+                    </div><ul
+                      style={{"marginLeft":"1rem"}}
+                    >
+                      <li>
+                        <div
+                          style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}
+                        >
+                          Array [
+                        </div>
+                      </li><SchemaItem
+                        collapsible={true}
+                        className={"schemaItem"}
+                      >
+                        <details
+                          style={{}}
+                          className={"openapi-markdown__details"}
+                        >
+                          <summary
+                            style={{}}
+                          >
+                            <span
+                              className={"openapi-schema__container"}
+                            >
+                              <strong
+                                className={"openapi-schema__property"}
+                              >
+                                attributes
+                              </strong><span
+                                className={"openapi-schema__name"}
+                              >
+                                 object
+                              </span>
+                            </span>
+                          </summary><div
+                            style={{"marginLeft":"1rem"}}
+                          >
+                            <SchemaItem
+                              name={"property name*"}
+                              required={false}
+                              schemaName={"any"}
+                              qualifierMessage={undefined}
+                              schema={{"type":"object","additionalProperties":true}}
+                              collapsible={false}
+                              discriminator={false}
+                            >
+                              
+                            </SchemaItem>
+                          </div>
+                        </details>
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"createdTimestamp"}
+                        required={false}
+                        schemaName={"int64"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"integer","format":"int64"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"email"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"emailVerified"}
+                        required={false}
+                        schemaName={"boolean"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"boolean"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"enabled"}
+                        required={false}
+                        schemaName={"boolean"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"boolean"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"firstName"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"groups"}
+                        required={false}
+                        schemaName={"string[]"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"array","items":{"type":"string"}}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"id"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"lastName"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><SchemaItem
+                        collapsible={false}
+                        name={"username"}
+                        required={false}
+                        schemaName={"string"}
+                        qualifierMessage={undefined}
+                        schema={{"type":"string"}}
+                      >
+                        
+                      </SchemaItem><li>
+                        <div
+                          style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}
+                        >
+                          ]
+                        </div>
+                      </li>
+                    </ul>
+                  </details>
+                </TabItem><TabItem
+                  label={"Example (from schema)"}
+                  value={"Example (from schema)"}
+                >
+                  <ResponseSamples
+                    responseExample={"[\n  {\n    \"attributes\": {},\n    \"createdTimestamp\": 0,\n    \"email\": \"string\",\n    \"emailVerified\": true,\n    \"enabled\": true,\n    \"firstName\": \"string\",\n    \"groups\": [\n      \"string\"\n    ],\n    \"id\": \"string\",\n    \"lastName\": \"string\",\n    \"username\": \"string\"\n  }\n]"}
+                    language={"json"}
+                  >
+                    
+                  </ResponseSamples>
+                </TabItem>
+              </SchemaTabs>
+            </TabItem>
+          </MimeTabs>
+        </div>
+      </TabItem>
+    </ApiTabs>
+  </div>
+</div>
       
