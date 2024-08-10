@@ -92,7 +92,7 @@ export default function MigrateToKeycloak() {
                     </div>
                     <div className={`col ${styles.frameworkGridColMigrate}`}>
                       <a
-                        href="https://phasetwo.io/blog/keycloak-vs-auth0-open-source-alternative/"
+                        href="https://phasetwo.io/blog/keycloak-vs-okta-open-source-alternative/"
                         className="margin-right--sm"
                       >
                         <InlineIcon
@@ -102,38 +102,56 @@ export default function MigrateToKeycloak() {
                       </a>
                     </div>
                     <div className={`col ${styles.frameworkGridColMigrate}`}>
-                      <img
-                        src="/img/logo-ping-identity.svg"
-                        alt="Ping Identity"
-                        style={{ height: "1.6rem" }}
-                        loading="lazy"
-                      />
+                      <a
+                        href="https://phasetwo.io/blog/keycloak-vs-PingIdentity-open-source-alternative/"
+                        className="margin-right--sm"
+                      >
+                        <img
+                          src="/img/logo-ping-identity.svg"
+                          alt="Ping Identity"
+                          style={{ height: "1.6rem" }}
+                          loading="lazy"
+                        />
+                      </a>
                     </div>
                   </div>
                   <div className="row frameworkGridBottom">
                     <div className={`col ${styles.frameworkGridColMigrate}`}>
-                      <div>
+                      <a
+                        href="https://phasetwo.io/blog/keycloak-vs-workos-open-source-alternative/"
+                        className="margin-right--sm"
+                      >
                         <InlineIcon
                           icon="logos:workos"
                           style={{ fontSize: "1.5rem" }}
                         />
-                      </div>
+                      </a>
                     </div>
                     <div className={`col ${styles.frameworkGridColMigrate}`}>
-                      <img
-                        src="/img/logo-frontegg.svg"
-                        alt="FrontEgg"
-                        style={{ height: "1.6rem" }}
-                        loading="lazy"
-                      />
+                      <a
+                        href="https://phasetwo.io/blog/keycloak-vs-frontegg-open-source-alternative/"
+                        className="margin-right--sm"
+                      >
+                        <img
+                          src="/img/logo-frontegg.svg"
+                          alt="FrontEgg"
+                          style={{ height: "1.6rem" }}
+                          loading="lazy"
+                        />
+                      </a>
                     </div>
                     <div className={`col ${styles.frameworkGridColMigrate}`}>
-                      <img
-                        src="/img/logo-onelogin.svg"
-                        alt="OneLogin"
-                        style={{ height: "1.6rem" }}
-                        loading="lazy"
-                      />
+                      <a
+                        href="https://phasetwo.io/blog/keycloak-vs-onelogin-open-source-alternative/"
+                        className="margin-right--sm"
+                      >
+                        <img
+                          src="/img/logo-onelogin.svg"
+                          alt="OneLogin"
+                          style={{ height: "1.6rem" }}
+                          loading="lazy"
+                        />
+                      </a>
                     </div>
                   </div>
                 </div>

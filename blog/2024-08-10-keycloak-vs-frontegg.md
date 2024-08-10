@@ -1,7 +1,7 @@
 ---
 title: Keycloak vs. FrontEgg, an Open-Source Alternative
 description: An in-depth comparison of Keycloak versus FrontEgg and why Keycloak is a strong alternative to a paid Authentication and Authorization service.
-slug: keyclaok-vs-frontegg-open-source-alternative
+slug: keycloak-vs-frontegg-open-source-alternative
 authors: phasetwo
 tags:
   [phase_two, open_source, authentication, authorization, frontegg, keycloak]

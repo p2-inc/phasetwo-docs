@@ -3,7 +3,17 @@ slug: open-source-iam
 title: "Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ..."
 description: Keycloak is a financially sustainable, open source alternative to many paid identity and access management providers.
 authors: phasetwo
-tags: [keycloak, phase_two, open_source, auth0, workos, okta, cognito, keycloak_support]
+tags:
+  [
+    keycloak,
+    phase_two,
+    open_source,
+    auth0,
+    workos,
+    okta,
+    cognito,
+    keycloak_support,
+  ]
 ---
 
 # Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ...
@@ -20,7 +30,7 @@ Amazon released [AWS Cognito](https://aws.amazon.com/cognito), which did price i
 
 More recently, nascent companies such as [WorkOS](https://workos.com) and [Frontegg](https://www.frontegg.com), while casting themselves as CIAM and “SSO made easy” to enterprise SaaS customers, are really just repackaging the same IAM features and protocol implementations that have been available in Keycloak for years. Furthermore, the pricing models have tilted back towards predatory on your company’s business model.
 
-### Keycloak advantages 
+### Keycloak advantages
 
 Amidst this landscape, open-source alternatives like Keycloak are emerging as powerful contenders, offering unique advantages over their commercial counterparts. Because the market has settled on standard protocols, it opened the door for superior open-source implementations to emerge with feature parity and standards compliance. Keycloak stands out as an alternative to commercial IAM solutions, enabling your business to unlock both flexibility and control.
 
@@ -30,7 +40,7 @@ Amidst this landscape, open-source alternatives like Keycloak are emerging as po
 4. **On-Premise and Cloud Deployment:** Whether organizations prefer on-premise deployment for enhanced security and compliance or cloud-based solutions for scalability and convenience, Keycloak offers the flexibility to meet diverse deployment needs. With support for Docker, Kubernetes, and other containerization technologies, Keycloak simplifies deployment across various environments, ensuring seamless integration into existing infrastructure and workflows.
 5. **Active Community and Support:** Backed by a vibrant community of developers and contributors, Keycloak benefits from ongoing enhancements, bug fixes, and feature additions. This active ecosystem fosters innovation and collaboration, with users sharing best practices, troubleshooting tips, and extensions through forums, mailing lists, and code repositories. Additionally, organizations seeking professional support and services can leverage expertise of a growing ecosystem of companies providing support, ensuring reliable deployment and ongoing maintenance of their Keycloak instances.
 
-### Keyclaok disadvantages
+### Keycloak disadvantages
 
 So, given Keycloak's inherent advantages, while solving all of the same problems, why has it failed to receive broad market adoption? Looking back, and polling our customer base, it seems that Keycloak has suffered from a couple of barriers:
 
@@ -48,8 +58,9 @@ Already using one of the commercial systems? Keycloak is a complete, robust and 
 Phase two has implemented [user migration](https://phasetwo.io/docs/user-migration/) support in the product for all tiers. This is meant to ease your transition from your existing user management system so that migration can occur incrementally with a complete fallback plan.
 
 ### Keycloak Support
+
 Configuring, integrating, and operating an Identity and Access Management (IAM) system can be a daunting task, especially for those new to Keycloak. For Premium and Enterprise subscribers, we include migration support. Whether you're a hosted or on-prem customer, or have your own Keycloak deployment, Phase Two can support your goals from configuration and integration to operation and maintenance. Don't let the complexities of IAM hold you back. [Contact us today](email:sales@phasetwo.io) to learn more about how we can support your Keycloak journey and take your organization to the next level.
 
 ### Conclusion
 
-In a landscape dominated by commercial IAM solutions, Keycloak shines as a compelling alternative that combines the power of open source with enterprise-grade features and flexibility. With its cost-effectiveness, customization capabilities, deployment flexibility, and active community support, Keycloak empowers organizations to take control of their identity infrastructure, unlock new possibilities, and adapt to evolving security and compliance requirements. Whether you're a startup looking to bootstrap your identity management or an enterprise seeking to streamline operations, Keycloak offers a compelling solution that puts you in the driver's seat of your IAM journey. 
+In a landscape dominated by commercial IAM solutions, Keycloak shines as a compelling alternative that combines the power of open source with enterprise-grade features and flexibility. With its cost-effectiveness, customization capabilities, deployment flexibility, and active community support, Keycloak empowers organizations to take control of their identity infrastructure, unlock new possibilities, and adapt to evolving security and compliance requirements. Whether you're a startup looking to bootstrap your identity management or an enterprise seeking to streamline operations, Keycloak offers a compelling solution that puts you in the driver's seat of your IAM journey.

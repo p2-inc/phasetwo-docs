@@ -1,7 +1,7 @@
 ---
 title: Keycloak vs. WorkOS, an Open-Source Alternative
 description: An in-depth comparison of Keycloak versus WorkOS and why Keycloak is a strong alternative to a paid Authentication and Authorization service.
-slug: keyclaok-vs-workos-open-source-alternative
+slug: keycloak-vs-workos-open-source-alternative
 authors: phasetwo
 tags: [phase_two, open_source, authentication, authorization, workos, keycloak]
 ---

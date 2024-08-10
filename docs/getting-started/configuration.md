@@ -18,7 +18,7 @@ In the **Realm settings** section, in the **Login** tab, you will find several i
 - _Login with email_ allows users to log in with their email address, regardless if their email is their username.
 - _Verify email_ requires the user to verify their email address. An email server must be set up in your account in order to send a verification email to your users. See the [email server configuration guide](/docs/getting-started/email#server-configuration) for more information.
 
-![Keyclaok Realm Login Settings](/docs/getting-started-configuration-settings.png)
+![Keycloak Realm Login Settings](/docs/getting-started-configuration-settings.png)
 
 #### User profile
 

@@ -1,7 +1,7 @@
 ---
 title: Keycloak vs. PingIdentity, an Open-Source Alternative
 description: An in-depth comparison of Keycloak versus PingIdentity and why Keycloak is a strong alternative to a paid Authentication and Authorization service.
-slug: keyclaok-vs-PingIdentity-open-source-alternative
+slug: keycloak-vs-PingIdentity-open-source-alternative
 authors: phasetwo
 tags:
   [
