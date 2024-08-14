@@ -47,6 +47,10 @@ Auth0 is a cloud-based service, which can provide less initial setup and configu
 
 Keycloak can be deployed as an on-premise solution or via a [cloud service](https://phasetwo.io/hosting/). Because it provides full control over the deployment environment, it conforms to any compliance and data sovereignty needs. Enterprises needing to adapt the solution to their environments, can adopt Keycloak knowing it will work. From an infrastructure standpoint, Keycloak may initially take more time but it also provides a very straightforward way to integrate applications.
 
+**Winner**
+
+Depends. If you need on-premise, Keycloak is a better option. For a hosted option, either is a strong choice. Keycloak has some flexibility allowing you to host yourself or leverage a service like Phase Two's [hosting]((https://phasetwo.io/hosting/).
+
 ### Maintenance
 
 **Auth0:**
