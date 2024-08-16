@@ -37,12 +37,16 @@ module.exports = {
       label: "Securing Applications",
       link: { type: "doc", id: "securing-applications/index" },
       items: [
+        "securing-applications/django",
+        "securing-applications/springboot",
         "securing-applications/javascript",
         "securing-applications/react",
         "securing-applications/next",
         "securing-applications/vue",
         "securing-applications/nuxt",
-        "securing-applications/django",
+        "securing-applications/remix",
+        "securing-applications/sveltekit",
+        "securing-applications/angular",
       ],
     },
     {

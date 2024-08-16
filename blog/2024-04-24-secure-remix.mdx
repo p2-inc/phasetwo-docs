@@ -20,6 +20,7 @@ tags:
 import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+import Remix from "/templates/frameworks/_remix.mdx";
 
 In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a Remix application with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
 
@@ -54,56 +55,7 @@ If you just want to skip to the code, visit the Phase Two [Remix example](https:
 
 ## Setting up a Remix Project
 
-:::info
-We will use the Phase Two Remix example code here, but the logic could easily be applied to any existing application.
-:::
-
-1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-2. Open the Remix [folder](https://github.com/p2-inc/examples/tree/main/frameworks/remix) within `/frameworks/remix`.
-3. Run `npm install` and then `npm run dev -- --port 3000`. This example leverages [remix-auth](https://github.com/sergiodxa/remix-auth) and [remix-keycloak](https://github.com/marsmars0x01/remix-keycloak) to provide HOC support.
-4. Open the `app/services/keycloak.server.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`:
-
-```tsx
-const kcConfig = {
-  useSSL: true,
-  domain: "usw2.auth.ac/auth",
-  realm: "shared-deployment-001",
-  clientID: "reg-example-1",
-  clientSecret: "CLIENT_SECRET", // Paste "Client secret" here. Use Environment variables in prod
-  callbackURL: "http://localhost:3000/auth/keycloak/callback",
-};
-```
-
-Those are used to popluate the config for the `KeycloakStrategy`:
-
-```tsx
-export default new KeycloakStrategy(kcConfig, ({ profile }) => profile);
-```
-
-The config is then used with the Authenticator instance in the `app/services/auth.server.ts` file. The authenticator instance uses the Session Storage to manage the state of authentication via a cookie.
-
-```tsx
-import { Authenticator } from "remix-auth";
-import keycloakServer from "./keycloak.server";
-import { sessionStorage } from "~/services/session.server";
-
-export const authenticator = new Authenticator(sessionStorage);
-
-authenticator.use(keycloakServer);
-```
-
-At this point our entire application will be able to access all information and methods needed to perform authentication. View the `session.server.ts` file for additional information about how the `SessionStorage` is used. The `SessionStorage` stores the Keycloak token and is used to derive the authenticated state. View `user.tsx` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `remix-auth`.
-
-The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
-
-5. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
-
-   :::info
-   Use the non-admin user created in the previous section to sign in.
-   :::
-
-6. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
-7. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+<Remix />
 
 ## Learning more
 

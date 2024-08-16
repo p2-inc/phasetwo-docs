@@ -1,0 +1,291 @@
+## Install and configure Spring Boot
+
+Now that we've setup and configured Keycloak using [Phase Two](https://phasetwo.io/dashboard/) and cloned or created our Spring Boot application template, we will need to configure the project to leverage the capabilities provided by Keycloak.
+
+1. Configure application settings
+
+   Update your `application.yaml` configuration file with the Keycloak security configuration (it's possible your download includes a `application.properties` file instead).
+
+   ```yaml
+   spring:
+     application:
+       name: spring-boot-keycloak
+     security:
+       oauth2:
+         resourceserver:
+           jwt:
+             issuer-uri: $http-keycloak-url/auth/realms/$your-realm
+             jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+   ```
+
+   Replace
+
+   - `$http-keycloak-url` with the Keycloak URL from the Phase Two hosted Keycloak instance.
+   - `$your-realm` with the Keycloak realm created earlier in this tutorial.
+
+   If you are using the local Keycloak instance from the cloned example, use the local address for `$http-keycloak-url`.
+
+   The below Java code omits any imports, reference our example for necessary imports or use your text editor to assist with populating the imports.
+
+2. Configure Spring Boot resource server
+
+   Under `src.main.java.com.springbootkeycloak` create a new package, `config`, and create a class `SecurityConfig.java`. In this class, add the `HttpSecurity` settings:
+
+   ```java
+   @Configuration
+   @EnableWebSecurity
+   @EnableMethodSecurity
+   public class SecurityConfig {
+
+       private final JwtClaimsConverter jwtAuthConverter;
+
+       public SecurityConfig(JwtClaimsConverter jwtAuthConverter) {
+           this.jwtAuthConverter = jwtAuthConverter;
+       }
+
+       @Bean
+       public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+           http.authorizeHttpRequests(authz ->
+                   authz
+                           .requestMatchers("/api/**")
+                           .authenticated()
+           );
+           http.oauth2ResourceServer(oauth2ResourceServer ->
+                   oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
+           );
+           http.csrf(AbstractHttpConfigurer::disable);
+
+           http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+           return http.build();
+       }
+   }
+   ```
+
+   This configuration will make the Spring Boot act as an OAuth2 Resource Server's with JWT authentication. This configuration is part of the functionality provided by the `spring-boot-starter-oauth2-resource-server` dependency. Read more about it's configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-sansboot).
+
+3. Add JWT token convert configuration
+
+   In the same `config` package, create another class, `JwtClaimsConverter.java`. Add a converter for extracting the security context attributes from the `access_token` received from Keycloak.
+
+   ```java
+   @Component
+   public class JwtClaimsConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+
+       @Override
+       public AbstractAuthenticationToken convert(Jwt jwt) {
+         var authorities = extractRealmRoles(jwt);
+           return new JwtAuthenticationToken(jwt, authorities, getPrincipalFromClaim(jwt));
+       }
+
+       private String getPrincipalFromClaim(Jwt jwt) {
+           var claimName = "preferred_username";
+           return jwt.getClaim(claimName);
+       }
+
+       private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
+           Map<String, Object> resource = jwt.getClaim("realm_access");
+           Collection<String> roles;
+           if (resource == null
+                   || (roles = (Collection<String>) resource.get("roles")) == null) {
+               return Set.of();
+           }
+           return roles.stream()
+                   .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                   .collect(Collectors.toSet());
+       }
+   }
+   ```
+
+   The provided example uses the `preferred_username` claim for populating the _principal_ of the security context and the `realm_access.roles` to populate the _authorities_.
+
+   This configuration is part of the functionality provided by the `spring-boot-starter-oauth2-resource-server` dependency. Read more about it's configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-authorization-extraction).
+
+4. Create the secured API resources:
+
+   In `src.main.java.com.springbootkeycloak` create a new package, `web`, and create a new class `TestController.java`.
+
+   To test the security integration two resource endpoints are defined:
+
+   - `/api/test/anonymous`
+   - `/api/test/user`
+
+   Implemented with this code:
+
+   ```java
+   @RestController
+   @RequestMapping("/api/test")
+   public class TestController {
+
+       @RequestMapping(value = "/anonymous", method = RequestMethod.GET)
+       public ResponseEntity<String> getAnonymous() {
+           return ResponseEntity.ok("Hello Anonymous");
+       }
+
+       @PreAuthorize("hasRole('ROLE_user')")
+       @RequestMapping(value = "/user", method = RequestMethod.GET)
+       public ResponseEntity<String> getUser()
+       {
+           return ResponseEntity.ok("Hello Secured with user role.");
+       }
+   }
+
+   ```
+
+   Because both endpoints have the prefix `/api` they will require a secure context in order to access them. Furthermore, the `/api/test/user` endpoint is secured using a predefined authority `ROLE_user`. This is a Realm role that can be created and applied to your example user from earlier in this tutorial.
+
+   This logic can be used to extend access and authorization to any part of the application.
+
+   Start the application running with `./gradlew bootRun`.
+
+### Testing the secured endpoints
+
+The secured endpoints can be tested using `curl` with the `Authorization` header. The `Authorization` header must contain the `access_token`.
+
+```bash
+curl --location 'http://localhost:8080/api/test/anonymous' \
+    --header 'Authorization: Bearer {{$access_token}}'
+```
+
+```bash
+curl --location 'http://localhost:8080/api/test/user' \
+    --header 'Authorization: Bearer {{$access_token}}'
+```
+
+To generate an access token, you can use the `openid-connect/token` endpoint from Keycloak.
+
+```bash
+curl -X POST \
+  --location "https://$http-keycloak-url/auth/realms/$keycloak-realm/protocol/openid-connect/token" \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'username=$test-user&password=$password&grant_type=password&client_id=$client-name&client_secret=$client-secret'
+```
+
+Substitute the values from your Keycloak instance and test user for `$http-keycloak-url`, `$keycloak-realm`, `$test-user`, `$password`, `$client-name`, and `$client-secret`.
+
+In the returned HTTP response, the `access_token` will be present. Use this token to test the secured endpoints in the example curl's above.
+
+At this point, your Spring Boot application is secured with Keycloak, but there is no "Frontend" to the application. In the next section, we will add an Angular SPA to demonstrate sign-in with Keycloak.
+
+## Integration with Angular
+
+In order to access the secured resources of the Spring Boot server, we will create a client application which will authenticate our users. After Authentication, that user will then have access to the secured resources via their JWT token.
+
+### Generate Angular Application
+
+Our [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak) already has a basic Angular application setup. We will use that for the rest of this setup.
+
+In the example folder, open the `angularclient` folder.
+
+If you do want to start your own Application, follow the instructions below:
+
+- Setup a new Angular application following these [instructions](https://angular.io/start)
+- Use the Angular Oauth2 OIDC [library](https://github.com/manfredsteyer/angular-oauth2-oidc) to integrate authentication and authorization.
+
+### Securing views
+
+In the `/angularclient/src/app` folder, the `app.module.ts` file is the entry point for the Angular application. The Angular application will need to be configured in order to access user information only after authentication.
+
+```javascript
+@NgModule({
+  declarations: [
+    AppComponent,
+    MainpageComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    OAuthModule.forRoot()
+  ],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: applicationInitializerFactory,
+      deps: [OAuthService],
+      multi: true
+    },
+    {provide: LOCAL_STORAGE_TOKEN, useFactory: localStorageFactory},
+    {provide: OAuthStorage, useFactory: localStorageFactory}
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule {...}
+```
+
+The app is initialized with the `OAuthService` as a dependency. Tokens from the `OAuthService` are stored in the browser's `localStorage`.
+
+To configure the `OAuthService`'s `authorization code` login flow with the `angular-oauth2-oidc` library add the following configuration:
+
+```javascript
+function configure() {
+  oauthService.configure({
+    // URL of the SPA to redirect the user to after login
+    redirectUri: window.location.origin + "/index.html",
+    // The SPA's id. The SPA is registered with this id at the auth-server
+    clientId: "$your-public-keycloak-client",
+    // set the scope for the permissions the client should request
+    scope: "openid",
+    // url for  /.well-known/openid-configuration endpoint
+    issuer: "http://$http-keycloak-url:8888/auth/realms/$your-keycloak-realm",
+    disablePKCE: true,
+    //initialize the code flow
+    responseType: "code",
+    showDebugInformation: true,
+  });
+}
+```
+
+Replace `http-keycloak-url`, `$your-public-keycloak-client`, and `$your-keycloak-realm` with your actual Keycloak configurations.
+
+Start the application with `npm run start`
+
+#### User Authentication
+
+In the `user.component.html` file, we authenticate the user to the logged in state and conditionally render the login and logout buttons.
+
+```html
+<div *ngIf="isLoggedIn">
+  <!-- Content for logged-in users -->
+  <div class="mb-2 text-p2blue-700 text-2xl">Authenticated</div>
+  <div class="mb-6 text-p2blue-700 text-md">
+    <div *ngIf="userInfo">
+      <p><span class="font-bold">Username</span>: {{ userInfo.username }}</p>
+      <p><span class="font-bold">Email</span>: {{ userInfo.email }}</p>
+      <p><span class="font-bold">Roles</span>: {{ userInfo.roles }}</p>
+    </div>
+  </div>
+  <button [class]="buttonClasses" (click)="signOut()">Sign Out</button>
+</div>
+<div *ngIf="!isLoggedIn">
+  <div class="mb-6 text-p2blue-700 text-2xl">Not authenticated.</div>
+  <button [class]="buttonClasses" (click)="signIn()">Sign In</button>
+</div>
+```
+
+the `isLoggedIn` function can be found in the `user.component.ts` file.
+
+```javascript
+this.isLoggedIn = this.oauthService.hasValidAccessToken();
+```
+
+Clicking the Log In or Log Out buttons will redirect to the Keycloak login page or log the user out.
+
+#### Use Angular guards to secure routes
+
+We can achieve route restriction by using guards. If the access token is not valid the guard will initiate the login flow. You could optionally apply this at the router level to enforce a full page login.
+
+```javascript
+export class AuthGuard implements CanActivate {
+
+  constructor(private oauthService: OAuthService) {
+  }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree>{
+    if(!this.oauthService.hasValidAccessToken()) {
+      this.oauthService.initLoginFlow();
+    }
+    return of(true);
+  }
+}
+```
