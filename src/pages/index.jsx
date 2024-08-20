@@ -63,7 +63,7 @@ function Home() {
               </h1>
               <h2 className={`pageHeroMsgIntro`}>
                 Accelerate SaaS time-to-market and enterprise adoption by
-                rapidly integrating the features needed to support almost any
+                rapidly integrating the features needed to support almost any{" "}
                 <b>authentication</b> and <b>authorization</b> use-cases with
                 Phase Two's Keycloak as a Service offering.
               </h2>
