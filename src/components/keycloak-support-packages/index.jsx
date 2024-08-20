@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./styles.module.css";
-import { InlineIcon } from "@iconify/react/dist/iconify.js";
+import { InlineIcon } from "@iconify/react";
 
 const CheckMark = () => (
   <img

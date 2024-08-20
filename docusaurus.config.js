@@ -120,6 +120,11 @@ module.exports = {
               activeBasePath: "product/adminportal",
               label: "Admin Portal",
             },
+            {
+              to: "product/integrations",
+              activeBasePath: "product/integrations",
+              label: "Integrations",
+            },
           ],
         },
         {
