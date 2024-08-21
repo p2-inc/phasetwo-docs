@@ -102,7 +102,7 @@ function Home() {
               />
               <p>Customization</p>
             </Link>
-            <Link to={"product/sso"} className={styles.heroSection}>
+            <Link to={"product/sso/"} className={styles.heroSection}>
               <img
                 className={styles.heroSectionPicto}
                 src="img/picto-sso.svg"

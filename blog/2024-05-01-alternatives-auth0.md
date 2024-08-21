@@ -75,7 +75,7 @@ While Auth0 offer customization through its Actions framework, it can quickly be
 **Keycloak:**
 Keycloak matches Auth0 in terms of functionality, supporting similar authentication protocols and user federation. It also offers customizable user interfaces for login, registration, and account management, which can be tailored to match the specific needs of a business. Being open-source, Keycloak allows developers to modify the codebase and integrate with other systems more freely than Auth0, offering a higher degree of customization at the cost of additional developer effort.
 
-A key feature of keycloak is it's ability to be [hosted on-premise](/product/onprem) in a variety of ways. This means that as you choose to deploy something within your own systems, you'll be able to do this with Keycloak. If your requirements include an on-premise solution, [learn more](./2024-03-19-identity-brokering-on-prem.md) about this how Keycloak can help with user management and identity brokering for on-premise.
+A key feature of keycloak is it's ability to be [hosted on-premise](/product/onprem) in a variety of ways. This means that as you choose to deploy something within your own systems, you'll be able to do this with Keycloak. If your requirements include an on-premise solution, [learn more](https://phasetwo.io/blog/identity-brokering-on-prem/) about this how Keycloak can help with user management and identity brokering for on-premise.
 
 **Winner**
 
