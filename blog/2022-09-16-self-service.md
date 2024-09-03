@@ -12,6 +12,8 @@ We were flattered by the inbound interest, but our small team wasn't able to kee
 
 Today we're announcing the beta launch of the Phase Two Self-service deployment tool. This tool allows you to easily create new deployments of the Phase Two enhanced version of Keycloak in our secure, highly-available clusters. In the future, it will also allow you to deploy dedicated instances that use your own database.
 
+<!--truncate-->
+
 Take a look at how easy it is to get started:
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/zzJPmwrEHmU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

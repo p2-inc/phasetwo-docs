@@ -8,6 +8,8 @@ tags: [open_source, release, keycloak, phase_two, passwordless]
 
 Today we're making two announcements: A new, highly-requested feature, and the open sourcing of the extension at the same time. We've received a lot of requests from customers to implement "magic link" login functionality that would allow users to login to an application using a link sent to their email or over some other secure channel.
 
+<!--truncate-->
+
 To that end, we've implemented two pathways for creating a magic link. One can be configured in the Authentication section of the admin UI by duplicating the Browser flow, and replacing the normal Username/Password/OTP forms with the Magic Link execution type
 ![Install Magic Link Authenticator in Browser Flow](https://github.com/p2-inc/keycloak-magic-link/raw/main/docs/assets/magic-authenticator.png)
 This mechanism inserts a authenticator in the login flow that intercepts the email address and sends the magic link in an email to to the user.

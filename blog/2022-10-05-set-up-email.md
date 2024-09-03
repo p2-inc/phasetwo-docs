@@ -12,6 +12,8 @@ One of the first things you will need to do when getting a Keycloak Realm ready 
 
 In order to provide your users with a positive experience, these messages need a way to get to them. Keycloak supports any internet reachable SMTP server. If you are currently testing, and don't have an email server or service that you currently use, [SendGrid](https://sendgrid.com/) provides free accounts that allow you to send up to 100 emails per day forever. For debugging, you can also use a service like [MailTrap](https://mailtrap.io/) to give you a catch-all for emails coming from Keycloak.
 
+<!--truncate-->
+
 If you are using a Phase Two Deployment, log in to the self-service dashboard, and click on the **Open Console** link for the Deployment you wish to use. Once in the Keycloak admin console, click **Realm settings** in the left menu, and then click the **Email** tab.
 
 ![Keycloak Email Configuration](/blog/2022-10-05-set-up-email-template.png)
