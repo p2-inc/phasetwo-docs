@@ -33,7 +33,7 @@ Access to the Admin Console using the _Open Console_ link requires your Deployme
 You can also create a backup account to access your Deployment directly. Create an account with all `realm-management` Client Roles assigned, and you will be able to log in and use the direct link to the Admin Console below. You can also create admin accounts that are assigned restricted permissions (e.g. only managing users) by selecting a subset of the `realm-management` Client Roles.
 
 #### Direct Admin Console URL
-You may choose to access the Admin Console directly for users with admin roles.
+You may choose to access the Admin Console directly for users with admin roles. Construct the URL as below:
 ```
 https://{cluster-host}/auth/admin/{realm-name}/console
 
