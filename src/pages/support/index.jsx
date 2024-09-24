@@ -584,7 +584,7 @@ export default function Hosted() {
               </h4>
               <div className="margin-top--md">
                 <a
-                  href="https://app.simplymeet.me/phasetwo"
+                  href="https://scheduler.zoom.us/phasetwo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="margin-right--md"

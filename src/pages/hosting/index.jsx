@@ -305,7 +305,7 @@ export default function Hosted() {
                   <button className="btnTertiary ">Get Started For Free</button>
                 </a>
                 <a
-                  href="https://app.simplymeet.me/phasetwo"
+                  href="https://scheduler.zoom.us/phasetwo"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
