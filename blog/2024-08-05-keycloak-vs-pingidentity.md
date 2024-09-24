@@ -106,4 +106,4 @@ Both Keycloak and Ping Identity offer valuable advanced features, with Keycloak 
 
 Both Keycloak and Ping Identity provide essential IAM solutions, but their strengths cater to different organizational needs. Keycloak excels in customization, user experience, cost-effectiveness, and flexibility, making it ideal for organizations prioritizing quick adaptation and flexibility. In contrast, Ping Identity stands out with its hybrid deployment capabilities, scalability, and advanced security functionalities, positioning it as a strong choice for larger enterprises. Ultimately, the decision should align with the specific requirements, resources, and strategic goals of your organization.
 
-If you’re looking to [migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/), or have questions about Phase Two’s [enterprise support](https://phasetwo.io/support/), please [contact us](https://app.simplymeet.me/phasetwo).
+If you’re looking to [migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/), or have questions about Phase Two’s [enterprise support](https://phasetwo.io/support/), please [contact us](https://scheduler.zoom.us/phasetwo).

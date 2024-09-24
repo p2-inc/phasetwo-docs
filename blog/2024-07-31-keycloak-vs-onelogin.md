@@ -103,4 +103,4 @@ When selecting an IAM solution, it’s essential to evaluate your organization�
 
 Working with Phase Two provides some of the best of both worlds: easy integration with ability to scale without incurring additional costs.
 
-If you’re looking to [migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/), or have questions about Phase Two’s [enterprise support](https://phasetwo.io/support/), please [contact us](https://app.simplymeet.me/phasetwo).
+If you’re looking to [migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/), or have questions about Phase Two’s [enterprise support](https://phasetwo.io/support/), please [contact us](https://scheduler.zoom.us/phasetwo).
