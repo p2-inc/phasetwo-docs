@@ -843,7 +843,7 @@ paths:
         style: simple
     post:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Create an invitation to an organization
       operationId: addOrganizationInvitation
       requestBody:
@@ -859,7 +859,7 @@ paths:
           description: invitation already exists
     get:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Get organization invitations
       operationId: getOrganizationInvitations
       description: Get a paginated list of invitations to an organization, using an optional search query for email address.
@@ -959,7 +959,7 @@ paths:
                 $ref: "#/components/schemas/InvitationRepresentation"
     delete:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Remove a pending invitation
       operationId: removeOrganizationInvitation
       responses:
