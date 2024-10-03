@@ -252,9 +252,13 @@ components:
       properties:
         id:
           type: string
+        createdAt:
+          type: string
         email:
           type: string
         inviterId:
+          type: string
+        invitationUrl:
           type: string
         organizationId:
           type: string
