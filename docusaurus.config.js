@@ -392,6 +392,7 @@ module.exports = {
         docItemComponent: "@theme/ApiItem",
       },
     ],
+    "docusaurus-tailwindcss-loader",
   ],
   themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
 };
