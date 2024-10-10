@@ -19,11 +19,17 @@ import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_inst
 import OIDC from "/templates/blog/_oidc_client_creation.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
+<img
+  src="/blog/oidcspa-logo.svg"
+  style={{ width: "150px", boxShadow: "none" }}
+  alt="OIDC SPA Logo"
+></img>
+
 Our pal over at [Keycloakify](https://www.keycloakify.dev/) has been working on creating a simple OpenId Connect (OIDC) library called, [OIDC Spa](https://www.oidc-spa.dev/). As with [Joseph](https://github.com/garronej)'s usual approach to user friendliness, OIDC SPA simplifies a lot of the integration work than can come with adding an Authentication and Authorization layer to your application. Follow along as we show you how to integrate OIDC SPA with a Phase Two's free Keycloak instance.
 
-We're going to work through an example of how to add OIDC SPA to a React application. If you just want to skip to code, check out our [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
+<!--truncate-->
 
-<!-- truncate -->
+We're going to work through an example of how to add OIDC SPA to a React application. If you just want to skip to code, check out our [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
 
 ## Setting up a Keycloak Instance
 
