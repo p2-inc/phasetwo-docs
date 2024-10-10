@@ -1,0 +1,231 @@
+---
+title: Securing Keycloak with OIDC SPA and Phase Two
+description: OIDC SPA makes connecting your application to an OpenID provider extremely quick and easy.
+slug: keycloak-oidc-spa-phasetwo
+authors: phasetwo
+tags:
+  [
+    phase_two,
+    open_source,
+    authentication,
+    authorization,
+    keycloak,
+    oidc_spa,
+    keycloakify,
+  ]
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation.mdx";
+import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+
+Our pal over at [Keycloakify](https://www.keycloakify.dev/) has been working on creating a simple OpenId Connect (OIDC) library called, [OIDC Spa](https://www.oidc-spa.dev/). As with [Joseph](https://github.com/garronej)'s usual approach to user friendliness, OIDC SPA simplifies a lot of the integration work than can come with adding an Authentication and Authorization layer to your application. Follow along as we show you how to integrate OIDC SPA with a Phase Two's free Keycloak instance.
+
+We're going to work through an example of how to add OIDC SPA to a React application. If you just want to skip to code, check out our [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
+
+<!-- truncate -->
+
+## Setting up a Keycloak Instance
+
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
+
+## Setting up an OIDC Client
+
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
+
+## Adding a Non-Admin User
+
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
+
+## Setting up a ReactJS Project
+
+As this is a more interactive project, we're going to walk through a bit more integration. We've got a very basic starter template which you can find [here](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa-starter). If you'd like to see more examples, check out the [oidc-spa repo](https://github.com/keycloakify/oidc-spa/tree/main/examples)
+
+1. Clone the [starter repo](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa-starter) and install the OIDC SPA library:
+
+```bash
+npm install oidc-spa
+```
+
+2. Add an OIDC Provider in `index.tsx`. We'll be using the params from the Keycloak instance we set up earlier (update `issuerUri` and `clientId` as needed):
+
+```tsx
+import { createReactOidc } from "oidc-spa/react";
+
+export const { OidcProvider, useOidc, getOidc } = createReactOidc({
+  // NOTE: If you don't have the params right away see note below.
+  issuerUri: "https://app.phasetwo.io/auth/realms/p2examples",
+  clientId: "reactjs-example",
+  /**
+   * Vite:  `publicUrl: import.meta.env.BASE_URL`
+   * CRA:   `publicUrl: process.env.PUBLIC_URL`
+   * Other: `publicUrl: "/"` (Usually)
+   */
+  publicUrl: process.env.BASE_URL,
+});
+```
+
+Once that is added, we can render the App within the `OidcProvider`:
+
+```tsx
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <OidcProvider
+    // Optional
+    fallback={<>Checking authentication ⌛️</>}
+  >
+    <App />
+  </OidcProvider>
+);
+```
+
+3. Use the `useOidc` hook to access the OIDC context from `index.tsx` in the `Auth.tsx` file. This will allow you to check if the user is logged in, log them in, log them out, and access the OIDC tokens:
+
+```tsx
+import { useOidc } from "./index";
+
+const Auth = () => {
+  const { isUserLoggedIn, login, logout, oidcTokens } = useOidc();
+  ...
+};
+
+export default Auth;
+```
+
+Looking at what comes back, we have a few main items:
+
+- `isUserLoggedIn` - A boolean value that tells you if the user is logged in.
+- `login` - A function that will log the user in.
+- `logout` - A function that will log the user out.
+- `oidcTokens` - An object that contains the OIDC tokens. From this we can grab the `decodedIdToken` and to see information about the user. There are other tokens within this like `accessToken`, `refreshToken`, and `idToken`, which can be used for various purposes.
+
+:::info
+One of the nicest things that OIDC SPA does well is handling your token refresh for you. This is a common issue with OIDC libraries and OIDC SPA has a nice solution.
+:::
+
+Let's move forward with building out this component and adding some logic to handle the user's authentication state. Some of the mark is purely for layout and styling, but the logic is what we're after:
+
+- `oidcTokens.decodedIdToken?.email as string` we type this as since the `decodedIdToken` isn't defined. If you want to pretype the `decodedIdToken` in the `createReactOidc` function, do so by providing a `decodedIdTokenSchema` key and optionally validate it with [zod](https://zod.dev/).
+
+```tsx
+let content;
+
+if (isUserLoggedIn) {
+  content = (
+    <div>
+      <div className="mb-2 text-p2blue-700 text-2xl">Authenticated</div>
+      <div className="mb-6 text-p2blue-700 text-md">
+        <div>{oidcTokens.decodedIdToken?.email as string}</div>
+        <div>{oidcTokens.decodedIdToken?.sub as string}</div>
+      </div>
+      <button
+        className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        onClick={() => logout({ redirectTo: "current page" })}
+      >
+        Log out
+      </button>
+      <Token />
+    </div>
+  );
+} else {
+  content = (
+    <div>
+      <div className="mb-6 text-p2blue-700 text-2xl">Not authenticated.</div>
+      <button
+        className="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        onClick={() => login({ doesCurrentHrefRequiresAuth: true })}
+      >
+        Log in
+      </button>
+    </div>
+  );
+}
+
+return (
+  <div>
+    <div className="text-xl pb-8 italic">Your current status is:</div>
+    {content}
+  </div>
+);
+```
+
+4. Run the application:
+
+```bash
+npm run start
+```
+
+5. Test the login and logout functionality. You should see the user's email and sub displayed when logged in. If you're using the Keycloak instance we set up earlier, you can use the non-admin user we created.
+
+### Bonus
+
+A very common use case is security API calls. An example `api.ts` file below shows how you would intercept all requests and append the `accessToken` to the headers.
+
+This example is provided with Axios by [Keycloakify](https://docs.oidc-spa.dev/documentation/web-api). We'll implement it in `fetch` as an alternative.
+
+```tsx
+import { getOidc } from "oidc";
+
+type Api = {
+  getTodos: () => Promise<{ id: number; title: string }[]>;
+  addTodo: (todo: { title: string }) => Promise<void>;
+};
+
+const baseURL = import.meta.env.API_URL;
+
+const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  const oidc = await getOidc();
+
+  if (!oidc.isUserLoggedIn) {
+    throw new Error(
+      "We made a logic error: The user should be logged in at this point"
+    );
+  }
+
+  const headers = {
+    ...options.headers,
+    Authorization: `Bearer ${oidc.getTokens().accessToken}`,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(`${baseURL}${url}`, { ...options, headers });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+export const api: Api = {
+  getTodos: () => fetchWithAuth("/todo"),
+  addTodo: (todo) =>
+    fetchWithAuth("/todo", {
+      method: "POST",
+      body: JSON.stringify(todo),
+    }),
+};
+```
+
+We aren't setting this actual backend up, but you can see how you would use the `api.ts` file to make authenticated requests.
+
+## Conclusion
+
+This only covers the most very basic installation and usage of this library. There are a lot of different ways you leverage the tool and we invite you to investigate further. Some of which are:
+
+- Auto Logout (due to inactivity)
+- Error Management (when login fails)
+- Globally enforced authentication (every route requires authentication)
+- Usage with routing libraries
+
+We'd love to hear how you're using OIDC SPA in your applications. If you have any questions or need help, feel free to reach out to us at [Phase Two](https://phasetwo.io/contact/). We're always happy to help.
+
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (passwordless sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
