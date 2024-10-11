@@ -22,11 +22,16 @@ export default function Hosted() {
               <a href="https://phasetwo.io/hosting">hosted</a> and{" "}
               <a href="https://phasetwo.io/product/onprem/">on-prem</a>{" "}
               customers, or those with their own Keycloak deployment, we can
-              provide expert help, custom Keycloak development, help with{" "}
+              provide expert help with{" "}
               <a href="https://phasetwo.io/support/migrate-to-keycloak">
-                migration to Keycloak
-              </a>
-              , and around the clock support.
+                migration to
+              </a>{" "}
+              or{" "}
+              <a href="https://phasetwo.io/blog/identity-brokering-on-prem/">
+                scaling
+              </a>{" "}
+              Keycloak, custom Keycloak development, and around the clock
+              support.
             </p>
             <div className={`pageHeroCta`}>
               <a href="mailto:sales@phasetwo.io">
@@ -72,7 +77,7 @@ export default function Hosted() {
                     </h2>
                   </div>
                   <div className="card__body">
-                    <p>average project time</p>
+                    <p>average project launch time</p>
                   </div>
                 </div>
               </div>
@@ -169,7 +174,7 @@ export default function Hosted() {
                 </div>
                 <div className="col col--4 col--offset-1 flex flex-align-center">
                   <div>
-                    <h3>Keycloak Architecture Review</h3>
+                    <h3>Keycloak Architecture Review and Scaling</h3>
                     <p>
                       Avoid outages, trim costs, and become more agile in the
                       face of infrastructure changes. We will help scale your
@@ -180,7 +185,7 @@ export default function Hosted() {
                       </a>{" "}
                       configure their systems for handling up to 100K+ active
                       users on a global basis. We can help review and configure
-                      Kubernetes Configurations, Deployment Strategies, and
+                      Kubernetes configurations, deployment strategies, and
                       other infrastructure needs.
                     </p>
                   </div>
@@ -197,7 +202,7 @@ export default function Hosted() {
               <div className="row">
                 <div className="col col--4 col--offset-1 flex flex-align-center">
                   <div>
-                    <h3>Keycloak Installation and Configuration</h3>
+                    <h3>Keycloak Installationm and Configuration</h3>
                     <p>
                       While our{" "}
                       <a href="https://phasetwo.io/docs/getting-started/configuration/">
@@ -206,9 +211,9 @@ export default function Hosted() {
                       are designed to meet the needs of most common use cases,
                       our team is here to help you tailor the functionality to
                       suit your specific needs and goals. For initial testing
-                      and setup, we include a managed Keycloak cluster to make
-                      initial setup and testing fast and easy. This comes with a
-                      build that includes all of Phase Two's{" "}
+                      and setup, we can include a managed Keycloak cluster to
+                      make initial setup and testing fast and easy. This comes
+                      with a build that includes all of Phase Two's{" "}
                       <a href="https://phasetwo.io/docs/introduction/open-source/">
                         extensions
                       </a>{" "}
