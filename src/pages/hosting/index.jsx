@@ -2,9 +2,73 @@ import React from "react";
 import Layout from "@theme/Layout";
 import styles from "./styles.module.css";
 import faqStyles from "../../css/faq.module.css";
+import { InlineIcon } from "@iconify/react";
 
 const { trustUsReasonsCol, trustUsReasonsColNumber, callout, calloutHeader } =
   styles;
+
+const features = [
+  {
+    name: "Mission Critical Hosting",
+    description:
+      "Ensure your Identity and Access Management (IAM) services stay online with Phase Two's reliable, high-performance hosting for mission-critical applications. Our hosting solution guarantees uptime and optimal performance, making it perfect for businesses that require non-stop service.",
+  },
+  {
+    name: "Automatic Upgrades",
+    description:
+      "Stay updated with the latest features and security patches. Phase Two handles automatic upgrades for your Keycloak deployment, alerting you to any significant changes or potential issues, ensuring your system is always up-to-date without any disruptions.",
+  },
+  {
+    name: "Free Tier for Keycloak",
+    description:
+      "Get started with Keycloak and Phase Two's IAM hosting for free. Explore our platform, experience seamless hosting, and scale your identity management as your business grows, without upfront costs.",
+  },
+  {
+    name: "Unlimited Team Members and Users",
+    description:
+      "Invite your whole team without worrying about extra costs. Phase Two offers unlimited team members and users per project, charging only by the project, not by the number of users, ensuring predictable and scalable pricing.",
+  },
+  {
+    name: "Proactive Monitoring and Alerts",
+    description:
+      "Phase Two provides proactive monitoring and intelligent alerting to guarantee your IAM services are always running smoothly. Integrate with your preferred monitoring system for full transparency and rapid response times.",
+  },
+  {
+    name: "Global Deployments",
+    description:
+      "Deploy your IAM infrastructure across multiple regions worldwide, reducing latency and improving performance for your global users. Phase Two offers geographically distributed hosting to meet your application’s regional needs.",
+  },
+  {
+    name: "24/7 Support",
+    description:
+      "Receive dedicated, around-the-clock support from Phase Two's expert team. Whether you need troubleshooting, guidance, or solutions, our team is available 24/7 to assist you with your IAM hosting needs.",
+  },
+  {
+    name: "Delightful Extensions Included",
+    description:
+      "Leverage popular Phase Two's popular Keycloak extensions. Our hosting package includes all the our extensions by default and can be customized with additional extensions to meet your unique requirements.",
+  },
+  {
+    name: "Deploy Custom Themes",
+    description:
+      "Have a custom Keycloak theme? Phase Two makes it easy to deploy your custom theme across your identity management cluster, delivering a seamless, branded experience for your users.",
+  },
+  {
+    name: "Custom Domain Integration",
+    description:
+      "Create a unified, professional user experience by bringing your own domain to Phase Two's hosting service. Offer your users a familiar environment by linking your IAM services to a custom domain.",
+  },
+  {
+    name: "Unlimited SSO Connections",
+    description:
+      "Easily connect all your applications with unlimited Single Sign-On (SSO) connections using Keycloak and Phase Two. Manage your identity across multiple apps without the limitations of connection counts.",
+  },
+  {
+    name: "Dedicated Clusters",
+    description:
+      "For premium performance and isolation, Phase Two offers dedicated hosting clusters tailored to your application's unique requirements. Enjoy full control, enhanced security, and optimized resources with our dedicated cluster solutions.",
+  },
+];
 
 export default function Hosted() {
   return (
@@ -17,48 +81,8 @@ export default function Hosted() {
           <div className="pageHeroMsg">
             <h1>Premium Hosting for Keycloak</h1>
           </div>
-          <div className="pageHeroMsgIntro">
-            <p>
-              Identity and Access Management are mission critical to any
-              application. <br />
-              Self-Hosting Keycloak and keeping up to date with version releases
-              is not a simple task. As users of open source software ourselves,
-              we wanted to remove the startup friction that inevitably comes
-              with setting up a new software stack or migrating to Keycloak from
-              another Identity provider. Our <b>Hosted Keycloak</b> offering
-              allows teams to focus on rapidly implementing Identity and Access
-              Management.
-            </p>
-            <div className={`pageHeroCta`}>
-              <a href="mailto:sales@phasetwo.io">
-                <button className={`btnPrimary`}>Contact Sales</button>
-              </a>
-            </div>
-            <p className="margin-top--md">
-              Looking to Self-Host Keycloak? Learn more about our
-              <a href="mailto:sales@phasetwo.io" className="margin-left--sm">
-                On-Prem Deployments
-              </a>
-              .
-            </p>
-          </div>
-          <div className={styles.bgImg}>
-            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
-          </div>
-          <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
-          </div>
-        </div>
-
-        <div className="contentBlock z-5">
-          <div className="contentBlockHead">
-            <h2>Keycloak as a Service</h2>
-            <h3 className="margin-top--md">
-              Managed Keycloak for the Rest of Us
-            </h3>
-          </div>
-          <div className="contentBlockBody">
-            <div className="row">
+          <div>
+            <div className="row max-w-4xl mx-auto pt-4">
               <div className="col margin-bottom--md">
                 <div className="card card--full-height text--center">
                   <div className="card__header">
@@ -116,6 +140,54 @@ export default function Hosted() {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="mt-20">
+            <div className="pageHeroCta flex gap-2 w-full justify-center">
+              <a href="mailto:sales@phasetwo.io">
+                <button className={`btnSecondary`}>Contact Sales</button>
+              </a>
+              <a href="/dashboard">
+                <button className={`btnPrimary`}>Get Started</button>
+              </a>
+            </div>
+            <p className="margin-top--md">
+              Looking to Self-Host Keycloak? Learn more about our
+              <a href="mailto:sales@phasetwo.io" className="margin-left--sm">
+                On-Prem Deployments
+              </a>
+              .
+            </p>
+          </div>
+          <div className={styles.bgImg}>
+            <img src="/img/gradient-bg.webp" alt="Color Gradient" />
+          </div>
+          <div className={`pageHeroBgCircles`}>
+            <img src="/img/circles.svg" alt="Concentric Circles" />
+          </div>
+        </div>
+
+        <div className="contentBlock z-5">
+          <div className="contentBlockHead">
+            <h2>Keycloak as a Service</h2>
+            <h3 className="margin-top--md text-p2blue-700">
+              Managed Keycloak for the Rest of Us
+            </h3>
+          </div>
+          <div className="contentBlockBody">
+            <dl className="mx-auto mt-10 max-w-5xl grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-3 lg:gap-y-16 text-left">
+              {features.map((feature) => (
+                <div key={feature.name} className="relative pl-9">
+                  <dt className="font-semibold text-gray-900">
+                    <InlineIcon
+                      icon="akar-icons:check"
+                      className="w-6 h-6 absolute left-0 top-1"
+                    />
+                    {feature.name}
+                  </dt>
+                  <dd className="mt-2">{feature.description}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
         <div className="contentBlock">

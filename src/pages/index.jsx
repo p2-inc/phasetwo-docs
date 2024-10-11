@@ -7,6 +7,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { KeycloakSupportPackages } from "../components/keycloak-support-packages";
+import { InlineIcon } from "@iconify/react";
 
 function requestAccess() {
   window.open(`https://phasetwo.io/dashboard/`, "_blank");
@@ -28,6 +29,63 @@ const CheckMark = () => (
     loading="lazy"
   ></img>
 );
+
+const HostingItems = [
+  {
+    name: "Starter Tier, Predictable Pricing",
+    desc: "A generous free tier to get started. Test out Keycloak. See if you think it will work for your use case (we think it will). When ready to move to a paid tier, you can do so with ease and transparency.",
+    icon: "mdi:cloud-outline",
+    cta: "Get started",
+    href: "https://phasetwo.io/dashboard/",
+  },
+  {
+    name: "Multi-region, High Availability, Dedicated Clusters",
+    desc: "Hosted in multiple regions for high availability and low latency. Deploy in areas to comply with data residency requirements. Ensure uptime and performance.",
+    icon: "gis:globe-alt",
+    cta: "Learn more",
+    href: "https://phasetwo.io/hosting/",
+  },
+  {
+    name: "Customized, Automatically Updated",
+    desc: "Customize your Keycloak instance with extensions and themes. We will keep your instance up to date with the latest Keycloak releases. Spend time on your app, not on maintenance.",
+    icon: "grommet-icons:server-cluster",
+    cta: "Learn more",
+    href: "https://phasetwo.io/hosting/",
+  },
+];
+
+const SupportItems = [
+  {
+    name: "On-premise Deployments",
+    desc: "You have an on-premise installation for data residency requirements.",
+    icon: "mdi:cloud-lock-outline",
+  },
+  {
+    name: "Keycloak Scale and Growth",
+    desc: "Keycloak is working on a test app, staging, or only part of your application portfolio and are expecting large scale with your installation.",
+    icon: "fluent:arrow-growth-20-filled",
+  },
+  {
+    name: "IAM Consolidation to Keycloak",
+    desc: "You are consolidating from many Identity Providers down into Keycloak.",
+    icon: "mdi:consolidate",
+  },
+  {
+    name: "Infrastructure and Code Review",
+    desc: "You need someone to look at what you have already and make sure that it is secure and scalable",
+    icon: "streamline:code-analysis",
+  },
+  {
+    name: "Keycloak Upgrades",
+    desc: "You need help upgrading your Keycloak installation to the newest version.",
+    icon: "solar:server-square-update-broken",
+  },
+  {
+    name: "Custom Keycloak Development",
+    desc: "You need custom development for Keycloak to meet your specific needs in terms of functionality (extensions) or brand experience (theming).",
+    icon: "solar:server-square-update-broken",
+  },
+];
 
 function Home() {
   const context = useDocusaurusContext();
@@ -252,11 +310,76 @@ function Home() {
                 <p>+ many more</p>
               </div>
             </div>
-            <h1 className="margin-top--lg">Managed Keycloak Hosting</h1>
+          </div>
+        </div>
+
+        <div className="contentBlock">
+          <div className="contentBlockHead">
+            <h1 className="margin-top--xl">Managed Keycloak Hosting</h1>
             <p className={styles.heroIntegrationsCopy}>
               Phase Two provides a modern, open source alternative to fully
               replace or integrate with any IAMs available.
             </p>
+          </div>
+          <div className="contentBlockBody">
+            <div className="mx-auto max-w-2xl lg:max-w-none">
+              <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+                {HostingItems.map((item) => (
+                  <div key={item.name} className="flex flex-col">
+                    <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                      <InlineIcon
+                        icon={item.icon}
+                        className="h-8 w-8 text-p2blue-700 self-start"
+                      />
+                      {item.name}
+                    </dt>
+                    <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                      <p className="flex-auto">{item.desc}</p>
+                      <p className="mt-6">
+                        <a
+                          href={item.href}
+                          className="text-sm font-semibold leading-6 text-p2blue-800"
+                        >
+                          {item.cta} <span aria-hidden="true">→</span>
+                        </a>
+                      </p>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        {/* Enterprise SSO */}
+        <div className={`contentBlock`}>
+          <div className={`contentBlockHead`}>
+            <h2 id="openSourceSSO">Enterprise Keycloak Support</h2>
+            <p>
+              Phase Two's{" "}
+              <a href="https://phasetwo.io/support">Enterprise Support</a> is
+              ideal for many customers already using Keycloak that need to take
+              their implementation to the next level.
+            </p>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className="mx-auto max-w-2xl lg:max-w-4xl">
+              <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+                {SupportItems.map((item) => (
+                  <div key={item.name} className="relative pl-16">
+                    <dt className="text-base font-semibold leading-7 text-gray-900">
+                      <div className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-lg bg-p2blue-600 text-white">
+                        <InlineIcon icon={item.icon} className="h-8 w-8" />
+                      </div>
+                      {item.name}
+                    </dt>
+                    <dd className="mt-2 text-base leading-7 text-gray-600">
+                      {item.desc}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
         </div>
 
