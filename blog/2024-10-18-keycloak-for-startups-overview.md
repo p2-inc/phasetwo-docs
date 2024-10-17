@@ -21,4 +21,4 @@ This series will address the following key issues in 4 parts:
 3.  Extensibility and customization will always be necessary
 4.  There is no justification for variable cost for individual features
 
-Please stay tuned as we release a new section each week! If you would like to try out Keycloak, [sign-up](/dashboard/) for Phase Two's free tier and test it out now.
+Please stay tuned as we release a new section each week! If you would like to try out Keycloak, [sign-up](https://phasetwo.io/dashboard/) for Phase Two's free tier and test it out now.
