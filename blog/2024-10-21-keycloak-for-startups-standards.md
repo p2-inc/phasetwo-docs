@@ -6,7 +6,7 @@ authors: phasetwo
 tags: [keycloak, phase_two, startup, standards]
 ---
 
-_In this [series](./keycloak-for-startups-overview) we are proposing Keycloak as a superior alternative to commercial identity offerings._
+_In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposing Keycloak as a superior alternative to commercial identity offerings._
 
 ### Part 1: Standardized Protocols and Minimal Feature Set Differentiation
 
