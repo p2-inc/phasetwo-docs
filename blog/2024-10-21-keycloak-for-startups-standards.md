@@ -24,8 +24,12 @@ In the realm of Identity and Access Management (IAM) solutions, it's essential t
 
 5. **Vendor-Specific Enhancements**: While the core feature set may be similar across IAM solutions, vendors may differentiate themselves through vendor-specific enhancements, integrations, or ecosystem partnerships. However, these enhancements typically cater to niche use cases or specific industries and may not significantly impact the overall feature parity among IAM solutions.
 
+6. **Closed Development**: One of the key issues is that many commercial solutions are developed in isolation of public audits and community scrutiny. Companies build and operate these core secuirty protocols and standards behind a veil of secrecy, not sharing their implementations to allow review by security professionals and standards bodies. In contrast, open source solutions are built to allow full review and participation by both. Keycloak has been through many independent reviews and audits, and has a mature process for handling security issues in a timely fashion. Do you want these critical security implementations to be built with a rigor for review, or something one developer slapped together from a few examples and ChatGPT sessions?
+
 #### Conclusion 1: Making Informed Decisions Beyond Feature Sets
 
 In conclusion, while it's true that there is minimal differentiation on the feature set level among IAM solutions due to standardized protocols, organizations should focus on other factors when evaluating and selecting a solution. Considerations such as cost-effectiveness, customization capabilities, vendor support, community engagement, and alignment with organizational goals should weigh heavily in the decision-making process.
 
 Ultimately, the choice between commercial and open-source IAM solutions should be driven by factors beyond the core feature set, with organizations prioritizing flexibility, scalability, security, and long-term sustainability in their IAM strategy.
+
+_Stay tuned for "Part 2: The ability to control your data is essential, now and in the future", coming out next week!_
