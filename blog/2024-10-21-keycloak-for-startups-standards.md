@@ -1,6 +1,6 @@
 ---
 slug: keycloak-for-startups-standards
-title: Why your startup should use Keycloak for SSO and User Management - Standards
+title: Why your startup should use Keycloak for SSO and User Management - Part 1: Standards
 description: Every commercial and open source IAM offering is an implementation of the same standards.
 authors: phasetwo
 tags: [keycloak, phase_two, startup, standards]
