@@ -1,12 +1,18 @@
 ---
 slug: keycloak-for-startups-standards
-title: Why your startup should use Keycloak for SSO and User Management - Part 1: Standards
+title: "Why your startup should use Keycloak for SSO and User Management - Part 1: Standards"
 description: Every commercial and open source IAM offering is an implementation of the same standards.
 authors: phasetwo
 tags: [keycloak, phase_two, startup, standards]
 ---
 
-_In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposing Keycloak as a superior alternative to commercial identity offerings._
+:::note
+
+In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposing Keycloak as a superior alternative to commercial identity offerings.
+
+- [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md)
+
+:::
 
 ### Part 1: Standardized Protocols and Minimal Feature Set Differentiation
 
@@ -32,4 +38,6 @@ In conclusion, while it's true that there is minimal differentiation on the feat
 
 Ultimately, the choice between commercial and open-source IAM solutions should be driven by factors beyond the core feature set, with organizations prioritizing flexibility, scalability, security, and long-term sustainability in their IAM strategy.
 
-_Stay tuned for "Part 2: The ability to control your data is essential, now and in the future", coming out next week!_
+_Read [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md) now._
+
+Get in touch at [sales@phasetwo.io](sales@phasetwo.io) to learn more.
