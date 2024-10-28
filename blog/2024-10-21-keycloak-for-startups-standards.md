@@ -40,4 +40,4 @@ Ultimately, the choice between commercial and open-source IAM solutions should b
 
 _Read [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md) now._
 
-Get in touch at [sales@phasetwo.io](sales@phasetwo.io) to learn more.
+Get in touch at [sales@phasetwo.io](mailto:sales@phasetwo.io) to learn more.

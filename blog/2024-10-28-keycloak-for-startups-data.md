@@ -48,4 +48,4 @@ By prioritizing data ownership and implementing robust IAM solutions that align 
 
 _Read [Part 1: Why Keycloak for Startups](./2024-10-18-keycloak-for-startups-overview.md) now. Stay tuned for "Part 3: Customizability for Tailored Solutions", coming out next week!_
 
-Get in touch at [sales@phasetwo.io](sales@phasetwo.io) to learn more.
+Get in touch at [sales@phasetwo.io](mailto:sales@phasetwo.io) to learn more.
