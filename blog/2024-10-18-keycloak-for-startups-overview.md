@@ -16,8 +16,8 @@ The purpose of this series is to dive into the key issues that separate an open 
 
 This series will address the following key issues in 4 parts:
 
-1.  [Part 1](./2024-10-21-keycloak-for-startups-standards.md): Every commercial offering is an implementation of the same standards
-2.  The ability to control your data is essential, now and in the future
+1.  [Part 1](./2024-10-21-keycloak-for-startups-standards.md): Every commercial offering is an implementation of the same standards.
+2.  [Part 2](./2024-10-28-keycloak-for-startups-data.md): The ability to control your data is essential, now and in the future.
 3.  Extensibility and customization will always be necessary
 4.  There is no justification for variable cost for individual features
 
