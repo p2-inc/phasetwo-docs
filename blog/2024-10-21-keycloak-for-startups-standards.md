@@ -10,7 +10,9 @@ tags: [keycloak, phase_two, startup, standards]
 
 In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposing Keycloak as a superior alternative to commercial identity offerings.
 
-- [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md)
+- [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md)
+- [Part 2: Data Ownership](./2024-10-21-keycloak-for-startups-data.md)
+- [Part 3: Customization](./2024-11-04-keycloak-for-startups-customization.md)
 
 :::
 
