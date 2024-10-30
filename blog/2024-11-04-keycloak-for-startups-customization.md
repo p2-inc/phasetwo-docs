@@ -22,6 +22,8 @@ One size rarely fits all, especially in the world of enterprise software. Startu
 
 From branding and user interface customization to advanced authentication flows and authorization policies, Keycloak provides a comprehensive toolkit for startups to craft seamless and secure user experiences. Whether integrating with existing systems or building entirely new functionalities, Keycloak's flexibility ensures a perfect fit for any enterprise SaaS startup. Here’s how Keycloak’s flexibility stands apart from commercial, closed-source solutions, and why this is a key differentiator:
 
+<!-- truncate -->
+
 1. **Flexible Authentication and Authorization Flows**: Keycloak supports a broad range of authentication flows out of the box, including standard Single Sign-On ([SSO](/product/sso/)), multi-factor authentication (MFA), and custom flows that can incorporate additional security checks or personalized user experiences. Through its flexible Authentication Flow configuration, Keycloak allows you to define step-by-step authentication processes, integrating custom forms, conditional checks, and required actions. This customization ensures that security and compliance requirements can be met without compromising on user experience.
 
 2. **Adaptable User Interfaces and Branding**: The user experience is a major part of identity management. Keycloak makes it easy to customize login pages, consent screens, and other interfaces to align with your brand’s look and feel. You can alter these templates by modifying Keycloak’s HTML, CSS, and JavaScript files, enabling seamless brand integration and a cohesive customer experience. Closed-source solutions, by contrast, often provide limited UI customization options, restricting the degree to which you can personalize the user experience.
@@ -42,4 +44,4 @@ The flexibility Keycloak offers through customization allows startups to truly o
 
 For your extension needs, Phase Two provides the ability to load custom themes and extensions for customers at the [Enterprise level](/hosting/). Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) for more information about how to benefit from our hosting platform while customizing Keycloak to your specific needs.
 
-_Read [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md) and [Part 2: Data Ownership](./2024-10-21-keycloak-for-startups-data.md) now. Stay tuned for "Part 4: Cost-Effectiveness of Open Source", coming out next week!_
+_Read [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md) and [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md) now. Stay tuned for "Part 4: Cost-Effectiveness of Open Source", coming out next week!_
