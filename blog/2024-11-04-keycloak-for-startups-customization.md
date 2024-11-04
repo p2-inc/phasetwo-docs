@@ -1,9 +1,9 @@
 ---
-slug: keycloak-for-startups-data
-title: "Why your startup should use Keycloak for SSO and User Management - Part 2: Data"
-description: "Part 2: The ability to control your data is essential, now and in the future."
+slug: keycloak-for-startups-customization
+title: "Why your startup should use Keycloak for SSO and User Management - Part 2: Customization"
+description: "Part 3: Keycloak stands out in customizability for tailored solutions."
 authors: phasetwo
-tags: [keycloak, phase_two, startup, data]
+tags: [keycloak, phase_two, startup, customization, extension]
 ---
 
 :::note
