@@ -1,6 +1,6 @@
 ---
 slug: keycloak-for-startups-customization
-title: "Why your startup should use Keycloak for SSO and User Management - Part 2: Customization"
+title: "Why your startup should use Keycloak for SSO and User Management - Part 3: Customization"
 description: "Part 3: Keycloak stands out in customizability for tailored solutions."
 authors: phasetwo
 tags: [keycloak, phase_two, startup, customization, extension]
