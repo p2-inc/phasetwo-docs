@@ -10,7 +10,9 @@ tags: [keycloak, phase_two, organizations, multitenant]
 
 A multi-tenant application is a software architecture where a single instance of an application serves multiple, distinct customer groups or “tenants.” Each tenant, often representing an organization or user group, shares the same underlying infrastructure and codebase but operates within its own securely isolated environment. This allows each tenant to have individualized data, configurations, and sometimes even unique customizations, while benefiting from a shared platform that reduces overall resource demands and maintenance. Multi-tenancy is commonly used in SaaS (Software as a Service) applications, enabling businesses to scale efficiently, lower costs, and streamline updates while ensuring that each tenant’s data and settings remain private and distinct from others within the same application. This approach is particularly valuable in enterprise applications, where companies may need to provide access to different organizations, departments, or customer groups within a single solution.
 
-This post will cover a few things
+<!-- truncate -->
+
+This post will cover a few things:
 
 - Concept of how to implement this with Keycloak and Phase Two's [Organization](https://phasetwo.io/product/organizations/) extension ([Github](https://github.com/p2-inc/keycloak-orgs)).
 - Proof-of-concept implementation that will include how to configure a Keycloak instance with clients, organizations, roles, and example applications to consume these implementations.
