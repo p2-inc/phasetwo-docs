@@ -3,7 +3,7 @@ id: sla
 title: Phase Two Dedicated and Enterprise Clusters Service Level Agreement (SLA)
 ---
 
-_SLA Last updated: October 24, 2023_
+_SLA Last updated: November 22, 2024_
 
 > Please read this Service Level Agreement carefully before subscribing to our Dedicated or Enterprise Cluster offering.
 
@@ -17,8 +17,8 @@ Service credit = (Annualized subscription cost / 12) \* 50%
 
 ### Response and resolution times
 
-- Urgent server-down issues will be resolved within 3 hours. Urgent level is reached when the Customer’s Keycloak deployment has availability issues (user cannot login).
-- Routine issues will be acknowledged within 3 working days. Issues within Phase Two’s span of control will also be resolved within 3 working days. Routine priority level is for every other support request.
+- Urgent server-down issues will be resolved within 4 hours. Urgent level is reached when the Customer’s Keycloak deployment has availability issues (user cannot login).
+- Routine issues will be acknowledged within 1 working day. Issues within Phase Two’s span of control will also be resolved within 1 working day. Routine priority level is for every other support request.
 
 ### How to Claim a SLA Credit
 

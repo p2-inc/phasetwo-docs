@@ -3,9 +3,9 @@ id: subprocessors
 title: Phase Two Subprocessors
 ---
 
-*Last updated: October 20, 2023*
+_Last updated: November 22, 2024_
 
-To support delivery of our services, Phase Two, Inc. ("Phase Two") uses service providers that may store and process Customer Data (each, a "Subprocessor"). This page provides important information about the identity, location and role of each Subprocessor. Terms used on this page but not defined have the meaning set forth in the  or superseding written agreement between Customer and WorkOS (the "Agreement").
+To support delivery of our services, Phase Two, Inc. ("Phase Two") uses service providers that may store and process Customer Data (each, a "Subprocessor"). This page provides important information about the identity, location and role of each Subprocessor. Terms used on this page but not defined have the meaning set forth in the  or superseding written agreement between Customer and Phase Two (the "Agreement").
 
 ### Third-Party Subprocessors
 
@@ -15,13 +15,11 @@ Phase Two may use the following Subprocessors to host Customer Data, provide inf
 |---|---|---|---|
 | Amazon Web Services, Inc. | Cloud service provider  | USA, Europe | * |
 | Cockroach Labs, Inc. | Database service provider  | USA, Europe  | * |
-| Dialpad, Inc.  | Phone communications  | USA  | |
 | GitHub, Inc.  | Source code control  | USA  | |
 | Google, Inc. | Email communications | USA, Europe  | |
 | Slack Technologies, Inc.  | Messaging services  | USA  | |
 | Stripe  | Payment processing | USA, Europe  | |
 | Twilio  | Email & SMS delivery  | USA | |
-| Zoho Corporation  | Customer support  | USA, Europe, India  | |
 | Zoom  | Video calls  |  USA | |
 
 ### Updates
