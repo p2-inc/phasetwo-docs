@@ -3,12 +3,7 @@ import styles from "./styles.module.css";
 import { InlineIcon } from "@iconify/react";
 
 const CheckMark = () => (
-  <img
-    src="/img/checkmark.svg"
-    alt="Checkmark"
-    style={{ height: ".9rem" }}
-    loading="lazy"
-  ></img>
+  <InlineIcon icon="fa-solid:check" className="size-4 text-green-500" />
 );
 const Dash = () => <span className={styles.notPartOfPlan}>&mdash;</span>;
 

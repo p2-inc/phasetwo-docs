@@ -793,6 +793,7 @@ p.heroIntegrationsCopy {
   font-weight: 700;
   margin-bottom: 0.4rem;
   color: var(--color-main);
+  font-size: 1.1rem;
 }
 .answer > * {
   margin-bottom: 0.4rem;

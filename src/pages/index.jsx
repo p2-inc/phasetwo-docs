@@ -23,12 +23,10 @@ function docsEntry() {
 }
 
 const CheckMark = () => (
-  <img
-    className={styles.checklistIcon}
-    src="img/checkmark.svg"
-    alt="Checkmark"
-    loading="lazy"
-  ></img>
+  <InlineIcon
+    icon="fa-solid:check"
+    className="absolute left-0 w-[10px] h-auto mt-2 text-green-500"
+  />
 );
 
 const HostingItems = [
@@ -731,7 +729,13 @@ auth.init({
                           <CheckMark />
                           Community support
                         </li>
-                        <li>No SLA</li>
+                        <li>
+                          <InlineIcon
+                            icon="fa6-solid:xmark"
+                            className="absolute left-0 w-[10px] h-auto mt-2 text-red-500"
+                          />{" "}
+                          No SLA
+                        </li>
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
@@ -795,6 +799,12 @@ auth.init({
                           <CheckMark />
                           99.9% uptime guarantee
                         </li>
+                        <li>
+                          <CheckMark />
+                          <a href="/docs/sla/#response-and-resolution-times">
+                            SLA
+                          </a>
+                        </li>
                       </ul>
                     </div>
                     <div className={styles.planFoot}>
@@ -833,7 +843,7 @@ auth.init({
                         </li>
                         <li>
                           <CheckMark />
-                          Global deployment
+                          Global deployment(s)
                         </li>
                         <li>
                           <CheckMark />
@@ -845,13 +855,17 @@ auth.init({
                         </li>
                         <li>
                           <CheckMark />
+                          Slack / Chat channel
+                        </li>
+                        <li>
+                          <CheckMark />
                           99.99% uptime guarantee
                         </li>
                         <li>
-                          <CheckMark /> 4 hour urgent{" "}
+                          <CheckMark />
                           <a href="/docs/sla/#response-and-resolution-times">
                             SLA
-                          </a>{" "}
+                          </a>
                           <sup>3</sup>
                         </li>
                       </ul>
@@ -924,7 +938,10 @@ auth.init({
                 >
                   <p>
                     Configuring, integrating and operating an Identity and
-                    Access Management system can be daunting.
+                    Access Management system can be daunting. The Support
+                    package provides customers with the expertise on how to
+                    implement Keycloak. This is separate from our hosting, but
+                    can be bundled together (many customers do).
                   </p>
                   <p>
                     For both hosted, on-prem customers, or those with their own
