@@ -96,8 +96,8 @@ const prices = {
   },
   monthly: {
     starter: 0,
-    premium: 750,
-    enterprise: 2500,
+    premium: 749,
+    enterprise: 2499,
   },
 };
 
