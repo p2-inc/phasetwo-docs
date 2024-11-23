@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
-import classnames from "classnames";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 import CodeBlock from "@theme/CodeBlock";
 import { KeycloakSupportPackages } from "../components/keycloak-support-packages";
 import { InlineIcon } from "@iconify/react";
+import { useState } from "react";
+import { Switch, Label, Field } from "@headlessui/react";
+import cs from "classnames";
 
 function requestAccess() {
   window.open(`https://phasetwo.io/dashboard/`, "_blank");
@@ -87,6 +88,19 @@ const SupportItems = [
   },
 ];
 
+const prices = {
+  annual: {
+    starter: 0,
+    premium: 499,
+    enterprise: 1999,
+  },
+  monthly: {
+    starter: 0,
+    premium: 749,
+    enterprise: 2499,
+  },
+};
+
 function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
@@ -94,6 +108,10 @@ function Home() {
   useEffect(() => {
     document.body.classList.add("page-bg");
   });
+
+  const [term, setTerm] = useState(true);
+  const billingTermValue = term ? "annual" : "monthly";
+  const billingTerm = term ? prices["annual"] : prices["monthly"];
 
   return (
     <Layout description={`${siteConfig.tagline}`}>
@@ -745,8 +763,10 @@ auth.init({
                       <h3>Premium</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$499</strong>/mo{" "}
-                        <sup>2</sup>
+                        <strong className={styles.planPrice}>
+                          ${billingTerm.premium}
+                        </strong>
+                        /mo{" "}
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -799,8 +819,10 @@ auth.init({
                       <h3>Enterprise</h3>
                       <p>
                         <span className={styles.planFrom}>from</span>{" "}
-                        <strong className={styles.planPrice}>$1999</strong>/mo{" "}
-                        <sup>2</sup>
+                        <strong className={styles.planPrice}>
+                          ${billingTerm.enterprise}
+                        </strong>
+                        /mo{" "}
                       </p>
                     </div>
                     <div className={styles.planBody}>
@@ -815,7 +837,7 @@ auth.init({
                         </li>
                         <li>
                           <CheckMark />
-                          Custom themes & extensions <sup>3</sup>
+                          Custom themes & extensions <sup>2</sup>
                         </li>
                         <li>
                           <CheckMark />
@@ -824,6 +846,13 @@ auth.init({
                         <li>
                           <CheckMark />
                           99.99% uptime guarantee
+                        </li>
+                        <li>
+                          <CheckMark /> 4 hour urgent{" "}
+                          <a href="/docs/sla/#response-and-resolution-times">
+                            SLA
+                          </a>{" "}
+                          <sup>3</sup>
                         </li>
                       </ul>
                     </div>
@@ -840,10 +869,38 @@ auth.init({
               </div>
             </div>
           </div>
+          <div
+            className={`contentBlockCta flex items-baseline justify-center gap-3`}
+          >
+            <div className=" text-lg ">Billing period: </div>
+            <Field className="flex items-center justify-center gap-2">
+              <Label
+                className={cs({
+                  "font-bold": billingTermValue === "monthly",
+                })}
+              >
+                Monthly
+              </Label>
+              <Switch
+                checked={term}
+                onChange={setTerm}
+                className="group inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition data-[checked]:bg-p2blue-600 bg-p2blue-600"
+              >
+                <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+              </Switch>
+              <Label
+                className={cs({
+                  "font-bold": billingTermValue === "annual",
+                })}
+              >
+                Annual
+              </Label>
+            </Field>
+          </div>
           <div className={`contentBlockCta`}>
             <p>
-              (1) Subject to availabilty (2) When paid annually (3) Additional
-              fees based on extension complexity
+              (1) Subject to availabilty (2) Additional fees based on extension
+              complexity (3) Custom SLA available
             </p>
             <p>
               For on-prem support and bundling options, please{" "}
@@ -973,7 +1030,8 @@ auth.init({
                 </div>
                 <div className={styles.questionBox}>
                   <div className={styles.question}>
-                    What support is provided and included?
+                    What support is provided and included in Enterprise Support
+                    packages?
                   </div>
                   <div className={styles.answer}>
                     Many customers use Keycloak precisely because its Open
@@ -983,6 +1041,18 @@ auth.init({
                     all things that will be encountered during that process. To
                     that end, we offer Enterprise Support to enable companies to
                     adopt Keycloak.
+                  </div>
+                </div>
+                <div className={styles.questionBox}>
+                  <div className={styles.question}>
+                    What support is provided and included in hosting?
+                  </div>
+                  <div className={styles.answer}>
+                    Hosting support is provided for infrastructure management,
+                    upgrades, and maintenance. We also provide support for the
+                    Keycloak software itself, including configuration,
+                    troubleshooting, and best practices. That would need to be
+                    purchased separate or in addition to the hosting fee.
                   </div>
                 </div>
                 <div className={styles.questionBox}>
