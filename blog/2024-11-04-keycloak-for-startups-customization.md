@@ -13,6 +13,7 @@ In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposin
 - [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md)
 - [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md)
 - [Part 3: Customization](./2024-11-04-keycloak-for-startups-customization.md)
+- [Part 4: Cost](./2024-12-02-keycloak-for-startups-cost.md)
 
 :::
 
@@ -44,4 +45,6 @@ The flexibility Keycloak offers through customization allows startups to truly o
 
 For your extension needs, Phase Two provides the ability to load custom themes and extensions for customers at the [Enterprise level](/hosting/). Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) for more information about how to benefit from our hosting platform while customizing Keycloak to your specific needs.
 
-_Read [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md) and [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md) now. Stay tuned for "Part 4: Cost-Effectiveness of Open Source", coming out next week!_
+_Read [Part 4: Cost](./2024-12-02-keycloak-for-startups-cost.md) now_
+
+Get in touch at [sales@phasetwo.io](mailto:sales@phasetwo.io) to learn more.

@@ -13,6 +13,7 @@ In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposin
 - [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md)
 - [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md)
 - [Part 3: Customization](./2024-11-04-keycloak-for-startups-customization.md)
+- [Part 4: Cost](./2024-12-02-keycloak-for-startups-cost.md)
 
 :::
 
@@ -48,6 +49,6 @@ For those hosting Keycloak entirely themselves, Phase Two offers [Enterprise lev
 
 By prioritizing data ownership and implementing robust IAM solutions that align with organizational objectives and values, organizations can mitigate risks, safeguard sensitive information, and maintain sovereignty over their data assets in an increasingly interconnected and data-driven world.
 
-_Read [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md) or [Part 3: ](Customizability for Tailored Solutions) now_
+_Read [Part 3: ](Customizability for Tailored Solutions) now_
 
 Get in touch at [sales@phasetwo.io](mailto:sales@phasetwo.io) to learn more.
