@@ -513,6 +513,7 @@ export default function Hosted() {
                   />
                 </div>
                 <div className="col col--5  flex flex-align-center">
+                  <a id="upgrades"></a>
                   <div>
                     <h3>
                       Keycloak Version Upgrades to Keep Up-to-Date with Latest
