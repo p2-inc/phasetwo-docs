@@ -13,6 +13,7 @@ In this [series](./2024-10-18-keycloak-for-startups-overview.md) we are proposin
 - [Part 1: Standards](./2024-10-21-keycloak-for-startups-standards.md)
 - [Part 2: Data Ownership](./2024-10-28-keycloak-for-startups-data.md)
 - [Part 3: Customization](./2024-11-04-keycloak-for-startups-customization.md)
+- [Part 4: Cost](./2024-12-02-keycloak-for-startups-cost.md)
 
 :::
 

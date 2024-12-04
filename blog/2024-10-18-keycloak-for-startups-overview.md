@@ -18,7 +18,7 @@ This series will address the following key issues in 4 parts:
 
 1.  [Part 1](./2024-10-21-keycloak-for-startups-standards.md): Every commercial offering is an implementation of the same standards.
 2.  [Part 2](./2024-10-28-keycloak-for-startups-data.md): The ability to control your data is essential, now and in the future.
-3.  [Part 3](./2024-11-04-keycloak-for-startups-customization.md): Extensibility and customization will always be necessary
-4.  There is no justification for variable cost for individual features
+3.  [Part 3](./2024-11-04-keycloak-for-startups-customization.md): Extensibility and customization will always be necessary.
+4.  [Part 4](./2024-12-02-keycloak-for-startups-cost.md): There is no justification for variable cost for individual features.
 
 Please stay tuned as we release a new section each week! If you would like to try out Keycloak, [sign-up](https://phasetwo.io/dashboard/) for Phase Two's free tier and test it out now.
