@@ -79,7 +79,10 @@ export default function Hosted() {
       <main>
         <div className="pageHero">
           <div className="pageHeroMsg">
-            <h1>Premium Hosting for Keycloak</h1>
+            <h1>Premium Managed Hosting for Keycloak</h1>
+            <h3 className="margin-top--md text-p2blue-700">
+              Managed Keycloak for the Rest of Us - Provided by Keycloak Experts
+            </h3>
           </div>
           <div>
             <div className="row max-w-4xl mx-auto pt-4">
@@ -92,7 +95,7 @@ export default function Hosted() {
                     />
                   </div>
                   <div className="card__body">
-                    <h3>Simple</h3>
+                    <h3>Keycloak Experts</h3>
                     <p>
                       Integrating Identity and Access Management (IAM) to your
                       application should be the number one priority.
@@ -116,7 +119,7 @@ export default function Hosted() {
                       Keycloak releases major upgrades on a steady cadence and
                       upgrading is fraught with many challenges. We make sure
                       that we test and harden any release before it is rolled
-                      out to our clusters.
+                      out to (y)our clusters.
                     </p>
                   </div>
                 </div>
@@ -170,7 +173,7 @@ export default function Hosted() {
           <div className="contentBlockHead">
             <h2>Keycloak as a Service</h2>
             <h3 className="margin-top--md text-p2blue-700">
-              Managed Keycloak for the Rest of Us
+              Managed Keycloak for the Rest of Us - Provided by Keycloak Experts
             </h3>
           </div>
           <div className="contentBlockBody">
@@ -396,6 +399,40 @@ export default function Hosted() {
           </div>
           <div className="contentBlockBody">
             <div className={faqStyles.questionsBox}>
+              <div className={faqStyles.questionBox}>
+                <div className={faqStyles.question}>
+                  Why go with Phase Two for Keycloak Hosting? Can't I just host
+                  it myself? What about other providers that are cheaper?
+                </div>
+                <div className={faqStyles.questionAnswer}>
+                  <div>
+                    We are not just a hosting company. We are a team of
+                    developers that have deep knowledge of Keycloak. It's not
+                    just about hosting, it's about the support, the community,
+                    the extensions, the knowledge. We are active contributors to
+                    the Keycloak project and community. We issue pull requests
+                    for issues and take active part in community gatherings like{" "}
+                    <a href="/blog/keycloak-extensions-presentation/">
+                      Keycloak Dev Day
+                    </a>
+                    or as community moderators of{" "}
+                    <a href="https://keycloak.discourse.group/">
+                      Keycloak Discourse
+                    </a>
+                    . We've been working with Keycloak for a long time and have
+                    a deep understanding of the project and because of this have
+                    built some of the most successful extensions.
+                  </div>
+                  <div>
+                    We make sure that you get help when you need it. Inevitably
+                    questions will arise about how to get the most out of
+                    Keycloak. When that happens, having us to message will help
+                    you get the answers you need. We are here to help you get
+                    the most out of Keycloak.
+                  </div>
+                </div>
+              </div>
+
               <div className={faqStyles.questionBox}>
                 <div className={faqStyles.question}>
                   What is the difference between Phase Two and Keycloak?
