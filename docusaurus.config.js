@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two - Keycloak Hosting | Support | Migration | Customization",
+  title: "Phase Two - Managed Keycloak Hosting and Enterprise Support",
   tagline:
-    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, orgs, migrations and user management.",
+    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, Organizations, Migrations and User Management.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -46,7 +46,7 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dedicated-launch/">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
+        '<a href="/blog/dedicated-launch/">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Managed Keycloak cluster.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,

@@ -45,7 +45,7 @@ const HostingItems = [
     href: "https://phasetwo.io/hosting/",
   },
   {
-    name: "Customized, Automatically Updated",
+    name: "Fully Extended, Customized, Automatically Updated",
     desc: "Customize your Keycloak instance with extensions and themes. We will keep your instance up to date with the latest Keycloak releases. Spend time on your app, not on maintenance.",
     icon: "grommet-icons:server-cluster",
     cta: "Learn more",
@@ -132,14 +132,15 @@ function Home() {
             {/* Hero Message */}
             <div className={`pageHeroMsg`}>
               <h1>
-                Identity and Access Management (IAM) Solution to Future Proof
-                Your App
+                Enterprise-Grade Identity and Access Management (IAM) Solution
+                for any Application with Managed Keycloak Hosting and Support
               </h1>
               <h2 className={`pageHeroMsgIntro`}>
                 Accelerate SaaS time-to-market and enterprise adoption by
                 rapidly integrating the features needed to support almost any{" "}
                 <b>authentication</b> and <b>authorization</b> use-cases with
-                Phase Two's Keycloak as a Service offering.
+                Phase Two's Managed Keycloak Hosting and enhanced Keycloak
+                deployments.
               </h2>
               <div className={`pageHeroCta`}>
                 <button className={`btnCta`} onClick={requestAccess}>
@@ -156,7 +157,7 @@ function Home() {
                 alt="Pictogram showing key"
                 loading="lazy"
               />
-              <p>Hosting</p>
+              <p> Managed Hosting</p>
             </Link>
             <Link to={"#experts"} className={styles.heroSection}>
               <img
@@ -334,7 +335,17 @@ function Home() {
             <h1 className="margin-top--xl">Managed Keycloak Hosting</h1>
             <p className={styles.heroIntegrationsCopy}>
               Phase Two provides a modern, open source alternative to fully
-              replace or integrate with any IAMs available.
+              replace or integrate with any IAMs available. We are not just a
+              DevOps shop that hosts Keycloak (although we're great at it), but
+              Keycloak developers and maintainers. Every deployment is packed
+              with our{" "}
+              <a
+                href="https://github.com/p2-inc#our-extensions-"
+                target="_blank"
+              >
+                popular extensions
+              </a>
+              .
             </p>
           </div>
           <div className="contentBlockBody">
