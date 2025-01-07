@@ -1832,6 +1832,29 @@ paths:
           description: Webhook created
         400:
           description: Malformed webhook
+  /{realm}/webhooks/count:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhooks count
+      description: Get a count of webhooks.
+      operationId: getWebhooksCount
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
   /{realm}/webhooks/{webhookId}:
     parameters:
       - in: path
