@@ -1,6 +1,9 @@
 module.exports = {
   api: [
-    { type: "doc", id: "phase-two-admin-rest-api" },
+    {
+      type: "doc",
+      id: "phase-two-admin-rest-api",
+    },
     {
       type: "category",
       label: "Organizations",
@@ -132,7 +135,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Organization Invitations",
+      label: "Organization Invitation",
       link: {
         type: "generated-index",
         title: "Organization Invitations",
@@ -153,23 +156,27 @@ module.exports = {
         },
         {
           type: "doc",
+          id: "get-organization-invitation-count",
+          label: "Get organization invitation count",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "get-organization-invitation-by-id",
+          label: "Get organization invitation by ID",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "remove-organization-invitation",
           label: "Remove a pending invitation",
           className: "api-method delete",
         },
         {
           type: "doc",
-          id: "get-organization-invitation-by-id",
-          label: "Get organization invitation by id",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "get-organization-invitation-count",
-        },
-        {
-          type: "doc",
           id: "resend-organization-invitation",
+          label: "Resend an Organization Invitation",
+          className: "api-method put",
         },
       ],
     },
@@ -193,6 +200,18 @@ module.exports = {
           id: "create-organization-role",
           label: "Create a new role for this organization",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "create-organization-roles",
+          label: "Create new roles for this organization",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "delete-organization-roles",
+          label: "Delete this organization roles",
+          className: "api-method patch",
         },
         {
           type: "doc",
@@ -267,6 +286,18 @@ module.exports = {
         },
         {
           type: "doc",
+          id: "link-idp",
+          label: "Link an existing identity provider to this organization",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "unlink-idp",
+          label: "Unlink an existing and linked identity provider from this organization",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
           id: "get-idp",
           label: "Get identity provider for this organization by alias",
           className: "api-method get",
@@ -313,18 +344,6 @@ module.exports = {
           label: "Delete a mapper for the identity provider",
           className: "api-method delete",
         },
-        {
-          type: "doc",
-          id: "link-idp",
-        },
-        {
-          type: "doc",
-          id: "unlink-idp",
-        },
-        {
-          type: "doc",
-          id: "import-idp-json",
-        },
       ],
     },
     {
@@ -350,17 +369,21 @@ module.exports = {
         },
         {
           type: "doc",
-          id: "create-magic-link",
-          label: "Create a magic link to log in a user",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
           id: "grant-a-user-organization-roles",
+          label: "Grant a user organization roles",
+          className: "api-method put",
         },
         {
           type: "doc",
           id: "revoke-organization-roles-from-a-user",
+          label: "Revoke organization roles from a user",
+          className: "api-method patch",
+        },
+        {
+          type: "doc",
+          id: "create-magic-link",
+          label: "Create a magic link to log in a user",
+          className: "api-method post",
         },
       ],
     },
@@ -390,6 +413,12 @@ module.exports = {
           id: "create-webhook",
           label: "Create a new webhook",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "get-webhooks-count",
+          label: "Get webhooks count",
+          className: "api-method get",
         },
         {
           type: "doc",
