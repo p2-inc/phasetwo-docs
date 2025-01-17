@@ -217,6 +217,12 @@ components:
           type: string
         description:
           type: string
+    OrganizationRoleMapRepresentation:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/OrganizationRoleRepresentation'
     PortalLinkRepresentation:
       type: object
       properties:
@@ -299,6 +305,35 @@ components:
           type: string
         username:
           type: string
+    UserWithOrgsRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+        createdTimestamp:
+          type: integer
+          format: int64
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        enabled:
+          type: boolean
+        firstName:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        organizations:
+          $ref: "#/components/schemas/OrganizationRoleMapRepresentation"
     AuthDetailsRepresentation:
       type: object
       properties:
@@ -638,6 +673,11 @@ paths:
             type: integer
             format: int32
           style: form
+        - in: query
+          name: includeOrgs
+          schema:
+            type: boolean
+          style: form
       responses:
         200:
           description: success
@@ -646,7 +686,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UserRepresentation"
+                  $ref: "#/components/schemas/UserWithOrgsRepresentation"
   # organization membership resources
   /{realm}/orgs/{orgId}/members/count:
     parameters:
