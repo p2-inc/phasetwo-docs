@@ -352,11 +352,15 @@ components:
     EventRepresentation:
       type: object
       properties:
+        id:
+          type: string
         uid:
           type: string
         time:
           type: integer
         realmId:
+          type: string
+        realmName:
           type: string
         organizationId:
           type: string
@@ -400,6 +404,29 @@ components:
           type: array
           items:
             type: string
+    WebhookSendRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        status:
+          type: integer
+        status_message:
+          type: string
+        retried:
+          type: integer
+        sent_at:
+          type: string
+        event_id:
+          type: string
+        keycloak_event_type:
+          type: string
+        keycloak_event_id:
+          type: string
+        payload:
+          type: string
     MagicLinkRepresentation:
       type: object
       properties:
@@ -1951,6 +1978,171 @@ paths:
           description: success
         404:
           description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/secret:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook secret by id
+      operationId: getWebhookSecretById
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: string
+        404:
+          description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/sends:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook sends
+      operationId: getWebhookSends
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookSendRepresentation'
+        404:
+          description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/sends/{sendId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: sendId
+        description: send id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook send by ID
+      operationId: getWebhookSendById
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSendRepresentation'
+        404:
+          description: Webhook or send doesn't exist
+  /{realm}/webhooks/{webhookId}/sends/{sendId}/resend:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: sendId
+        description: send id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Events
+      summary: Resend a webhook by send ID
+      operationId: resendWebhookById
+      responses:
+        202:
+          description: success
+  /{realm}/webhooks/paylod/{type}/{kid}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: type
+        description: keycloak event type
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: kid
+        description: keycloak event id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get a payload by Keycloak type and id
+      operationId: getPayloadByKeycloakTypeAndId
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventRepresentation'
   /{realm}/magic-link:
     parameters:
       - in: path
