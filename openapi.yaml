@@ -674,6 +674,11 @@ paths:
             format: int32
           style: form
         - in: query
+          name: excludeAdminAccounts
+          schema:
+            type: boolean
+          style: form
+        - in: query
           name: includeOrgs
           schema:
             type: boolean
@@ -710,6 +715,12 @@ paths:
       summary: Get organization members count
       operationId: getOrganizationMembershipsCount
       description: Get total number of members of a given organization
+      parameters:
+        - in: query
+          name: excludeAdminAccounts
+          schema:
+            type: boolean
+          style: form
       responses:
         200:
           description: success
