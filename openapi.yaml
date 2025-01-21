@@ -1253,6 +1253,7 @@ paths:
     get:
       tags:
         - Organization Roles
+        - Users
       summary: Check if a user has an organization role
       operationId: checkUserOrganizationRole
       responses:
@@ -1261,6 +1262,7 @@ paths:
     put:
       tags:
         - Organization Roles
+        - Users
       summary: Grant a user an organization role
       operationId: grantUserOrganizationRole
       description: Grant the specified user to the specified organization role
@@ -1270,6 +1272,7 @@ paths:
     delete:
       tags:
         - Organization Roles
+        - Users
       summary: Revoke an organization role from a user
       operationId: revokeUserOrganizationRole
       description: Revoke the specified organization role from the specified user
@@ -1639,6 +1642,7 @@ paths:
     get:
       tags:
         - Users
+        - Organization Roles
       summary: List organization roles for the given user and org
       responses:
         200:
@@ -1652,6 +1656,7 @@ paths:
     put:
       tags:
         - Users
+        - Organization Roles
       summary: Grant a user organization roles
       requestBody:
         content:
@@ -1673,6 +1678,7 @@ paths:
     patch:
       tags:
         - Users
+        - Organization Roles
       summary: Revoke organization roles from a user
       requestBody:
         content:
