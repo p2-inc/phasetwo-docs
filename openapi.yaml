@@ -2083,7 +2083,7 @@ paths:
     get:
       tags:
         - Events
-      summary: Get webhook send by ID
+      summary: Get webhook send by id
       operationId: getWebhookSendById
       responses:
         200:
