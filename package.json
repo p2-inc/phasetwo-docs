@@ -11,7 +11,8 @@
     "clear": "docusaurus clear",
     "clean": "rm -rf node_modules yarn.lock package-lock.json",
     "gen-api-docs": "docusaurus gen-api-docs all",
-    "clean-api-docs": "docusaurus clean-api-docs all"
+    "clean-api-docs": "docusaurus clean-api-docs all",
+    "regen-api-docs": "npm run clean-api-docs && npm run gen-api-docs && rm api/sidebar.ts"
   },
   "dependencies": {
     "@docusaurus/core": "^3.6.3",
