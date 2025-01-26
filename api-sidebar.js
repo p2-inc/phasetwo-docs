@@ -293,7 +293,8 @@ module.exports = {
         {
           type: "doc",
           id: "unlink-idp",
-          label: "Unlink an existing and linked identity provider from this organization",
+          label:
+            "Unlink an existing and linked identity provider from this organization",
           className: "api-method post",
         },
         {
@@ -428,6 +429,30 @@ module.exports = {
         },
         {
           type: "doc",
+          id: "get-webhook-secret-by-id",
+          label: "Get webhook secret by id",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "get-webhook-send-by-id",
+          label: "Get webhook send by id",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "get-webhook-sends",
+          label: "Get webhook sends",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "get-payload-by-keycloak-type-and-id",
+          label: "Get webhook payload",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
           id: "update-webhook",
           label: "Update this webhook by id",
           className: "api-method put",
@@ -437,6 +462,12 @@ module.exports = {
           id: "delete-webhook",
           label: "Delete the webhook",
           className: "api-method delete",
+        },
+        {
+          type: "doc",
+          id: "resend-webhook-by-id",
+          label: "Resend the webhook",
+          className: "api-method post",
         },
       ],
     },
