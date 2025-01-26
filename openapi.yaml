@@ -2119,7 +2119,7 @@ paths:
       responses:
         202:
           description: success
-  /{realm}/webhooks/paylod/{type}/{kid}:
+  /{realm}/webhooks/payload/{type}/{kid}:
     parameters:
       - in: path
         name: realm
@@ -2154,6 +2154,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventRepresentation'
+  /{realm}/webhooks/{type}/{kid}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: type
+        description: keycloak event type
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: kid
+        description: keycloak event id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get all webhooks triggered by a Keycloak event
+      operationId: getWebhooksByKeycloakTypeAndId
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebhookRepresentation"
   /{realm}/magic-link:
     parameters:
       - in: path
