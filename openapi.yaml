@@ -2043,9 +2043,22 @@ paths:
         style: simple
     get:
       tags:
-        - Events
+        - Eventsxxx
       summary: Get webhook sends
       operationId: getWebhookSends
+      parameters:
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
       responses:
         200:
           description: success
