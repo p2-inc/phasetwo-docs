@@ -2182,7 +2182,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventRepresentation'
-  /{realm}/webhooks/{type}/{kid}:
+  /{realm}/webhooks/sends/{type}/{kid}:
     parameters:
       - in: path
         name: realm
@@ -2208,8 +2208,8 @@ paths:
     get:
       tags:
         - Events
-      summary: Get all webhooks triggered by a Keycloak event
-      operationId: getWebhooksByKeycloakTypeAndId
+      summary: Get all webhook sends triggered by a Keycloak event
+      operationId: getWebhookSendsByKeycloakTypeAndId
       responses:
         200:
           description: success
@@ -2218,7 +2218,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/WebhookRepresentation"
+                  $ref: "#/components/schemas/WebhookSendRepresentation"
   /{realm}/magic-link:
     parameters:
       - in: path
