@@ -804,6 +804,10 @@ auth.init({
                         </li>
                         <li>
                           <CheckMark />
+                          CSS theme customization
+                        </li>
+                        <li>
+                          <CheckMark />
                           Email support
                         </li>
                         <li>
