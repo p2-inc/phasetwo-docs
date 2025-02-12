@@ -432,6 +432,8 @@ components:
           type: string
         keycloak_event_id:
           type: string
+        webhook:
+          $ref: "#/components/schemas/WebhookRepresentation"
         payload:
           type: string
     MagicLinkRepresentation:
