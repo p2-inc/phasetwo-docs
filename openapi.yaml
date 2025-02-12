@@ -381,6 +381,13 @@ components:
         details:
           type: object
           additionalProperties: true
+    CredentialRepresentation:
+      type: object
+      properties:
+        type:
+          type: string
+        value:
+          type: string
     WebhookRepresentation:
       type: object
       properties:
@@ -2022,7 +2029,7 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/CredentialRepresentation"
         404:
           description: Webhook doesn't exist
   /{realm}/webhooks/{webhookId}/sends:
