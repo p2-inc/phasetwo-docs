@@ -222,7 +222,7 @@ components:
       additionalProperties:
         type: array
         items:
-          $ref: '#/components/schemas/OrganizationRoleRepresentation'
+          $ref: "#/components/schemas/OrganizationRoleRepresentation"
     PortalLinkRepresentation:
       type: object
       properties:
@@ -404,7 +404,8 @@ components:
         createdBy:
           type: string
         createdAt:
-          type: string
+          type: integer
+          format: int64
         realm:
           type: string
         eventTypes:
@@ -2076,7 +2077,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/WebhookSendRepresentation'
+                  $ref: "#/components/schemas/WebhookSendRepresentation"
         404:
           description: Webhook doesn't exist
   /{realm}/webhooks/{webhookId}/sends/{sendId}:
@@ -2113,7 +2114,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WebhookSendRepresentation'
+                $ref: "#/components/schemas/WebhookSendRepresentation"
         404:
           description: Webhook or send doesn't exist
   /{realm}/webhooks/{webhookId}/sends/{sendId}/resend:
@@ -2181,7 +2182,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventRepresentation'
+                $ref: "#/components/schemas/EventRepresentation"
   /{realm}/webhooks/sends/{type}/{kid}:
     parameters:
       - in: path
