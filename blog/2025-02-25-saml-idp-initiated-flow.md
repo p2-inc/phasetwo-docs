@@ -3,24 +3,34 @@ title: "Keycloak SAML Identity Provider Idp-initiated flow with Okta"
 slug: keycloak-saml-identity-provider-idp-initiated-flow-with-okta
 date: 2025-02-25
 author: Phase Two
-tags: [phase_two, open_source, okta, authentication, authorization, keycloak, sso, idp-initiated]
+tags:
+  [
+    phase_two,
+    open_source,
+    okta,
+    authentication,
+    authorization,
+    keycloak,
+    sso,
+    idp-initiated,
+  ]
 ---
 
-### Idp-initiated flow
+### IdP Initiated Flow
 
-When implementing SAML for the establishment of an Identity Provider, two primary options are available: Service Provider (SP)-initiated and Identity Provider (IdP)-initiated flows. The SP-initiated flow is widely recognized by users due to its straightforward configuration, which necessitates merely the exchange of some metadata. In contrast, the IdP-initiated flow is less intuitive and involves an additional step that may not be readily apparent to many users. The purpose of this blog is to elucidate the steps necessary to successfully execute the IdP-initiated flow.
+When implementing SAML for the establishment of an Identity Provider, two primary options are available: Service Provider (SP) initiated and Identity Provider (IdP) initiated flows. The SP initiated flow is widely recognized by users due to its straightforward configuration, which is merely the exchange of some metadata. In contrast, the IdP-initiated flow is less intuitive and involves an additional step that may not be readily apparent to many users. The purpose of this blog is to elucidate the steps necessary to successfully execute the IdP-initiated flow.
 
-A fundamental understanding of SAML 2.0 and Keycloak is required to effectively follow the provided instructions.
- 
+A fundamental understanding of [SAML 2.0](https://en.wikipedia.org/wiki/SAML_2.0) and [Keycloak](https://www.keycloak.org/) is required to effectively follow the provided instructions.
+
 ### Components
 
 The components involved in this flow are as follows:
 
 **Identity Provider:**
-Any identity Provider(IDP) that supports SAML 2.0 may be selected. The process begins by accessing the Identity Provider dashboard, where the user is prompted to authenticate. Upon successful authentication, the user may then request a service.
+Any identity provider(IdP) that supports SAML 2.0 may be selected. The process begins by accessing the Identity Provider dashboard, where the user is prompted to authenticate. Upon successful authentication, the user may then request a service.
 
 **Keycloak SAML 2.0 Identity Provider:**
-The Keycloak Identity Provider use for identity brokering, will process the SAML Response received from the Identity Provider. It is responsible for operations such as provisioning, signature verification, decryption etc.
+The Keycloak Identity Provider will be used for identity brokering and will process the SAML Response received from the Identity Provider. It is responsible for operations such as provisioning, signature verification, decryption etc.
 
 **Keycloak Realm Client:**
 The Keycloak SAML client function is to maintain the authenticated user session within Keycloak. Another function of this generic client is to forward the authenticated user to the Service Provider.
@@ -34,37 +44,37 @@ To facilitate a smoother setup process, we will provide a complete example. The 
 
 **Okta:**
 
-Login in your Okta tenant and configure a new application. 
+Login in your Okta tenant and configure a new application.
 
 ![Okta Application Start](/blog/saml/idp-init/okta-application-start.png)
 
 You will need to specify two things:
 
 `Single sign-on URL`: http://localhost:8080/realms/test-realm/broker/okta-broker/endpoint/clients/okta-client \
-`Audience URI`: http://localhost:8080/realms/test-realm 
+`Audience URI`: http://localhost:8080/realms/test-realm
 
 ![Okta Application Setup](/blog/saml/idp-init/okta-application-setup.png)
 
-The identity provider `redirect url` differs from what we typically observe in  Identity Provider from the Keycloak console. Based on the documentation for [IDP Initiated Login](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login), the path `{brokerRedirectUrl}/clients/okta-client` indicates the `client-id` that is intended to maintain the service-provider application session. This will make more sense in the following steps.
+The identity provider `redirect url` differs from what we typically observe in Identity Provider from the Keycloak console. Based on the documentation for [IDP Initiated Login](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login), the path `{brokerRedirectUrl}/clients/okta-client` indicates the `client-id` that is intended to maintain the service-provider application session. This will make more sense in the following steps.
 
 **SAML 2.0 Identity provider:**
 
-The SAML identity provider (e.q: ```okta-broker```) from the example above can be created by importing the metadata.xml from the application you just created in Okta. For this example we need the alias: ```okta-broker```.
+The SAML identity provider (e.g: `okta-broker`) from the example above can be created by importing the `metadata.xml` from the application you just created in Okta. For this example we need the alias: `okta-broker`.
 
 ![Identity Provider Setup](/blog/saml/idp-init/identity-provider-setup.png)
 
-**Service provider application**
+**Service Provider Application**
 
-For this we created a simple SpringBoot app which has a `ACS` endpoint: ```/login/saml2/sso``` and a `entityId`: ```/saml2/metadata``` . Source code: [SpringBoot SAML application](https://github.com/p2-inc/examples/saml2/idp-initiated)
+For this we created a simple SpringBoot app which has a `ACS` endpoint: `/login/saml2/sso` and a `entityId`: `/saml2/metadata` . We have an example [application](https://github.com/p2-inc/examples/saml2/idp-initiated) that can be used.
 
-**Keycloak realm client**
+**Keycloak Realm Client**
 
-We need to create new SAML 2.0 client in `test-realm`. This can be done by importing the metadata from the Service Provider application. 
+We need to create new SAML 2.0 client in `test-realm`. This can be done by importing the metadata from the Service Provider application.
 
 ![Generic client](/blog/saml/idp-init/generic-client.png)
 
-Now we need to return to the documentation: [IDP Initiated Login](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login). In order to configure the IDP-initiated flow, a special field needs to be specified ```IDP-Initiated SSO URL```. \
-IDP-Initiated SSO URL name: `okta-client` 
+Now we need to return to the documentation: [IDP Initiated Login](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login). In order to configure the IDP-initiated flow, a special field needs to be specified `IDP-Initiated SSO URL`. \
+IDP-Initiated SSO URL name: `okta-client`
 
 The field is part of the `{brokerRedirectUrl}/clients/okta-client` url. As we can see the value is different from that of the `clientId` of the client we just created.
 
@@ -78,16 +88,19 @@ For debugging purposes, you might consider using the SAML Tracer browser extensi
 
 ![Okta SAML response](/blog/saml/idp-init/okta-saml-response.png) ![Client SAML response](/blog/saml/idp-init/client-saml-response.png)
 
-
 ### What just happened?
 
-We have successfully secured a web application using the IDP-initiated flow with Okta. Great work! \
-While I have some reservations about the IDP-initiated flow due to its susceptibility to certain security vulnerabilities, we may be required to implement it depending on our specific context. It is crucial that we take all necessary precautions to maintain the security such as assertion encryption and signing however, this is a subject for a later time. \
-An interesting use case involves redirecting a user authenticated in the Keycloak realm to an OIDC application. Although this setup may not function seamlessly out of the box, an illustrative example can be found here: [IDP Initiated Login with Keycloak](https://www.lumilinks.com/blog/idp-initiated-login-with-keycloak). I will also attempt to create a local setup for this use case.
+We have successfully secured a web application using the IDP-initiated flow with Okta. Great work!
+
+While there are some reservations about the IDP-initiated flow due to its susceptibility to certain security vulnerabilities, we may be required to implement it depending on our specific context. It is crucial that we take all necessary precautions to maintain the security such as assertion encryption and signing however, this is a subject for a later time.
+
+An interesting use case involves redirecting a user authenticated in the Keycloak realm to an OIDC application. Although this setup may not function seamlessly out of the box, an illustrative example can be found here: [IDP Initiated Login with Keycloak](https://www.lumilinks.com/blog/idp-initiated-login-with-keycloak).
+
+I will also attempt to create a local setup for this use case.
 
 ### Useful links
 
-[Keycloak with Okta IDP Initiated SSO Login](https://www.lisenet.com/2020/keycloak-with-okta-idp-initiated-sso-login/) \
-[IDP Initiated Login with Keycloak](https://www.lumilinks.com/blog/idp-initiated-login-with-keycloak) \
-[Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login) \
-[IDP Initiated Login](https://groups.google.com/g/keycloak-user/c/s_sVxPGLhCs?pli=1)
+- [Keycloak with Okta IDP Initiated SSO Login](https://www.lisenet.com/2020/keycloak-with-okta-idp-initiated-sso-login/)
+- [IDP Initiated Login with Keycloak](https://www.lumilinks.com/blog/idp-initiated-login-with-keycloak)
+- [Server Administration Guide](https://www.keycloak.org/docs/latest/server_admin/#idp-initiated-login)
+- [IDP Initiated Login](https://groups.google.com/g/keycloak-user/c/s_sVxPGLhCs?pli=1)
