@@ -552,6 +552,12 @@ paths:
           schema:
             type: string
           style: form
+        - in: query
+          name: q
+          schema:
+            type: string
+          style: form
+          description: search by attributes using the format (space separated) `k1:v1 k2:v2`
       responses:
         200:
           description: success
