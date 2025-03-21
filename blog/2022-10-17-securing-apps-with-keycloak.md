@@ -1,13 +1,16 @@
 ---
 slug: securing-apps-with-keycloak
-title: Protecting Your Application With Keycloak
-author: Phase Two
+title: Secure Your Application With Keycloak
+description: Enabling Authentication and Authorization on your Application using open source Keycloak to provide better security
+authors: phasetwo
 tags: [tutorial, keycloak, phase_two, sso, authentication, authorization]
 ---
 
 There are a lot of guides out there, official and unofficial, for how to secure applications with Keycloak. The subject is rather broad, so it's difficult to know where to start. To begin, we'll be focusing on Keycloak's use of OpenID Connect (OIDC), and how to use that standard, along with some helpful libraries, to secure a simple but instructive application.
 
 For the purposes of the sample, we'll actually be using two common applications, a frontend single-page application (SPA) written in JavaScript, and a backend REST API written for Node.js. The language we selected for the sample is JavaScript, but the principles apply no matter the implementation technology you choose.
+
+<!--truncate-->
 
 ### What is OIDC?
 

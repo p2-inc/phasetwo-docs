@@ -1,15 +1,18 @@
 ---
 slug: self-service
-title: Self-service (beta) Launch
-author: Phase Two
-tags: [ release, keycloak, phase_two, cockroach ]
+title: Self-service (beta) Launch to Enable Management of Keycloak Realms
+description: Phase Two's self-service options allows customer to manage their own Keycloak Realms or dedicated Keycloak clusters.
+authors: phasetwo
+tags: [release, keycloak, phase_two, cockroach, cockroachdb]
 ---
 
 We've been pretty quiet over the summer. Since we released the [Organizations](https://github.com/p2-inc/keycloak-orgs) and [Magic Link](https://github.com/p2-inc/keycloak-magic-link) extensions and open sourced them, there has been a lot of interest in using Phase Two.
 
-We were flattered by the inbound interest, but our small team wasn't able to keep up with demand for trial accounts. Rather than scramble against that demand, we opted to pause new accounts, and instead build a self-service tool to allow anyone to quickly provision a new deployment a try it out.
+We were flattered by the inbound interest, but our small team wasn't able to keep up with demand for trial accounts. Rather than scramble against that demand, we opted to pause new accounts, and instead build a [self-service tool](https://phasetwo.io/docs/self-service/) to allow anyone to quickly provision a new deployment a try it out.
 
 Today we're announcing the beta launch of the Phase Two Self-service deployment tool. This tool allows you to easily create new deployments of the Phase Two enhanced version of Keycloak in our secure, highly-available clusters. In the future, it will also allow you to deploy dedicated instances that use your own database.
+
+<!--truncate-->
 
 Take a look at how easy it is to get started:
 
@@ -20,4 +23,3 @@ The clusters that run our deployments are available in two regions (AWS, us-west
 We hope you find this new tool valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
 
 [TRY IT NOW!](https://phasetwo.io/dashboard/)
-

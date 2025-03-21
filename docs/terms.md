@@ -3,7 +3,7 @@ id: terms
 title: Phase Two Terms and Conditions
 ---
 
-*Last updated: July 05, 2022*
+_Terms and Conditions Last updated: July 05, 2022_
 
 Please read these terms and conditions carefully before using Our Service.
 
@@ -21,30 +21,30 @@ they appear in singular or in plural.
 
 For the purposes of these Terms and Conditions:
 
-  * **Affiliate** means an entity that controls, is controlled by or is under
-    common control with a party, where "control" means ownership of 50% or
-    more of the shares, equity interest or other securities entitled to vote
-    for election of directors or other managing authority.
-  * **Account** means a unique account created for You to access our Service or
-    parts of our Service.
-  * **Company** (referred to as either "the Company", "We", "Us" or "Our" in this
-    Agreement) refers to Phase Two, Inc., P.O. Box 12540, Seattle, WA, 98111.
-  * **Country** refers to: Washington, United States
-  * **Service** refers to the Website.
-  * **Subscriptions** refer to the services or access to the Service offered on a
-    subscription basis by the Company to You.
-  * **Free Trial** refers to a limited period of time that may be free when
-    purchasing a Subscription.
-  * **Terms and Conditions** (also referred as "Terms") mean these Terms and
-    Conditions that form the entire agreement between You and the Company
-    regarding the use of the Service.
-  * **Third-party Social Media Service** means any services or content (including
-    data, information, products or services) provided by a third-party that
-    may be displayed, included or made available by the Service.
-  * **Website** refers to Phase Two, accessible from <https://phasetwo.io>
-  * **You** means the individual accessing or using the Service, or the company,
-    or other legal entity on behalf of which such individual is accessing or
-    using the Service, as applicable.
+- **Affiliate** means an entity that controls, is controlled by or is under
+  common control with a party, where "control" means ownership of 50% or
+  more of the shares, equity interest or other securities entitled to vote
+  for election of directors or other managing authority.
+- **Account** means a unique account created for You to access our Service or
+  parts of our Service.
+- **Company** (referred to as either "the Company", "We", "Us" or "Our" in this
+  Agreement) refers to Phase Two, Inc., P.O. Box 12540, Seattle, WA, 98111.
+- **Country** refers to: Washington, United States
+- **Service** refers to the Website.
+- **Subscriptions** refer to the services or access to the Service offered on a
+  subscription basis by the Company to You.
+- **Free Trial** refers to a limited period of time that may be free when
+  purchasing a Subscription.
+- **Terms and Conditions** (also referred as "Terms") mean these Terms and
+  Conditions that form the entire agreement between You and the Company
+  regarding the use of the Service.
+- **Third-party Social Media Service** means any services or content (including
+  data, information, products or services) provided by a third-party that
+  may be displayed, included or made available by the Service.
+- **Website** refers to Phase Two, accessible from [https://phasetwo.io](https://phasetwo.io)
+- **You** means the individual accessing or using the Service, or the company,
+  or other legal entity on behalf of which such individual is accessing or
+  using the Service, as applicable.
 
 ## Acknowledgement
 
@@ -311,6 +311,4 @@ Service.
 If you have any questions about these Terms and Conditions, You can contact
 us:
 
-  * By email: [support@phasetwo.io](mailto:support@phasetwo.io)
-
-
+- By email: [support@phasetwo.io](mailto:support@phasetwo.io)

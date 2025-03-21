@@ -1,0 +1,110 @@
+---
+slug: secure-spring-boot
+title: Securing an Angular and Spring Boot Application with Keycloak
+description: Learn how to secure resources and access of an Angular and Spring Boot application using Keycloak for Authentication and Authorizationusing the open source IAMs Keycloak for Authentication and Authorization
+authors: phasetwo
+tags:
+  [
+    phase_two,
+    tutorial,
+    frameworks,
+    spring_boot,
+    authentication,
+    authorization,
+    sso,
+  ]
+image: /blog/og/springboot@2x.png
+---
+
+import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
+import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+import SpringBoot from "/templates/frameworks/_springboot.mdx";
+
+[Spring Boot](https://spring.io/projects/spring-boot) is a open-source tool which uses Java-based frameworks for building web applications.
+
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure an [Angular](https://angular.io/) application and access secured resources from a Spring Boot Web application.
+
+<!--truncate-->
+
+:::info
+
+If you just want to skip to the code, visit the Phase Two [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak). We are also building [Keycloak examples](https://github.com/p2-inc/examples) for other frameworks.
+
+:::
+
+## Setting up a Spring Boot project
+
+In order to setup a Spring Boot project, a JDK version must be chosen. As of the time of writing, to be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDK versions can also be used for developing the resource server according to the preference of the developer.
+
+Starting with Spring Boot 2.x the Keycloak client adapters were deprecated. In Spring Boot 3.x we will use native functionalities of the [`spring-boot-oauth2-resource-server`](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html) to be able to configure the application security context.
+
+### Quick Start
+
+To get this project up and running locally on your computer you can clone the Phase Two [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak) or follow the instructions below to generate a project from scratch.
+
+1. Set up the Spring Boot project.
+
+   To kickstart a project, we will use (and recommend) using the Spring Boot [Initializr](https://start.spring.io/), a Web-based tool that provides a simple UI to generate the project.
+
+   Provide the following values to spring initializr for the project metadata:
+
+   ```
+
+   Group: com.example
+   Artifact: spring-boot-keycloak
+   Name: spring-boot-keycloak
+   Description: Demo project for Spring Boot
+   Package name: com.example.spring-boot-keycloak
+   ```
+
+   ![Spring Boot Initializr](/blog/2024-05-10-create-spring-boot-project-template.png)
+
+2. Add the required dependencies in spring initializr.
+
+   For the purpose of this project we will add the following dependencies:
+
+   - Oauth2 Resource Server
+   - Spring Web
+   - Spring Security
+
+   This will result in the following lines within `build.gradle`.
+
+   ```
+   implementation 'org.springframework.boot:spring-boot-starter-security'
+   implementation 'org.springframework.boot:spring-boot-starter-web'
+   implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+   ```
+
+   Generate the project with those settings. Open the .zip in your preferred text editor.
+
+3. Setup JDK 17 for the project. Follow instructions on the [JDK setup](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/) page.
+
+## Setting up a Keycloak Instance
+
+Before customizing the Spring Boot app, we need to set up and configure our Keycloak instance.
+
+<details>
+  <summary>Instructions</summary>
+  <PhaseTwoStarterInstructions />
+</details>
+
+## Setting up an OIDC Client
+
+<details>
+  <summary>Instructions</summary>
+  <OIDC />
+</details>
+
+## Adding a Non-Admin User
+
+<details>
+  <summary>Instructions</summary>
+  <NonAdminUser />
+</details>
+
+<SpringBoot />
+
+## Learning more
+
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (passwordless sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.

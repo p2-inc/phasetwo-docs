@@ -7,25 +7,29 @@ function AdminPortal() {
   return (
     <Layout
       title="Admin Portal"
-      description="SSO onboarding and self-management for your customer administrators and users"
+      description="Administrators and users can easily manage identity, authentication, organization, and SSO to drastically reduce customer support."
     >
       <main>
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`pageHeroMsg`}>
-            <h1>Admin Portal</h1>
-            <p className={`pageHeroMsgIntro`}>
-              Seamless onboarding and self-management for your customer
-              administrators and users. Empower your users and customers to
-              easily manage every aspect of identity, organization and SSO.
-              Drastically reduce customer support.
-            </p>
+            <h1>Customizable User Management</h1>
+            <h2 className={`pageHeroMsgIntro`}>
+              User management is a core part of Identity and Access Management
+              (IAM). Empower your users and customers to easily manage every
+              aspect of identity, authentication, organization, and SSO to
+              drastically reduce customer support.
+            </h2>
             <div className={`pageHeroCta`}>
               <a
-                href="http://phasetwo.io/dashboard/"
+                href="https://phasetwo.io/dashboard/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -52,15 +56,16 @@ function AdminPortal() {
               <picture>
                 <source
                   media="(max-width: 767px)"
-                  srcset="/img/img-customer-portal-mobile.png"
+                  srcset="/img/img-customer-portal-mobile.webp"
                 />
                 <source
                   media="(min-width: 768px)"
-                  srcset="/img/img-customer-portal.png"
+                  srcset="/img/img-customer-portal.webp"
                 />
                 <img
-                  src="/img/img-customer-portal.png"
+                  src="/img/img-customer-portal.webp"
                   alt="Person interacting with touch screen with key button"
+                  loading="lazy"
                 />
               </picture>
             </div>
@@ -73,8 +78,9 @@ function AdminPortal() {
             <h2>Organization Self-Management</h2>
             <p>
               Enable complete self-service of identity and organization. The
-              move to SaaS is accelerating, and enterprises expect full control
-              over their experience. Give it to them with a simple link.
+              move to SaaS is accelerating, and enterprises expect full,
+              customizable control over their experience. Give it to them with a
+              simple link.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -82,15 +88,16 @@ function AdminPortal() {
               <picture>
                 <source
                   media="(max-width: 767px)"
-                  srcset="/img/img-admin-portal-new2-mobile.png"
+                  srcset="/img/img-admin-portal-new2-mobile.webp"
                 />
                 <source
                   media="(min-width: 768px)"
-                  srcset="/img/img-admin-portal-new2.png"
+                  srcset="/img/img-admin-portal-new2.webp"
                 />
                 <img
-                  src="/img/img-admin-portal-new1.png"
+                  src="/img/img-admin-portal-new2.webp"
                   alt="Screenshots showing management of users, domains and SSO"
+                  loading="lazy"
                 />
               </picture>
             </div>
@@ -100,7 +107,11 @@ function AdminPortal() {
         {/* Add to Your App */}
         <div className={`contentBlock`}>
           <div className={`addToAppBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Add it to Your App with Minimal Code</h2>

@@ -21,6 +21,7 @@ Following successful billing setup, you will be returned to the Dashboard while 
 
 Dedicated clusters are currently available in the following regions using the self-service dashboard:
 
+- AWS US East (N. Virginia) `us-east-1`
 - AWS US West (Oregon) `us-west-2`
 - AWS Europe (Frankfurt) `eu-central-1`
 
@@ -29,7 +30,6 @@ If you wish to launch a dedicated cluster in one of the following regions, we ca
 - AWS Asia-Pacific (Mumbai) `ap-south-1`
 - AWS Asia-Pacific (Singapore) `ap-southeast-1`
 - AWS Europe (Ireland) `eu-west-1`
-- AWS US East (N. Virginia) `us-east-1`
 - GCP Asia-Pacific (Jurong West) `asia-southeast1`
 - GCP Europe (St. Ghislain) `europe-west1`
 - GCP South America (São Paulo) `southamerica-east1`

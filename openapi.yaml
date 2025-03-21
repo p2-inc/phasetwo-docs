@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Phase Two Admin REST API
   description: |
-    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/23.0.6/rest-api/index.html).
+    This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
 
     ### Base URI format
     Paths specified in the documentation are relative to the the base URI.
@@ -12,7 +12,7 @@ info:
     ### Authentication
     Authentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.
 
-    It is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.
+    It is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak/tree/main/js/libs/keycloak-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.
 
     #### Client credentials grant example
     ```
@@ -217,6 +217,12 @@ components:
           type: string
         description:
           type: string
+    OrganizationRoleMapRepresentation:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: "#/components/schemas/OrganizationRoleRepresentation"
     PortalLinkRepresentation:
       type: object
       properties:
@@ -252,9 +258,13 @@ components:
       properties:
         id:
           type: string
+        createdAt:
+          type: string
         email:
           type: string
         inviterId:
+          type: string
+        invitationUrl:
           type: string
         organizationId:
           type: string
@@ -295,6 +305,35 @@ components:
           type: string
         username:
           type: string
+    UserWithOrgsRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true
+        createdTimestamp:
+          type: integer
+          format: int64
+        email:
+          type: string
+        emailVerified:
+          type: boolean
+        enabled:
+          type: boolean
+        firstName:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        organizations:
+          $ref: "#/components/schemas/OrganizationRoleMapRepresentation"
     AuthDetailsRepresentation:
       type: object
       properties:
@@ -313,11 +352,15 @@ components:
     EventRepresentation:
       type: object
       properties:
+        id:
+          type: string
         uid:
           type: string
         time:
           type: integer
         realmId:
+          type: string
+        realmName:
           type: string
         organizationId:
           type: string
@@ -338,6 +381,13 @@ components:
         details:
           type: object
           additionalProperties: true
+    CredentialRepresentation:
+      type: object
+      properties:
+        type:
+          type: string
+        value:
+          type: string
     WebhookRepresentation:
       type: object
       properties:
@@ -354,13 +404,39 @@ components:
         createdBy:
           type: string
         createdAt:
-          type: string
+          type: integer
+          format: int64
         realm:
           type: string
         eventTypes:
           type: array
           items:
             type: string
+    WebhookSendRepresentation:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        status:
+          type: integer
+        status_message:
+          type: string
+        retried:
+          type: integer
+        sent_at:
+          type: string
+        event_id:
+          type: string
+        keycloak_event_type:
+          type: string
+        keycloak_event_id:
+          type: string
+        webhook:
+          $ref: "#/components/schemas/WebhookRepresentation"
+        payload:
+          type: string
     MagicLinkRepresentation:
       type: object
       properties:
@@ -426,7 +502,7 @@ paths:
           schema:
             type: string
           style: form
-          description: search by attributes using the format `k1:v1,k2:v2`
+          description: search by attributes using the format (space separated) `k1:v1 k2:v2`
       responses:
         200:
           description: success
@@ -476,6 +552,12 @@ paths:
           schema:
             type: string
           style: form
+        - in: query
+          name: q
+          schema:
+            type: string
+          style: form
+          description: search by attributes using the format (space separated) `k1:v1 k2:v2`
       responses:
         200:
           description: success
@@ -634,6 +716,16 @@ paths:
             type: integer
             format: int32
           style: form
+        - in: query
+          name: excludeAdminAccounts
+          schema:
+            type: boolean
+          style: form
+        - in: query
+          name: includeOrgs
+          schema:
+            type: boolean
+          style: form
       responses:
         200:
           description: success
@@ -642,7 +734,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UserRepresentation"
+                  $ref: "#/components/schemas/UserWithOrgsRepresentation"
   # organization membership resources
   /{realm}/orgs/{orgId}/members/count:
     parameters:
@@ -666,6 +758,12 @@ paths:
       summary: Get organization members count
       operationId: getOrganizationMembershipsCount
       description: Get total number of members of a given organization
+      parameters:
+        - in: query
+          name: excludeAdminAccounts
+          schema:
+            type: boolean
+          style: form
       responses:
         200:
           description: success
@@ -839,7 +937,7 @@ paths:
         style: simple
     post:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Create an invitation to an organization
       operationId: addOrganizationInvitation
       requestBody:
@@ -855,7 +953,7 @@ paths:
           description: invitation already exists
     get:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Get organization invitations
       operationId: getOrganizationInvitations
       description: Get a paginated list of invitations to an organization, using an optional search query for email address.
@@ -955,7 +1053,7 @@ paths:
                 $ref: "#/components/schemas/InvitationRepresentation"
     delete:
       tags:
-        - Organization Invitations
+        - Organization Invitation
       summary: Remove a pending invitation
       operationId: removeOrganizationInvitation
       responses:
@@ -1051,7 +1149,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1073,7 +1171,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1081,7 +1179,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BulkResponseItem"
-      
+
   /{realm}/orgs/{orgId}/roles/{name}:
     parameters:
       - in: path
@@ -1209,6 +1307,7 @@ paths:
     get:
       tags:
         - Organization Roles
+        - Users
       summary: Check if a user has an organization role
       operationId: checkUserOrganizationRole
       responses:
@@ -1217,6 +1316,7 @@ paths:
     put:
       tags:
         - Organization Roles
+        - Users
       summary: Grant a user an organization role
       operationId: grantUserOrganizationRole
       description: Grant the specified user to the specified organization role
@@ -1226,6 +1326,7 @@ paths:
     delete:
       tags:
         - Organization Roles
+        - Users
       summary: Revoke an organization role from a user
       operationId: revokeUserOrganizationRole
       description: Revoke the specified organization role from the specified user
@@ -1337,6 +1438,37 @@ paths:
         required: true
       responses:
         201:
+          description: success
+  /{realm}/orgs/{orgId}/idps/{alias}/unlink:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: alias
+        description: idp alias
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Identity Providers
+      summary: Unlink an existing and linked identity provider from this organization
+      operationId: unlinkIdp
+      responses:
+        204:
           description: success
   /{realm}/orgs/{orgId}/idps/{alias}:
     parameters:
@@ -1564,6 +1696,7 @@ paths:
     get:
       tags:
         - Users
+        - Organization Roles
       summary: List organization roles for the given user and org
       responses:
         200:
@@ -1577,6 +1710,7 @@ paths:
     put:
       tags:
         - Users
+        - Organization Roles
       summary: Grant a user organization roles
       requestBody:
         content:
@@ -1587,7 +1721,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1598,6 +1732,7 @@ paths:
     patch:
       tags:
         - Users
+        - Organization Roles
       summary: Revoke organization roles from a user
       requestBody:
         content:
@@ -1608,7 +1743,7 @@ paths:
                 $ref: "#/components/schemas/OrganizationRoleRepresentation"
         required: true
       responses:
-        207: 
+        207:
           description: Multi Status
           content:
             application/json:
@@ -1758,6 +1893,19 @@ paths:
       summary: Get webhooks
       description: Get a list of webhooks for this realm
       operationId: getWebhooks
+      parameters:
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
       responses:
         200:
           description: success
@@ -1784,6 +1932,29 @@ paths:
           description: Webhook created
         400:
           description: Malformed webhook
+  /{realm}/webhooks/count:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhooks count
+      description: Get a count of webhooks.
+      operationId: getWebhooksCount
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
   /{realm}/webhooks/{webhookId}:
     parameters:
       - in: path
@@ -1840,6 +2011,221 @@ paths:
           description: success
         404:
           description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/secret:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook secret by id
+      operationId: getWebhookSecretById
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CredentialRepresentation"
+        404:
+          description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/sends:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Eventsxxx
+      summary: Get webhook sends
+      operationId: getWebhookSends
+      parameters:
+        - in: query
+          name: first
+          schema:
+            type: integer
+            format: int32
+          style: form
+        - in: query
+          name: max
+          schema:
+            type: integer
+            format: int32
+          style: form
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebhookSendRepresentation"
+        404:
+          description: Webhook doesn't exist
+  /{realm}/webhooks/{webhookId}/sends/{sendId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: sendId
+        description: send id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get webhook send by id
+      operationId: getWebhookSendById
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookSendRepresentation"
+        404:
+          description: Webhook or send doesn't exist
+  /{realm}/webhooks/{webhookId}/sends/{sendId}/resend:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: webhookId
+        description: webhook id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: sendId
+        description: send id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Events
+      summary: Resend a webhook by send ID
+      operationId: resendWebhookById
+      responses:
+        202:
+          description: success
+  /{realm}/webhooks/payload/{type}/{kid}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: type
+        description: keycloak event type
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: kid
+        description: keycloak event id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get a payload by Keycloak type and id
+      operationId: getPayloadByKeycloakTypeAndId
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRepresentation"
+  /{realm}/webhooks/sends/{type}/{kid}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: type
+        description: keycloak event type
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: kid
+        description: keycloak event id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Events
+      summary: Get all webhook sends triggered by a Keycloak event
+      operationId: getWebhookSendsByKeycloakTypeAndId
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WebhookSendRepresentation"
   /{realm}/magic-link:
     parameters:
       - in: path

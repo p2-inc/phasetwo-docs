@@ -1,13 +1,16 @@
 ---
 slug: dedicated-launch
-title: Launching Dedicated Clusters
-author: Phase Two
+title: Launching Dedicated Clusters of Phase Two's Enhanced Keycloak Distribution
+description: Phase Two launches dedicated clusters to host their enhanced Keycloak distribution for better compute, network, and storage isolation for customer workloads.
+authors: phasetwo
 tags: [release, keycloak, phase_two, cockroach]
 ---
 
 We're excited today to announce the launch of our dedicated clusters offering. Our Phase Two enhanced Keycloak distribution is now available as a hosted, dedicated cluster in the region of your choice.
 
 About 9 months ago, we launched our self-service, shared deployments, offering customers the ability to [create](https://phasetwo.io/dashboard/) Phase Two enhanced Keycloak realms on our shared clusters. Over that period, we've provided over 700 free realms for testing and small production use cases. Many of you have reached out to us asking about an SLA, isolated resources, and ability to grow into larger use cases. Based on your requests and feedback, we built out our dedicated cluster offering.
+
+<!--truncate-->
 
 ### What is Phase Two again?
 

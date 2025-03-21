@@ -15,6 +15,12 @@
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./helpers.css";
+
 :root {
   --ifm-color-primary: #3fa1e3;
   --ifm-color-primary-dark: #2695df;
@@ -87,7 +93,7 @@ body {
 }
 
 .page-identity {
-  background-image: url(/static/img/gradient-short-bg.png);
+  background-image: url(/static/img/gradient-short-bg.webp);
 }
 
 a {
@@ -95,10 +101,6 @@ a {
 }
 a:hover {
   text-decoration: none;
-}
-
-.pt0 {
-  padding-top: 0 !important;
 }
 
 .btnCta {
@@ -223,7 +225,7 @@ a:hover {
 .entSocialLoginBgCircles {
   top: -310px;
   width: 280vw;
-  z-index: 0;
+  z-index: -10;
 }
 .entSocialLoginBgImg {
   width: 170vw;
@@ -358,10 +360,6 @@ a:hover {
   }
 }
 
-.text-center {
-  text-align: center;
-}
-
 .dropdown__menu {
   border-radius: 16px;
   padding: 8px;
@@ -388,7 +386,7 @@ a:hover {
   background-color: transparent;
   position: relative;
   text-align: center;
-  z-index: 3;
+  /* z-index: 3; */
 }
 .pageHeroMsg {
   max-width: 782px;
@@ -404,6 +402,7 @@ a:hover {
 .pageHeroMsgIntro {
   font-size: 1.125rem;
   line-height: 1.4em;
+  font-weight: 400;
 }
 .pageHeroImg {
   margin-bottom: 12px;
@@ -473,9 +472,10 @@ a:hover {
 .contentBlockHead p.mt-1r {
   margin-top: 1rem;
 }
- {
-  margin-top: 1rem;
+.contentBlockRow .contentBlockHead {
+  max-width: 700px;
 }
+
 .contentBlockCta {
   text-align: center;
   padding-top: 48px;
@@ -497,6 +497,7 @@ a:hover {
   flex-direction: column;
   row-gap: 24px;
   color: var(--color-n5);
+  margin-top: 3rem;
 }
 .readMore:hover {
   color: var(--color-n5);
@@ -510,8 +511,13 @@ a:hover {
 .readMoreR {
   width: 100%;
 }
+.readMoreL {
+  align-self: center;
+  text-align: right;
+}
 .readMoreImg {
   border-radius: 16px;
+  height: 200px;
 }
 
 @media (min-width: 992px) {
@@ -521,7 +527,7 @@ a:hover {
     align-items: center;
   }
   .readMoreL {
-    width: calc(50% + 72px);
+    width: calc(30% + 72px);
   }
   .readMoreR {
     width: calc(50% - 72px);
@@ -674,10 +680,6 @@ a.menu__link.menu__link--sublist {
   --ifm-h1-font-size: 2.5rem;
 }
 
-.z-5 {
-  z-index: 5;
-}
-
 /* Hosting Page */
 .main-pillars {
   @media (max-width: 996px) {
@@ -691,5 +693,40 @@ a.menu__link.menu__link--sublist {
       padding: 1rem 0;
       border: 1px solid #ccc;
     }
+  }
+}
+
+/* Support page */
+.frameworkGridTop .col:first-of-type {
+  border-top-left-radius: 5px;
+}
+.frameworkGridTop .col:last-of-type {
+  border-top-right-radius: 5px;
+}
+.frameworkGridBottom .col:first-of-type {
+  border-bottom-left-radius: 5px;
+}
+.frameworkGridBottom .col:last-of-type {
+  border-bottom-right-radius: 5px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

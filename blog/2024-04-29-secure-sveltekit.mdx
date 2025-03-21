@@ -1,7 +1,8 @@
 ---
 slug: instant-user-management-and-sso-for-sveltekit
 title: Securing SvelteKit Apps with Keycloak
-author: Phase Two
+description: Learn how to quickly secure a SvelteKit application with user management and SSO using the open source IAMs Keycloak for Authentication and Authorization
+authors: phasetwo
 tags:
   [
     phase_two,
@@ -18,12 +19,15 @@ tags:
 import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
+import SvelteKit from "/templates/frameworks/_sveltekit.mdx";
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly augment an application with user management and SSO. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a SvelteKit application with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+
+<!--truncate-->
 
 :::info
 
-If you just want to skip to the code, visit the Phase Two [SvelteKit example](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit). We also have a plain [React example](https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs).
+If you just want to skip to the code, visit the Phase Two [SvelteKit example](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit).
 
 :::
 
@@ -50,96 +54,8 @@ If you just want to skip to the code, visit the Phase Two [SvelteKit example](ht
 
 ## Setting up a SvelteKit Project
 
-:::info
-We will use the Phase Two SvelteKit example code here, but the logic could easily be applied to any existing application.
-:::
-
-1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-2. Open the SvelteKit [folder](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit) within `/frameworks/sveltekit`.
-3. Run `npm install` and then `npm run dev`. This example leverages [@auth/sveltekit](https://github.com/nextauthjs/next-auth) to provide HOC support.
-4. The project makes use of the following SvelteKit items: hooks, components, layout, and `@auth/sveltekit` module. We'll review each in kind.
-5. We'll review where we configure out Keycloak instance. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`. 
-
-```tsx
-// Use Environment Variables AUTH_SECRET in prod
-const authjsSecret = "f18d48ce9bea32e44b5591b2c89185729d4559435f77ca76872a83a0850563a4";
-
-const realm = "shared-deployment-001";
-
-const kcConfig = {
-  // Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
-  issuer: `https://usw2.auth.ac/auth/realms/${realm}`,
-  // Paste "Client id" here. Use Environment Variables AUTH_KEYCLOAK_ID in prod
-  clientId: "reg-example-1",
-  // Paste "Client secret" here. Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
-  clientSecret: "CLIENT_SECRET",
-};
-```
-
-Those are used to popluate the config for the provider `Keycloak`:
-
-```tsx
-export const { handle, signIn, signOut } = SvelteKitAuth({
-  trustHost: true,
-  secret: authjsSecret,
-  providers: [Keycloak(kcConfig)],
-});
-```
-
-6. Next, let's review the hooks (`src/hooks.server.ts`) file. This imports the `handle` method by the `src/auth.ts` and re-exports it. This allows the hooks to act as a middleware and include the authentication status of the user in each request.
-
-```tsx
-export { handle } from "./auth.js";
-```
-
-7. To retrieve the authentication status of the user in server-side rendering on the index route, it's using the `+layout.server.ts` file. It retrieves the authentication status via the `getSession` function from [SvelteKit Locals](https://kit.svelte.dev/docs/types#app-locals) set by `src/hook.server.ts`.
-
-```tsx
-import type { LayoutServerLoad } from "./$types.js";
-
-export const load: LayoutServerLoad = async (event) => {
-  const session = await event.locals.getSession();
-  return {
-    session,
-  };
-};
-```
-
-8. The server-side authentication data is then accessed inside the `+page.svelte`, and then passed onto the user (`src/components/user.svelte`) component as follows:
-
-```html
-<script lang="ts">
-  import User from "$components/user.svelte";
-  import type { LayoutServerData } from "./$types.js";
-
-  export let data: LayoutServerData;
-</script>
-
-// ... Rest of the index route ... //
-
-<User
-  data={{
-    user: data?.session?.user,
-    status: Boolean(data?.session),
-  }}
-/>
-```
-
-The props, **user** and **status** represent the user information object and whether the user is signed in, respectively.
-
-9. At this point our entire application will be able to access all information and methods needed to perform authentication. View `src/components/user.svelte` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `@auth/sveltekit`.
-
-The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
-
-10. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
-
-   :::info
-   Use the non-admin user created in the previous section to sign in.
-   :::
-
-11. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
-12. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+<SvelteKit />
 
 ## Learning more
 
-Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (password-less sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (passwordless sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.

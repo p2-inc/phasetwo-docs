@@ -12,21 +12,27 @@ function Identity() {
 
   return (
     <Layout
-      title="Identity"
-      description="Identity - Authentication with Social Login, Multi-factor, Passwordless, Magic links and more - User self-management with a user account portal"
+      title="Identity Provider"
+      description="Identity - Authentication with Social Login, Multi-factor, Passwordless, Magic links and more. User self-management with a user account portal"
     >
       <main>
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroMsg`}>
-            <h1>Frictionless Authentication</h1>
-            <p className={`pageHeroMsgIntro`}>
+            <h1>Frictionless, Customized, Cost-Effective Authentication</h1>
+            <h2 className={`pageHeroMsgIntro`}>
               Authenticate your users securely across every application, from
-              the first click to the last.
-            </p>
+              the first click to the last. Phase Two provides highly
+              customizable Authentication flows that can be tailored to your
+              application's needs. Login pages can be customized with branding
+              to match your application's look and feel to create a seamless
+              experience. In addition, all possible login use cases are covered,
+              meaning no building out the multivariate login flows that
+              inevitably come with a custom solution.
+            </h2>
             <div className={`pageHeroCta`}>
               <a
-                href="http://phasetwo.io/dashboard/"
+                href="https://phasetwo.io/dashboard/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -39,17 +45,26 @@ function Identity() {
         {/* Social Login */}
         <div className={`contentBlock`}>
           <div className={`socialLoginBgCircles bgImg`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`socialLoginBgImg bgImg`}>
-            <img src="/img/social-login-bg.svg" alt="Social Login Symbols" />
+            <img
+              src="/img/social-login-bg.svg"
+              alt="Social Login Symbols"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
-            <h2>Social Login</h2>
+            <h2>Social Login or Corporate IDPs</h2>
             <p>
               Add social login with popular providers like Google, Github and
               Facebook to remove barriers to engagement, and allow your users to
-              maintain one identity.
+              maintain one identity. Or connect the corporate identity provider
+              to link directly to an existing provider.
             </p>
           </div>
           <div className={`contentBlockBody`}>
@@ -57,6 +72,7 @@ function Identity() {
               <img
                 src="/img/img-social-login.svg"
                 alt="Illustration showing Google and Microsoft social login buttons"
+                loading="lazy"
               />
             </div>
           </div>
@@ -65,7 +81,11 @@ function Identity() {
         {/* MFA */}
         <div className={`contentBlock`}>
           <div className={`mfaBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Multi-Factor Authentication</h2>
@@ -80,6 +100,7 @@ function Identity() {
               <img
                 src="/img/img-mfa.svg"
                 alt="Illustration showing various Multi-Factor Authentiation Means"
+                loading="lazy"
               />
             </div>
           </div>
@@ -88,19 +109,20 @@ function Identity() {
         {/* Magic Link */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
-            <h2>Magic Links</h2>
+            <h2>Magic Links, Passwordless Login</h2>
             <p>
-              Removes friction to signup and identity using your user’s email,
-              all without compromising account security. Immediately avoid
-              password breaches, and remove the need for forgotten password
-              problems.
+              Removes friction to sign up and identity using your user’s email,
+              all without compromising account security. Passwordless login
+              immediately avoids password breaches, and removes the need for
+              forgotten password problems.
             </p>
           </div>
           <div className={`contentBlockBody`}>
             <div className={styles.bodyImg}>
               <img
                 src="/img/img-magic-links.svg"
-                alt="Illustration showing logging with magic link"
+                alt="Illustration showing logging in with magic link"
+                loading="lazy"
               />
             </div>
           </div>
@@ -121,6 +143,7 @@ function Identity() {
               <img
                 src="/img/img-user-management.svg"
                 alt="Illustration showing managing users"
+                loading="lazy"
               />
             </div>
           </div>
@@ -129,36 +152,45 @@ function Identity() {
         {/* Read More */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
-            <h2>Learn More</h2>
+            <h2>Cost Effective Authentication</h2>
             <p>
-              See our articles and setup guides for a more in-depth look at our
-              identity features.
+              With all the various features for customizing the login
+              experience, this can save immense time in development cycles
+              trying to handle all the authentication use-cases. In addition,
+              Phase Two does not charge based on user count or login methods,
+              meaning that as app grows, you are future-proofed against
+              spiraling costs.
             </p>
           </div>
           <div className={`contentBlockBody`}>
-            <a href="#" className={`readMore`}>
+            <div className={`readMore`}>
               <div className={`readMoreL`}>
                 <img
                   className={`readMoreImg`}
-                  src="/img/read-more-magic-link.jpg"
+                  src="/img/icon-lock-access.svg"
                   alt="A magician with a hat and magic wand"
+                  loading="lazy"
                 />
               </div>
               <div className={`readMoreR`}>
                 <h3>Magic Link Guide</h3>
                 <p>
-                  Magic links are a type of password-less authentication that
+                  Magic links are a type of passwordless authentication that
                   allow your users to log in to your application following a
                   link that is emailed to them, rather than typing a username
                   and password. Read our guide to understand if they're right
-                  for you, and for 5-minute setup.
+                  for you and how to implement it in 5-minutes.
                 </p>
                 <a href="/blog/set-up-magic-links" className={`btnReadMore`}>
                   Read More
-                  <img src="/img/arrow-long-right.svg" alt="Arrow" />
+                  <img
+                    src="/img/arrow-long-right.svg"
+                    alt="Arrow"
+                    loading="lazy"
+                  />
                 </a>
               </div>
-            </a>
+            </div>
           </div>
         </div>
       </main>

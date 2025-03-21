@@ -1,0 +1,167 @@
+.planSupport {
+  text-align: center;
+  max-width: 720px;
+  margin: auto;
+}
+
+.planSupport .planBody {
+  min-height: auto;
+}
+
+.plans {
+  display: flex;
+  flex-direction: column;
+  row-gap: 32px;
+}
+.plansSects {
+  display: flex;
+  column-gap: 160px;
+  padding: 0 80px;
+  margin-bottom: 24px;
+}
+.plansBlocks {
+  display: flex;
+  flex-direction: column;
+  row-gap: 32px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.plan {
+  background-color: var(--color-wh);
+  border-radius: 16px;
+  box-shadow: var(--soft-shadow-branded);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.planHead {
+  text-align: center;
+  padding: 32px 20px 0px;
+}
+.planHead h3 {
+  margin: 8px 0;
+  font-size: 1.4rem;
+  line-height: 1.2em;
+}
+.planHead p {
+  margin: 0;
+  line-height: 1.1em;
+}
+
+.planBody {
+  flex: 1 1 auto;
+  padding: 20px;
+  padding-top: 0;
+}
+
+.planSupport .checklist {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+.planSupport .checklist > li + li {
+  margin-left: 1rem;
+  margin-top: 0;
+}
+
+.planSupport .planFoot {
+  justify-content: center;
+}
+
+.featCardPicto {
+  height: 50px;
+}
+
+.planBody {
+  flex: 1 1 auto;
+  padding: 20px;
+  padding-top: 0;
+}
+.planFoot {
+  padding: 20px;
+  padding-top: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  column-gap: 4px;
+}
+.planFoot .btnPlan {
+  width: 100%;
+  display: block;
+}
+.planFootA {
+  margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+  .plans {
+    flex-direction: row;
+    justify-content: center;
+    column-gap: 8px;
+  }
+}
+@media (min-width: 992px) {
+  .plansBlocks {
+    flex-direction: row;
+    row-gap: 0;
+    column-gap: 20px;
+  }
+  .plansBlock {
+    flex: 1;
+    height: 100%;
+  }
+  .plans {
+    column-gap: 20px;
+  }
+  .planHead h3 {
+    margin: 16px 0;
+    font-size: 1.75rem;
+  }
+  .planBody {
+    min-height: 180px;
+  }
+}
+
+/* Table */
+.tableThemeWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableTheme {
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: none;
+  margin-bottom: 1rem;
+}
+
+.tableTheme thead,
+.tableTheme thead th,
+.tableTheme tbody,
+.tableTheme tr {
+  border: none;
+  background: none;
+}
+.tableTheme th {
+  min-width: 150px;
+  font-size: 1.2rem;
+  vertical-align: bottom;
+}
+.tableTheme tr td:first-child {
+  font-style: italic;
+  text-align: left;
+}
+
+.tableTheme td {
+  padding: 0.5rem 2rem;
+  border: none;
+  text-align: center;
+  background: none;
+}
+
+.notPartOfPlan {
+  opacity: 0.5;
+}

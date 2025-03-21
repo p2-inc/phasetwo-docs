@@ -3,7 +3,7 @@ id: javascript
 title: JavaScript
 ---
 
-Most modern applications are being built as single-page apps. The easiest way to secure these is with the JavaScript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it direclty, the library is served by the server at `https://{host}/auth/js/keycloak.js
+Most modern applications are being built as single-page apps. The easiest way to secure these is with the JavaScript [keycloak-js](https://www.npmjs.com/package/keycloak-js) library. If you are using a package manager like NPM, you can use it from there. If you are importing it directly, the library is served by the server at `https://{host}/auth/js/keycloak.js`
 
 ### Example
 

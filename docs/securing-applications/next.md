@@ -3,7 +3,9 @@ id: next
 title: Next.js
 ---
 
-This example uses [Next.js](https://nextjs.org/) 13 and splits `server` and `client` components accordingly.
+For a working example, Phase Two has a [Next.js project](https://github.com/p2-inc/examples) with sample code or view a [live deployed version](https://phasetwo-nextjs-example.vercel.app/).
+
+This example uses [Next.js](https://nextjs.org/) 13 and splits `server` and `client` components accordingly. [Learn more](https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nextjs/) at our Next.js blog post.
 
 1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
 1. Open the Next.js [folder](https://github.com/p2-inc/examples/tree/main/frameworks/nextjs) within `/frameworks/nextjs`.

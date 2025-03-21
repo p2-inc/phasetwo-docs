@@ -18,7 +18,8 @@ jobs:
           cache: yarn
       - name: Test deployment
         run: |
-          yarn install --frozen-lockfile
+          yarn install
+          yarn run regen-api-docs
           yarn build
   deploy:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -38,5 +39,6 @@ jobs:
         run: |
           git config --global user.email "244253+xgp@users.noreply.github.com"
           git config --global user.name "Garth"
-          yarn install --frozen-lockfile
+          yarn install
+          yarn run regen-api-docs
           yarn deploy

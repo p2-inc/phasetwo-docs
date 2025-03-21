@@ -5,30 +5,67 @@ description: "Check if a user is a member of an organization"
 sidebar_label: "Check if a user is a member of an organization"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Memberships"],"operationId":"checkOrganizationMembership","responses":{"204":{"description":"success"}},"description":"Check if a user is a member of an organization","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/orgs/{orgId}/members/{userId}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Check if a user is a member of an organization","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","members",":userId"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) user id","type":"text/plain"},"type":"any","value":"","key":"userId"}]},"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
-import ApiTabs from "@theme/ApiTabs";
-import MimeTabs from "@theme/MimeTabs";
-import ParamsItem from "@theme/ParamsItem";
-import ResponseSamples from "@theme/ResponseSamples";
-import SchemaItem from "@theme/SchemaItem";
-import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
 
-## Check if a user is a member of an organization
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check if a user is a member of an organization"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/orgs/{orgId}/members/{userId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
 
 
 
 Check if a user is a member of an organization
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"204"} value={"204"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
+<ParamsDetails
+  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+>
+  
+</ParamsDetails>
 
-</div><div></div></TabItem></ApiTabs></div>
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"success"}}}
+>
+  
+</StatusCodes>
+
+
       

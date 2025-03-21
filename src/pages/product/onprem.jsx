@@ -6,22 +6,26 @@ function OnPrem() {
   return (
     <Layout
       title="On Prem Deployment"
-      description="Bundle when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com."
+      description="Bundle Identity and SSO when installing on-prem for IdP onboarding. Works with Kubernetes and Replicated.com"
     >
       <main>
         {/* Hero */}
         <div className={`pageHero`}>
           <div className={`pageHeroBgCircles`}>
-            <img src="/img/circles.svg" alt="Concentric Circles" />
+            <img
+              src="/img/circles.svg"
+              alt="Concentric Circles"
+              loading="lazy"
+            />
           </div>
           <div className={`pageHeroMsg`}>
             <h1>Bundle Identity and SSO When You Deploy On-Prem</h1>
-            <p className={`pageHeroMsgIntro`}>
+            <h2 className={`pageHeroMsgIntro`}>
               Sophisticated SaaS providers are realizing the value in bundling
               and deploying their solutions to customers in governments and
               regulated industries that can’t use cloud offerings for regulatory
               or compliance reasons.
-            </p>
+            </h2>
             <div className={`pageHeroCta`}>
               <a href="mailto:support@phasetwo.io">
                 <button className={`btnPrimary`}>Contact Sales</button>
@@ -46,6 +50,7 @@ function OnPrem() {
               <img
                 src="/img/img-data-residency.svg"
                 alt="Illustration showing a world map in dots with some dots highlighted in different color"
+                loading="lazy"
               />
             </div>
           </div>
@@ -66,6 +71,7 @@ function OnPrem() {
               <img
                 src="/img/img-idp.svg"
                 alt="Diagram showing accessing customer app via IdP and PhaseTwo Connect"
+                loading="lazy"
               />
             </div>
           </div>
@@ -74,7 +80,11 @@ function OnPrem() {
         {/* Kubernetes & Replicated.com */}
         <div className={`contentBlock`}>
           <div className={`kubernetesBgImg bgImg`}>
-            <img src="/img/gradient-bg.png" alt="Color Gradient" />
+            <img
+              src="/img/gradient-bg.webp"
+              alt="Color Gradient"
+              loading="lazy"
+            />
           </div>
           <div className={`contentBlockHead`}>
             <h2>Kubernetes and Replicated.com Compatible</h2>
@@ -89,6 +99,7 @@ function OnPrem() {
               <img
                 src="/img/img-kubernetes-replicated.svg"
                 alt="Illustration showing Kubernetes and Replicated.com logos"
+                loading="lazy"
               />
             </div>
           </div>

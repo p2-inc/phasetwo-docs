@@ -1,7 +1,8 @@
 ---
 slug: instant-user-managemenet-and-sso-for-nuxt
 title: Securing Nuxt Apps with Keycloak
-author: Phase Two
+description: Learn how to quickly secure a Nuxt application with user management and SSO using the open source IAMs Keycloak for Authentication and Authorization
+authors: phasetwo
 tags:
   [
     phase_two,
@@ -10,7 +11,7 @@ tags:
     nuxt,
     vue,
     vuejs,
-    nuxt, 
+    nuxt,
     nuxtjs,
     authentication,
     authorization,
@@ -22,7 +23,9 @@ import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_inst
 import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly augment an application with user management and SSO. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a Nuxt application with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+
+<!--truncate-->
 
 :::info
 
@@ -244,4 +247,4 @@ The [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) package is 
 
 ## Learning more
 
-Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (password-less sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.
+Phase Two's enhanced Keycloak provides many ways to quickly control and tweak the log in and user management experience. Our [blog](https://phasetwo.io/blog) has many use cases from [customizing login pages](https://phasetwo.io/blog/customizing-login-pages), setting up [magic links](https://phasetwo.io/blog/set-up-magic-links) (passwordless sign in), and [Organization](https://phasetwo.io/product/organizations) workflows.

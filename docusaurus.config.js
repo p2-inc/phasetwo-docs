@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two - Make Keycloak Easy",
+  title: "Phase Two - Managed Keycloak Hosting and Enterprise Support",
   tagline:
-    "Making Keycloak Easy - Enhanced Keycloak as a Service - Fully secured, managed, simple and hosted Keycloak with custom extensions for SSO, organizations and more specifically tailored to your SaaS application",
+    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, Organizations, Migrations and User Management.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -46,19 +46,19 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dedicated-launch">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Keycloak cluster.',
+        '<a href="/blog/dedicated-launch/">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Managed Keycloak cluster.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
     },
     metadata: [
       { name: "keywords", content: "keycloak, iam, sso" },
-      {
-        name: "description",
-        content: "Tools for SaaS builders - Enhanced Keycloak as a Service",
-      },
       { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
-      { property: "og:image", content: "/img/appstore.png", size: "1024x1024" },
+      {
+        property: "og:image",
+        content: "/img/og_image_app.png",
+        size: "1200x630",
+      },
       { property: "og:logo", content: "/img/playstore.png", size: "512x512" },
     ],
     navbar: {
@@ -73,6 +73,22 @@ module.exports = {
           position: "left",
           activeBasePath: "hosting",
           to: "hosting",
+        },
+        {
+          type: "dropdown",
+          label: "Support",
+          position: "left",
+          items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+              activeBaseRegex: "^/support/$",
+            },
+            {
+              label: "Migration to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
+          ],
         },
         {
           type: "dropdown",
@@ -104,6 +120,11 @@ module.exports = {
               activeBasePath: "product/adminportal",
               label: "Admin Portal",
             },
+            {
+              to: "product/integrations",
+              activeBasePath: "product/integrations",
+              label: "Integrations",
+            },
           ],
         },
         {
@@ -127,12 +148,12 @@ module.exports = {
             },
           ],
         },
-        // {
-        //   to: "/#pricing",
-        //   label: "Pricing",
-        //   position: "left",
-        //   activeBasePath: "random",
-        // },
+        {
+          to: "/#pricing",
+          label: "Pricing",
+          position: "left",
+          activeBasePath: "random",
+        },
         {
           to: "blog",
           activeBasePath: "blog",
@@ -176,6 +197,11 @@ module.exports = {
         {
           title: "Product",
           items: [
+            {
+              to: "hosting",
+              activeBasePath: "hosting",
+              label: "Hosting",
+            },
             {
               to: "product/sso",
               activeBasePath: "product/sso",
@@ -222,11 +248,19 @@ module.exports = {
               label: "GitHub",
               href: "https://github.com/p2-inc",
             },
+            {
+              label: "Migrate to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
           ],
         },
         {
           title: "Support",
           items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+            },
             {
               label: "Bugs & Feature Requests",
               href: "https://github.com/p2-inc/phasetwo/issues",
@@ -305,6 +339,9 @@ module.exports = {
       // Optional: see doc section below
       contextualSearch: true,
     },
+    prism: {
+      additionalLanguages: ["java", "yaml"],
+    },
   },
   presets: [
     [
@@ -321,6 +358,8 @@ module.exports = {
         blog: {
           blogSidebarTitle: "News",
           blogSidebarCount: "ALL",
+          blogDescription:
+            "Learn more about how we make Keycloak Hosting and Authentication easy.",
         },
       }),
     ],
@@ -333,11 +372,11 @@ module.exports = {
         docsPluginId: "api",
         config: {
           phasetwo: {
-            // Note: petstore key is treated as the <id> and can be used to specify an API doc instance when using CLI commands
             specPath: "openapi.yaml", // Path to designated spec file
             outputDir: "api", // Output directory for generated .mdx docs
             sidebarOptions: {
               groupPathsBy: "tag",
+	      categoryLinkSource: "tag",
             },
           },
         },
@@ -348,14 +387,13 @@ module.exports = {
       {
         id: "api",
         path: "api",
-        breadcrumbs: true,
         routeBasePath: "api",
         include: ["**/*.md", "**/*.mdx"],
-        sidebarPath: require.resolve("./api/sidebar.js"),
-        docLayoutComponent: "@theme/DocPage",
-        docItemComponent: "@theme/ApiItem", // add @theme/ApiItem here
+        sidebarPath: require.resolve("./api-sidebar.js"),
+        docItemComponent: "@theme/ApiItem",
       },
     ],
+    "docusaurus-tailwindcss-loader",
   ],
   themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
 };

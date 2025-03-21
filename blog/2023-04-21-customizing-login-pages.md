@@ -1,13 +1,15 @@
 ---
 slug: customizing-login-pages
 title: How To Customize Login Pages
-author: Phase Two
+authors: phasetwo
 tags: [phase_two, themes, login, keycloak]
 ---
 
 Brand is important to modern SaaS companies, and nowhere is that more apparent than at the front door: the login experience. Unfortunately, the default design of the Keycloak login experience has a "face only a mother could love".
 
 In order to allow customers to customize that experience, we've extended the default Keycloak theming functionality to allow you to easily customize the login pages from the admin console. This eliminates the need to package and deploy a custom theme, and allows fast iteration without restart.
+
+<!--truncate-->
 
 ## Simple customization
 
@@ -36,7 +38,7 @@ This CSS will be the last CSS loaded, overridding the styles in the default `key
 References:
 
 - [Keycloak login CSS](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) - The default CSS for the `keycloak` login theme.
-- [Patternfly 4](https://www.patternfly.org/v4/) - The styling library used by the theme.
+- [Patternfly 4](https://www.patternfly.org/) - The styling library used by the theme.
 
 ### CSS Examples
 

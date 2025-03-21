@@ -7,7 +7,9 @@ Many SPAs use a framework such as [React](https://reactjs.org/) to simplify the 
 
 ### Example
 
-Follow the setup instructions in the library documentation https://www.npmjs.com/package/@react-keycloak/web
+Phase Two has a [React project](https://github.com/p2-inc/examples) with sample code or view a [live deployed version](https://phasetwo-react-example.vercel.app/).
+
+Keycloak has setup instructions in their [library documentation](https://www.npmjs.com/package/@react-keycloak/web).
 
 #### Setup Keycloak instance
 

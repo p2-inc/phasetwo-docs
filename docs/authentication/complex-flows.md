@@ -3,12 +3,6 @@ id: complex-flows
 title: Complex Flows
 ---
 
-:::caution
-
-This section is currently under construction. Check back soon for updates.
-
-:::
-
 It is possible to create complex authentication flows with many options and conditionals. Each application use case is unique, and it may be necessary to combine some of the examples from the other sections in order to meet your specific needs. While no one guide can be comprehensive in this regard, we present a real-world example to facilitate understand of how different authentication methods can work together in a single flow.
 
 ## Example scenario

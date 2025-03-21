@@ -5,30 +5,67 @@ description: "Get details for all domains owned by an organization"
 sidebar_label: "Get details for all domains owned by an organization"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Domains"],"operationId":"getOrganizationDomains","responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"domain_name":{"type":"string"},"verified":{"type":"boolean"},"record_key":{"type":"string"},"record_value":{"type":"string"},"type":{"type":"string"}},"title":"OrganizationDomainRepresentation"}}}}}},"description":"Get details for all domains owned by an organization","parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"get","path":"/{realm}/orgs/{orgId}/domains","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Get details for all domains owned by an organization","description":{"type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","domains"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"}]},"header":[{"key":"Accept","value":"application/json"}],"method":"GET"}}
+api: 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
 sidebar_class_name: "get api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
-import ApiTabs from "@theme/ApiTabs";
-import MimeTabs from "@theme/MimeTabs";
-import ParamsItem from "@theme/ParamsItem";
-import ResponseSamples from "@theme/ResponseSamples";
-import SchemaItem from "@theme/SchemaItem";
-import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
 
-## Get details for all domains owned by an organization
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get details for all domains owned by an organization"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/{realm}/orgs/{orgId}/domains"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
 
 
 
 Get details for all domains owned by an organization
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
+<ParamsDetails
+  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+>
+  
+</ParamsDetails>
 
-</div><div><MimeTabs schemaType={"response"}><TabItem label={"application/json"} value={"application/json"}><SchemaTabs><TabItem label={"Schema"} value={"Schema"}><details style={{}} data-collapsed={false} open={true}><summary style={{"textAlign":"left"}}><strong>Schema</strong></summary><div style={{"textAlign":"left","marginLeft":"1rem"}}></div><ul style={{"marginLeft":"1rem"}}><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem","paddingBottom":".5rem"}}>Array [</div></li><SchemaItem collapsible={false} name={"domain_name"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"verified"} required={false} schemaName={"boolean"} qualifierMessage={undefined} schema={{"type":"boolean"}}></SchemaItem><SchemaItem collapsible={false} name={"record_key"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"record_value"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><SchemaItem collapsible={false} name={"type"} required={false} schemaName={"string"} qualifierMessage={undefined} schema={{"type":"string"}}></SchemaItem><li><div style={{"fontSize":"var(--ifm-code-font-size)","opacity":"0.6","marginLeft":"-.5rem"}}>]</div></li></ul></details></TabItem><TabItem label={"Example (from schema)"} value={"Example (from schema)"}><ResponseSamples responseExample={"[\n  {\n    \"domain_name\": \"string\",\n    \"verified\": true,\n    \"record_key\": \"string\",\n    \"record_value\": \"string\",\n    \"type\": \"string\"\n  }\n]"} language={"json"}></ResponseSamples></TabItem></SchemaTabs></TabItem></MimeTabs></div></TabItem></ApiTabs></div>
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"domain_name":{"type":"string"},"verified":{"type":"boolean"},"record_key":{"type":"string"},"record_value":{"type":"string"},"type":{"type":"string"}},"title":"OrganizationDomainRepresentation"}}}}}}}
+>
+  
+</StatusCodes>
+
+
       

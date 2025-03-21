@@ -1,8 +1,9 @@
 ---
 slug: identity-brokering-on-prem
-title: "User Management and Identity Brokering for On-Prem Apps"
-author: Phase Two
-tags: [ keycloak, phase_two, open_source, idp_wizard, on_prem, private_cloud ]
+title: User Management and Identity Brokering for On-Prem Apps
+description: A deep-dive into the process to use an open-source software, Keycloak, to solve an important need of Identity Brokering within modern Saas applications.
+authors: phasetwo
+tags: [keycloak, phase_two, open_source, idp_wizard, on_prem, private_cloud]
 ---
 
 # User Management and Identity Brokering for On-Prem Apps
@@ -18,14 +19,16 @@ With many companies racing into the cloud, very little is written about the huge
 > The big day comes, and you’re installing at your first customer. You expect that there will be some minor bumps along the way, but their first question just flattens you: “How do we connect this to our in-house identity provider?” It was a question that was never on your radar, but now it’s the most important thing for the customer.
 >
 > Like most SaaS companies, you’re probably either hand-rolling your authentication and user management using something like Passport.js, Devise, Django, etc., using some social login options, or using a cloud-only service like Auth0 or WorkOS. If you had implemented SAML, the most common protocol for just-in-time user provisioning with enterprise identity providers, you probably went for a basic approach. You wrongly assumed that user management and identity brokering would be easier for on-prem.
-> 
-> You throw some engineering and customer success resources at the problem, but quickly realize it’s not a scalable solution. The customer wants to map their groups, and manage access and authorization through *their* IdP. Just the overhead of connecting to every possible type of IdP, and supporting that for every customer, will eat up your margin before they start using your application.
+>
+> You throw some engineering and customer success resources at the problem, but quickly realize it’s not a scalable solution. The customer wants to map their groups, and manage access and authorization through _their_ IdP. Just the overhead of connecting to every possible type of IdP, and supporting that for every customer, will eat up your margin before they start using your application.
+
+<!--truncate-->
 
 The **good news** is that you’re not alone in missing this key enterprise need. Many companies who are new to on-prem and private cloud deployments learn this the hard way, many without losing customers.
 
 However, the reality is that for an application that is used by an entire enterprise, who can use it (authentication) and how (authorization) is equally as important for on-prem applications as cloud. And, being hosted and operated by your customer, simplicity of management and transparency is more important than cloud.
 
-### An open source solution to the rescue 
+### An open source solution to the rescue
 
 Fortunately, there is feature complete identity and access management system that is equally at home both on-premise and in the cloud. It can easily facilitate identity brokering with the customer identity provider, as well as give their IT staff access to critical access and operational information.
 
@@ -39,6 +42,6 @@ To this end, the most valuable tool, from our customers’ perspectives is our [
 
 ![idp-wizard-video-gif](https://github.com/p2-inc/idp-wizard/assets/244253/e9b421c0-b487-4c07-9eed-87ea89fc574b)
 
-We conveniently bundle all of these tools in [Docker images](https://github.com/p2-inc/phasetwo-containers) for easy deployment. 
+We conveniently bundle all of these tools in [Docker images](https://github.com/p2-inc/phasetwo-containers) for easy deployment.
 
 Does the above story sound familiar, or something you might be stumbling into? [Contact sales](mailto:sales@phasetwo.io) to find out how we can help your journey to on-prem be as painless as possible and supercharge your customer identity onboarding process.

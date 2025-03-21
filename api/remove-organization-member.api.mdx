@@ -5,30 +5,67 @@ description: "Remove the specified user from the specified organization as a mem
 sidebar_label: "Remove an organization member"
 hide_title: true
 hide_table_of_contents: true
-api: {"tags":["Organization Memberships"],"operationId":"removeOrganizationMember","description":"Remove the specified user from the specified organization as a member","responses":{"204":{"description":"success"}},"parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}],"method":"delete","path":"/{realm}/orgs/{orgId}/members/{userId}","servers":[{"url":"{protocol}://{host}{port}{relativePath}/realms","variables":{"host":{"enum":["app.phasetwo.io","localhost"],"default":"app.phasetwo.io","description":"API host"},"port":{"enum":["","8081"],"default":"","description":"API port"},"relativePath":{"enum":["","/auth"],"default":"","description":"Relative path"},"protocol":{"enum":["http","https"],"default":"https"}}}],"security":[{"access_token":[]}],"securitySchemes":{"access_token":{"type":"http","scheme":"bearer","bearerFormat":""}},"info":{"title":"Phase Two Admin REST API","description":"This is a REST API reference for the Phase Two Keycloak custom resources. These are extensions to the standard [Keycloak Admin REST API](https://www.keycloak.org/docs-api/17.0/rest-api/index.html).\n\n### Base URI format\nPaths specified in the documentation are relative to the the base URI.\n- Format: `https://<host>:<port>/auth/realms`\n- Example: `https://app.phasetwo.io/auth/realms`\n\n### Authentication\nAuthentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.\n\nIt is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.\n\n#### Client credentials grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1\n```\n\n#### Password grant example\n```\nPOST /auth/realms/test-realm/protocol/openid-connect/token\nHost: app.phasetwo.io\nAccept: application/json\nContent-type: application/x-www-form-urlencoded\n\ngrant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli\n```\n\n### SDKs\nModern API libraries are available for several common languages. These are available as open source at the links below, or you can choose to generate your own using our [OpenAPI spec file](https://raw.githubusercontent.com/p2-inc/phasetwo-docs/main/openapi.yaml).\n\n| Language | Library |\n| --- | --- |\n| Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |\n| JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |\n| Python | https://github.com/p2-inc/phasetwo-python |\n","version":"v1"},"postman":{"name":"Remove an organization member","description":{"content":"Remove the specified user from the specified organization as a member","type":"text/plain"},"url":{"path":[":realm","orgs",":orgId","members",":userId"],"host":["{{baseUrl}}"],"query":[],"variable":[{"disabled":false,"description":{"content":"(Required) realm name (not id!)","type":"text/plain"},"type":"any","value":"","key":"realm"},{"disabled":false,"description":{"content":"(Required) organization id","type":"text/plain"},"type":"any","value":"","key":"orgId"},{"disabled":false,"description":{"content":"(Required) user id","type":"text/plain"},"type":"any","value":"","key":"userId"}]},"method":"DELETE"}}
+api: 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
 sidebar_class_name: "delete api-method"
 info_path: api//phase-two-admin-rest-api
 custom_edit_url: null
 ---
 
-import ApiTabs from "@theme/ApiTabs";
-import MimeTabs from "@theme/MimeTabs";
-import ParamsItem from "@theme/ParamsItem";
-import ResponseSamples from "@theme/ResponseSamples";
-import SchemaItem from "@theme/SchemaItem";
-import SchemaTabs from "@theme/SchemaTabs";
-import DiscriminatorTabs from "@theme/DiscriminatorTabs";
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
 import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
 
-## Remove an organization member
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Remove an organization member"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/{realm}/orgs/{orgId}/members/{userId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
 
 
 
 Remove the specified user from the specified organization as a member
 
-<details style={{"marginBottom":"1rem"}} data-collapsed={false} open={true}><summary style={{}}><strong>Path Parameters</strong></summary><div><ul><ParamsItem className={"paramsItem"} param={{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem><ParamsItem className={"paramsItem"} param={{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}}></ParamsItem></ul></div></details><div><ApiTabs><TabItem label={"204"} value={"204"}><div>
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+  children={"Request"}
+>
+</Heading>
 
-success
+<ParamsDetails
+  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+>
+  
+</ParamsDetails>
 
-</div><div></div></TabItem></ApiTabs></div>
+<RequestSchema
+  title={"Body"}
+  body={undefined}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  id={undefined}
+  label={undefined}
+  responses={{"204":{"description":"success"}}}
+>
+  
+</StatusCodes>
+
+
       
