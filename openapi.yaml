@@ -2059,7 +2059,7 @@ paths:
         style: simple
     get:
       tags:
-        - Eventsxxx
+        - Events
       summary: Get webhook sends
       operationId: getWebhookSends
       parameters:
