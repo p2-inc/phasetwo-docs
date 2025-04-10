@@ -202,7 +202,7 @@ export default function Hosted() {
               <div className="row">
                 <div className="col col--4 col--offset-1 flex flex-align-center">
                   <div>
-                    <h3>Keycloak Installationm and Configuration</h3>
+                    <h3>Keycloak Installation and Configuration</h3>
                     <p>
                       While our{" "}
                       <a href="https://phasetwo.io/docs/getting-started/configuration/">
