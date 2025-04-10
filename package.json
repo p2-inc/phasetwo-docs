@@ -15,9 +15,9 @@
     "regen-api-docs": "npm run clean-api-docs && npm run gen-api-docs && rm api/sidebar.ts"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.6.3",
-    "@docusaurus/preset-classic": "^3.6.3",
-    "@docusaurus/theme-live-codeblock": "^3.6.3",
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/preset-classic": "^3.7.0",
+    "@docusaurus/theme-live-codeblock": "^3.7.0",
     "@headlessui/react": "^2.2.0",
     "@iconify/react": "^5.0.1",
     "classnames": "^2.2.6",
