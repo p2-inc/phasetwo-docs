@@ -8,9 +8,11 @@ tags: [phase_two, open_source, saml, authentication]
 
 SAML has a bit of a reputation. For many developers, it lives in that shadowy corner of the B2B internet where XML still rules and stack traces seem to go on forever. If you've ever had the misfortune of debugging a malformed `<Assertion>`, you know the pain. But here's the thing: it doesn't have to be a nightmare.
 
-At Phase Two, we provide managed hosting and developer support for Keycloak, the leading open-source Identity and Access Management platform. And while OIDC has become the default for most modern applications, SAML is still alive and well—especially in enterprise environments.
+At Phase Two, we provide [managed hosting](/hosting) and [enterprise support](/support) for [Keycloak](https://www.keycloak.org/), a leading open-source Identity and Access Management platform. And while [OIDC](https://openid.net/specs/openid-connect-core-1_0-final.html) has become the default for most modern applications, [SAML](https://en.wikipedia.org/wiki/SAML_2.0) is still alive and well—especially in enterprise environments.
 
-This post is a gentle (and opinionated) introduction to what SAML is, how it works, and why it still matters—particularly if you're implementing SAML SSO in Keycloak.
+This post is a gentle (and opinionated) introduction to what SAML is, how it works, and why it still matters particularly if you're implementing SAML [SSO](/product/sso/) in Keycloak.
+
+<!-- truncate -->
 
 ### What even is SAML?
 
@@ -176,9 +178,9 @@ Even if your app is all-in on OIDC, SAML bridges can help you bring legacy syste
 
 ### Why let keycloak handle SAML?
 
-Here's the kicker: you don't want to write your own SAML implementation. Parsing, validating, and verifying SAML messages is error-prone and fraught with subtle security pitfalls. With Keycloak (and managed services like Phase Two), you don't have to.
+Here's the kicker: you don't want to write your own SAML implementation. Parsing, validating, and verifying SAML messages is error-prone and fraught with subtle security pitfalls. With Keycloak (and managed services like [Phase Two](/hosting)), you don't have to.
 
-Keycloak abstracts away the complexity. And at Phase Two, we abstract away the operational burden of hosting and securing Keycloak itself. We provide:
+Keycloak abstracts away the complexity. And at Phase Two, we abstract away the operational burden of [hosting](/hosting) and [securing](/product/identity) Keycloak itself. We provide:
 
 - Production-grade Keycloak hosting
 - Built-in SAML and OIDC support

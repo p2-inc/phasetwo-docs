@@ -15,10 +15,10 @@ tags:
     idp-initiated,
   ]
 ---
+
 import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
 
-
-<!--truncate-->
+<!-- truncate -->
 
 :::info
 
@@ -115,10 +115,9 @@ It is important to consider that the IdP-initiated flow does present certain sec
 
 However, it is worth noting that there is still a risk that a SAML assertion could be compromised, allowing an attacker to gain access to the service provider as the affected user. While the service provider can recognize and validate the assertion because it was issued by the expected issuer and signed with the correct key, it cannot confirm whether a malicious party was involved in sending it. Given these concerns about the IdP-initiated flow and its vulnerability to certain security threats, there may be circumstances in which we find it necessary to implement it based on our specific context.
 
+### IdP-initiated flow redirects to a OIDC application
 
-### IdP-initiated flow redirects to a OIDC application 
-
-In the example above we configured the IdP-initiated flow to act as a identity broker and redirect to a client application which consumes SAML. Another interesting use case involves redirecting a user authenticated in the Keycloak realm to an OIDC client application. 
+In the example above we configured the IdP-initiated flow to act as a identity broker and redirect to a client application which consumes SAML. Another interesting use case involves redirecting a user authenticated in the Keycloak realm to an OIDC client application.
 
 Although this setup may not function seamlessly out of the box, an illustrative example can be found here: [IdP Initiated Login with Keycloak](https://www.lumilinks.com/blog/idp-initiated-login-with-keycloak).
 
@@ -136,22 +135,22 @@ We need to create new SAML 2.0 client in `test-realm`. Same as the configuration
 
 ![Generic client](/blog/saml/idp-init/generic-client.png)
 
-Now comes the interesting part. Since the SAML client we created will initialize the user session in Keycloak, we will need a mechanism to attach this session to an OIDC client. We can accomplish this with a simple redirect to the OIDC application. For that, we may consider using the `SAML Redirect Binding`, which uses a `GET` request instead of a `POST` to forward the SAML assertion. 
+Now comes the interesting part. Since the SAML client we created will initialize the user session in Keycloak, we will need a mechanism to attach this session to an OIDC client. We can accomplish this with a simple redirect to the OIDC application. For that, we may consider using the `SAML Redirect Binding`, which uses a `GET` request instead of a `POST` to forward the SAML assertion.
 We can associate our client application `Home URL` with this configuration.
 
 ![Client redirect binding](/blog/saml/idp-init/saml-client-redirect-binding.png)
 
 Do not forget to turn of the `Force POST binding` toggle in the SAML client general settings.
 
-After doing all these configs we can proceed with the [Testing](#testing) phase. What we are going to observe is that Keycloak created a twin session in the  `security-admin-console` client for our user.
+After doing all these configs we can proceed with the [Testing](#testing) phase. What we are going to observe is that Keycloak created a twin session in the `security-admin-console` client for our user.
 
 ![Twin session oidc client](/blog/saml/idp-init/twin-session-oidc-client.png)
 
-Behind this configuration stands one magic piece which ensure the flow is going to work, the 'Cookie' authenticator. It ensures that the session for any `client` we request is first lookup in the Keycloak cookie. If the Authenticator is turned of the flow will no longer work. My advice is not to really on this configuration if your application will not allow Keycloak cookies. 
+Behind this configuration stands one magic piece which ensure the flow is going to work, the 'Cookie' authenticator. It ensures that the session for any `client` we request is first lookup in the Keycloak cookie. If the Authenticator is turned of the flow will no longer work. My advice is not to really on this configuration if your application will not allow Keycloak cookies.
 
 ### Conclusion
 
-In this post, we explored the setup of an IdP-initiated flow with support for both SAML and OIDC applications. We also discussed some of the challenges associated with using the IdP-initiated flow and ways to address them. 
+In this post, we explored the setup of an IdP-initiated flow with support for both SAML and OIDC applications. We also discussed some of the challenges associated with using the IdP-initiated flow and ways to address them.
 
 I hope this has shed some light on the intricate world of Keycloak configuration and assisted you in finding a solution to your problems. Cheers!
 
