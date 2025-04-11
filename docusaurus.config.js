@@ -376,7 +376,7 @@ module.exports = {
             outputDir: "api", // Output directory for generated .mdx docs
             sidebarOptions: {
               groupPathsBy: "tag",
-	      categoryLinkSource: "tag",
+              categoryLinkSource: "tag",
             },
           },
         },
