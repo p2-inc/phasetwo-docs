@@ -2,7 +2,7 @@
 title: "SAML, Simplified."
 slug: introduction-to-simple-saml
 date: 2025-04-10
-author: Phase Two
+authors: phasetwo
 tags: [phase_two, open_source, saml, authentication]
 ---
 
