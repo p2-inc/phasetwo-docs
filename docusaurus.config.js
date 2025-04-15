@@ -143,6 +143,11 @@ module.exports = {
               label: "API",
             },
             {
+              to: "guides",
+              activeBasePath: "guides",
+              label: "Guides",
+            },
+            {
               to: "https://github.com/p2-inc/",
               label: "GitHub",
             },
@@ -391,6 +396,16 @@ module.exports = {
         include: ["**/*.md", "**/*.mdx"],
         sidebarPath: require.resolve("./api-sidebar.js"),
         docItemComponent: "@theme/ApiItem",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "guides",
+        path: "guides",
+        routeBasePath: "guides",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.guides.js"),
       },
     ],
     "docusaurus-tailwindcss-loader",
