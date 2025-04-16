@@ -69,15 +69,10 @@ module.exports = {
       },
       items: [
         {
-          label: "Hosting",
-          position: "left",
-          activeBasePath: "hosting",
-          to: "hosting",
-        },
-        {
           type: "dropdown",
           label: "Hosting",
           position: "left",
+          to: "hosting",
           items: [
             {
               label: "Deployments",
@@ -113,6 +108,7 @@ module.exports = {
           type: "dropdown",
           label: "Support",
           position: "left",
+          to: "support",
           items: [
             {
               label: "Enterprise Support",
