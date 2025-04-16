@@ -131,5 +131,5 @@ Need help rolling out passkeys and passwordless login in your apps? We can help 
 
 Let’s build a secure, passwordless future—together.
 
-✉️ [sales@phasetwo.io](mailto:sales@phasetwo.io)
-👉 [Get Started with Managed Keycloak](https://phasetwo.io/dashboard)
+📩 [Reach out to the team →](mailto:sales@phasetwo.io)
+👉 [Get Started with Free Managed Keycloak](https://phasetwo.io/dashboard)
