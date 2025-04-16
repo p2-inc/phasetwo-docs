@@ -429,6 +429,11 @@ module.exports = {
     prism: {
       additionalLanguages: ["java", "yaml"],
     },
+    mermaid: {
+      options: {
+        themeVariables: {},
+      },
+    },
   },
   presets: [
     [
