@@ -496,5 +496,12 @@ module.exports = {
     ],
     "docusaurus-tailwindcss-loader",
   ],
-  themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
+  themes: [
+    "@docusaurus/theme-live-codeblock",
+    "docusaurus-theme-openapi-docs",
+    "@docusaurus/theme-mermaid",
+  ],
+  markdown: {
+    mermaid: true,
+  },
 };
