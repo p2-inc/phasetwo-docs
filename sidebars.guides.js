@@ -11,10 +11,10 @@ module.exports = {
       },
       items: ["oidc-configuration", "oidc-configuration-2"], // resolves to guides/oidc-configuration.md, etc
     },
-    {
-      type: "category",
-      label: "Cat B",
-      items: ["foo"], // resolves to guides/foo.md
-    },
+    // {
+    //   type: "category",
+    //   label: "Cat B",
+    //   items: ["foo"], // resolves to guides/foo.md
+    // },
   ],
 };

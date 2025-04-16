@@ -76,6 +76,41 @@ module.exports = {
         },
         {
           type: "dropdown",
+          label: "Hosting",
+          position: "left",
+          items: [
+            {
+              label: "Deployments",
+              to: "hosting/deployments",
+            },
+            {
+              label: "Configure",
+              to: "hosting/configure",
+            },
+            {
+              label: "Monitoring",
+              to: "hosting/monitoring",
+            },
+            {
+              label: "Support",
+              to: "hosting/support",
+            },
+            {
+              label: "Version Upgrades",
+              to: "hosting/version-upgrades",
+            },
+            {
+              label: "Backups",
+              to: "hosting/backups",
+            },
+            {
+              label: "Customize",
+              to: "hosting/customize",
+            },
+          ],
+        },
+        {
+          type: "dropdown",
           label: "Support",
           position: "left",
           items: [
@@ -87,6 +122,38 @@ module.exports = {
             {
               label: "Migration to Keycloak",
               to: "support/migrate-to-keycloak",
+            },
+            {
+              label: "Custom Extensions",
+              to: "support/custom-extensions",
+            },
+            {
+              label: "Version Upgrades",
+              to: "support/version-upgrades",
+            },
+            {
+              label: "Infrastructure Implementation (IAC)",
+              to: "support/infrastructure-implementation",
+            },
+            {
+              label: "Theming",
+              to: "support/theming",
+            },
+            {
+              label: "Architecture Review",
+              to: "support/architecture-review",
+            },
+            {
+              label: "Guidance for Scale",
+              to: "support/guidance-for-scale",
+            },
+            {
+              label: "On-call 24/7",
+              to: "support/24-7-on-call",
+            },
+            {
+              label: "Community",
+              to: "support/community",
             },
           ],
         },
@@ -116,6 +183,11 @@ module.exports = {
               label: "Organizations",
             },
             {
+              to: "product/theming",
+              activeBasePath: "product/theming",
+              label: "Theming",
+            },
+            {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
               label: "Admin Portal",
@@ -124,6 +196,16 @@ module.exports = {
               to: "product/integrations",
               activeBasePath: "product/integrations",
               label: "Integrations",
+            },
+            {
+              to: "product/cockroachdb",
+              activeBasePath: "product/cockroachdb",
+              label: "CockroachDB",
+            },
+            {
+              to: "product/events",
+              activeBasePath: "product/events",
+              label: "Events",
             },
           ],
         },
@@ -143,10 +225,14 @@ module.exports = {
               label: "API",
             },
             {
-              to: "guides",
-              activeBasePath: "guides",
-              label: "Guides",
+              to: "https://github.com/p2-inc#our-extensions-",
+              label: "Keycloak Extensions",
             },
+            // {
+            //   to: "guides",
+            //   activeBasePath: "guides",
+            //   label: "Guides",
+            // },
             {
               to: "https://github.com/p2-inc/",
               label: "GitHub",
@@ -187,7 +273,7 @@ module.exports = {
           items: [
             {
               label: "About",
-              to: "docs/about",
+              to: "company/about",
             },
             {
               label: "Blog",
@@ -195,7 +281,7 @@ module.exports = {
             },
             {
               label: "Careers",
-              to: "docs/careers",
+              to: "company/careers",
             },
           ],
         },
@@ -289,23 +375,23 @@ module.exports = {
           items: [
             {
               label: "Privacy Policy",
-              to: "docs/privacy",
+              to: "company/privacy",
             },
             {
               label: "Terms of Use",
-              to: "docs/terms",
+              to: "company/terms",
             },
             {
               label: "Subprocessors",
-              to: "docs/subprocessors",
+              to: "company/subprocessors",
             },
             {
               label: "Service Agreement",
-              to: "docs/service-agreement",
+              to: "company/service-agreement",
             },
             {
               label: "SLA",
-              to: "docs/sla",
+              to: "company/sla",
             },
             {
               label: "Cookies Policy",
@@ -381,7 +467,7 @@ module.exports = {
             outputDir: "api", // Output directory for generated .mdx docs
             sidebarOptions: {
               groupPathsBy: "tag",
-	      categoryLinkSource: "tag",
+              categoryLinkSource: "tag",
             },
           },
         },

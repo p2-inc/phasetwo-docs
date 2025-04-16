@@ -22,7 +22,7 @@ function docsEntry() {
   window.location = `/docs/introduction`;
 }
 
-const CheckMark = () => (
+export const CheckMark = () => (
   <InlineIcon
     icon="fa-solid:check"
     className="absolute left-0 w-[10px] h-auto mt-2 text-green-500"
