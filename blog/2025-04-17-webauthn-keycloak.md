@@ -77,6 +77,8 @@ WebAuthn supports two main registration types:
 
 ### Setup Steps
 
+Test this next section using Phase Two's [Free Deployment](https://phasetwo.io/dashboard).
+
 1. **Enable user registration** in your realm settings.
 2. Under **Authentication → Required Actions**, enable:
    - `WebAuthn Register`
