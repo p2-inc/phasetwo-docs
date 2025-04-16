@@ -376,7 +376,7 @@ module.exports = {
             outputDir: "api", // Output directory for generated .mdx docs
             sidebarOptions: {
               groupPathsBy: "tag",
-	      categoryLinkSource: "tag",
+              categoryLinkSource: "tag",
             },
           },
         },
@@ -395,5 +395,12 @@ module.exports = {
     ],
     "docusaurus-tailwindcss-loader",
   ],
-  themes: ["@docusaurus/theme-live-codeblock", "docusaurus-theme-openapi-docs"],
+  themes: [
+    "@docusaurus/theme-live-codeblock",
+    "docusaurus-theme-openapi-docs",
+    "@docusaurus/theme-mermaid",
+  ],
+  markdown: {
+    mermaid: true,
+  },
 };
