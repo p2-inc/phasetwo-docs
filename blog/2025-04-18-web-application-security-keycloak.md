@@ -123,7 +123,7 @@ Even the most robust IAM systems can be overwhelmed by network-level threats the
 
 ---
 
-## 🛠️ How Phase Two Helps
+## How Phase Two Helps
 
 At **Phase Two**, we specialize in managing and securing Keycloak at scale. Our hosted platform includes:
 
