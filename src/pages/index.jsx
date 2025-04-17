@@ -126,29 +126,107 @@ function Home() {
 
       {/* Main Content */}
       <main>
-        {/* Hero Section */}
-        <div className={`pageHero`}>
-          <div className={styles.heroInner}>
-            {/* Hero Message */}
-            <div className={`pageHeroMsg`}>
-              <h1>
-                Enterprise-Grade Identity and Access Management (IAM) Solution
-                for any Application with Managed Keycloak Hosting and Support
-              </h1>
-              <h2 className={`pageHeroMsgIntro`}>
-                Accelerate SaaS time-to-market and enterprise adoption by
-                rapidly integrating the features needed to support almost any{" "}
-                <b>authentication</b> and <b>authorization</b> use-cases with
-                Phase Two's Managed Keycloak Hosting and enhanced Keycloak
-                deployments.
-              </h2>
-              <div className={`pageHeroCta`}>
-                <button className={`btnCta`} onClick={requestAccess}>
-                  Try Phase Two for Free
-                </button>
+        <div className={``}>
+          <div>
+            <div className="relative isolate px-6 pt-14 lg:px-8">
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+              >
+                <div
+                  style={{
+                    clipPath:
+                      "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+                  }}
+                  className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+                />
+              </div>
+              <div className="pt-32 sm:pt-40 lg:pt-48 pb-16">
+                <div className="mx-auto max-w-4xl">
+                  <div className="hidden sm:mb-8 sm:flex sm:justify-center">
+                    <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+                      On-prem and Managed Infrastructure?{" "}
+                      <a href="#" className="font-semibold text-p2blue-600">
+                        <span aria-hidden="true" className="absolute inset-0" />
+                        Read more <span aria-hidden="true">&rarr;</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center items-stretch">
+                    <div className="border-p2blue-300 border-2 rounded-md bg-p2blue-200/30 flex flex-col items-center justify-between p-8">
+                      <h1 className="text-balance text-5xl font-semibold tracking-tight text-p2blue-800 sm:text-5xl">
+                        Managed Keycloak Hosting
+                      </h1>
+                      <InlineIcon
+                        icon="grommet-icons:server-cluster"
+                        className="text-p2blue-800 h-12 w-12 my-3"
+                      />
+                      <div className="py-4 text-pretty text-lg font-medium text-sky-900 sm:text-lg">
+                        Simple, Cost-Conscious, Customizable, Enhanced Keycloak
+                        Hosting for 99% of Use Cases.
+                      </div>
+                      <div className="mt-4 flex items-center justify-center gap-2">
+                        <button
+                          className={`btnPrimary`}
+                          onClick={requestAccess}
+                        >
+                          Try for Free
+                        </button>
+                        <a
+                          href={"#"}
+                          className="text-sm font-semibold leading-6 text-p2blue-800"
+                        >
+                          Learn more <span aria-hidden="true">→</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div className="border-pink-400 border-2 rounded-md bg-pink-500/30 flex flex-col items-center justify-between p-8">
+                      <h1 className="text-balance text-5xl font-semibold tracking-tight text-pink-600 sm:text-5xl">
+                        Enterprise Keycloak Support
+                      </h1>
+                      <InlineIcon
+                        icon="fluent-mdl2:teamwork"
+                        className="text-pink-600 h-12 w-12 my-3"
+                      />
+                      <div className="py-4 text-pretty text-lg font-medium text-pink-900 sm:text-lg">
+                        Expert Keycloak Support for Enterprises Coming to or
+                        Using Keycloak at any Level of Complexity.
+                      </div>
+                      <div className="mt-4 flex items-center justify-center gap-2">
+                        <button
+                          className={`btnPrimary !bg-pink-500 hover:bg-pink-400`}
+                          onClick={requestAccess}
+                        >
+                          Contact
+                        </button>
+                        <a
+                          href={"#"}
+                          className="text-sm font-semibold leading-6 text-pink-700"
+                        >
+                          Learn more <span aria-hidden="true">→</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
+              >
+                <div
+                  style={{
+                    clipPath:
+                      "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+                  }}
+                  className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+                />
               </div>
             </div>
           </div>
+        </div>
+        {/* Hero Section */}
+        <div className={`relative text-center `}>
           <div className={styles.heroSections}>
             <Link to={"hosting"} className={styles.heroSection}>
               <img
@@ -329,7 +407,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         <div className="contentBlock">
           <div className="contentBlockHead">
             <h1 className="margin-top--xl">Managed Keycloak Hosting</h1>
@@ -377,7 +454,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Enterprise SSO */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
@@ -409,7 +485,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Enterprise SSO */}
         <div className={`contentBlock`}>
           <div className={`enterpriseSsoBgImg bgImg`}>
@@ -483,7 +558,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Admin Portal */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
@@ -515,7 +589,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         {/* Developers */}
         <div className={`contentBlock`}>
           <div className={`contentBlockHead`}>
@@ -599,7 +672,6 @@ auth.init({
             </div>
           </div>
         </div>
-
         {/* PhaseTwo Loves Keycoak */}
         <div className={`contentBlock`}>
           <div className={`keycloakBgCircles bgImg`}>
@@ -681,7 +753,6 @@ auth.init({
             </div>
           </div>
         </div>
-
         {/* Plan */}
         <div id="pricing" className={`contentBlock`}>
           <div className={`plansBgImg bgImg`}>

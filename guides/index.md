@@ -5,4 +5,4 @@ title: Guides
 
 # Guides
 
-Some details
+Coming soon!
