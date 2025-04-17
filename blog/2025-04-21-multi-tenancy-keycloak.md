@@ -22,6 +22,8 @@ We've written extensively about how to [model multi-tenancy with organizations](
 
 All of Phase Two's [hosted](/hosting) environments come standard with all of our [popular extensions](https://github.com/p2-inc#our-extensions-) to make it easy to hit the ground running and cover 95% of all IAM use-cases.
 
+<!-- truncate -->
+
 ---
 
 ## What Is Multi-Tenancy?

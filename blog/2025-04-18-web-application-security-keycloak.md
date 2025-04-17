@@ -16,6 +16,8 @@ The short answer? **It depends**—but it's a smart question to ask.
 
 In this post, we'll break down what Keycloak provides out of the box, explore common attack vectors (especially around authentication endpoints), and help you evaluate whether you need to add an external firewall or WAF to your deployment.
 
+<!-- truncate -->
+
 ---
 
 ## What Security Does Keycloak Provide?
