@@ -102,6 +102,9 @@ a {
 a:hover {
   text-decoration: none;
 }
+a.support {
+  @apply text-fuchsia-600;
+}
 
 .btnCta {
   display: inline-block;
@@ -156,6 +159,10 @@ a:hover {
   box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
 }
 
+.btnPrimary.btnSupport {
+  @apply bg-fuchsia-500 hover:bg-fuchsia-400;
+}
+
 .btnTertiary {
   display: inline-block;
   border-radius: 8px;
@@ -172,6 +179,12 @@ a:hover {
   cursor: pointer;
   background-color: var(--color-wh);
   box-shadow: inset 0 0 0 1px #3ebbdf;
+}
+
+.btnLarge {
+  padding: 18px 24px;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .btnReadMore {
