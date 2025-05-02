@@ -229,6 +229,11 @@ module.exports = {
             //   activeBasePath: "guides",
             //   label: "Guides",
             // },
+            // {
+            //   to: "articles",
+            //   activeBasePath: "articles",
+            //   label: "Articles",
+            // },
             {
               to: "https://github.com/p2-inc/",
               label: "GitHub",
@@ -493,6 +498,16 @@ module.exports = {
         routeBasePath: "guides",
         include: ["**/*.md", "**/*.mdx"],
         sidebarPath: require.resolve("./sidebars.guides.js"),
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "articles",
+        path: "articles",
+        routeBasePath: "articles",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
     "docusaurus-tailwindcss-loader",
