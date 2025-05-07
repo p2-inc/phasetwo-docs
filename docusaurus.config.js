@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two - Managed Keycloak Hosting and Enterprise Support",
+  title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
-    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, Organizations, Migrations and User Management.",
+    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.99% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -69,41 +69,51 @@ module.exports = {
       },
       items: [
         {
-          type: "dropdown",
+          to: "/hosting",
           label: "Hosting",
           position: "left",
-          to: "hosting",
-          items: [
-            {
-              label: "Deployments",
-              to: "hosting/deployments",
-            },
-            {
-              label: "Configure",
-              to: "hosting/configure",
-            },
-            {
-              label: "Monitoring",
-              to: "hosting/monitoring",
-            },
-            {
-              label: "Support",
-              to: "hosting/support",
-            },
-            {
-              label: "Version Upgrades",
-              to: "hosting/version-upgrades",
-            },
-            {
-              label: "Backups",
-              to: "hosting/backups",
-            },
-            {
-              label: "Customize",
-              to: "hosting/customize",
-            },
-          ],
+          activeBasePath: "pricing",
         },
+        // {
+        //   type: "dropdown",
+        //   label: "Hosting",
+        //   position: "left",
+        //   to: "hosting",
+        //   items: [
+        //     {
+        //       label: "Self Host vs Managed",
+        //       to: "hosting/self-host-vs-managed",
+        //     },
+        //     {
+        //       label: "Deployments",
+        //       to: "hosting/deployments",
+        //     },
+        //     {
+        //       label: "Configure",
+        //       to: "hosting/configure",
+        //     },
+        //     {
+        //       label: "Monitoring",
+        //       to: "hosting/monitoring",
+        //     },
+        //     {
+        //       label: "Support",
+        //       to: "hosting/support",
+        //     },
+        //     {
+        //       label: "Version Upgrades",
+        //       to: "hosting/version-upgrades",
+        //     },
+        //     {
+        //       label: "Backups",
+        //       to: "hosting/backups",
+        //     },
+        //     {
+        //       label: "Customize",
+        //       to: "hosting/customize",
+        //     },
+        //   ],
+        // },
         {
           type: "dropdown",
           label: "Support",
@@ -119,38 +129,42 @@ module.exports = {
               label: "Migration to Keycloak",
               to: "support/migrate-to-keycloak",
             },
-            {
-              label: "Custom Extensions",
-              to: "support/custom-extensions",
-            },
-            {
-              label: "Version Upgrades",
-              to: "support/version-upgrades",
-            },
-            {
-              label: "Infrastructure Implementation (IAC)",
-              to: "support/infrastructure-implementation",
-            },
-            {
-              label: "Theming",
-              to: "support/theming",
-            },
-            {
-              label: "Architecture Review",
-              to: "support/architecture-review",
-            },
-            {
-              label: "Guidance for Scale",
-              to: "support/guidance-for-scale",
-            },
-            {
-              label: "On-call 24/7",
-              to: "support/24-7-on-call",
-            },
-            {
-              label: "Community",
-              to: "support/community",
-            },
+            // {
+            //   label: "Custom Extensions",
+            //   to: "support/custom-extensions",
+            // },
+            // {
+            //   label: "Version Upgrades",
+            //   to: "support/keycloak-version-upgrades",
+            // },
+            // {
+            //   label: "On-premise Deployment",
+            //   to: "support/on-premise-deployment",
+            // },
+            // {
+            //   label: "Infrastructure Implementation (IAC)",
+            //   to: "support/infrastructure-implementation",
+            // },
+            // {
+            //   label: "Theming",
+            //   to: "support/theming",
+            // },
+            // {
+            //   label: "Architecture Review",
+            //   to: "support/architecture-review",
+            // },
+            // {
+            //   label: "Scale and Growth",
+            //   to: "support/scale-and-growth",
+            // },
+            // {
+            //   label: "On-call 24/7",
+            //   to: "support/24-7-on-call",
+            // },
+            // {
+            //   label: "Community",
+            //   to: "support/community",
+            // },
           ],
         },
         {
@@ -161,7 +175,7 @@ module.exports = {
             {
               to: "product/onprem",
               activeBasePath: "product/onprem",
-              label: "On-Prem Deployment",
+              label: "On-Premise Deployment",
             },
             {
               to: "product/sso",
@@ -178,11 +192,11 @@ module.exports = {
               activeBasePath: "product/organizations",
               label: "Organizations",
             },
-            {
-              to: "product/theming",
-              activeBasePath: "product/theming",
-              label: "Theming",
-            },
+            // {
+            //   to: "product/theming",
+            //   activeBasePath: "product/theming",
+            //   label: "Theming",
+            // },
             {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
@@ -193,16 +207,16 @@ module.exports = {
               activeBasePath: "product/integrations",
               label: "Integrations",
             },
-            {
-              to: "product/cockroachdb",
-              activeBasePath: "product/cockroachdb",
-              label: "CockroachDB",
-            },
-            {
-              to: "product/events",
-              activeBasePath: "product/events",
-              label: "Events",
-            },
+            // {
+            //   to: "product/cockroachdb",
+            //   activeBasePath: "product/cockroachdb",
+            //   label: "CockroachDB",
+            // },
+            // {
+            //   to: "product/events",
+            //   activeBasePath: "product/events",
+            //   label: "Events (Audit Logs)",
+            // },
           ],
         },
         {
@@ -241,10 +255,10 @@ module.exports = {
           ],
         },
         {
-          to: "/#pricing",
+          to: "/pricing",
           label: "Pricing",
           position: "left",
-          activeBasePath: "random",
+          activeBasePath: "pricing",
         },
         {
           to: "blog",
@@ -253,16 +267,18 @@ module.exports = {
           position: "left",
         },
         {
-          href: "https://phasetwo.io/dashboard/",
-          label: "Dashboard",
+          to: "contact",
+          activeBasePath: "contact",
+          label: "Contact",
           position: "right",
           buttonType: "btnSecondary",
         },
         {
           href: "https://phasetwo.io/dashboard/",
-          label: "Get Started",
+          label: "Dashboard",
           position: "right",
           buttonType: "btnPrimary",
+          title: "Login or Register",
         },
       ],
     },
@@ -349,6 +365,10 @@ module.exports = {
         {
           title: "Support",
           items: [
+            {
+              label: "Contact",
+              to: "contact",
+            },
             {
               label: "Enterprise Support",
               to: "support",

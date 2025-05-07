@@ -69,7 +69,7 @@ function Pricing() {
                     <div className={styles.planHead}>
                       <img
                         className={styles.featCardPicto}
-                        src="img/plan-starter.svg"
+                        src="/img/plan-starter.svg"
                         alt="Starter plan"
                         loading="lazy"
                       />
@@ -127,7 +127,7 @@ function Pricing() {
                     <div className={styles.planHead}>
                       <img
                         className={styles.featCardPicto}
-                        src="img/plan-supported.svg"
+                        src="/img/plan-supported.svg"
                         alt="Premium plan"
                         loading="lazy"
                       />
@@ -193,7 +193,7 @@ function Pricing() {
                     <div className={styles.planHead}>
                       <img
                         className={styles.featCardPicto}
-                        src="img/plan-premium.svg"
+                        src="/img/plan-premium.svg"
                         alt="Enterprise plan"
                         loading="lazy"
                       />

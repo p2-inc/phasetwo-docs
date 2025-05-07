@@ -9,6 +9,7 @@ import { InlineIcon } from "@iconify/react";
 import { useState } from "react";
 import { Switch, Label, Field } from "@headlessui/react";
 import cs from "classnames";
+import StartYourJourney from "../components/ctas/start-your-journey";
 
 function requestAccess() {
   window.open(`https://phasetwo.io/dashboard/`, "_blank");
@@ -41,7 +42,7 @@ const HostingItems = [
     ),
     icon: "tabler:pig-money",
     cta: "Get started",
-    href: "https://phasetwo.io/dashboard/",
+    href: "/pricing",
   },
   {
     name: "Multi-Region, High-Availability Clusters",
@@ -56,33 +57,7 @@ const HostingItems = [
     ),
     icon: "gis:globe-alt",
     cta: "Explore architecture",
-    href: "https://phasetwo.io/hosting/",
-  },
-  {
-    name: "Extend and Customize",
-    desc: (
-      <p>
-        Our included extensions make it{" "}
-        <span className="font-semibold">easy to run Keycloak</span>. Customize
-        your Keycloak instance further with your own extensions and themes.
-      </p>
-    ),
-    icon: "grommet-icons:server-cluster",
-    cta: "Learn more",
-    href: "https://phasetwo.io/hosting/",
-  },
-  {
-    name: "Version Upgrades",
-    desc: (
-      <p>
-        We keep your instance(s) up to date with the latest Keycloak releases
-        ensuring CVE's and other security issues are patched. Teams that{" "}
-        <b>self-host</b> cite this as a <b>major pain point</b>.
-      </p>
-    ),
-    icon: "ix:project-server",
-    cta: "Why it matters",
-    href: "https://phasetwo.io/hosting/",
+    href: "/hosting",
   },
   {
     name: "Unlimited Users & SSO Connections",
@@ -95,8 +70,35 @@ const HostingItems = [
     ),
     icon: "carbon:ibm-dynamic-route-server",
     cta: "Learn more",
-    href: "https://phasetwo.io/hosting/",
+    href: "/product/sso",
   },
+  {
+    name: "Extend and Customize",
+    desc: (
+      <p>
+        Our included extensions make it{" "}
+        <span className="font-semibold">easy to run Keycloak</span>. Customize
+        your Keycloak instance further with your own extensions and themes.
+      </p>
+    ),
+    icon: "grommet-icons:server-cluster",
+    cta: "Learn more",
+    href: "/hosting",
+  },
+  {
+    name: "Version Upgrades",
+    desc: (
+      <p>
+        We keep your instance(s) up to date with the latest Keycloak releases
+        ensuring CVE's and other security issues are patched. Teams that{" "}
+        <b>self-host</b> cite this as a <b>major pain point</b>.
+      </p>
+    ),
+    icon: "ix:project-server",
+    cta: "Why it matters",
+    href: "/hosting",
+  },
+
   {
     name: "24/7 Monitor, Alert, Backup",
     desc: (
@@ -109,7 +111,7 @@ const HostingItems = [
     ),
     icon: "mdi:graph-line",
     cta: "Learn more",
-    href: "https://phasetwo.io/hosting/",
+    href: "/hosting",
   },
 ];
 
@@ -128,32 +130,33 @@ const SupportItems = [
     ),
     icon: "mdi:cloud-lock-outline",
     cta: "Learn more",
-    href: "https://phasetwo.io/support/",
+    href: "/hosting/deployments/",
   },
   {
-    name: "Keycloak Implementation, Scale and Growth",
+    name: "24/7 On-call Escalation",
+    desc: (
+      <p>
+        We can provide <b>24/7 on-call escalation</b> for your Keycloak
+        infrastructure, ensuring that in the event of an outage or other issue,
+        your team has someone to call.
+      </p>
+    ),
+    icon: "mdi:phone",
+    cta: "Learn more",
+    href: "/hosting/support/24-7-on-call",
+  },
+  {
+    name: "Keycloak Implementation, Scale, and Growth",
     desc: (
       <p>
         Whether just getting started or scaling up, we can assist with this. We
-        have experience with Keycloak deployments of all sizes.
+        have experience with Keycloak deployments of <b>all sizes</b> and{" "}
+        <b>complexity</b>.
       </p>
     ),
     icon: "fluent:arrow-growth-20-filled",
     cta: "Learn more",
-    href: "https://phasetwo.io/support/",
-  },
-  {
-    name: "IAM Consolidation to Keycloak",
-    desc: (
-      <p>
-        Many customers are looking to consolidate multiple IAMs into Keycloak to
-        reduce costs and complexity. Keycloak can support this, but requires
-        careful planning and execution.
-      </p>
-    ),
-    icon: "mdi:consolidate",
-    cta: "Learn more",
-    href: "https://phasetwo.io/support/",
+    href: "/support/scale-and-growth/",
   },
   {
     name: "Infrastructure and Code Review",
@@ -166,33 +169,62 @@ const SupportItems = [
     ),
     icon: "streamline:code-analysis",
     cta: "Learn more",
-    href: "https://phasetwo.io/support/",
+    href: "/support/architecture-review",
+  },
+  {
+    name: "Migration to Keycloak",
+    desc: (
+      <p>
+        Adopting an open-source IAM involves starts with user migration but also
+        includes knowing how to map functionality from your existing IAM to
+        Keycloak. This can involve <b>custom user providers</b> or{" "}
+        <b>extensions</b> to accommodate existing applications.
+      </p>
+    ),
+    icon: "mdi:rotate-orbit",
+    cta: "Learn more",
+    href: "/support/migrate-to-keycloak",
+  },
+  {
+    name: "IAM Consolidation to Keycloak",
+    desc: (
+      <p>
+        Many customers are looking to consolidate multiple IAMs into Keycloak to
+        reduce <b>costs and complexity</b>. Keycloak can support this, but
+        requires careful planning and execution.
+      </p>
+    ),
+    icon: "mdi:consolidate",
+    cta: "Learn more",
+    href: "/support/migrate-to-keycloak",
   },
   {
     name: "Keycloak Upgrades",
     desc: (
       <p>
-        Keeping Keycloak up to date is a major pain point for many teams.
-        Working through the upgrade process, including testing, practice,
-        rollback planning, and finally executing the upgrade.
+        Many Keycloak installations are <b>multiple major versions behind</b>{" "}
+        and keeping up to date is a <b>major pain point</b> for many teams, but
+        critical for <b>security</b> and <b>functionality</b>. Working through
+        the upgrade process, including testing, practice, rollback planning, and
+        finally executing the upgrade is something we excel at.
       </p>
     ),
     icon: "solar:server-square-update-broken",
     cta: "Learn more",
-    href: "https://phasetwo.io/support/",
+    href: "/support/keycloak-version-upgrades",
   },
   {
     name: "Custom Keycloak Development",
     desc: (
       <p>
-        We specialize in Keycloak development and can assist with custom
+        We specialize in <b>Keycloak development</b> and can assist with custom
         development, including extensions, themes, and custom providers to solve
-        any number of use cases.
+        any number of use cases. We have extensive knowledge of the system.
       </p>
     ),
     icon: "hugeicons:code",
     cta: "Learn more",
-    href: "https://phasetwo.io/support/",
+    href: "/support/custom-extensions",
   },
 ];
 
@@ -257,10 +289,13 @@ function Home() {
                   <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                     <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-p2blue-800/40 hover:ring-p2blue-800/50">
                       On-prem and Managed Infrastructure?{" "}
-                      <a href="#" className="font-semibold text-p2blue-600">
+                      <Link
+                        to="/product/onprem"
+                        className="font-semibold text-p2blue-600"
+                      >
                         <span aria-hidden="true" className="absolute inset-0" />
                         Read more <span aria-hidden="true">&rarr;</span>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center items-stretch">
@@ -274,21 +309,18 @@ function Home() {
                       /> */}
                       <div className="py-4 text-pretty text-lg font-medium text-sky-900 sm:text-lg">
                         Simple, Cost-Conscious, Customizable, Enhanced Keycloak
-                        Hosting for 99% of Use Cases.
+                        Hosting for 99% of Use-Cases.
                       </div>
                       <div className="mt-4 flex items-center justify-center gap-2">
-                        <button
-                          className={`btnPrimary`}
-                          onClick={requestAccess}
-                        >
-                          Try for Free
-                        </button>
-                        <a
-                          href={"#"}
+                        <a href="/dashboard" target="_blank">
+                          <button className={`btnPrimary`}>Try for Free</button>
+                        </a>
+                        <Link
+                          href={"/hosting"}
                           className="text-sm font-semibold leading-6 text-p2blue-800"
                         >
                           Learn more <span aria-hidden="true">→</span>
-                        </a>
+                        </Link>
                       </div>
                     </div>
                     <div className="border-fuchsia-400 border-2 rounded-md bg-fuchsia-300/30 flex flex-col items-center justify-between p-8">
@@ -304,18 +336,17 @@ function Home() {
                         Using Keycloak at any Level of Complexity.
                       </div>
                       <div className="mt-4 flex items-center justify-center gap-2">
-                        <button
-                          className={`btnPrimary btnSupport`}
-                          onClick={requestAccess}
-                        >
-                          Contact
-                        </button>
-                        <a
-                          href={"#"}
+                        <Link to="/contact">
+                          <button className={`btnPrimary btnSupport`}>
+                            Contact
+                          </button>
+                        </Link>
+                        <Link
+                          to="/support"
                           className="text-sm font-semibold leading-6 text-fuchsia-700"
                         >
                           Learn more <span aria-hidden="true">→</span>
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -345,19 +376,27 @@ function Home() {
               </h2>
               <p className="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-600">
                 Keycloak is a powerful open-source identity and access
-                management system capable of replacing any IAM. Add{" "}
-                <Link to="/product/sso" className="font-bold">
+                management system capable of replacing any IAM with capabilities
+                for{" "}
+                <Link to="/product/sso" className="font-semibold">
                   SSO
                 </Link>{" "}
-                and manage Users.
+                and multi-tenant{" "}
+                <Link to="/product/organizations" className="font-semibold">
+                  User Management
+                </Link>
+                .
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
-                <a href="#" className="btnPrimary">
+                <a href="/dashboard" target="_blank" className="btnPrimary">
                   Get started
                 </a>
-                <a href="#" className="text-sm/6 font-semibold text-p2blue-600">
+                <Link
+                  href="/product/sso"
+                  className="text-sm/6 font-semibold text-p2blue-600"
+                >
                   Learn more <span aria-hidden="true">→</span>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="relative text-center">
@@ -477,9 +516,16 @@ function Home() {
                 <b>consistent, predictable price</b> that doesn't balloon based
                 on users or IdP connections.
               </p>
-              <button className={`btnPrimary`} onClick={requestAccess}>
-                Try for Free
-              </button>
+              <div className="flex items-center justify-center gap-4">
+                <a href="/dashboard" target="_blank">
+                  <button className={`btnPrimary`}>Try for Free</button>
+                </a>
+                {/* <Link href="/hosting/self-host-vs-managed">
+                  <button className={`btnSecondary`}>
+                    Self-host vs Managed?
+                  </button>
+                </Link> */}
+              </div>
             </div>
             <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
               <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
@@ -495,12 +541,12 @@ function Home() {
                     <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
                       <p className="flex-auto">{item.desc}</p>
                       <p className="mt-6">
-                        <a
-                          href={item.href}
+                        <Link
+                          to={item.href}
                           className="text-sm font-semibold leading-6 text-p2blue-800"
                         >
                           {item.cta} <span aria-hidden="true">→</span>
-                        </a>
+                        </Link>
                       </p>
                     </dd>
                   </div>
@@ -509,7 +555,8 @@ function Home() {
             </div>
           </div>
 
-          <div className="py-24 sm:py-32">
+          {/* Logo section */}
+          {/* <div className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <h2 className="text-center text-lg/8 font-semibold text-gray-900">
                 Trusted by the world's most innovative teams
@@ -552,7 +599,7 @@ function Home() {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="bg-p2blue-700 text-white">
@@ -562,12 +609,9 @@ function Home() {
               Create your free deployment today.
             </h2>
             <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-              <button
-                className={`btnTertiary btnLarge`}
-                onClick={requestAccess}
-              >
-                Try now
-              </button>
+              <a href="/dashboard" target="_blank">
+                <button className={`btnPrimary btnLarge`}>Try now</button>
+              </a>
             </div>
           </div>
         </div>
@@ -584,8 +628,8 @@ function Home() {
               </p>
               <p className="mt-6 text-lg/8 text-gray-800">
                 Wherever you find yourself in your Keycloak journey, we can
-                assist. We are active Keycloak community members, contributing
-                some of the most{" "}
+                assist. We are active <b>Keycloak community members</b>,
+                contributing some of the most{" "}
                 <a
                   href="https://github.com/p2-inc#our-extensions-"
                   target="_blank"
@@ -595,12 +639,9 @@ function Home() {
                 </a>
                 .
               </p>
-              <button
-                className={`btnPrimary btnSupport`}
-                onClick={requestAccess}
-              >
-                Contact
-              </button>
+              <Link to="/contact">
+                <button className={`btnPrimary btnSupport`}>Contact</button>
+              </Link>
             </div>
 
             <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
@@ -616,12 +657,12 @@ function Home() {
                     <dd className="mt-2 text-base leading-7 text-gray-800">
                       <p>{item.desc}</p>
                       <p className="mt-6">
-                        <a
-                          href={item.href}
+                        <Link
+                          to={item.href}
                           className="text-sm font-semibold leading-6 support"
                         >
                           {item.cta} <span aria-hidden="true">→</span>
-                        </a>
+                        </Link>
                       </p>
                     </dd>
                   </div>
@@ -629,7 +670,8 @@ function Home() {
               </dl>
             </div>
           </div>
-          <div className="py-24 sm:py-32">
+          {/* Logo section */}
+          {/* <div className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
               <h2 className="text-center text-lg/8 font-semibold text-gray-900">
                 Trusted by the world’s most innovative teams
@@ -672,7 +714,7 @@ function Home() {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="bg-fuchsia-700/90 text-white">
@@ -683,12 +725,11 @@ function Home() {
               Let us show you how.
             </h2>
             <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-              <button
-                className={`btnTertiary btnLarge text-fuchsia-800`}
-                onClick={requestAccess}
-              >
-                Get in touch
-              </button>
+              <a href="/contact">
+                <button className={`btnTertiary btnLarge text-fuchsia-800`}>
+                  Get in touch
+                </button>
+              </a>
             </div>
           </div>
         </div>
@@ -948,7 +989,7 @@ auth.init({
                 <img
                   className={styles.featCardPicto}
                   src="img/picto-community.svg"
-                  alt="Pictogram showing a group of poeple interconnected"
+                  alt="Pictogram showing a group of people interconnected"
                   loading="lazy"
                 />
                 <h5>Community Superpower</h5>
@@ -962,47 +1003,7 @@ auth.init({
           </div>
         </div>
 
-        <div className="">
-          <div className="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
-            <div className="relative isolate overflow-hidden bg-p2blue-700 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
-              <h2 className="text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                Start your Keycloak Journey Today
-              </h2>
-              <p className="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-100">
-                Wherever you are in your Keycloak or Authentication journey,
-                Phase Two is here to help from Hosting to Support. We can help
-                your team get successful and save you time and money.
-              </p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
-                <a
-                  href="#"
-                  className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                >
-                  Contact
-                </a>
-              </div>
-              <svg
-                viewBox="0 0 1024 1024"
-                aria-hidden="true"
-                className="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
-              >
-                <circle
-                  r={512}
-                  cx={512}
-                  cy={512}
-                  fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)"
-                  fillOpacity="0.7"
-                />
-                <defs>
-                  <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
-                    <stop stopColor="#EBF5FC" />
-                    <stop offset={1} stopColor="#ffffff" />
-                  </radialGradient>
-                </defs>
-              </svg>
-            </div>
-          </div>
-        </div>
+        <StartYourJourney />
       </main>
     </Layout>
   );
