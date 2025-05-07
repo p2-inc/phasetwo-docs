@@ -54,6 +54,9 @@
 
   --breakpoint-mid: 800px;
   --breakpoint-lar: 1200px;
+
+  --docsearch-text-color: var(--ifm-color-primary) !important;
+  --docsearch-muted-color: var(--ifm-color-primary-light) !important;
 }
 
 html {
@@ -326,7 +329,9 @@ a.support {
   display: none;
 }
 .navbar__items--right [buttontype="btnSecondary"] {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   border: none;
   background-color: var(--color-wh);
@@ -344,7 +349,9 @@ a.support {
   box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
 }
 .navbar__items--right [buttontype="btnPrimary"] {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   border: none;
   background-color: var(--ifm-color-primary);
