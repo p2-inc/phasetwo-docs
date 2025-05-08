@@ -18,7 +18,7 @@ Phase Two helps SaaS builders accelerate time-to-market and enterprise adoption 
 
 ### Why dedicated?
 
-Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where customer's users are. With dedicated clusters, we can guarantee an [SLA](/docs/sla) that meets customer's needs with no resource contention from other customers.
+Dedicated clusters allow us to provide compute, network and storage isolation for customer workloads, and to easily deploy in the region where customer's users are. With dedicated clusters, we can guarantee an [SLA](/company/sla) that meets customer's needs with no resource contention from other customers.
 
 Furthermore, it allows us to support customer-provided domain names, and access to monitoring and management capabilities not available in the shared clusters.
 
@@ -44,7 +44,7 @@ Most clusters will be provisioned within 30 minutes, but some requests may take 
 
 ### How much does it cost?
 
-[Plans](/#pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond that, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
+[Plans](/pricing) start at $499US per month when paid annually. This provides a set of compute, network and storage resources that have been tested for common use cases for up to 20 realms and 1 million users. If your use case is uncommon or you plan to scale beyond that, our system is designed to scale up with your needs. Our plans scale linearly with resource demands beyond our minimums.
 
 We will continue to support a robust Free tier.
 

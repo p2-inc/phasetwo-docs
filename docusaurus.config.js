@@ -2,9 +2,9 @@ const path = require("path");
 
 module.exports = {
   plugins: [require.resolve("./sitePlugin")],
-  title: "Phase Two - Managed Keycloak Hosting and Enterprise Support",
+  title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
-    "Managed Keycloak Hosting and Enterprise Keycloak Support with custom extensions for SSO, Organizations, Migrations and User Management.",
+    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.99% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -69,15 +69,56 @@ module.exports = {
       },
       items: [
         {
+          to: "/hosting",
           label: "Hosting",
           position: "left",
-          activeBasePath: "hosting",
-          to: "hosting",
+          activeBasePath: "pricing",
         },
+        // {
+        //   type: "dropdown",
+        //   label: "Hosting",
+        //   position: "left",
+        //   to: "hosting",
+        //   items: [
+        //     {
+        //       label: "Self Host vs Managed",
+        //       to: "hosting/self-host-vs-managed",
+        //     },
+        //     {
+        //       label: "Deployments",
+        //       to: "hosting/deployments",
+        //     },
+        //     {
+        //       label: "Configure",
+        //       to: "hosting/configure",
+        //     },
+        //     {
+        //       label: "Monitoring",
+        //       to: "hosting/monitoring",
+        //     },
+        //     {
+        //       label: "Support",
+        //       to: "hosting/support",
+        //     },
+        //     {
+        //       label: "Version Upgrades",
+        //       to: "hosting/version-upgrades",
+        //     },
+        //     {
+        //       label: "Backups",
+        //       to: "hosting/backups",
+        //     },
+        //     {
+        //       label: "Customize",
+        //       to: "hosting/customize",
+        //     },
+        //   ],
+        // },
         {
           type: "dropdown",
           label: "Support",
           position: "left",
+          to: "support",
           items: [
             {
               label: "Enterprise Support",
@@ -88,6 +129,42 @@ module.exports = {
               label: "Migration to Keycloak",
               to: "support/migrate-to-keycloak",
             },
+            // {
+            //   label: "Custom Extensions",
+            //   to: "support/custom-extensions",
+            // },
+            // {
+            //   label: "Version Upgrades",
+            //   to: "support/keycloak-version-upgrades",
+            // },
+            // {
+            //   label: "On-premise Deployment",
+            //   to: "support/on-premise-deployment",
+            // },
+            // {
+            //   label: "Infrastructure Implementation (IAC)",
+            //   to: "support/infrastructure-implementation",
+            // },
+            // {
+            //   label: "Theming",
+            //   to: "support/theming",
+            // },
+            // {
+            //   label: "Architecture Review",
+            //   to: "support/architecture-review",
+            // },
+            // {
+            //   label: "Scale and Growth",
+            //   to: "support/scale-and-growth",
+            // },
+            // {
+            //   label: "On-call 24/7",
+            //   to: "support/24-7-on-call",
+            // },
+            // {
+            //   label: "Community",
+            //   to: "support/community",
+            // },
           ],
         },
         {
@@ -98,7 +175,7 @@ module.exports = {
             {
               to: "product/onprem",
               activeBasePath: "product/onprem",
-              label: "On-Prem Deployment",
+              label: "On-Premise Deployment",
             },
             {
               to: "product/sso",
@@ -115,6 +192,11 @@ module.exports = {
               activeBasePath: "product/organizations",
               label: "Organizations",
             },
+            // {
+            //   to: "product/theming",
+            //   activeBasePath: "product/theming",
+            //   label: "Theming",
+            // },
             {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
@@ -125,6 +207,16 @@ module.exports = {
               activeBasePath: "product/integrations",
               label: "Integrations",
             },
+            // {
+            //   to: "product/cockroachdb",
+            //   activeBasePath: "product/cockroachdb",
+            //   label: "CockroachDB",
+            // },
+            // {
+            //   to: "product/events",
+            //   activeBasePath: "product/events",
+            //   label: "Events (Audit Logs)",
+            // },
           ],
         },
         {
@@ -143,16 +235,30 @@ module.exports = {
               label: "API",
             },
             {
+              to: "https://github.com/p2-inc#our-extensions-",
+              label: "Keycloak Extensions",
+            },
+            // {
+            //   to: "guides",
+            //   activeBasePath: "guides",
+            //   label: "Guides",
+            // },
+            // {
+            //   to: "articles",
+            //   activeBasePath: "articles",
+            //   label: "Articles",
+            // },
+            {
               to: "https://github.com/p2-inc/",
               label: "GitHub",
             },
           ],
         },
         {
-          to: "/#pricing",
+          to: "/pricing",
           label: "Pricing",
           position: "left",
-          activeBasePath: "random",
+          activeBasePath: "pricing",
         },
         {
           to: "blog",
@@ -161,16 +267,18 @@ module.exports = {
           position: "left",
         },
         {
-          href: "https://phasetwo.io/dashboard/",
-          label: "Dashboard",
+          to: "contact",
+          activeBasePath: "contact",
+          label: "Contact",
           position: "right",
           buttonType: "btnSecondary",
         },
         {
           href: "https://phasetwo.io/dashboard/",
-          label: "Get Started",
+          label: "Dashboard",
           position: "right",
           buttonType: "btnPrimary",
+          title: "Login or Register",
         },
       ],
     },
@@ -182,7 +290,7 @@ module.exports = {
           items: [
             {
               label: "About",
-              to: "docs/about",
+              to: "company/about",
             },
             {
               label: "Blog",
@@ -190,7 +298,7 @@ module.exports = {
             },
             {
               label: "Careers",
-              to: "docs/careers",
+              to: "company/careers",
             },
           ],
         },
@@ -258,6 +366,10 @@ module.exports = {
           title: "Support",
           items: [
             {
+              label: "Contact",
+              to: "contact",
+            },
+            {
               label: "Enterprise Support",
               to: "support",
             },
@@ -284,23 +396,23 @@ module.exports = {
           items: [
             {
               label: "Privacy Policy",
-              to: "docs/privacy",
+              to: "company/privacy",
             },
             {
               label: "Terms of Use",
-              to: "docs/terms",
+              to: "company/terms",
             },
             {
               label: "Subprocessors",
-              to: "docs/subprocessors",
+              to: "company/subprocessors",
             },
             {
               label: "Service Agreement",
-              to: "docs/service-agreement",
+              to: "company/service-agreement",
             },
             {
               label: "SLA",
-              to: "docs/sla",
+              to: "company/sla",
             },
             {
               label: "Cookies Policy",
@@ -341,6 +453,11 @@ module.exports = {
     },
     prism: {
       additionalLanguages: ["java", "yaml"],
+    },
+    mermaid: {
+      options: {
+        themeVariables: {},
+      },
     },
   },
   presets: [
@@ -391,6 +508,26 @@ module.exports = {
         include: ["**/*.md", "**/*.mdx"],
         sidebarPath: require.resolve("./api-sidebar.js"),
         docItemComponent: "@theme/ApiItem",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "guides",
+        path: "guides",
+        routeBasePath: "guides",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.guides.js"),
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "articles",
+        path: "articles",
+        routeBasePath: "articles",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
     "docusaurus-tailwindcss-loader",
