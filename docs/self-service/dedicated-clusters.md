@@ -47,7 +47,7 @@ Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) to talk to us about
 
 ### Custom domains
 
-Support for custom domains is avao;ab;e for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster. Following setup of your cluster, you will need to create 2 DNS records.
+Support for custom domains is available for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster. Following setup of your cluster, you will need to create 2 DNS records.
 
 For all cloud providers:
 
