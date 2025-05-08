@@ -87,4 +87,4 @@ If you have paid annually, and you have more than one month left in your subscri
 
 ## SLA
 
-Please refer to our [Service Level Agreement](/docs/sla) for more information.
+Please refer to our [Service Level Agreement](/company/sla) for more information.

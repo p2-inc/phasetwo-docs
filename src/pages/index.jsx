@@ -130,7 +130,7 @@ const SupportItems = [
     ),
     icon: "mdi:cloud-lock-outline",
     cta: "Learn more",
-    href: "/hosting/deployments/",
+    href: "/hosting",
   },
   {
     name: "24/7 On-call Escalation",
@@ -143,7 +143,7 @@ const SupportItems = [
     ),
     icon: "mdi:phone",
     cta: "Learn more",
-    href: "/hosting/support/24-7-on-call",
+    href: "/support",
   },
   {
     name: "Keycloak Implementation, Scale, and Growth",
@@ -156,7 +156,7 @@ const SupportItems = [
     ),
     icon: "fluent:arrow-growth-20-filled",
     cta: "Learn more",
-    href: "/support/scale-and-growth/",
+    href: "/support",
   },
   {
     name: "Infrastructure and Code Review",
@@ -169,7 +169,7 @@ const SupportItems = [
     ),
     icon: "streamline:code-analysis",
     cta: "Learn more",
-    href: "/support/architecture-review",
+    href: "/support",
   },
   {
     name: "Migration to Keycloak",
@@ -183,7 +183,7 @@ const SupportItems = [
     ),
     icon: "mdi:rotate-orbit",
     cta: "Learn more",
-    href: "/support/migrate-to-keycloak",
+    href: "/support",
   },
   {
     name: "IAM Consolidation to Keycloak",
@@ -196,7 +196,7 @@ const SupportItems = [
     ),
     icon: "mdi:consolidate",
     cta: "Learn more",
-    href: "/support/migrate-to-keycloak",
+    href: "/support",
   },
   {
     name: "Keycloak Upgrades",
@@ -211,7 +211,7 @@ const SupportItems = [
     ),
     icon: "solar:server-square-update-broken",
     cta: "Learn more",
-    href: "/support/keycloak-version-upgrades",
+    href: "/support",
   },
   {
     name: "Custom Keycloak Development",
@@ -224,7 +224,7 @@ const SupportItems = [
     ),
     icon: "hugeicons:code",
     cta: "Learn more",
-    href: "/support/custom-extensions",
+    href: "/support",
   },
 ];
 

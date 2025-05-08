@@ -12,6 +12,6 @@ We've noticed that support forums for Keycloak have many questions and requests 
 
 <!--truncate-->
 
-Because of that, we've decided to offer developers a _FREE_ realm in Phase Two, so those that are interested in trying it out can get successful quickly. Free realms are limited to fewer than 1000 users and 5 SSO connections. Otherwise, there are no restrictions beyond abiding by our [terms of use](/docs/terms). Sound good? Please fill out the [contact form](https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link) with your company information, and we'll respond with access information for your realm.
+Because of that, we've decided to offer developers a _FREE_ realm in Phase Two, so those that are interested in trying it out can get successful quickly. Free realms are limited to fewer than 1000 users and 5 SSO connections. Otherwise, there are no restrictions beyond abiding by our [terms of use](/company/terms). Sound good? Please fill out the [contact form](https://docs.google.com/forms/d/e/1FAIpQLScIwakLlJpd9OS3r1fCsPDX01Y9BTSvxf5Ceru_FrpAQE5hIA/viewform?usp=sf_link) with your company information, and we'll respond with access information for your realm.
 
 [^1]: In Keycloak, a "realm" manages a set of users, credentials, roles, and groups. A user belongs to and logs into a realm. Realms are isolated from one another and can only manage and authenticate the users that they control.
