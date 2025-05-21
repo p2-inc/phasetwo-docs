@@ -588,6 +588,62 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MyOrganizationsRepresentation"
+  /{realm}/orgs/me/invitations:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get invitations for authenticated user
+      description: Get a list of all invitations for the user.
+      operationId: invitations
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvitationRepresentation"
+  /{realm}/orgs/me/invitations/{invitationId}:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: invitationId
+        description: invitation UUID
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organizations
+      summary: Accept invitation for authenticated user
+      description: Accept invitation for authenticated user.
+      operationId: acceptInvitation
+      responses:
+        204:
+          description: success
+    delete:
+      tags:
+        - Organizations
+      summary: Reject invitation for authenticated user
+      description: Reject invitation for authenticated user.
+      operationId: rejectInvitation
+      responses:
+        204:
+          description: success
   /{realm}/orgs/{orgId}:
     parameters:
       - in: path
