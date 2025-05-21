@@ -34,8 +34,26 @@ module.exports = {
         {
           type: "doc",
           id: "get-me",
-          label: "Get orgs and roles for authenticated user",
+          label: "Get orgs and roles for authenticated user (me)",
           className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "invitations",
+          label: "Get invitations for authenticated user (me)",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "accept-invitation",
+          label: "Accept invitation for authenticated user (me)",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "reject-invitation",
+          label: "Reject invitation for authenticated user (me)",
+          className: "api-method delete",
         },
         {
           type: "doc",
@@ -468,6 +486,12 @@ module.exports = {
           id: "resend-webhook-by-id",
           label: "Resend the webhook",
           className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "get-webhook-sends-by-keycloak-type-and-id",
+          label: "Get all webhook sends triggered by a Keycloak event",
+          className: "api-method get",
         },
       ],
     },
