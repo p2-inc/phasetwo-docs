@@ -395,6 +395,10 @@ module.exports = {
           title: "Legal",
           items: [
             {
+              label: "Trust Center",
+              to: "https://trust.phasetwo.io",
+            },
+            {
               label: "Privacy Policy",
               to: "company/privacy",
             },
@@ -426,7 +430,12 @@ module.exports = {
           items: [
             {
               html: `
-                <img class="footer-logo" src="https://phasetwo.io/img/logo_phase_slash.svg" alt="PhaseTwo" width="114" height="51" />
+                <img class="footer-logo" src="/img/logo_phase_slash.svg" alt="PhaseTwo" width="114" height="51" />
+              `,
+            },
+            {
+              html: `
+                <img class="soc-2-footer" src="/img/soc2_type1/SOC 2 T1 Logo Rectangle Black.png" alt="SOC 2 Type 1" width="114" height="auto" />
               `,
             },
           ],
