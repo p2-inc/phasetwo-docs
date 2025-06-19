@@ -652,9 +652,12 @@ a.support {
     display: flex;
   }
   .footer-logo {
-    float: right;
+    /* float: right; */
     margin-top: -24px;
   }
+}
+.soc-2-footer {
+  @apply mt-4;
 }
 
 /* Dark Theme Touchup */

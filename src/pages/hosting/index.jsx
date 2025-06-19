@@ -11,7 +11,7 @@ const features = [
   {
     name: "Mission Critical Hosting",
     description:
-      "Ensure your Identity and Access Management (IAM) services stay online with Phase Two's reliable, high-performance hosting for mission-critical applications. Our hosting solution guarantees uptime and optimal performance, making it perfect for businesses that require non-stop service.",
+      "Ensure your Identity and Access Management (IAM) services stay online with Phase Two's reliable, SOC 2 compliant, high-performance hosting for mission-critical applications. Our hosting solution guarantees uptime and optimal performance, making it perfect for businesses that require non-stop service.",
   },
   {
     name: "Automatic Upgrades",
@@ -81,7 +81,7 @@ export default function Hosted() {
           <div className="pageHeroMsg">
             <h1>Premium Managed Hosting for Keycloak</h1>
             <h3 className="margin-top--md text-p2blue-700">
-              Managed Keycloak for the Rest of Us - Provided by Keycloak Experts
+              SOC 2 Compliant Keycloak Hosting
             </h3>
           </div>
           <div>
@@ -114,7 +114,7 @@ export default function Hosted() {
                     />
                   </div>
                   <div className="card__body">
-                    <h3>Secure</h3>
+                    <h3>Secure (SOC 2)</h3>
                     <p>
                       Keycloak releases major upgrades on a steady cadence and
                       upgrading is fraught with many challenges. We make sure
@@ -304,7 +304,17 @@ export default function Hosted() {
                       years.
                     </b>{" "}
                     Since some of its earliest releases, we&apos;ve been
-                    involved with the <b>community and development</b>.
+                    involved with the <b>community and development</b>. We apply
+                    that knowledge and expertise to our support and{" "}
+                    <a
+                      href="https://trust.phasetwo.io"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-bold"
+                    >
+                      SOC 2 compliant
+                    </a>{" "}
+                    hosting.
                   </p>
                 </div>
               </div>
