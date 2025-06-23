@@ -74,7 +74,8 @@ export default function Contact() {
                 Bug reports &amp; Feature requests
               </h3>
               <p className="mt-2 text-base/7 text-gray-600">
-                Please file on Github.
+                Please file on Github for issues or feature requests related to
+                our open source projects.
               </p>
               <p className="mt-4 text-sm/6 font-semibold">
                 <a
@@ -83,6 +84,29 @@ export default function Contact() {
                   className="text-sky-600"
                 >
                   Report a bug <span aria-hidden="true">&rarr;</span>
+                </a>
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-x-6">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-sky-600">
+              <InlineIcon
+                aria-hidden="true"
+                className="size-6 text-white"
+                icon="mdi:shield-lock-outline"
+              />
+            </div>
+            <div>
+              <h3 className="text-base/7 font-semibold text-gray-900">
+                Security Reports
+              </h3>
+              <p className="mt-2 text-base/7 text-gray-600">
+                Please email us directly with any security issues. For bugs and
+                critical issues reported, a bug bounty may be available.
+              </p>
+              <p className="mt-4 text-sm/6 font-semibold">
+                <a href="mailto:support@phasetwo.io" className="text-sky-600">
+                  support@phasetwo.io
                 </a>
               </p>
             </div>
