@@ -114,7 +114,7 @@ Decoding reveals the structured data:
   "sub": "00000000-0000-0000-0000-000000000001",
   "jti": "3dd6434d-79a9-4d15-98b5-7b51dbb2cd31",
   "authenticationType": "PASSWORD",
-  "email": "admin@fusionauth.io",
+  "email": "admin@phasetwo.io",
   "email_verified": true,
   "applicationId": "85a03867-dccf-4882-adde-1a79aeec50df",
   "roles": ["ceo"]
