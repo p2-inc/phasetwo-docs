@@ -208,6 +208,12 @@ components:
           type: string
         type:
           type: string
+      required:
+        - domain_name
+        - verified
+        - record_key
+        - record_value
+        - type
     OrganizationRoleRepresentation:
       type: object
       properties:
