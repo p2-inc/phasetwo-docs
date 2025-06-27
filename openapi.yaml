@@ -846,6 +846,7 @@ paths:
         style: simple
     get:
       tags:
+        - Organization
         - Organization Domains
       summary: Get details for all domains owned by an organization
       operationId: getOrganizationDomains
@@ -883,6 +884,7 @@ paths:
         style: simple
     get:
       tags:
+        - Organization
         - Organization Domains
       summary: Get details for a domain owned by an organization
       operationId: getOrganizationDomain
