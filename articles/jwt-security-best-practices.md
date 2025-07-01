@@ -1,7 +1,5 @@
 # JWT Security Best Practices
 
-By Rishi Raj Jain
-
 JSON Web Tokens (JWTs) are a widely adopted standard for authentication and authorization in modern web applications. Despite some criticism regarding their security, JWTs can provide robust protection when properly implemented.
 
 The security of JWTs depends on careful attention to implementation details, proper cryptographic choices, and adherence to established security patterns. When these fundamentals are followed, JWTs offer a powerful and safe mechanism for managing user identity and access control.
