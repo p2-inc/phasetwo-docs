@@ -27,7 +27,7 @@ A signed JWT consists of three distinct segments separated by periods (`.`):
 2. **Payload/Body**: Contains the actual data/claims (starts with `eyJhdWQ`)
 3. **Signature**: Cryptographic proof of integrity (starts with `dee-K`)
 
-<insert-fig>
+<!-- <insert-fig> -->
 
 Let's break down each component and understand how they work together to create a secure, self-contained token.
 
@@ -91,7 +91,7 @@ The `kid` field is crucial for key management in multi-tenant or key-rotation sc
 
 Proper `kid` validation prevents key confusion attacks where attackers manipulate the header to use unexpected keys.
 
-<insert-fig>
+<!-- <insert-fig> -->
 
 ## JWT Payload: Claims and Data Storage
 
