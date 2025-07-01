@@ -4,7 +4,7 @@
 
 JSON Web Tokens (JWTs) are compact, URL-safe tokens commonly used in modern authentication and authorization systems, particularly with OAuth2 flows. This guide provides a technical deep-dive into JWT architecture, examining each component and its role in the token's security and functionality.
 
-JWTs are sometimes incorrectly referred to as "JWT Tokens" - this would expand to "JSON Web Token Token," which is redundant. We'll use "JWT" throughout this guide. Additionally, while JWTs are frequently used for authentication, they're technically just base64-encoded JSON containers that can serve various purposes beyond auth. This guide focuses on their authentication use case while explaining the underlying structure.
+JWTs are frequently used for authentication, they're technically just base64-encoded JSON containers that can serve various purposes beyond auth. This guide focuses on their authentication use case while explaining the underlying structure.
 
 Let's examine a real JWT example. Here's a freshly generated token with line breaks added for readability (normally JWTs are single-line strings):
 
