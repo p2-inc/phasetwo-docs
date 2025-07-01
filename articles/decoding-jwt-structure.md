@@ -1,8 +1,6 @@
 # Decoding JWTs Structure
 
-By Rishi Raj Jain
-
-<insert-fig>
+<!-- <insert-fig> -->
 
 JSON Web Tokens (JWTs) are compact, URL-safe tokens commonly used in modern authentication and authorization systems, particularly with OAuth2 flows. This guide provides a technical deep-dive into JWT architecture, examining each component and its role in the token's security and functionality.
 
