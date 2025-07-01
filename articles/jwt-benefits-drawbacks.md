@@ -1,7 +1,5 @@
 # Benefits and Drawbacks of JWTs
 
-By Rishi Raj Jain
-
 This comprehensive guide on JSON Web Tokens (JWTs) will cover the implementation considerations, architectural trade-offs, and practical alternatives for modern applications.
 
 JSON Web Tokens have gained significant traction, with many Customer Identity and Access Management (CIAM) platforms promoting them as a universal authentication solution. While JWTs offer compelling advantages, understanding their limitations is crucial for making informed architectural decisions.
@@ -80,26 +78,6 @@ While not inherent flaws in the JWT specification, several common implementation
 - Implement proper key rotation and management practices
 - Regularly audit JWT validation code for security vulnerabilities
 
-## Sessions as a Proven Alternative
-
-Traditional server-side sessions remain a viable and often simpler alternative to JWT-based authentication. Sessions use server-stored state identified by session cookies containing random session IDs.
-
-### Session-based Login Flow
-
-<insert-fig>
-
-### Subsequent API Requests
-
-Following are the advantages with Subsequent API requests if one is using Sessions:
-
-- Immediate revocation capability
-- No cryptographic overhead
-- Built-in support in most web frameworks
-- Sliding expiration windows
-- Server-side state control
-
-For monolithic applications or smaller distributed systems, sessions often provide simpler implementation and operational characteristics compared to JWT-based solutions.
-
 ## Conclusion
 
-Both approaches are production-proven solutions. Your choice should align with your application's architectural requirements, security constraints, and operational complexity tolerance. Consider starting with sessions for simpler use cases and migrating to JWTs as architectural complexity increases.
+<!-- <to-do> -->
