@@ -80,4 +80,4 @@ While not inherent flaws in the JWT specification, several common implementation
 
 ## Conclusion
 
-<!-- <to-do> -->
+JWTs provide a standardized way for services to interact with user identity data across distributed systems. By encoding user information, permissions, and metadata in a self-contained, cryptographically signed format, JWTs eliminate the need for services to make database lookups or API calls to validate user sessions. This standardization means any service in your architecture can independently verify a user's identity and permissions by simply validating the JWT signature and parsing the embedded claims. While JWTs introduce complexity around token management, revocation, and performance considerations, they solve the fundamental problem of sharing authenticated user context across multiple services without requiring shared state or synchronous communication between components.
