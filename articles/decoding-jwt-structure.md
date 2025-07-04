@@ -9,14 +9,7 @@ JWTs are frequently used for authentication, they're technically just base64-enc
 Let's examine a real JWT example. Here's a freshly generated token with line breaks added for readability (normally JWTs are single-line strings):
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImY1ODg5MGQxOSJ9.eyJhdWQiO
-iI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQ
-xODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwM
-C0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTR
-kMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SR
-CIsImVtYWlsIjoiYWRtaW5AZnVzaW9uYXV0aC5pbyIsImVtYWlsX3ZlcmlmaWVkIjp0cnV
-lLCJhcHBsaWNhdGlvbklkIjoiODVhMDM4NjctZGNjZi00ODgyLWFkZGUtMWE3OWFlZWM1M
-GRmIiwicm9sZXMiOlsiY2VvIl19.dee-Ke6RzR0G9avaLNRZf1GUCDfe8Zbk9L2c7yaqKME
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ.8DCV8fVizi3Z1EI7tTxp-kChCVhxEReraDIRSdtCMlg
 ```
 
 While this appears as random characters, understanding JWT structure reveals the encoded data within. This guide focuses on signed JWTs (also called JWS - JSON Web Signatures), which are the most common type in production systems.
@@ -26,6 +19,8 @@ A signed JWT consists of three distinct segments separated by periods (`.`):
 1. **Header**: Contains metadata about the token (starts with `eyJhbGc` in our example)
 2. **Payload/Body**: Contains the actual data/claims (starts with `eyJhdWQ`)
 3. **Signature**: Cryptographic proof of integrity (starts with `dee-K`)
+
+You can decode this JWT interactively at [jwt.io](https://jwt.io/#token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ.8DCV8fVizi3Z1EI7tTxp-kChCVhxEReraDIRSdtCMlg) using the secret: `b7e151628aed2a6abf7158809cf4f3c762e7160efc7e218d3f2c3b394d2d6b8f`.
 
 <!-- <insert-fig> -->
 
