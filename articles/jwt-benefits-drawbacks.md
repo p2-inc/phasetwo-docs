@@ -8,7 +8,7 @@ From a technical standpoint, JWTs function as self-contained identity containers
 
 Here's how the JWT workflow operates in a distributed architecture:
 
-<insert-fig>
+<!-- <insert-fig> -->
 
 Compare this to opaque tokens (also called reference tokens), which are essentially random strings containing no embedded data. These tokens require a round-trip API call to the identity provider for validation and user data retrieval.
 
