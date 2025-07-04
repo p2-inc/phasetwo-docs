@@ -31,19 +31,19 @@ Let's break down each component and understand how they work together to create 
 The header segment contains essential metadata that tells the receiving application how to process and validate the JWT. In our example:
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImY1ODg5MGQxOSJ9
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
 ```
 
 To decode this header, use base64 decoding:
 
 ```bash
-echo 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImY1ODg5MGQxOSJ9' | base64 -d
+echo 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' | base64 -d
 ```
 
 This produces the JSON:
 
 ```json
-{"alg":"HS256","typ":"JWT","kid":"f58890d19"}
+{"alg":"HS256","typ":"JWT"}
 ```
 
 ### Algorithm Specification (`alg`)
@@ -93,7 +93,7 @@ Proper `kid` validation prevents key confusion attacks where attackers manipulat
 The payload contains the actual data transported by the JWT. This is where user information, permissions, and other claims reside. From our example:
 
 ```
-eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AZnVzaW9uYXV0aC5pbyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhcHBsaWNhdGlvbklkIjoiODVhMDM4NjctZGNjZi00ODgyLWFkZGUtMWE3OWFlZWM1MGRmIiwicm9sZXMiOlsiY2VvIl19
+eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ
 ```
 
 Decoding reveals the structured data:
@@ -110,7 +110,9 @@ Decoding reveals the structured data:
   "email": "admin@phasetwo.io",
   "email_verified": true,
   "applicationId": "85a03867-dccf-4882-adde-1a79aeec50df",
-  "roles": ["ceo"]
+  "roles": [
+    "ceo"
+  ]
 }
 ```
 
@@ -161,7 +163,7 @@ const requiredClaims = {
 **Important**: JWT payloads are base64-encoded, not encrypted. Anyone with the token can decode and read the claims using standard tools:
 
 ```bash
-echo 'eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AZnVzaW9uYXV0aC5pbyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhcHBsaWNhdGlvbklkIjoiODVhMDM4NjctZGNjZi00ODgyLWFkZGUtMWE3OWFlZWM1MGRmIiwicm9sZXMiOlsiY2VvIl19' | base64 -d
+echo 'eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ' | base64 -d
 ```
 
 **Never include in JWT payloads:**
@@ -266,4 +268,4 @@ Key takeaways for developers:
 - **Size matters**: Balance functionality with performance requirements
 - **Security first**: Always validate all claims and use proper key management
 
-Proper JWT implementation requires attention to both the specification details and practical considerations like performance, security, and operational complexity. Use established libraries rather than custom implementations, and always follow security best practices for your specific use case. 
+Proper JWT implementation requires attention to both the specification details and practical considerations like performance, security, and operational complexity. Use established libraries rather than custom implementations, and always follow security best practices for your specific use case.
