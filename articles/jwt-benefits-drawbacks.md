@@ -14,7 +14,7 @@ Compare this to opaque tokens (also called reference tokens), which are essentia
 
 The opaque token validation flow looks like this:
 
-<insert-fig>
+<!-- <insert-fig> -->
 
 This validation pattern introduces network latency and requires the identity provider to maintain token state in persistent storage. JWTs eliminate both the network overhead and storage requirements by being stateless and self-validating.
 
@@ -36,7 +36,7 @@ JWT validation requires cryptographic signature verification, which introduces c
 
 The JWT structure consists of three Base64-encoded segments:
 
-<insert-fig>
+<!-- <insert-fig> -->
 
 It's also important to note that performance characteristics vary significantly based on the signing algorithm, for e.g. for JSON Serialization + Base64 Encoding has a throughput of 400,000/s, while for JSON Serialization + Base64 Encoding + RSA Signing has a throughput of 200/s.
 
