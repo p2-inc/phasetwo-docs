@@ -12,7 +12,7 @@ import cs from "classnames";
 import StartYourJourney from "../components/ctas/start-your-journey";
 
 function requestAccess() {
-  window.open(`https://phasetwo.io/dashboard/`, "_blank");
+  window.open(`https://dash.phasetwo.io/`, "_blank");
 }
 
 function githubHome() {
@@ -312,7 +312,7 @@ function Home() {
                         Hosting for 99% of Use-Cases.
                       </div>
                       <div className="mt-4 flex items-center justify-center gap-2">
-                        <a href="/dashboard" target="_blank">
+                        <a href="https://dash.phasetwo.io/" target="_blank">
                           <button className={`btnPrimary`}>Try for Free</button>
                         </a>
                         <Link
@@ -388,7 +388,11 @@ function Home() {
                 .
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
-                <a href="/dashboard" target="_blank" className="btnPrimary">
+                <a
+                  href="https://dash.phasetwo.io/"
+                  target="_blank"
+                  className="btnPrimary"
+                >
                   Get started
                 </a>
                 <Link
@@ -517,7 +521,7 @@ function Home() {
                 on users or IdP connections.
               </p>
               <div className="flex items-center justify-center gap-4">
-                <a href="/dashboard" target="_blank">
+                <a href="https://dash.phasetwo.io/" target="_blank">
                   <button className={`btnPrimary`}>Try for Free</button>
                 </a>
                 {/* <Link href="/hosting/self-host-vs-managed">
@@ -609,7 +613,7 @@ function Home() {
               Create your free deployment today.
             </h2>
             <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-              <a href="/dashboard" target="_blank">
+              <a href="https://dash.phasetwo.io/" target="_blank">
                 <button className={`btnPrimary btnLarge`}>Try now</button>
               </a>
             </div>

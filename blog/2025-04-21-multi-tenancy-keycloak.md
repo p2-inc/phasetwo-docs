@@ -214,6 +214,6 @@ With Phase Two’s Organizations extension and our managed Keycloak platform, yo
 - Scale securely, with support from the people who built the system
 
 👉 [Learn more about Organizations →](https://phasetwo.io/product/organizations)  
-👉 [Get Started with Free Managed Keycloak →](https://phasetwo.io/dashboard)
+👉 [Get Started with Free Managed Keycloak →](https://dash.phasetwo.io/)
 
 📩 [Reach out to the team →](mailto:sales@phasetwo.io)

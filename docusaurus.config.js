@@ -274,7 +274,7 @@ module.exports = {
           buttonType: "btnSecondary",
         },
         {
-          href: "https://phasetwo.io/dashboard/",
+          href: "https://dash.phasetwo.io/",
           label: "Dashboard",
           position: "right",
           buttonType: "btnPrimary",

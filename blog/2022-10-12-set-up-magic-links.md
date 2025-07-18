@@ -52,7 +52,7 @@ Your user can:
 
 Sorry for the wait! We wanted to give you an overview of magic links before diving into how to set them up with Phase Two.
 
-If you haven't already, get an account on [Phase Two](https://phasetwo.io/dashboard). You'll notice that we use magic links in addition to social login options. As we said above, we're trying to make it as frictionless as possible to get in and start using the product.
+If you haven't already, get an account on [Phase Two](https://dash.phasetwo.io/). You'll notice that we use magic links in addition to social login options. As we said above, we're trying to make it as frictionless as possible to get in and start using the product.
 
 Once you log in and create your first deployment, open the Phase Two enhanced Keycloak console. In order to email links to your users, you'll need to set up email. If you haven't already done that, head over to our [email setup guide](/blog/2022-10-05-set-up-email.md).
 

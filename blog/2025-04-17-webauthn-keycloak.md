@@ -77,7 +77,7 @@ WebAuthn supports two main registration types:
 
 ### Setup Steps
 
-Test this next section using Phase Two's [Free Deployment](https://phasetwo.io/dashboard).
+Test this next section using Phase Two's [Free Deployment](https://dash.phasetwo.io/).
 
 1. **Enable user registration** in your realm settings.
 2. Under **Authentication → Required Actions**, enable:
@@ -132,4 +132,4 @@ Need help rolling out passkeys and passwordless login in your apps? We can help 
 Let’s build a secure, passwordless future—together.
 
 - 📩 [Reach out to the team →](mailto:sales@phasetwo.io)
-- 👉 [Get Started with Free Managed Keycloak](https://phasetwo.io/dashboard)
+- 👉 [Get Started with Free Managed Keycloak](https://dash.phasetwo.io/)

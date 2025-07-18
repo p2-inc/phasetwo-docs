@@ -149,7 +149,7 @@ export default function Hosted() {
               <a href="mailto:sales@phasetwo.io">
                 <button className={`btnSecondary`}>Contact Sales</button>
               </a>
-              <a href="/dashboard">
+              <a href="https://dash.phasetwo.io/">
                 <button className={`btnPrimary`}>Get Started</button>
               </a>
             </div>
@@ -382,7 +382,7 @@ export default function Hosted() {
               <h4 className={calloutHeader}>Try Phase Two</h4>
               <div className="margin-top--md">
                 <a
-                  href="https://phasetwo.io/dashboard/"
+                  href="https://dash.phasetwo.io/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="margin-right--md"

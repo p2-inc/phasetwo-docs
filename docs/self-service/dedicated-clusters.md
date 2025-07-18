@@ -7,7 +7,7 @@ Dedicated clusters are available with paid plans. These Clusters use isolated co
 
 ## Creating a Cluster
 
-Clusters can be created on the home page of the [Dashboard](https://phasetwo.io/dashboard/) by selecting the **Create Cluster** button. You must select a region, select an owning organization, and input a name to identify the cluster, and optionally provide a domain name you wish to use.
+Clusters can be created on the home page of the [Dashboard](https://dash.phasetwo.io/) by selecting the **Create Cluster** button. You must select a region, select an owning organization, and input a name to identify the cluster, and optionally provide a domain name you wish to use.
 
 ![Keycloak Phase Two Dedicated Cluster Creation](/docs/dedicated-clusters-create.png)
 

@@ -21,4 +21,4 @@ This series will address the following key issues in 4 parts:
 3.  [Part 3](./2024-11-04-keycloak-for-startups-customization.md): Extensibility and customization will always be necessary.
 4.  [Part 4](./2024-12-02-keycloak-for-startups-cost.md): There is no justification for variable cost for individual features.
 
-Please stay tuned as we release a new section each week! If you would like to try out Keycloak, [sign-up](https://phasetwo.io/dashboard/) for Phase Two's free tier and test it out now.
+Please stay tuned as we release a new section each week! If you would like to try out Keycloak, [sign-up](https://dash.phasetwo.io/) for Phase Two's free tier and test it out now.

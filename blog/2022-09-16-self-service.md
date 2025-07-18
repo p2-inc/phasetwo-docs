@@ -22,4 +22,4 @@ The clusters that run our deployments are available in two regions (AWS, us-west
 
 We hope you find this new tool valuable, and we look forward to feedback and participation from both our customers and the wider Keycloak community.
 
-[TRY IT NOW!](https://phasetwo.io/dashboard/)
+[TRY IT NOW!](https://dash.phasetwo.io/)
