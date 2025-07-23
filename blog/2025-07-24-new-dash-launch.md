@@ -24,6 +24,8 @@ The first version of our dashboard got the job done, but it was intentionally mi
 
 We’ve introduced a new, modern interface that’s faster, easier to navigate, and more scalable for the workflows you rely on. The redesigned UI improves visibility into your deployments and streamlines common tasks like adding users, managing themes, and scaling infrastructure.
 
+Plus with this new UI, Dark mode is now a reality.
+
 ## Custom Themes and Extensions: Now Self-Serve
 
 Launching soon, you will be able to **upload and deploy custom Keycloak themes and extensions** directly from the dashboard — no support ticket required. This makes it faster than ever to personalize your deployment or roll out new functionality.
