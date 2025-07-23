@@ -44,7 +44,7 @@ Invite teammates, configure roles, and connect your identity provider — all wi
 
 ## Cluster Creation Across Regions and Tiers
 
-Create Keycloak clusters with support for different performance and availability tiers. Whether you're running a dev sandbox or a production-grade deployment, the dashboard has you covered.
+Create Keycloak clusters with support for different performance and availability tiers. Whether you're running a dev sandbox or a production-grade deployment, the dashboard provides you with the tools you need to do so.
 
 ## Built for the Future
 
