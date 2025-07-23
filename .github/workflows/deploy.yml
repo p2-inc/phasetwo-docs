@@ -6,39 +6,62 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  NODE_VERSION: 20 # single place to change Node
+  CUSTOM_DOMAIN: phasetwo.io
+
 jobs:
-  test-deploy:
+  # 📦 Build‑only job for PRs / non‑main pushes
+  test:
+    name: Build (validate)
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
           cache: yarn
-      - name: Test deployment
+
+      - name: Build site
         run: |
-          yarn install
-          yarn run regen-api-docs
+          yarn install --frozen-lockfile
+          yarn regen-api-docs
           yarn build
+
+  # 🚀 Main‑branch deploy
   deploy:
+    name: Deploy
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_VERSION }}
           cache: yarn
+
+      # Build once, then inject the CNAME so GitHub Pages
+      # keeps the custom‑domain + HTTPS association.
+      - name: Build site & add CNAME
+        run: |
+          yarn install --frozen-lockfile
+          yarn regen-api-docs
+          yarn build
+          echo "${CUSTOM_DOMAIN}" > build/CNAME
+
+      # SSH credentials for pushing to the gh‑pages branch
       - uses: webfactory/ssh-agent@v0.5.0
         with:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
-      - name: Deploy to GitHub Pages
+
+      - name: Publish to GitHub Pages
         env:
           USE_SSH: true
         run: |
           git config --global user.email "244253+xgp@users.noreply.github.com"
-          git config --global user.name "Garth"
-          yarn install
-          yarn run regen-api-docs
-          yarn deploy
+          git config --global user.name  "Garth"
+          # Deploy without rebuilding to avoid a second compile
+          yarn deploy --skip-build
