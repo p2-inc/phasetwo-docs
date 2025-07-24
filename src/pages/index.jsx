@@ -284,7 +284,7 @@ function Home() {
                   className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
                 />
               </div>
-              <div className="pt-32 sm:pt-40 lg:pt-48 pb-16">
+              <div className="sm:pt-10 lg:pt-14 pb-16">
                 <div className="mx-auto max-w-4xl">
                   <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                     <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-p2blue-800/40 hover:ring-p2blue-800/50">
