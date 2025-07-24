@@ -46,7 +46,7 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dashboard-launch/">Announcing our new Dashboard!</a> New features for more self-serve features and cluster/realm management (obserability, configuration, and more).',
+        '<a href="/blog/dashboard-launch/">Announcing our new Dashboard!</a> New self-serve features for cluster/realm management (observability, configuration, and more).',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
