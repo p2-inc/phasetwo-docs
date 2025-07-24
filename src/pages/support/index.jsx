@@ -600,7 +600,7 @@ export default function Hosted() {
                   </button>
                 </a>
                 <a
-                  href="https://phasetwo.io/dashboard/"
+                  href="https://dash.phasetwo.io/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

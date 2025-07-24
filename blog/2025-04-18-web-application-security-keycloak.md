@@ -142,4 +142,4 @@ We help teams design IAM infrastructure that’s not just compliant—but resili
 **Want to talk WAFs, login security, or DDoS mitigation?**
 
 - 📩 [Reach out to the team →](mailto:sales@phasetwo.io)
-- 👉 [Get Started with Free Managed Keycloak](https://phasetwo.io/dashboard)
+- 👉 [Get Started with Free Managed Keycloak](https://dash.phasetwo.io/)

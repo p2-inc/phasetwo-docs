@@ -46,7 +46,7 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dedicated-launch/">Announcing Dedicated Clusters!</a> Isolated compute, network and storage for your Phase Two Managed Keycloak cluster.',
+        '<a href="/blog/dashboard-launch/">Announcing our new Dashboard!</a> New features for more self-serve features and cluster/realm management (obserability, configuration, and more).',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
@@ -274,7 +274,7 @@ module.exports = {
           buttonType: "btnSecondary",
         },
         {
-          href: "https://phasetwo.io/dashboard/",
+          href: "https://dash.phasetwo.io/",
           label: "Dashboard",
           position: "right",
           buttonType: "btnPrimary",

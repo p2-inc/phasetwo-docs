@@ -11,7 +11,7 @@ import { Switch, Label, Field } from "@headlessui/react";
 import cs from "classnames";
 
 function requestAccess() {
-  window.open(`https://phasetwo.io/dashboard/`, "_blank");
+  window.open(`https://dash.phasetwo.io/`, "_blank");
 }
 
 function githubHome() {

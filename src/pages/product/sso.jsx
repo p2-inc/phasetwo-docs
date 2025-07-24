@@ -41,7 +41,7 @@ function SSO() {
             </h2>
             <div className={`pageHeroCta`}>
               <a
-                href="https://phasetwo.io/dashboard/"
+                href="https://dash.phasetwo.io/"
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -5,17 +5,30 @@ title: Dedicated Clusters
 
 Dedicated clusters are available with paid plans. These Clusters use isolated compute, network and storage resources. Customers using dedicated clusters can create up to 20 Realms per cluster. If you need more, please contact your account representative or email [support@phasetwo.io](mailto:support@phasetwo.io).
 
+For more information view the [Hosting](/hosting) and [Pricing](/pricing) pages.
+
 ## Creating a Cluster
 
-Clusters can be created on the home page of the [Dashboard](https://phasetwo.io/dashboard/) by selecting the **Create Cluster** button. You must select a region, select an owning organization, and input a name to identify the cluster, and optionally provide a domain name you wish to use.
+Creating a new cluster can be started in a couple of ways:
 
-![Keycloak Phase Two Dedicated Cluster Creation](/docs/dedicated-clusters-create.png)
+1. Visit the [create cluster link](https://dash.phasetwo.io/clusters/create).
+2. From the [Overview page](https://dash.phasetwo.io/) and the [Clusters page](https://dash.phasetwo.io/clusters/), click **Create Cluster** in the top right.
+
+At this time, only a Premium cluster can be created via self-serve, for Enterprise clusters, please contact [sales@phasetwo.io](mailto:sales@phasetwo.io). We will be releasing the ability to create Enterprise clusters very soon.
+
+You must select a region, select an owning organization, and input a name to identify the cluster, and optionally provide a domain name you wish to use. Choose between Annual or Monthly billing.
+
+![Keycloak Phase Two Dedicated Cluster Creation](/docs/dash-create-premium-cluster.png)
 
 Once you have input the required information, you will be sent to [Stripe](https://stripe.com), our payment partner, to set up your billing account and payment method.
 
-Following successful billing setup, you will be returned to the Dashboard while your Cluster is provisioned. This is usually fast, but can take up to 24 hours in some cases. You will be notified by email and in the Dashboard when the Cluster is live.
+Following successful billing setup, you will be returned to the [Clusters view](https://dash.phasetwo.io/clusters) while your Cluster is provisioned. This is usually fast, but can take up to 24 hours in some cases. You will be notified by email and in the [Clusters view](https://dash.phasetwo.io/clusters) when the Cluster is live.
 
-![Keycloak Phase Two Dedicatd Cluster Creation Status](/docs/dedicated-clusters-pending.png)
+<img
+src="/docs/dash-cluster-card.png"
+alt="Keycloak Phase Two Dedicated Cluster Card"
+style={{ width: "40%", borderRadius: "8px" }}
+/>
 
 ### Regions
 
@@ -47,15 +60,31 @@ Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) to talk to us about
 
 ### Custom domains
 
-Support for custom domains is available for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster. Following setup of your cluster, you will need to create 2 DNS records.
+Support for custom domains is available for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster or visit the cluster config page for that specific cluster. Go to the Domains tab and add your desired domain.
 
-For all cloud providers:
+Following addition of the domain and setup of your cluster, you will need to create 2 DNS records.
 
-- CNAME `yourdomain.com` TO `{cluster_name}.{region}.{cloud_provider}.auth.ac`
+1. Validation record for certificates
+2. Vanity record for your desired domain.
 
-For AWS:
+For all cloud providers use the following format for the vanity:
 
-- CNAME (the record name and value will be provided to you in an email from Support).
+- Premium: CNAME `yourdomain.com` TO `{cluster_name}.{region}.{cloud_provider}.auth.ac`
+- Enterprise: CNAME `yourdomain.com` TO `{cluster_name}.{region}.{cloud_provider}.global.auth.ac`
+
+If your validation times out, remove the record and re-add it. Values should remain the same so you will not have to update DNS a second time.
+
+<img
+src="/docs/dash-cname-validated.png"
+alt="Validated CNAME"
+style={{ width: "60%", borderRadius: "8px" }}
+/>
+
+<img
+src="/docs/dash-cname-pending-validation.png"
+alt="Pending Validation CNAME"
+style={{ width: "60%", borderRadius: "8px" }}
+/>
 
 Your cluster will be available from your custom domain within 24 hours of correct configuration of the DNS records.
 
@@ -65,7 +94,7 @@ If you currently have a free, shared deployment, and you would like to migrate t
 
 ## Using a Cluster
 
-Clusters are used much as our shared deployments. You can create up to 20 Realms per cluster.
+Clusters are used much the same as our shared deployments. You can create up to 20 Realms per cluster.
 
 ### Creating Deployments in your Cluster
 
