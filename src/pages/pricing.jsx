@@ -9,6 +9,7 @@ import { InlineIcon } from "@iconify/react";
 import { useState } from "react";
 import { Switch, Label, Field } from "@headlessui/react";
 import cs from "classnames";
+import DetailedPriceComparison from "../components/pricing/detailed-comparison";
 
 function requestAccess() {
   window.open(`https://dash.phasetwo.io/`, "_blank");
@@ -99,7 +100,7 @@ function Pricing() {
                         <li>
                           <InlineIcon
                             icon="fa6-solid:xmark"
-                            className="absolute left-0 w-[10px] h-auto mt-2 text-red-500"
+                            className="absolute left-0 mt-2 h-auto w-[10px] text-red-500"
                           />{" "}
                           No SLA
                         </li>
@@ -257,7 +258,7 @@ function Pricing() {
           <div
             className={`contentBlockCta flex items-baseline justify-center gap-3`}
           >
-            <div className=" text-lg ">Billing period: </div>
+            <div className="text-lg">Billing period: </div>
             <Field className="flex items-center justify-center gap-2">
               <Label
                 className={cs({
@@ -269,7 +270,7 @@ function Pricing() {
               <Switch
                 checked={term}
                 onChange={setTerm}
-                className="group inline-flex h-6 w-11 items-center rounded-full transition data-[checked]:bg-p2blue-600 bg-p2blue-600"
+                className="group inline-flex h-6 w-11 items-center rounded-full bg-p2blue-600 transition data-[checked]:bg-p2blue-600"
               >
                 <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
               </Switch>
@@ -328,6 +329,14 @@ function Pricing() {
             </div>
           </div>
         </div>
+        <Switch
+          checked={term}
+          onChange={setTerm}
+          className="group inline-flex h-6 w-11 items-center rounded-full bg-p2blue-600 transition data-[checked]:bg-p2blue-600"
+        >
+          <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
+        </Switch>
+        <DetailedPriceComparison term={billingTermValue} />
       </main>
     </Layout>
   );
