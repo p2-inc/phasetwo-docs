@@ -13,7 +13,9 @@ function Pricing() {
 
   return (
     <Layout description={`${siteConfig.tagline}`}>
-      <DetailedPriceComparison />
+      <div className="container">
+        <DetailedPriceComparison />
+      </div>
       <div className="container">
         <p>
           Starter tier subject to availability. (1) Additional fees based on

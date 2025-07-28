@@ -235,7 +235,7 @@ module.exports = {
               label: "API",
             },
             {
-              to: "https://github.com/p2-inc#our-extensions-",
+              href: "https://github.com/p2-inc#our-extensions-",
               label: "Keycloak Extensions",
             },
             // {
@@ -249,7 +249,7 @@ module.exports = {
             //   label: "Articles",
             // },
             {
-              to: "https://github.com/p2-inc/",
+              href: "https://github.com/p2-inc/",
               label: "GitHub",
             },
           ],
@@ -413,7 +413,7 @@ module.exports = {
           items: [
             {
               label: "Trust Center",
-              to: "https://trust.phasetwo.io",
+              href: "https://trust.phasetwo.io",
             },
             {
               label: "Privacy Policy",
