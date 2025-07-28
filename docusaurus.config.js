@@ -72,7 +72,7 @@ module.exports = {
           to: "/hosting",
           label: "Hosting",
           position: "left",
-          activeBasePath: "pricing",
+          activeBasePath: "hosting",
         },
         // {
         //   type: "dropdown",
@@ -260,6 +260,23 @@ module.exports = {
           position: "left",
           activeBasePath: "pricing",
         },
+        // {
+        //   type: "dropdown",
+        //   label: "Pricing",
+        //   position: "left",
+        //   to: "pricing",
+        //   activeBasePath: "pricing",
+        //   items: [
+        //     {
+        //       label: "Hosting",
+        //       to: "pricing/hosting",
+        //     },
+        //     {
+        //       label: "Support",
+        //       to: "pricing/support",
+        //     },
+        //   ],
+        // },
         {
           to: "blog",
           activeBasePath: "blog",

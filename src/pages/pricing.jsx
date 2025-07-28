@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Layout from "@theme/Layout";
-import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import styles from "./styles.module.css";
 import { CheckMark } from "./index";
@@ -9,7 +8,6 @@ import { InlineIcon } from "@iconify/react";
 import { useState } from "react";
 import { Switch, Label, Field } from "@headlessui/react";
 import cs from "classnames";
-import DetailedPriceComparison from "../components/pricing/detailed-comparison";
 
 function requestAccess() {
   window.open(`https://dash.phasetwo.io/`, "_blank");
@@ -329,14 +327,6 @@ function Pricing() {
             </div>
           </div>
         </div>
-        <Switch
-          checked={term}
-          onChange={setTerm}
-          className="group inline-flex h-6 w-11 items-center rounded-full bg-p2blue-600 transition data-[checked]:bg-p2blue-600"
-        >
-          <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
-        </Switch>
-        <DetailedPriceComparison term={billingTermValue} />
       </main>
     </Layout>
   );
