@@ -1,6 +1,9 @@
-# Decoding JWTs Structure
+---
+id: decoding-jwt-structure
+title: Decoding JWT Structure
+---
 
-<!-- <insert-fig> -->
+# Decoding JWTs Structure
 
 JSON Web Tokens (JWTs) are compact, URL-safe tokens commonly used in modern authentication and authorization systems, particularly with OAuth2 flows. This guide provides a technical deep-dive into JWT architecture, examining each component and its role in the token's security and functionality.
 
@@ -43,37 +46,39 @@ echo 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9' | base64 -d
 This produces the JSON:
 
 ```json
-{"alg":"HS256","typ":"JWT"}
+{ "alg": "HS256", "typ": "JWT" }
 ```
 
 ### Algorithm Specification (`alg`)
 
 The `alg` field specifies the cryptographic algorithm used for signing. `HS256` indicates HMAC-SHA256, a symmetric signing algorithm. Here's the complete algorithm support matrix:
 
-| Algorithm | Full Name | Security Level | Implementation Status |
-|-----------|-----------|----------------|----------------------|
-| HS256 | HMAC using SHA-256 | Symmetric | Required |
-| HS384 | HMAC using SHA-384 | Symmetric | Optional |
-| HS512 | HMAC using SHA-512 | Symmetric | Optional |
-| RS256 | RSASSA-PKCS1-v1_5 using SHA-256 | Asymmetric | Recommended |
-| RS384 | RSASSA-PKCS1-v1_5 using SHA-384 | Asymmetric | Optional |
-| RS512 | RSASSA-PKCS1-v1_5 using SHA-512 | Asymmetric | Optional |
-| ES256 | ECDSA using P-256 and SHA-256 | Asymmetric | Recommended+ |
-| ES384 | ECDSA using P-384 and SHA-384 | Asymmetric | Optional |
-| ES512 | ECDSA using P-521 and SHA-512 | Asymmetric | Optional |
-| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 | Asymmetric | Optional |
-| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 | Asymmetric | Optional |
-| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 | Asymmetric | Optional |
-| none | No digital signature or MAC performed | None | Optional |
+| Algorithm | Full Name                                      | Security Level | Implementation Status |
+| --------- | ---------------------------------------------- | -------------- | --------------------- |
+| HS256     | HMAC using SHA-256                             | Symmetric      | Required              |
+| HS384     | HMAC using SHA-384                             | Symmetric      | Optional              |
+| HS512     | HMAC using SHA-512                             | Symmetric      | Optional              |
+| RS256     | RSASSA-PKCS1-v1_5 using SHA-256                | Asymmetric     | Recommended           |
+| RS384     | RSASSA-PKCS1-v1_5 using SHA-384                | Asymmetric     | Optional              |
+| RS512     | RSASSA-PKCS1-v1_5 using SHA-512                | Asymmetric     | Optional              |
+| ES256     | ECDSA using P-256 and SHA-256                  | Asymmetric     | Recommended+          |
+| ES384     | ECDSA using P-384 and SHA-384                  | Asymmetric     | Optional              |
+| ES512     | ECDSA using P-521 and SHA-512                  | Asymmetric     | Optional              |
+| PS256     | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 | Asymmetric     | Optional              |
+| PS384     | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 | Asymmetric     | Optional              |
+| PS512     | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 | Asymmetric     | Optional              |
+| none      | No digital signature or MAC performed          | None           | Optional              |
 
 **Security Considerations:**
-- **Symmetric algorithms (HS*)**: Require shared secrets, faster but less secure for distributed systems
-- **Asymmetric algorithms (RS*, ES*, PS*)**: Use public/private key pairs, more secure for multi-service architectures
+
+- **Symmetric algorithms (HS\*)**: Require shared secrets, faster but less secure for distributed systems
+- **Asymmetric algorithms (RS*, ES*, PS\*)**: Use public/private key pairs, more secure for multi-service architectures
 - **"none" algorithm**: Should be explicitly disabled in production - allows unsigned tokens
 
 ### Type Specification (`typ`)
 
 The `typ` field indicates the token type. `JWT` is standard, but other values exist:
+
 - `at+JWT`: Access token conforming to RFC 9068
 - Custom types for specialized use cases
 
@@ -110,9 +115,7 @@ Decoding reveals the structured data:
   "email": "admin@phasetwo.io",
   "email_verified": true,
   "applicationId": "85a03867-dccf-4882-adde-1a79aeec50df",
-  "roles": [
-    "ceo"
-  ]
+  "roles": ["ceo"]
 }
 ```
 
@@ -144,10 +147,10 @@ Your JWT validation code must verify these claims:
 ```javascript
 // Example validation logic
 const requiredClaims = {
-  iss: ['acme.com', 'trusted-issuer.com'], // Valid issuers
-  aud: ['my-api-client-id'],               // Valid audiences
-  exp: Date.now() / 1000,                  // Not expired
-  nbf: Date.now() / 1000                   // Not used before
+  iss: ["acme.com", "trusted-issuer.com"], // Valid issuers
+  aud: ["my-api-client-id"], // Valid audiences
+  exp: Date.now() / 1000, // Not expired
+  nbf: Date.now() / 1000, // Not used before
 };
 ```
 
@@ -182,7 +185,7 @@ The signature ensures token integrity and authenticity. It's the cryptographic p
 The signature is created through these steps:
 
 1. **Encode header**: Convert header JSON to base64url encoding
-2. **Encode payload**: Convert payload JSON to base64url encoding  
+2. **Encode payload**: Convert payload JSON to base64url encoding
 3. **Concatenate**: Join with `.` separator: `header.payload`
 4. **Sign**: Apply cryptographic algorithm with secret/key
 5. **Encode signature**: Convert signature to base64url encoding
@@ -211,12 +214,12 @@ While the JWT specification doesn't impose hard limits, practical constraints ex
 
 ### Storage Constraints
 
-| Storage Method | Typical Limit | Considerations |
-|----------------|---------------|----------------|
-| HTTP Headers | 8KB | Varies by server/proxy configuration |
-| Cookies | 4KB | Includes cookie name and metadata |
-| URL Parameters | Browser-dependent | Risk of URL length limits |
-| Local Storage | 5-10MB | Browser-specific limits |
+| Storage Method | Typical Limit     | Considerations                       |
+| -------------- | ----------------- | ------------------------------------ |
+| HTTP Headers   | 8KB               | Varies by server/proxy configuration |
+| Cookies        | 4KB               | Includes cookie name and metadata    |
+| URL Parameters | Browser-dependent | Risk of URL length limits            |
+| Local Storage  | 5-10MB            | Browser-specific limits              |
 
 ### Performance Impact Analysis
 
@@ -229,9 +232,10 @@ JWT size directly affects:
 **Benchmark Results** (50,000 operations each):
 
 **Small JWT (~180 chars payload, 300-600 chars total):**
+
 ```
 HMAC Sign:   1.64s
-HMAC Verify: 2.49s  
+HMAC Verify: 2.49s
 RSA Sign:    28.53s
 RSA Verify:  3.10s
 ECC Sign:    4.27s
@@ -239,6 +243,7 @@ ECC Verify:  7.11s
 ```
 
 **Large JWT (~1800 chars payload, 2400-2700 chars total):**
+
 ```
 HMAC Sign:   3.38s    (+106%)
 HMAC Verify: 4.32s    (+74%)
@@ -258,7 +263,7 @@ ECC Verify:  9.26s    (+30%)
 
 ## Conclusion
 
-Understanding JWT structure is fundamental to implementing secure authentication systems. Each component - header, payload, and signature - plays a critical role in token security and functionality. 
+Understanding JWT structure is fundamental to implementing secure authentication systems. Each component - header, payload, and signature - plays a critical role in token security and functionality.
 
 Key takeaways for developers:
 

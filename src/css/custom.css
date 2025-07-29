@@ -851,3 +851,22 @@ table.tw-table-pricing th {
     transform: translateX(0);
   }
 }
+
+.theme-doc-markdown figure figcaption {
+  border-left: var(--ifm-blockquote-border-left-width) solid
+    var(--ifm-blockquote-border-color);
+  box-shadow: var(--ifm-blockquote-shadow);
+  color: var(--ifm-blockquote-color);
+  font-size: var(--ifm-blockquote-font-size);
+  margin: 0 0 var(--ifm-spacing-vertical);
+  padding: var(--ifm-blockquote-padding-vertical)
+    var(--ifm-blockquote-padding-horizontal);
+}
+
+.theme-doc-markdown figure figcaption > :first-child {
+  margin-top: 0;
+}
+
+.theme-doc-markdown figure figcaption > :last-child {
+  margin-bottom: 0;
+}

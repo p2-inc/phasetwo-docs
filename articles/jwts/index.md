@@ -1,9 +1,9 @@
 ---
 id: index
-title: Getting Started
+title: JWTs
 ---
 
-This section is intended to provide articles that are related to Keycloak implementation and usage.
+JWTs
 
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';

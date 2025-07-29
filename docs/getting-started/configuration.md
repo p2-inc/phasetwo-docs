@@ -1,15 +1,15 @@
 ---
-id: configuration
-title: Configuration
+id: realm-configuration
+title: Realm Configuration
 ---
 
-There is a sensible set of configuration defaults that have been chosen for common use cases. However, this section will contain a few of the basic changes you may wish to make to tailor the functionality to your specific use case.
+Phase Two provides a sensible set of configuration defaults designed for common use cases, but you may want to adjust certain settings to better fit your specific requirements. Your initial configuration may vary depending on how you are using Phase Two (such as self-service, dedicated deployments, or Docker images). While many options may already be set by default, this section explains the purpose of each setting and highlights basic changes you might consider to tailor the functionality to your needs.
 
-### Basic settings
+## Basic settings
 
 There are a couple of default configuration choices you should be aware of before opening up your application to the world.
 
-#### Login and registration
+### Login and registration
 
 In the **Realm settings** section, in the **Login** tab, you will find several important settings.
 
@@ -20,7 +20,7 @@ In the **Realm settings** section, in the **Login** tab, you will find several i
 
 ![Keycloak Realm Login Settings](/docs/getting-started-configuration-settings.png)
 
-#### User profile
+### User profile
 
 By default, only username, email, first name and last name are collected. It is possible to add more requirements for your users.
 
@@ -28,23 +28,19 @@ In the **Realm settings** section, in the **General** tab, you must turn on _Use
 
 ![Keycloak Realm User Profile](/docs/getting-started-configuration-user-profile.png)
 
-### Realm setup
-
-Depending on how you are using Phase Two (i.e. self-service, dedicated deployments, Docker image, etc.), your initial configuration might differ slightly. These options may already have been set by default, but they are documented here in case not. It is also useful to understand the purpose for each selection.
-
-#### Themes
+## Themes
 
 In the **Realm settings** section, select the **Themes** tab.
 
-##### Login
+### Login
 
 The `Attributes` login theme is the Phase Two default that allows customizing the login UI without deploying a custom theme. This must be selected in order to use the options detailed in the [customizing UI](../customizing-ui) section.
 
-##### Admin console
+### Admin console
 
 If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the _Admin console theme_ to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back into the Admin UI in order for this change to take effect.
 
-##### Email
+### Email
 
 The `Attributes` email theme is the Phase Two default that allows the use of the email template UI detailed in the [emails](../email#content-templates) section.
 

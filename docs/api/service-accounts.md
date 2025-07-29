@@ -1,6 +1,6 @@
 ---
 id: service-accounts
-title: Service Accounts
+title: Access Service Accounts
 ---
 
 It is recommended to create one (or more) service accounts in order to call the Phase Two and Keycloak admin APIs. A service account can be thought of as a special type of user that is associated with each Client in Keycloak, but does not have user status in your application.

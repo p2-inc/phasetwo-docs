@@ -1,21 +1,24 @@
 // sidebars.guides.js
 
 module.exports = {
-  articles: [
-    "index",
-    // {
-    // type: "category",
-    // label: "Cat A",
-    //   link: {
-    //     type: "doc",
-    //     id: "index", // resolves to guides/index.md
-    //   },
-    //   items: [], // resolves to guides/oidc-configuration.md, etc
-    // },
-    // {
-    //   type: "category",
-    //   label: "Cat B",
-    //   items: ["foo"], // resolves to guides/foo.md
-    // },
-  ],
+  // articles: [
+  // "introduction",
+  // {
+  //   type: "category",
+  //   label: "JSON Web Tokens (JWT)",
+  //   link: {
+  //     type: "generated-index",
+  //   },
+  //   items: [
+  //     "jwts/decoding-jwt-structure",
+  //     "jwts/jwt-benefits-drawbacks",
+  //     "jwts/jwt-security-best-practices",
+  //   ], // resolves to guides/oidc-configuration.md, etc
+  // },
+  // {
+  //   type: "category",
+  //   label: "Cat B",
+  //   items: ["foo"], // resolves to guides/foo.md
+  // },
+  // ],
 };

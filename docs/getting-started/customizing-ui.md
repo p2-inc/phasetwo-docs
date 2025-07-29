@@ -1,11 +1,15 @@
 ---
 id: customizing-ui
-title: Customizing UI
+title: Customizing UI / Theming
 ---
 
 It is possible to customize styles for login screens to match your branding. This can be achieved by simple colors and logo override of the default them, or by full CSS replacement.
 
-### Simple
+If you are looking to do a full custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/) to build it. This allows you to use React components to build your theme and provides backwards compatibility.
+
+Phase Two are sponsors of Keycloakify as we heavily believe the in the value of the project.
+
+## Simple
 
 The simple override of colors and logo can be access in the admin UI in the **Styles** section. The available override values are
 
@@ -23,7 +27,7 @@ The simple override of colors and logo can be access in the admin UI in the **St
 
 ![Keycloak Phase Two Login Style Customization](/docs/getting-started-customizing-ui-colors.png)
 
-### Full CSS
+## Full CSS
 
 Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file will override the values from above. For more information on the styles used in the login pages, see [Patternfly v5](https://www.patternfly.org/), and the Keycloak [base](https://github.com/keycloak/keycloak/tree/main/themes/src/main/resources/theme/base/login) and [keycloak](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) themes.
 
@@ -71,7 +75,7 @@ input[type="password"]:focus-visible {
 }
 ```
 
-### Manually by Realm attributes
+## Manually by Realm attributes
 
 The above methods for updating the style store the values as Realm attributes. If you prefer to programmatically set these, use the following Realm attribute keys:
 
@@ -102,3 +106,9 @@ Full customization details can be viewed in the Phase Two [Admin Portal Repo](ht
 - `_providerConfig.assets.portal.secondary800`
 - `_providerConfig.assets.portal.secondary900`
 - `_providerConfig.assets.portal.css`
+
+## Custom Themes
+
+If you decide to use a custom theme, you must contact Phase Two support to have it added to your Realm. It is only available to subscribes of dedicated clusters.
+
+Coming soon will be the ability to upload custom themes via the Phase Two dashboard.

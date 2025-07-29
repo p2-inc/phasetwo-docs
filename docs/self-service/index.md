@@ -3,7 +3,7 @@ id: index
 title: Self-service
 ---
 
-The Phase Two Self-service deployment tool is an application that allows you to manage Realm instances of Phase Two enhanced Keycloak on our shared or your dedicated clusters. This tool allows you to easily create new Realms, and manage your team's access to them.
+The Phase Two Self-service deployment tool is an application that allows you to manage Realm instances of Phase Two enhanced Keycloak on our shared or your dedicated clusters. This tool allows you to easily create new Realms and manage your team's access to them.
 
 The tool is available at https://dash.phasetwo.io/.
 

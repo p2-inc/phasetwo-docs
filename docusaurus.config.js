@@ -1,6 +1,10 @@
 const path = require("path");
 
 module.exports = {
+  // future: {
+  //   experimental_faster: true,
+  //   v4: true,
+  // },
   plugins: [require.resolve("./sitePlugin")],
   title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
