@@ -5,7 +5,7 @@ title: Emails
 
 This section details setting up email delivery with your email service and customizing the content templates to match your brand and messaging.
 
-### Server configuration
+## Server configuration
 
 One of the first things you will need to do when getting a Keycloak Realm ready for use is to set up your email server configuration. There are many system emails that are sent to users in the course of verifying and updating user accounts: Email address verification, magic links, password reset, account update, login failure notifications, identity provider linking, etc.
 
@@ -38,7 +38,7 @@ In the **Connection & Authentication** section, you will provide details of your
 
 Finally, before you click **Save**, click the **Test connection** button to send a test email to the email address of the currently logged in user. If you don't have that set, you might have click **Save** and edit your user before you come back. You'll receive a success message, or information that will help you resolve problems.
 
-### Content templates
+## Content templates
 
 Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab. There are several default email types that you can modify.
 
@@ -59,7 +59,7 @@ The templates are made in both text and HTML, as emails are assembled as multi-p
 
 We have created an example [Email Template](https://github.com/p2-inc/keycloak-theme-template/tree/master/examples/email) which we encourage use of.
 
-#### Templating syntax
+### Templating syntax
 
 The syntax of the templates roughly follows that of [mustache.js](https://mustache.github.io/) which allows the replacement of values using tags enclosed by double braces, like this `{{name}}`. Each email template type exposes a set of named values and objects that can be used in your templates. At minimum, they are:
 

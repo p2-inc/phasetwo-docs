@@ -1,3 +1,8 @@
+---
+id: jwt-benefits-drawbacks
+title: Benefits and Drawbacks of JWTs
+---
+
 # Benefits and Drawbacks of JWTs
 
 This comprehensive guide on JSON Web Tokens (JWTs) will cover the implementation considerations, architectural trade-offs, and practical alternatives for modern applications.

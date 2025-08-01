@@ -1,6 +1,10 @@
 const path = require("path");
 
 module.exports = {
+  // future: {
+  //   experimental_faster: true,
+  //   v4: true,
+  // },
   plugins: [require.resolve("./sitePlugin")],
   title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
@@ -72,7 +76,7 @@ module.exports = {
           to: "/hosting",
           label: "Hosting",
           position: "left",
-          activeBasePath: "pricing",
+          activeBasePath: "hosting",
         },
         // {
         //   type: "dropdown",
@@ -235,7 +239,7 @@ module.exports = {
               label: "API",
             },
             {
-              to: "https://github.com/p2-inc#our-extensions-",
+              href: "https://github.com/p2-inc#our-extensions-",
               label: "Keycloak Extensions",
             },
             // {
@@ -249,7 +253,7 @@ module.exports = {
             //   label: "Articles",
             // },
             {
-              to: "https://github.com/p2-inc/",
+              href: "https://github.com/p2-inc/",
               label: "GitHub",
             },
           ],
@@ -260,6 +264,23 @@ module.exports = {
           position: "left",
           activeBasePath: "pricing",
         },
+        // {
+        //   type: "dropdown",
+        //   label: "Pricing",
+        //   position: "left",
+        //   to: "pricing",
+        //   activeBasePath: "pricing",
+        //   items: [
+        //     {
+        //       label: "Hosting",
+        //       to: "pricing/hosting",
+        //     },
+        //     {
+        //       label: "Support",
+        //       to: "pricing/support",
+        //     },
+        //   ],
+        // },
         {
           to: "blog",
           activeBasePath: "blog",
@@ -396,7 +417,7 @@ module.exports = {
           items: [
             {
               label: "Trust Center",
-              to: "https://trust.phasetwo.io",
+              href: "https://trust.phasetwo.io",
             },
             {
               label: "Privacy Policy",
@@ -409,6 +430,10 @@ module.exports = {
             {
               label: "Subprocessors",
               to: "company/subprocessors",
+            },
+            {
+              label: "Subprocessors",
+              to: "docs/subprocessors",
             },
             {
               label: "Service Agreement",

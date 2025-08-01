@@ -9,13 +9,13 @@ As with any integrations, we suggest you create a separate Realm for development
 
 ### Configuration
 
-- **Basic setup**. Make decisions about registration, usernames, emails, user profile elements, password policies, and more. See [Configuration](../configuration).
-- **Email server**. Configure your email server details so that your users can receive messages related to authentication (e.g., forgot password, email address verification, etc.). See [Email server configuration](../email#server-configuration).
+- **Basic setup**. Make decisions about registration, usernames, emails, user profile elements, password policies, and more. See [Configuration](./configuration.md).
+- **Email server**. Configure your email server details so that your users can receive messages related to authentication (e.g., forgot password, email address verification, etc.). See [Email server configuration](/docs/getting-started/email#server-configuration).
 
 ### Customization
 
 - **Branding**. At a minimum, update your colors and logo to make the login screens reflect your brand. See [Customizing UI](../customizing-ui).
-- **Emails**. Customize email templates with your messaging and branding. See [Email templates](../email#content-templates).
+- **Emails**. Customize email templates with your messaging and branding. See [Email templates](/docs/getting-started/email#content-templates).
 
 ### Authentication
 

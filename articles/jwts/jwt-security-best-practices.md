@@ -1,3 +1,8 @@
+---
+id: jwt-security-best-practices
+title: Security Best Practices
+---
+
 # JWT Security Best Practices
 
 JSON Web Tokens (JWTs) are a widely adopted standard for authentication and authorization in modern web applications. Despite some criticism regarding their security, JWTs can provide robust protection when properly implemented.
@@ -93,17 +98,20 @@ HMAC-based algorithms (HS256, HS384, HS512) use shared secrets for both signing 
 Public-key algorithms enable distributed token validation without sharing secrets.
 
 **RSA Algorithms** (RS256, RS384, RS512):
+
 - Well-established and widely supported
 - Larger key sizes required (minimum 2048 bits)
 - Slower performance, especially for signing operations
 
 **Elliptic Curve Algorithms** (ES256, ES384, ES512):
+
 - Modern cryptographic approach
 - Smaller key sizes with equivalent security
 - Better performance than RSA
 - Recommended for new implementations
 
 **Performance Impact** (relative to HMAC baseline):
+
 - HMAC: 1x signing speed, 1x verification speed
 - ECC: 2.5x signing time, 2x verification time
 - RSA: 9x signing time, comparable verification speed
@@ -114,16 +122,16 @@ While JWT specifications don't mandate specific claims, security-focused impleme
 
 ```json
 {
-  "typ": "JWT",                             // Token type in header
-  "alg": "ES256",                           // Algorithm in header
-  "kid": "key_2023_q4",                     // Key identifier in header
-  "iss": "https://auth.yourcompany.com",    // Token issuer
-  "aud": ["api.yourcompany.com"],           // Intended audience(s)
-  "sub": "usr_8a7b9c2d1e3f",               // Subject (user ID)
-  "exp": 1688127056,                        // Expiration timestamp
-  "nbf": 1688123456,                        // Not before timestamp
-  "iat": 1688123456,                        // Issued at timestamp
-  "jti": "uuid-4a5b6c7d8e9f"                // Unique token ID
+  "typ": "JWT", // Token type in header
+  "alg": "ES256", // Algorithm in header
+  "kid": "key_2023_q4", // Key identifier in header
+  "iss": "https://auth.yourcompany.com", // Token issuer
+  "aud": ["api.yourcompany.com"], // Intended audience(s)
+  "sub": "usr_8a7b9c2d1e3f", // Subject (user ID)
+  "exp": 1688127056, // Expiration timestamp
+  "nbf": 1688123456, // Not before timestamp
+  "iat": 1688123456, // Issued at timestamp
+  "jti": "uuid-4a5b6c7d8e9f" // Unique token ID
 }
 ```
 
@@ -164,11 +172,13 @@ For security incidents, rotate signing keys to immediately invalidate all outsta
 #### Secret Generation Requirements
 
 **HMAC Secret Standards**:
+
 - Minimum length equal to hash output (256 bits for HS256)
 - Use cryptographically secure random number generators
 - Never reuse secrets across different applications or environments
 
 **RSA Key Standards**:
+
 - Minimum 2048 bits for existing systems
 - Prefer 3072 bits or higher for new implementations
 - Generate keys using established cryptographic libraries
@@ -210,11 +220,11 @@ Client applications bear responsibility for secure token storage and transmissio
 Configure cookies with comprehensive security attributes:
 
 ```http
-Set-Cookie: access_token=<jwt_token>; 
-  Secure; 
-  HttpOnly; 
-  SameSite=Strict; 
-  Path=/; 
+Set-Cookie: access_token=<jwt_token>;
+  Secure;
+  HttpOnly;
+  SameSite=Strict;
+  Path=/;
   Max-Age=3600;
   Domain=.yourcompany.com
 ```
@@ -285,19 +295,20 @@ val sharedPreferences = EncryptedSharedPreferences.create(
 #### Cross-Platform Solutions
 
 For React Native and similar frameworks, use specialized secure storage libraries:
+
 - `react-native-keychain` for iOS/Android keychain access
 - `expo-secure-store` for Expo applications
 - Platform-specific secure storage wrappers
 
 ### Storage Security Comparison
 
-| Storage Method | XSS Protection | CSRF Protection | Cross-Domain Support | Revocation Ease | Performance Impact |
-|----------------|----------------|-----------------|---------------------|-----------------|-------------------|
-| Secure Cookies | ✅ High | ✅ High | ❌ Limited | 🟡 Moderate | ✅ Minimal |
-| BFF/Sessions | ✅ Complete | ✅ High | ✅ Full | ✅ Easy | 🟡 Moderate |
-| Native Secure Storage | ✅ Complete | N/A | ✅ Full | 🟡 Moderate | ✅ Minimal |
-| In-Memory Storage | 🟡 Partial | ✅ High | ✅ Full | ❌ Difficult | ✅ Minimal |
-| Local Storage | ❌ Vulnerable | ✅ High | ✅ Full | ❌ Difficult | ✅ Minimal |
+| Storage Method        | XSS Protection | CSRF Protection | Cross-Domain Support | Revocation Ease | Performance Impact |
+| --------------------- | -------------- | --------------- | -------------------- | --------------- | ------------------ |
+| Secure Cookies        | ✅ High        | ✅ High         | ❌ Limited           | 🟡 Moderate     | ✅ Minimal         |
+| BFF/Sessions          | ✅ Complete    | ✅ High         | ✅ Full              | ✅ Easy         | 🟡 Moderate        |
+| Native Secure Storage | ✅ Complete    | N/A             | ✅ Full              | 🟡 Moderate     | ✅ Minimal         |
+| In-Memory Storage     | 🟡 Partial     | ✅ High         | ✅ Full              | ❌ Difficult    | ✅ Minimal         |
+| Local Storage         | ❌ Vulnerable  | ✅ High         | ✅ Full              | ❌ Difficult    | ✅ Minimal         |
 
 ## Consuming a JWT
 
@@ -316,55 +327,55 @@ def validate_jwt_token(token, expected_issuer, expected_audience, allowed_algori
         # Stage 1: Structure validation
         if not token or token.count('.') != 2:
             raise ValidationError("Invalid token structure")
-        
+
         header, payload, signature = token.split('.')
-        
+
         # Stage 2: Header validation
         header_data = decode_base64_json(header)
         algorithm = header_data.get('alg')
-        
+
         if algorithm == 'none':
             raise ValidationError("Unsigned tokens rejected")
-        
+
         if algorithm not in allowed_algorithms:
             raise ValidationError("Algorithm not permitted")
-        
+
         # Stage 3: Signature verification
         public_key = get_public_key(header_data.get('kid'))
         if not verify_signature(token, public_key, algorithm):
             raise ValidationError("Signature verification failed")
-        
+
         # Stage 4: Claims validation
         claims = decode_base64_json(payload)
-        
+
         current_time = get_current_timestamp()
         clock_skew = 60  # Allow 60-second clock skew
-        
+
         # Timing validations
         if claims.get('exp', 0) + clock_skew < current_time:
             raise ValidationError("Token expired")
-        
+
         if claims.get('nbf', 0) - clock_skew > current_time:
             raise ValidationError("Token not yet valid")
-        
+
         # Issuer validation
         if claims.get('iss') != expected_issuer:
             raise ValidationError("Invalid issuer")
-        
+
         # Audience validation
         token_audiences = claims.get('aud', [])
         if isinstance(token_audiences, str):
             token_audiences = [token_audiences]
-        
+
         if expected_audience not in token_audiences:
             raise ValidationError("Invalid audience")
-        
+
         # Optional: Revocation check
         if is_token_revoked(claims.get('jti')):
             raise ValidationError("Token revoked")
-        
+
         return claims
-        
+
     except ValidationError:
         raise
     except Exception as e:
@@ -385,15 +396,15 @@ def verify_algorithm_security(header_algorithm, expected_algorithms):
     # Reject unsigned tokens
     if header_algorithm == 'none':
         return False
-    
+
     # Verify algorithm is in allowlist
     if header_algorithm not in expected_algorithms:
         return False
-    
+
     # Prevent HMAC/RSA confusion for asymmetric keys
     if header_algorithm.startswith('HS') and 'RS' in expected_algorithms:
         return False
-    
+
     return True
 ```
 
@@ -407,17 +418,17 @@ def sanitize_jwt_claims(claims):
     Sanitize JWT claims for safe application use
     """
     sanitized = {}
-    
+
     # Validate and sanitize user identifier
     user_id = claims.get('sub')
     if user_id and is_valid_user_id(user_id):
         sanitized['user_id'] = escape_sql_injection(user_id)
-    
+
     # Validate and sanitize custom claims
     for claim_name, claim_value in claims.items():
         if claim_name in ALLOWED_CUSTOM_CLAIMS:
             sanitized[claim_name] = sanitize_claim_value(claim_value)
-    
+
     return sanitized
 ```
 
@@ -437,7 +448,7 @@ def handle_jwt_validation_error(error_type, request_context):
         "timestamp": get_current_timestamp(),
         "user_agent": request_context.get('user_agent')
     })
-    
+
     # Return generic error to client
     return {
         "error": "invalid_token",
