@@ -1,9 +1,9 @@
 ---
-title: User Events in Keycloak: Best Practices, Management, and Purging
+title: "User Events in Keycloak: Best Practices, Management, and Purging"
 slug: user-events-in-keycloak
 date: 2025-08-01
 authors: phasetwo
-tags: [phase_two, keycloak, user_events, admin_events, database, performance ]
+tags: [phase_two, keycloak, user_events, admin_events, database, performance]
 ---
 
 Keycloak tracks various "user events" to provide auditing and monitoring capabilities related to user activities within a realm. These events capture actions performed by users, such as authentication attempts, account management operations, and more.
