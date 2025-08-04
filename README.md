@@ -1,4 +1,4 @@
-# Phasetwo Website
+# Phase Two Website and Documenation
 
 ![Build Status](https://github.com/p2-inc/phasetwo-docs/actions/workflows/deploy.yml/badge.svg)
 [![pages-build-deployment](https://github.com/p2-inc/p2-inc.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/p2-inc/p2-inc.github.io/actions/workflows/pages/pages-build-deployment)
