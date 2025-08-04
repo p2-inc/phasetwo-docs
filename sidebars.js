@@ -126,6 +126,7 @@ module.exports = {
         "security/allow-deny-lists",
         "security/rate-limiting",
         "security/penetration-tests",
+        "security/recaptcha",
       ],
     },
     {
@@ -133,6 +134,17 @@ module.exports = {
       label: "Hosting",
       link: { type: "doc", id: "hosting/index" },
       items: ["hosting/kubernetes", "hosting/connect"],
+    },
+    {
+      type: "category",
+      label: "Keycloak",
+      link: { type: "doc", id: "keycloak/index" },
+      items: [
+        "keycloak/overview",
+        "keycloak/ciam",
+        "keycloak/iam",
+        "keycloak/idp",
+      ],
     },
   ],
 };
