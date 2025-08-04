@@ -171,7 +171,7 @@ function Pricing() {
                         </li>
                         <li>
                           <CheckMark />
-                          <a href="/docs/sla/#response-and-resolution-times">
+                          <a href="/company/sla/#response-and-resolution-times">
                             SLA
                           </a>
                         </li>
@@ -233,7 +233,7 @@ function Pricing() {
                         </li>
                         <li>
                           <CheckMark />
-                          <a href="/docs/sla/#response-and-resolution-times">
+                          <a href="/company/sla/#response-and-resolution-times">
                             SLA
                           </a>
                           <sup>3</sup>
