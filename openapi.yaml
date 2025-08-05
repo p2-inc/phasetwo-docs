@@ -311,12 +311,9 @@ components:
           type: string
         username:
           type: string
-    UserWithOrgsRepresentation:
+    UserBriefRepresentation:
       type: object
       properties:
-        attributes:
-          type: object
-          additionalProperties: true
         createdTimestamp:
           type: integer
           format: int64
@@ -338,8 +335,20 @@ components:
           type: string
         username:
           type: string
-        organizations:
-          $ref: "#/components/schemas/OrganizationRoleMapRepresentation"
+    UserWithOrgsRepresentation:
+      allOf:
+        - $ref: "#/components/schemas/UserRepresentation"
+        - type: object
+          properties:
+            organizations:
+              $ref: "#/components/schemas/OrganizationRoleMapRepresentation"
+    UserWithOrgsBriefRepresentation:
+      allOf:
+        - $ref: "#/components/schemas/UserBriefRepresentation"
+        - type: object
+          properties:
+            organizations:
+              $ref: "#/components/schemas/OrganizationRoleMapRepresentation"
     AuthDetailsRepresentation:
       type: object
       properties:
