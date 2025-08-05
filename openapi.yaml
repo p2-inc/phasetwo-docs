@@ -805,7 +805,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UserWithOrgsRepresentation"
+                  $ref: "#/components/schemas/UserWithOrgsBriefRepresentation"
   # organization membership resources
   /{realm}/orgs/{orgId}/members/count:
     parameters:
