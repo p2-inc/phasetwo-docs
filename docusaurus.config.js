@@ -247,11 +247,11 @@ module.exports = {
             //   activeBasePath: "guides",
             //   label: "Guides",
             // },
-            // {
-            //   to: "articles",
-            //   activeBasePath: "articles",
-            //   label: "Articles",
-            // },
+            {
+              to: "articles/introduction",
+              activeBasePath: "articles",
+              label: "Articles",
+            },
             {
               href: "https://github.com/p2-inc/",
               label: "GitHub",

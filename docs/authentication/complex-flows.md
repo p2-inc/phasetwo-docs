@@ -19,12 +19,6 @@ As detailed in the previous sections, you may need to enable OTP and WebAuthn re
 
 For information on setting up social identity providers, we covered setup in the [configuring social providers](../social-login#configuring-social-providers) section.
 
-### Flow
-
-Let's start by showing the completed flow, and then describing what changes have been made and why.
-
-![Placeholder](/docs/placeholder.png)
-
 ### Login UI
 
 ![Keycloak Login Flows Try Another Way Option](/docs/auth-complex-flows-ui-try.png)

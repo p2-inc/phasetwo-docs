@@ -7,6 +7,8 @@ A one-time password (OTP) is an automatically generated numeric or alphanumeric 
 
 We currently support authenticator apps such as Google Authenticator and FreeOTP, but many others are likely compatible.
 
+If you need SMS OTP it requires an additional extension. Please [contact support](/contact) for assistance.
+
 ### Configuring OTP
 
 As part of the default `browser` flow, you may have noticed in the forms section that there are conditional steps to determine if the user has an OTP authentication method configured. This means that OTP checking is already built into the default flow. We're done, right? But what if we want to force the user to configure an OTP application?

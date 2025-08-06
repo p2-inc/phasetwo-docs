@@ -7,6 +7,8 @@ Magic links are a type of password-less authentication that allow your users to 
 
 Note that email must be configured before setting up magic links. See the [email setup guide](/docs/getting-started/email#server-configuration) if you haven't already done that.
 
+If you need SMS OTP it requires an additional extension. Please [contact support](/contact) for assistance.
+
 ### Configuring magic links
 
 In the **Flows** tab of the **Authentication** section, you will find a flow named `magic link`. Depending on your setup, it is possible this flow was not installed by default. If it's missing, proceed first to the [Create magic link flow](#create-magic-link-flow) section first.
