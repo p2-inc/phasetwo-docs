@@ -1,0 +1,101 @@
+---
+title: Phase Two Recognized as Official CockroachDB Partner
+slug: phasetwo-cockroachdb-partnership
+date: 2025-08-06
+authors: phasetwo
+tags: [phase_two, keycloak, cockroachdb, partnership, database, performance]
+---
+
+<div
+  style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}
+>
+  <img
+    src="/blog/crdb_partnership/crdb.webp"
+    alt="CockroachDB logo"
+    style={{ boxShadow: "none" }}
+  />
+  <span>+</span>
+  <img
+    src="/img/logo-phasetwo.png"
+    style={{ boxShadow: "none" }}
+    alt="Phase Two Logo"
+  />
+</div>
+
+[Phase Two](https://phasetwo.io) is thrilled to announce that we have been recognized as an **official partner** of [CockroachDB](https://www.cockroachlabs.com/partners/locator/). This partnership marks a significant milestone in our commitment to providing robust, scalable, and high-performance database solutions for our the Keycloak community and our customers.
+
+Phase Two originally built our [CockroachDB integration](https://github.com/p2-inc?q=crdb&type=all&language=&sort=#our-docker-images) for [Keycloak](https://quay.io/repository/phasetwo/keycloak-crdb) over two years ago, and since then we have been working closely with the CockroachDB team to ensure that our integration is optimized for performance and reliability. Our customers have seen significant improvements in database performance, scalability, and a overall cost savings by using CockroachDB with Keycloak.
+
+We believe in it that all of our [hosting](https://phasetwo.io/hosting) is built using CockroachDB.
+
+<!-- truncate -->
+
+## What is CockroachDB?
+
+[CockroachDB](https://www.cockroachlabs.com/) is a cloud-native, distributed SQL database designed for high availability, scalability, and resilience. It provides a single, unified database platform that can handle large volumes of data across multiple geographic locations while ensuring strong consistency and fault tolerance. CockroachDB is built on a distributed architecture that allows it to scale horizontally, making it an ideal choice for applications that require high performance and reliability. Payments systems, IAM, logistics, user accounts, and more — are powered by CockroachDB. Mission-critical applications rely on CockroachDB to deliver consistent performance and availability, scaling to meet demand and transaction heavy workloads.
+
+## Why Keycloak and CockroachDB?
+
+Keycloak is a powerful open-source identity and access management solution that provides authentication and authorization services for applications and services. It is designed to be flexible, extensible, and easy to use, making it a popular choice for organizations looking to implement secure user management.
+
+When combined with CockroachDB, Keycloak benefits from the following:
+
+- **Scalability**: CockroachDB's distributed architecture allows Keycloak to scale horizontally, handling large volumes of user data and authentication requests without compromising performance.
+- **Heavy Transaction Support**: CockroachDB is designed to handle high transaction volumes, making it suitable for Keycloak deployments support millions of users and high-frequency authentication requests.
+- **High Availability**: CockroachDB's fault-tolerant design ensures that Keycloak remains available even in the event of hardware failures or network issues, providing a reliable user experience.
+- **Strong Consistency**: CockroachDB's distributed SQL capabilities ensure that Keycloak can maintain strong consistency across multiple nodes, preventing data inconsistencies and ensuring accurate user management.
+- **Cost Efficiency**: CockroachDB's ability to scale horizontally means that organizations can optimize their infrastructure costs while still meeting the demands of their Keycloak deployments.
+
+### Real-World Latency Performance
+
+One of the key performance indicators we monitor in our production environments is query latency — a critical factor for identity systems like Keycloak, where responsiveness directly impacts user experience.
+
+Over the past month (July 2025), our Keycloak deployments running on CockroachDB have consistently demonstrated impressive latency metrics:
+
+- **P99 Latency** (99th percentile) consistently remained **below 10ms**, even during traffic spikes.
+- **P90 Latency** (90th percentile) hovered well under 5ms across the board.
+- **Spikes**: Occasional spikes up to 70ms (but usually below 35ms) for P99 and 15ms for P90 were observed lasting 5-60 mins with quick recovery afterward.
+
+These low-latency metrics are a testament to the **combined performance of CockroachDB’s distributed SQL engine** and our infrastructure tuning, ensuring fast and reliable authentication and authorization at scale.
+
+## Phase Two's Commitment to CockroachDB
+
+As the original builders and continued maintainers of the Keycloak CockroachDB integration, Phase Two is committed to supporting the integration and ensuring that it meets the evolving needs of our customers. Our partnership with CockroachDB is a cementing of that commitment, and we are excited to work together to deliver the best possible experience for our users.
+
+### What This Means for Our Customers
+
+For customers already leveraging CockroachDB in their applications, this partnership ensures even deeper integration and support for running Keycloak on the same trusted, resilient database platform. You can expect streamlined operations, improved compatibility, and direct access to expertise from both the Phase Two and CockroachDB teams.
+
+For those new to CockroachDB or considering it for the first time, our partnership means you can confidently adopt a modern, distributed database solution for your Keycloak deployments. Phase Two will guide you through best practices, migration strategies, and ongoing support to help you realize the benefits of CockroachDB’s scalability, reliability, and performance.
+
+### Customer Success Story - Grocery Store Chain
+
+> A customer of Phase Two, a **major US grocery store chain**, had zero experience with CockroachDB before partnering with us. They were running on legacy Oracle systems and were looking for a modern, scalable, cloud solution. Leveraging our CRDB integration, we were able to migrate their Ping implementation to Keycloak with CockroachDB, resulting in a major cost reduction and improved performance. Their system is now running smoothly with millions of users and transactions. Those Friday coupon releases are now a breeze!
+
+### Customer Success Story - Global Automobile and Tire Supplier
+
+> What started as a open-source user of our CRDB integration, a **global automobile and tire supplier**, has now become a key customer of Phase Two. They started with using our CRDB integration for their Keycloak deployments and have since involved Phase Two in their enterprise Keycloak deployments. Working together, Phase Two has helped to optimize and scale their Keycloak + CockroachDB deployments. We have been able to streamline their deployment processes, integrate or upgrade custom SPI's (or migrate to more effective ones), and integrate use of the Phase Two [Organization's extension](/product/organizations) to better manage their Keycloak users within their system. As a result of the CRDB partnership, we were able to optimize specific Keycloak queries and the CRDB dialect to improve performance within both systems, which would not have been possible without the close collaboration with CockroachDB.
+
+## Ready to Power Your Keycloak Deployment with CockroachDB?
+
+[Contact us](https://phasetwo.io/contact) to learn how Phase Two can help you implement a scalable, resilient, and high-performing identity infrastructure with CockroachDB and Keycloak.
+
+Or test it out for yourself at [dash.phasetwo.io](https://dash.phasetwo.io) where you can deploy Keycloak with CockroachDB in minutes.
+
+## Frequently Asked Questions (FAQ)
+
+### What is the advantage of using CockroachDB with Keycloak?
+
+Using CockroachDB with Keycloak improves horizontal scalability, high availability, and ensures strong consistency for identity data across distributed systems.
+
+### Can I migrate an existing Keycloak deployment to CockroachDB?
+
+Yes. Phase Two provides migration tools and support for transitioning your Keycloak deployment to CockroachDB.
+
+### Is CockroachDB a drop-in replacement for PostgreSQL in Keycloak?
+
+Yes. CockroachDB with Phase Two's integration, it can serve as a drop-in replacement in most Keycloak deployments default PostgreSQL implementation.
+
+### Does Phase Two offer support for running Keycloak on CockroachDB?
+
+Yes. As official CockroachDB partners, Phase Two offers enterprise-grade support, consulting, and managed services for Keycloak + CockroachDB.
