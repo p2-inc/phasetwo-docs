@@ -61,6 +61,79 @@ module.exports = {
           label: "Create a link for the organization's admin portal",
           className: "api-method post",
         },
+        {
+          type: "doc",
+          id: "get-organization-config",
+          label: "Get the global organization configuration for this realm",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "update-organization-config",
+          label: "Update the global organization configuration for this realm",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "export-organizations",
+          label:
+            "Export organizations and their configurations into this realm",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "import-organizations",
+          label:
+            "Import organizations and their configurations into this realm",
+          className: "api-method post",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Active Organization",
+      link: {
+        type: "generated-index",
+        title: "Active Organization",
+        slug: "/category/active-organization",
+      },
+      items: [
+        {
+          type: "doc",
+          id: "get-active-organization",
+          label: "Get active organization for authenticated user",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "switch-active-organization",
+          label: "Switch active organization for authenticated user",
+          className: "api-method put",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Organization Attributes",
+      link: {
+        type: "generated-index",
+        title: "Organization Attributes",
+        slug: "/category/organization-attributes",
+      },
+      items: [
+        {
+          type: "doc",
+          id: "get-organization-member-attributes",
+          label: "Get attributes for a specific member of an organization",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "add-organization-member-attributes",
+          label:
+            "Add or update attributes for a specific member of an organization",
+          className: "api-method put",
+        },
       ],
     },
     {
