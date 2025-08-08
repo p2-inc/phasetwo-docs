@@ -89,29 +89,7 @@ module.exports = {
         },
       ],
     },
-    {
-      type: "category",
-      label: "Active Organization",
-      link: {
-        type: "generated-index",
-        title: "Active Organization",
-        slug: "/category/active-organization",
-      },
-      items: [
-        {
-          type: "doc",
-          id: "get-active-organization",
-          label: "Get active organization for authenticated user",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "switch-active-organization",
-          label: "Switch active organization for authenticated user",
-          className: "api-method put",
-        },
-      ],
-    },
+
     {
       type: "category",
       label: "Organization Attributes",
@@ -345,6 +323,29 @@ module.exports = {
           id: "revoke-user-organization-role",
           label: "Revoke an organization role from a user",
           className: "api-method delete",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Active Organization",
+      link: {
+        type: "generated-index",
+        title: "Active Organization",
+        slug: "/category/active-organization",
+      },
+      items: [
+        {
+          type: "doc",
+          id: "get-active-organization",
+          label: "Get active organization for authenticated user",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "switch-active-organization",
+          label: "Switch active organization for authenticated user",
+          className: "api-method put",
         },
       ],
     },
