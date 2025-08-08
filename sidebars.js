@@ -89,6 +89,10 @@ module.exports = {
         "organizations/invitations",
         "organizations/roles",
         "organizations/identity-providers",
+        "organizations/active-organization",
+        "organizations/active-organization-authenticator",
+        "organizations/organizations-import-export",
+        "organizations/organizations-events",
       ],
     },
     {
