@@ -8,7 +8,7 @@ module.exports = {
   plugins: [require.resolve("./sitePlugin")],
   title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
-    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.99% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
+    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.95% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",

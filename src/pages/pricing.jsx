@@ -229,7 +229,7 @@ function Pricing() {
                         </li>
                         <li>
                           <CheckMark />
-                          99.99% uptime guarantee
+                          99.95% uptime guarantee
                         </li>
                         <li>
                           <CheckMark />

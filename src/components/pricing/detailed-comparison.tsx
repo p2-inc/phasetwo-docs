@@ -69,6 +69,10 @@ type TierValue = boolean | string | React.ReactNode;
 export type Feature = {
   name: string;
   description?: string;
+  externalLink?: {
+    href: string;
+    icon: string;
+  };
   tiers: {
     starter: TierValue;
     premium: TierValue;
@@ -335,24 +339,40 @@ export default function DetailedPriceComparison() {
                         >
                           <div className="flex items-center justify-between gap-2">
                             {feature.name}
-                            {feature.description && (
-                              <Tooltip.Provider delayDuration={300}>
-                                <Tooltip.Root>
-                                  <Tooltip.Trigger>
-                                    <Icon
-                                      icon="mdi:information-circle-outline"
-                                      className="-mb-1 size-4 text-gray-900/50"
-                                    />
-                                  </Tooltip.Trigger>
-                                  <Tooltip.Portal>
-                                    <Tooltip.Content className="rounded-md bg-white px-3 py-2 text-sm/6 text-gray-900 shadow-md">
-                                      {feature.description}
-                                      <Tooltip.Arrow className="fill-white" />
-                                    </Tooltip.Content>
-                                  </Tooltip.Portal>
-                                </Tooltip.Root>
-                              </Tooltip.Provider>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {feature.externalLink && (
+                                <a
+                                  href={feature.externalLink.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center text-gray-900/60 hover:text-p2blue-500"
+                                >
+                                  <Icon
+                                    icon={feature.externalLink.icon}
+                                    className="size-4"
+                                    aria-hidden="true"
+                                  />
+                                </a>
+                              )}
+                              {feature.description && (
+                                <Tooltip.Provider delayDuration={300}>
+                                  <Tooltip.Root>
+                                    <Tooltip.Trigger>
+                                      <Icon
+                                        icon="mdi:information-circle-outline"
+                                        className="-mb-1 size-4 text-gray-900/50"
+                                      />
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Portal>
+                                      <Tooltip.Content className="rounded-md bg-white px-3 py-2 text-sm/6 text-gray-900 shadow-md">
+                                        {feature.description}
+                                        <Tooltip.Arrow className="fill-white" />
+                                      </Tooltip.Content>
+                                    </Tooltip.Portal>
+                                  </Tooltip.Root>
+                                </Tooltip.Provider>
+                              )}
+                            </div>
                           </div>
                           <div className="absolute inset-x-8 mt-4 h-px bg-gray-900/5" />
                         </th>
