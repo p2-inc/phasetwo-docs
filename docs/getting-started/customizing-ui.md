@@ -7,7 +7,7 @@ It is possible to customize styles for login screens to match your branding. Thi
 
 If you are looking to do a full custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/) to build it. This allows you to use React components to build your theme and provides backwards compatibility.
 
-Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we heavily believe the in the value of the project.
+Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we are deeply convinced by this project's value.
 
 ## Simple
 

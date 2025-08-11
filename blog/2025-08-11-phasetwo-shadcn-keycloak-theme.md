@@ -12,7 +12,7 @@ A [shadcn](https://ui.shadcn.com/) theme starter for Keycloak using [Tailwind CS
 
 <!-- truncate -->
 
-Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we heavily believe the in the value of the project.
+Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we are deeply convinced by this project's value.
 
 ## The Shadcn Keycloak Theme Starter
 
