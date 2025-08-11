@@ -11,13 +11,13 @@ import cs from "classnames";
 const prices = {
   annual: {
     starter: 0,
-    premium: 499,
-    enterprise: 1999,
+    premium: 749,
+    enterprise: 999,
   },
   monthly: {
     starter: 0,
-    premium: 749,
-    enterprise: 2499,
+    premium: 2449,
+    enterprise: 2999,
   },
 };
 

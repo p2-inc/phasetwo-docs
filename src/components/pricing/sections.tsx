@@ -40,6 +40,17 @@ const Sections: {
         },
       },
       {
+        name: "Additional concurrent user sessions",
+        description:
+          "Additional concurrent user sessions beyond the max limit. Premium limits are 25K total sessions, Enterprise limits are 100K total sessions. Outside of these limits, Premium must move to Enterprise, and Enterprise must move to Custom.",
+        tiers: {
+          starter: false,
+          premium: "$399 per 5K",
+          enterprise: "$499 per 10K",
+          custom: "Custom",
+        },
+      },
+      {
         name: "SSO connections",
         description: "Number of supported identity provider (SSO) connections.",
         tiers: {
