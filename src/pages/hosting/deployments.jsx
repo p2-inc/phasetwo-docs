@@ -12,7 +12,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:cloud-arrow-up-solid"
-        className="size-5 text-sky-600 absolute left-1 top-1"
+        className="absolute left-1 top-1 size-5 text-sky-600"
       />
     ),
   },
@@ -23,7 +23,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:lock-closed-solid"
-        className="size-5 text-sky-600 absolute left-1 top-1"
+        className="absolute left-1 top-1 size-5 text-sky-600"
       />
     ),
   },
@@ -33,7 +33,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:server-solid"
-        className="size-5 text-sky-600 absolute left-1 top-1"
+        className="absolute left-1 top-1 size-5 text-sky-600"
       />
     ),
   },
@@ -44,7 +44,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:lifebuoy-solid"
-        className="size-5 text-sky-600 absolute left-1 top-1"
+        className="absolute left-1 top-1 size-5 text-sky-600"
       />
     ),
   },
@@ -52,7 +52,7 @@ const features = [
 
 const stats = [
   { id: 1, name: "Sessions per instance", value: "50,000" },
-  { id: 2, name: "SLA and Uptime", value: "99.99%" },
+  { id: 2, name: "SLA and Uptime", value: "99.95%" },
   { id: 3, name: "Deployment ready time", value: "<5 mins" },
 ];
 
@@ -60,7 +60,7 @@ const Deployments = () => {
   return (
     <Layout
       title="Keycloak Deployments"
-      description="Multi-region High-availability Keycloak deployments that are extended with additional features, 99.99% uptime SLA, and 24/7 support."
+      description="Multi-region High-availability Keycloak deployments that are extended with additional features, 99.95% uptime SLA, and 24/7 support."
     >
       <main>
         <div className="pageHero mt-20">
@@ -80,7 +80,7 @@ const Deployments = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden  py-24 sm:py-32">
+        <div className="overflow-hidden py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2">
               <div className="lg:pr-8 lg:pt-4">
