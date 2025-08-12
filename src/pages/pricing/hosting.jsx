@@ -1,7 +1,7 @@
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import { useEffect } from "react";
-import DetailedPriceComparison from "../components/pricing/detailed-comparison";
+import DetailedPriceComparison from "../../components/pricing/detailed-comparison";
 
 function Pricing() {
   const context = useDocusaurusContext();

@@ -1,5 +1,4 @@
 import { Fragment, useState } from "react";
-// import { CheckIcon, MinusIcon } from '@heroicons/react/20/solid'
 import { Icon } from "@iconify/react";
 import cn from "classnames";
 import { Tooltip } from "radix-ui";

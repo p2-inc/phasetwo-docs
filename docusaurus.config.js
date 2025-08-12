@@ -124,15 +124,6 @@ module.exports = {
           position: "left",
           to: "support",
           items: [
-            {
-              label: "Enterprise Support",
-              to: "support",
-              activeBaseRegex: "^/support/$",
-            },
-            {
-              label: "Migration to Keycloak",
-              to: "support/migrate-to-keycloak",
-            },
             // {
             //   label: "Custom Extensions",
             //   to: "support/custom-extensions",
@@ -258,29 +249,29 @@ module.exports = {
             },
           ],
         },
-        {
-          to: "/pricing",
-          label: "Pricing",
-          position: "left",
-          activeBasePath: "pricing",
-        },
         // {
-        //   type: "dropdown",
+        //   to: "/pricing",
         //   label: "Pricing",
         //   position: "left",
-        //   to: "pricing",
         //   activeBasePath: "pricing",
-        //   items: [
-        //     {
-        //       label: "Hosting",
-        //       to: "pricing/hosting",
-        //     },
-        //     {
-        //       label: "Support",
-        //       to: "pricing/support",
-        //     },
-        //   ],
         // },
+        {
+          type: "dropdown",
+          label: "Pricing",
+          position: "left",
+          to: "pricing",
+          activeBasePath: "pricing",
+          items: [
+            {
+              label: "Hosting",
+              to: "pricing/hosting",
+            },
+            {
+              label: "Support",
+              to: "pricing/support",
+            },
+          ],
+        },
         {
           to: "blog",
           activeBasePath: "blog",
