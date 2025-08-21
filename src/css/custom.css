@@ -870,3 +870,7 @@ table.tw-table-pricing th {
 .theme-doc-markdown figure figcaption > :last-child {
   margin-bottom: 0;
 }
+
+.w-228 {
+  width: calc(0.25rem * 228);
+}
