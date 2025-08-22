@@ -133,6 +133,10 @@ module.exports = {
               label: "Migration to Keycloak",
               to: "support/migrate-to-keycloak",
             },
+            {
+              label: "Emergency Keycloak Assistance",
+              to: "support/emergency-support",
+            },
             // {
             //   label: "Custom Extensions",
             //   to: "support/custom-extensions",
