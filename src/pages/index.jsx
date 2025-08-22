@@ -1,23 +1,12 @@
-import React, { useEffect } from "react";
-import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import styles from "./styles.module.css";
-import CodeBlock from "@theme/CodeBlock";
-import { KeycloakSupportPackages } from "../components/keycloak-support-packages";
 import { InlineIcon } from "@iconify/react";
-import { useState } from "react";
-import { Switch, Label, Field } from "@headlessui/react";
-import cs from "classnames";
+import CodeBlock from "@theme/CodeBlock";
+import Layout from "@theme/Layout";
+import { useEffect } from "react";
+import Marquee from "react-fast-marquee";
 import StartYourJourney from "../components/ctas/start-your-journey";
-
-function requestAccess() {
-  window.open(`https://dash.phasetwo.io/`, "_blank");
-}
-
-function githubHome() {
-  window.open(`https://github.com/p2-inc/`, "_blank");
-}
+import styles from "./styles.module.css";
 
 function docsEntry() {
   window.location = `/docs/introduction`;
@@ -26,7 +15,7 @@ function docsEntry() {
 export const CheckMark = () => (
   <InlineIcon
     icon="fa-solid:check"
-    className="absolute left-0 w-[10px] h-auto mt-2 text-green-500"
+    className="absolute left-0 mt-2 h-auto w-[10px] text-green-500"
   />
 );
 
@@ -228,18 +217,56 @@ const SupportItems = [
   },
 ];
 
-const prices = {
-  annual: {
-    starter: 0,
-    premium: 499,
-    enterprise: 1999,
+const customerLogos = [
+  { file: "alarm_com@2x.png", name: "Alarm.com", classes: "m-8 h-[50px]" },
+  { file: "benifex@2x.png", name: "Benifex", classes: "m-8 h-[50px]" },
+  { file: "bosch@2x.png", name: "Bosch", classes: "m-8 h-[50px]" },
+  { file: "brightsign@2x.png", name: "BrightSign", classes: "m-8 h-[45px]" },
+  { file: "continental@2x.png", name: "Continental", classes: "m-8 h-[50px]" },
+  { file: "dandh@2x.png", name: "D&H", classes: "m-8 h-[50px]" },
+  { file: "dexcom@2x.png", name: "Dexcom", classes: "m-8 h-[42px]" },
+  { file: "fastly@2x.png", name: "Fastly", classes: "m-8 h-[50px]" },
+  { file: "granicus@2x.png", name: "Granicus", classes: "m-8 h-[50px]" },
+  { file: "gusto@2x.png", name: "Gusto", classes: "m-8 h-[50px]" },
+  { file: "idemia@2x.png", name: "IDEMIA", classes: "m-8 h-[50px]" },
+  { file: "kape@2x.png", name: "Kape Technologies", classes: "m-8 h-[50px]" },
+  {
+    file: "keenfinity-group-fka-Bosch@2x.png",
+    name: "Keenfinity Group",
+    classes: "m-8 h-[42px]",
   },
-  monthly: {
-    starter: 0,
-    premium: 749,
-    enterprise: 2499,
+  { file: "later@2x.png", name: "Later", classes: "m-8 h-[45px]" },
+  { file: "ndoe@2x.png", name: "NDOE", classes: "m-8 h-[50px]" },
+  {
+    file: "nieuwestroom@2x.png",
+    name: "Nieuwestroom",
+    classes: "m-8 h-[50px]",
   },
-};
+  { file: "nura@2x.png", name: "Nura", classes: "m-8 h-[50px]" },
+  { file: "perforce@2x.png", name: "Perforce", classes: "m-8 h-[50px]" },
+  { file: "plotly@2x.png", name: "Plotly", classes: "m-8 h-[50px]" },
+  { file: "spl_logo@2x.png", name: "SPL", classes: "m-8 h-[50px]" },
+  {
+    file: "spl_presentmore@2x.png",
+    name: "SPL PresentMore",
+    classes: "m-8 h-[50px]",
+  },
+  { file: "teamworks@2x.png", name: "Teamworks", classes: "m-8 h-[50px]" },
+  { file: "testaify@2x.png", name: "Testaify", classes: "m-8 h-[50px]" },
+  { file: "toolstation@2x.png", name: "Toolstation", classes: "m-8 h-[50px]" },
+  {
+    file: "toppan-merrill@2x.png",
+    name: "Toppan Merrill",
+    classes: "m-8 h-[50px]",
+  },
+  { file: "trivalence@2x.png", name: "Trivalence", classes: "m-8 h-[50px]" },
+  { file: "tsmc@2x.png", name: "TSMC", classes: "m-8 h-[50px]" },
+  {
+    file: "unstructured@2x.png",
+    name: "Unstructured",
+    classes: "m-8 h-[50px]",
+  },
+];
 
 function Home() {
   const context = useDocusaurusContext();
@@ -248,10 +275,6 @@ function Home() {
   useEffect(() => {
     document.body.classList.add("page-bg");
   });
-
-  const [term, setTerm] = useState(true);
-  const billingTermValue = term ? "annual" : "monthly";
-  const billingTerm = term ? prices["annual"] : prices["monthly"];
 
   return (
     <Layout description={`${siteConfig.tagline}`}>
@@ -274,7 +297,7 @@ function Home() {
             <div className="relative isolate px-6 lg:px-8">
               <div
                 aria-hidden="true"
-                className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" 
+                className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
               >
                 <div
                   style={{
@@ -284,7 +307,7 @@ function Home() {
                   className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
                 />
               </div>
-              <div className="sm:pt-10 lg:pt-14 pb-16">
+              <div className="pb-16 sm:pt-10 lg:pt-14">
                 <div className="mx-auto max-w-4xl">
                   <div className="hidden sm:mb-8 sm:flex sm:justify-center">
                     <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-p2blue-800/40 hover:ring-p2blue-800/50">
@@ -298,8 +321,8 @@ function Home() {
                       </Link>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center items-stretch">
-                    <div className="border-p2blue-300 border-2 rounded-md bg-p2blue-200/30 flex flex-col items-center justify-between p-8">
+                  <div className="grid grid-cols-1 items-stretch gap-4 text-center md:grid-cols-2">
+                    <div className="flex flex-col items-center justify-between rounded-md border-2 border-p2blue-300 bg-p2blue-200/30 p-8">
                       <h1 className="text-balance text-5xl font-semibold tracking-tight text-p2blue-800 sm:text-5xl">
                         Managed Keycloak Hosting
                       </h1>
@@ -307,7 +330,7 @@ function Home() {
                         icon="grommet-icons:server-cluster"
                         className="text-p2blue-800 h-12 w-12 my-3"
                       /> */}
-                      <div className="py-4 text-pretty text-lg font-medium text-sky-900 sm:text-lg">
+                      <div className="text-pretty py-4 text-lg font-medium text-sky-900 sm:text-lg">
                         Simple, Cost-Conscious, Customizable, Enhanced Keycloak
                         Hosting for 99% of Use-Cases.
                       </div>
@@ -323,7 +346,7 @@ function Home() {
                         </Link>
                       </div>
                     </div>
-                    <div className="border-fuchsia-400 border-2 rounded-md bg-fuchsia-300/30 flex flex-col items-center justify-between p-8">
+                    <div className="flex flex-col items-center justify-between rounded-md border-2 border-fuchsia-400 bg-fuchsia-300/30 p-8">
                       <h1 className="text-balance text-5xl font-semibold tracking-tight text-fuchsia-600 sm:text-5xl">
                         Enterprise Keycloak Support
                       </h1>
@@ -331,7 +354,7 @@ function Home() {
                         icon="fluent-mdl2:teamwork"
                         className="text-fuchsia-600 h-12 w-12 my-3"
                       /> */}
-                      <div className="py-4 text-pretty text-lg font-medium text-fuchsia-900 sm:text-lg">
+                      <div className="text-pretty py-4 text-lg font-medium text-fuchsia-900 sm:text-lg">
                         Expert Keycloak Support for Enterprises Coming to or
                         Using Keycloak at any Level of Complexity.
                       </div>
@@ -367,11 +390,12 @@ function Home() {
             </div>
           </div>
         </div>
+
         {/* Top level explanation */}
         <div className="">
           <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
             <div className="mx-auto max-w-4xl text-center">
-              <h2 className="text-balance text-4xl font-semibold tracking-tight  sm:text-5xl">
+              <h2 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
                 Enterprise-Grade, Open-Source Identity and Access Management
               </h2>
               <p className="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-600">
@@ -403,102 +427,29 @@ function Home() {
                 </Link>
               </div>
             </div>
-            <div className="relative text-center">
-              <div className={styles.heroIntegrations}>
-                <h2 id="replaceIAMs">REPLACE/BROKER IAMs</h2>
-                <picture>
-                  <source
-                    media="(max-width: 767px)"
-                    srcset="/img/integration-lines-mobile.svg"
-                  />
-                  <source
-                    media="(min-width: 768px)"
-                    srcset="/img/integration-lines.svg"
-                  />
-                  <img
-                    className={styles.heroIntegrationsLines}
-                    src="/img/integration-lines.svg"
-                    alt="Integration Lines"
-                    loading="lazy"
-                  />
-                </picture>
-                <div className={styles.heroIntegrationRow}>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-okta.svg"
-                      alt="Okta Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-auth0.svg"
-                      alt="Auth0 Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-azure.svg"
-                      alt="Azure Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-google-workspace.svg"
-                      alt="Google Workspace Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-active-directory.svg"
-                      alt="Active Directory Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-jump-cloud.svg"
-                      alt="JumpCloud Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-onelogin.svg"
-                      alt="Onelogin Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-ping-identity.svg"
-                      alt="Ping Identity Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className={styles.heroIntegration}>
-                    <img
-                      src="img/logo-duo-security.svg"
-                      alt="Duo Security Logo"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div
-                    className={`${styles.heroIntegration} ${styles.heroIntegrationMore}`}
-                  >
-                    <p>+ many more</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          </div>
+        </div>
+
+        <div className="pb-16">
+          <div className="mx-auto px-6 lg:px-20">
+            <h2 className="text-center text-lg/8 font-semibold text-gray-900 dark:text-white">
+              Working with customers from startups to Fortune 500 companies.
+            </h2>
+            <Marquee>
+              {customerLogos.map((logo, index) => (
+                <img
+                  key={index}
+                  src={`/customer-logos/${logo.file}`}
+                  className={logo.classes}
+                  alt={`${logo.name} logo`}
+                />
+              ))}
+            </Marquee>
           </div>
         </div>
 
         {/* Hosting */}
-        <div className="hosting-block bg-p2blue-500/20 px-6 py-24 sm:px-6 sm:py-18 lg:px-8 bg-[linear-gradient(30deg,_#EBF5FC_0%,_#BAE2FF_100%)]">
+        <div className="hosting-block sm:py-18 bg-p2blue-500/20 bg-[linear-gradient(30deg,_#EBF5FC_0%,_#BAE2FF_100%)] px-6 py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
               <h2 className="text-base/7 font-semibold text-p2blue-800">
@@ -538,7 +489,7 @@ function Home() {
                     <dt className="flex items-center gap-x-3 text-base font-bold leading-7 text-gray-900">
                       <InlineIcon
                         icon={item.icon}
-                        className="h-8 w-8 text-p2blue-700 self-start"
+                        className="h-8 w-8 self-start text-p2blue-700"
                       />
                       {item.name}
                     </dt>
@@ -558,52 +509,6 @@ function Home() {
               </dl>
             </div>
           </div>
-
-          {/* Logo section */}
-          {/* <div className="py-24 sm:py-32">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-              <h2 className="text-center text-lg/8 font-semibold text-gray-900">
-                Trusted by the world's most innovative teams
-              </h2>
-              <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-                <img
-                  alt="Transistor"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/transistor-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="Reform"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/reform-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="Tuple"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/tuple-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="SavvyCal"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/savvycal-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
-                />
-                <img
-                  alt="Statamic"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/statamic-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
-                />
-              </div>
-            </div>
-          </div> */}
         </div>
 
         <div className="bg-p2blue-700 text-white">
@@ -621,7 +526,7 @@ function Home() {
         </div>
 
         {/* Support */}
-        <div className="support-block px-6 py-24 sm:px-6 sm:py-18 lg:px-8 bg-[linear-gradient(270deg,_#EDA4F5_0%,_#EDCEF0_100%)]">
+        <div className="support-block sm:py-18 bg-[linear-gradient(270deg,_#EDA4F5_0%,_#EDCEF0_100%)] px-6 py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
               <h2 className="text-base/7 font-semibold text-fuchsia-800">
@@ -637,7 +542,7 @@ function Home() {
                 <a
                   href="https://github.com/p2-inc#our-extensions-"
                   target="_blank"
-                  className="font-bold support"
+                  className="support font-bold"
                 >
                   popular extensions
                 </a>
@@ -663,7 +568,7 @@ function Home() {
                       <p className="mt-6">
                         <Link
                           to={item.href}
-                          className="text-sm font-semibold leading-6 support"
+                          className="support text-sm font-semibold leading-6"
                         >
                           {item.cta} <span aria-hidden="true">→</span>
                         </Link>
@@ -738,6 +643,98 @@ function Home() {
           </div>
         </div>
 
+        <div className="contentBlock">
+          <div className="relative text-center">
+            <div className={styles.heroIntegrations}>
+              <h2 id="replaceIAMs">REPLACE/BROKER IAMs</h2>
+              <p className="pb-4">
+                Migrate off expensive IAMs or broker them into Keycloak.
+              </p>
+              <picture>
+                <source
+                  media="(max-width: 767px)"
+                  srcset="/img/integration-lines-mobile.svg"
+                />
+                <source
+                  media="(min-width: 768px)"
+                  srcset="/img/integration-lines.svg"
+                />
+                <img
+                  className={styles.heroIntegrationsLines}
+                  src="/img/integration-lines.svg"
+                  alt="Integration Lines"
+                  loading="lazy"
+                />
+              </picture>
+              <div className={styles.heroIntegrationRow}>
+                <div className={styles.heroIntegration}>
+                  <img src="img/logo-okta.svg" alt="Okta Logo" loading="lazy" />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-auth0.svg"
+                    alt="Auth0 Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-azure.svg"
+                    alt="Azure Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-google-workspace.svg"
+                    alt="Google Workspace Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-active-directory.svg"
+                    alt="Active Directory Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-jump-cloud.svg"
+                    alt="JumpCloud Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-onelogin.svg"
+                    alt="Onelogin Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-ping-identity.svg"
+                    alt="Ping Identity Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div className={styles.heroIntegration}>
+                  <img
+                    src="img/logo-duo-security.svg"
+                    alt="Duo Security Logo"
+                    loading="lazy"
+                  />
+                </div>
+                <div
+                  className={`${styles.heroIntegration} ${styles.heroIntegrationMore}`}
+                >
+                  <p>+ many more</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Enterprise SSO */}
         <div className={`contentBlock`}>
           <div className={`enterpriseSsoBgImg bgImg`}>
