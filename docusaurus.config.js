@@ -436,10 +436,6 @@ module.exports = {
               to: "company/subprocessors",
             },
             {
-              label: "Subprocessors",
-              to: "docs/subprocessors",
-            },
-            {
               label: "Service Agreement",
               to: "company/service-agreement",
             },
