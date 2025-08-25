@@ -8,16 +8,11 @@ Teams, or Organizations, allow you to create a team to manage your Phase Two Dep
 Visit the [Teams overview](https://dash.phasetwo.io/teams)
 
 <figure>
-  <img src="/docs/dashboard/teams.png" className="max-w-2xl"  alt="Phase Two Dash Overview Add Realm" />
+  <img src="/docs/dashboard/team.png" className="max-w-2xl"  alt="Phase Two Dash Overview Add Realm" />
   <figcaption>Teams overview</figcaption>
 </figure>
 
 Click on a specific team to manage that team. This will allow you to view members, change details (names, etc), send invites, and setup SSO.
-
-<figure>
-  <img src="/docs/dashboard/teams.png" className="max-w-2xl"  alt="Phase Two Dash Overview Add Realm" />
-  <figcaption>Teams overview</figcaption>
-</figure>
 
 ## Members
 
