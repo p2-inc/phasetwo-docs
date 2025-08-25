@@ -608,7 +608,7 @@ components:
           $ref: "#/components/schemas/WebhookRepresentation"
         payload:
           type: string
-    MagicLinkRepresentation:
+    MagicLinkRequest:
       type: object
       properties:
         email:
@@ -622,6 +622,22 @@ components:
         force_create:
           type: boolean
         send_email:
+          type: boolean
+        update_profile:
+          type: boolean
+        update_password:
+          type: boolean
+        scope:
+          type: string
+        nonce:
+          type: string
+        code_challenge:
+          type: string
+        code_challenge_method:
+          type: string
+        remember_me:
+          type: boolean
+        reusable:
           type: boolean
       required:
         - email
@@ -2752,7 +2768,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MagicLinkRepresentation"
+              $ref: "#/components/schemas/MagicLinkRequest"
         required: true
       responses:
         200:
