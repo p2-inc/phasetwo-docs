@@ -433,11 +433,7 @@ module.exports = {
             },
             {
               label: "Subprocessors",
-              to: "company/subprocessors",
-            },
-            {
-              label: "Subprocessors",
-              to: "docs/subprocessors",
+              to: "https://trust.phasetwo.io/subprocessors",
             },
             {
               label: "Service Agreement",
