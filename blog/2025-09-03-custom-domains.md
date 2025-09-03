@@ -10,7 +10,7 @@ Phase Two is happy to announce that custom domains can now be configured via sel
 
 Custom domains are a key piece of branding and trust for your users. By using your own domain, you can ensure that your users see a familiar URL when interacting with your Keycloak instance.
 
-Read more about how to set up custom domains in our [Custom Domains documentation](../docs/self-service/custom-domains.md).
+Read more about how to set up custom domains in our [Custom Domains documentation](/docs/self-service/custom-domains/).
 
 <!-- truncate -->
 
