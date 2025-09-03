@@ -33,6 +33,7 @@ module.exports = {
         "self-service/deployments",
         "self-service/dedicated-clusters",
         "self-service/your-organization",
+        "self-service/custom-domains",
       ],
     },
     {
