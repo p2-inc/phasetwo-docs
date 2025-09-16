@@ -46,7 +46,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "docusaurus-tailwindcss-loader": "file:plugins/docusaurus-tailwindcss-loader",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",

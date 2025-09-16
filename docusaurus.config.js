@@ -5,10 +5,9 @@ module.exports = {
   //   experimental_faster: true,
   //   v4: true,
   // },
-  plugins: [require.resolve("./sitePlugin")],
   title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
-    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.99% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
+    "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.95% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.ico",
@@ -262,29 +261,29 @@ module.exports = {
             },
           ],
         },
-        {
-          to: "/pricing",
-          label: "Pricing",
-          position: "left",
-          activeBasePath: "pricing",
-        },
         // {
-        //   type: "dropdown",
+        //   to: "/pricing",
         //   label: "Pricing",
         //   position: "left",
-        //   to: "pricing",
         //   activeBasePath: "pricing",
-        //   items: [
-        //     {
-        //       label: "Hosting",
-        //       to: "pricing/hosting",
-        //     },
-        //     {
-        //       label: "Support",
-        //       to: "pricing/support",
-        //     },
-        //   ],
         // },
+        {
+          type: "dropdown",
+          label: "Pricing",
+          position: "left",
+          to: "pricing",
+          activeBasePath: "pricing",
+          items: [
+            {
+              label: "Hosting",
+              to: "pricing/hosting",
+            },
+            {
+              label: "Support",
+              to: "pricing/support",
+            },
+          ],
+        },
         {
           to: "blog",
           activeBasePath: "blog",
@@ -564,7 +563,8 @@ module.exports = {
         sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
-    "docusaurus-tailwindcss-loader",
+    require.resolve('./plugins/docusaurus-tailwindcss-loader'),
+    require.resolve("./sitePlugin")
   ],
   themes: [
     "@docusaurus/theme-live-codeblock",

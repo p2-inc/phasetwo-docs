@@ -40,6 +40,17 @@ const Sections: {
         },
       },
       {
+        name: "Additional concurrent user sessions",
+        description:
+          "Additional concurrent user sessions beyond the max limit. Premium limits are 25K total sessions, Enterprise limits are 100K total sessions. Outside of these limits, Premium must move to Enterprise, and Enterprise must move to Custom.",
+        tiers: {
+          starter: false,
+          premium: "$399 per 5K",
+          enterprise: "$499 per 10K",
+          custom: "Custom",
+        },
+      },
+      {
         name: "SSO connections",
         description: "Number of supported identity provider (SSO) connections.",
         tiers: {
@@ -59,7 +70,7 @@ const Sections: {
         description:
           "Modify the default Keycloak login theme via CSS overrides.",
         tiers: {
-          starter: false,
+          starter: true,
           premium: true,
           enterprise: true,
           custom: true,
@@ -97,16 +108,16 @@ const Sections: {
           custom: true,
         },
       },
-      {
-        name: "Terraform IaC",
-        description: "Add Keycloak configuration via environment variables.",
-        tiers: {
-          starter: false,
-          premium: true,
-          enterprise: true,
-          custom: true,
-        },
-      },
+      // {
+      //   name: "Terraform IaC",
+      //   description: "Add Keycloak configuration via environment variables.",
+      //   tiers: {
+      //     starter: false,
+      //     premium: true,
+      //     enterprise: true,
+      //     custom: true,
+      //   },
+      // },
       {
         name: "Global deployment(s)",
         description:
@@ -149,6 +160,10 @@ const Sections: {
         name: "Organizations",
         description:
           "Simple multi-tenancy and role delegation via API using the Phase Two Organizations extension.",
+        externalLink: {
+          href: "https://github.com/p2-inc/keycloak-orgs",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -160,6 +175,10 @@ const Sections: {
         name: "Events",
         description:
           "Audit logging for compliance and webhooks for user and system activity notifications.",
+        externalLink: {
+          href: "https://github.com/p2-inc/keycloak-events",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -170,6 +189,10 @@ const Sections: {
       {
         name: "Magic Link",
         description: "Passwordless authentication using links sent to email.",
+        externalLink: {
+          href: "https://github.com/p2-inc/keycloak-magic-link",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -180,6 +203,10 @@ const Sections: {
       {
         name: "Themes",
         description: "Easy login UI and email content customizations.",
+        externalLink: {
+          href: "https://github.com/p2-inc/keycloak-themes",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -191,6 +218,10 @@ const Sections: {
         name: "Admin UI",
         description:
           "Keycloak Admin UI additions to administer Phase Two extensions directly from Keycloak.",
+        externalLink: {
+          href: "https://github.com/p2-inc/keycloak/tree/23.0.1_orgs_admin_ui",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -202,6 +233,10 @@ const Sections: {
         name: "Admin Portal",
         description:
           "User self-management for their account and organizations.",
+        externalLink: {
+          href: "https://github.com/p2-inc/phasetwo-admin-portal",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -213,6 +248,10 @@ const Sections: {
         name: "IdP Wizards",
         description:
           "Identity Provider setup wizards for self-management of SSO admins and organizations.",
+        externalLink: {
+          href: "https://github.com/p2-inc/idp-wizard",
+          icon: "mdi:github",
+        },
         tiers: {
           starter: true,
           premium: true,
@@ -248,10 +287,10 @@ const Sections: {
         name: "Infrastructure logs",
         description: "Keycloak logs",
         tiers: {
-          starter: false,
-          premium: true,
-          enterprise: true,
-          custom: true,
+          starter: "false",
+          premium: "Coming soon",
+          enterprise: "Coming soon",
+          custom: "Coming soon",
         },
       },
       {
@@ -321,9 +360,9 @@ const Sections: {
         name: "Uptime Guarantee",
         tiers: {
           starter: false,
-          premium: "99.9%",
-          enterprise: "99.99%",
-          custom: "99.99%",
+          premium: "99.5%",
+          enterprise: "99.95%",
+          custom: "99.95%",
         },
       },
       {
