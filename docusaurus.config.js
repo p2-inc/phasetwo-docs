@@ -5,7 +5,6 @@ module.exports = {
   //   experimental_faster: true,
   //   v4: true,
   // },
-  plugins: [require.resolve("./sitePlugin")],
   title: "Managed Keycloak Hosting and Enterprise Keycloak Support",
   tagline:
     "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.95% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
@@ -564,7 +563,8 @@ module.exports = {
         sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
-    "docusaurus-tailwindcss-loader",
+    require.resolve('./plugins/docusaurus-tailwindcss-loader'),
+    require.resolve("./sitePlugin")
   ],
   themes: [
     "@docusaurus/theme-live-codeblock",
