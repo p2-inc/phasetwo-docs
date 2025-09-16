@@ -72,6 +72,12 @@ Another option is to slowly pull in the retention period over time. For example,
 
 In addition, to avoid Admin UI click-ops oopsies, ensure that users with access to the Admin UI do not have permissions to `manage-events`. This will prevent them from accidentally purging user events through the UI.
 
+## Keep Event Lifetime Low, Send to a 3rd Party System
+
+One other option to consider is to keep the event lifetime low and send the events to a third-party system for long-term storage and analysis. This can be done by configuring Keycloak to export user events to an external system, such as a logging service or a data warehouse. Doing the actual configuration though, is not native to Keycloak and requires an extension.
+
+Using the Phase Two [Events Extension](https://github.com/p2-inc/keycloak-events), this can be accomplished rather easily. By adding configuration to the `EventListenerProvider` it is possible to send the events to a specified URI (and optionally sign with keyed-HMAC). The extension provides a handful of options including webhooks and retry logic with exponential backoff.
+
 ## Conclusion
 
 Purging user events in Keycloak is an important task to maintain performance and manageability, especially for high-traffic installations. By understanding the implications of user event retention and following safe practices for purging, you can ensure that your Keycloak instance remains responsive and efficient.

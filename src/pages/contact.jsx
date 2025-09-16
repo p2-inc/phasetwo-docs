@@ -14,11 +14,75 @@ export default function Contact() {
           </h2>
           <p className="mt-2 text-lg/8 text-gray-600">
             Get in touch with us for help with support, sales, or bug reports.
-            For customers experiencing an outage, please email and call the
-            support number.
+            For customers experiencing an outage, please{" "}
+            <a href="mailto:support@phasetwo.io">email</a>, call the support
+            number, or use your customer service portal.
           </p>
         </div>
-        <div className="mx-auto mt-20 max-w-lg space-y-16">
+        <div className="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-4 sm:gap-y-16 md:grid-cols-2">
+          <div className="flex gap-x-6">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-red-600">
+              <InlineIcon
+                aria-hidden="true"
+                className="size-6 text-white"
+                icon="mdi:computer"
+              />
+            </div>
+            <div>
+              <h3 className="text-base/7 font-semibold text-gray-900">
+                Technical support (customers)
+              </h3>
+              <p className="mt-2 text-base/7 text-gray-600">
+                Issues or problems with hosting or support? If you have a
+                service portal, please use that for fastest escalation.
+              </p>
+              <p className="mt-4 flex flex-col gap-2 text-sm/6 font-semibold">
+                <a
+                  href="help.phasetwo.io"
+                  target="_blank"
+                  className="flex items-center gap-1 text-sky-600"
+                >
+                  <InlineIcon icon="mdi:headset" />
+                  help.phasetwo.io <InlineIcon icon="mdi:open-in-new" />
+                </a>
+                <a href="mailto:support@phasetwo.io" className="text-sky-600">
+                  support@phasetwo.io
+                </a>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-x-6">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-red-600">
+              <InlineIcon
+                aria-hidden="true"
+                className="size-6 text-white"
+                icon="mdi:alert-box"
+              />
+            </div>
+            <div>
+              <h3 className="text-base/7 font-semibold text-gray-900">
+                Emergency Keycloak Assistance
+              </h3>
+              <p className="mt-2 text-base/7 text-gray-600">
+                If you are experiencing an outage or critical issue, related to
+                Keycloak, and want to engage Phase Two services.
+              </p>
+              <p className="mt-4 flex flex-col gap-2 text-sm/6 font-semibold">
+                {/* <a
+                  href="help.phasetwo.io"
+                  target="_blank"
+                  className="flex items-center gap-1 text-sky-600"
+                >
+                  <InlineIcon icon="mdi:headset" />
+                  help.phasetwo.io <InlineIcon icon="mdi:open-in-new" />
+                </a> */}
+                <a href="mailto:support@phasetwo.io" className="text-sky-600">
+                  support@phasetwo.io
+                </a>
+              </p>
+            </div>
+          </div>
           <div className="flex gap-x-6">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-sky-600">
               <InlineIcon
@@ -35,28 +99,6 @@ export default function Contact() {
               <p className="mt-4 text-sm/6 font-semibold">
                 <a href="mailto:sales@phasetwo.io" className="text-sky-600">
                   sales@phasetwo.io
-                </a>
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-x-6">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-sky-600">
-              <InlineIcon
-                aria-hidden="true"
-                className="size-6 text-white"
-                icon="mdi:computer"
-              />
-            </div>
-            <div>
-              <h3 className="text-base/7 font-semibold text-gray-900">
-                Technical support
-              </h3>
-              <p className="mt-2 text-base/7 text-gray-600">
-                Issues or problems with hosting or support?
-              </p>
-              <p className="mt-4 text-sm/6 font-semibold">
-                <a href="mailto:support@phasetwo.io" className="text-sky-600">
-                  support@phasetwo.io
                 </a>
               </p>
             </div>

@@ -195,6 +195,153 @@ components:
             type: array
             items:
               type: string
+    OrganizationConfigRepresentation:
+      type: object
+      properties:
+        createAdminUser:
+          type: boolean
+          description: Whether to create a default admin user for new organizations
+        sharedIdps:
+          type: boolean
+          description: Whether identity providers can be shared across organizations
+        adminEventsEnabled:
+          type: boolean
+          description: Whether admin events are enabled for organization operations
+        eventsEnabled:
+          type: boolean
+          description: Whether user events are enabled for organization operations
+        defaultPostBrokerFlow:
+          type: string
+          description: Default post broker login flow for organization identity providers
+        defaultSyncMode:
+          type: string
+          description: Default sync mode for organization identity providers
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Additional configuration attributes
+    OrganizationsExportRepresentation:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Export format version
+        realm:
+          type: string
+          description: Source realm name
+        exportedAt:
+          type: string
+          format: date-time
+          description: Export timestamp
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationExportRepresentation"
+        config:
+          $ref: "#/components/schemas/OrganizationsConfigRepresentation"
+
+    OrganizationExportRepresentation:
+      allOf:
+        - $ref: "#/components/schemas/OrganizationRepresentation"
+        - type: object
+          properties:
+            roles:
+              type: array
+              items:
+                $ref: "#/components/schemas/OrganizationRoleRepresentation"
+            identityProviders:
+              type: array
+              items:
+                $ref: "#/components/schemas/IdentityProviderRepresentation"
+            members:
+              type: array
+              items:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  email:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+    OrganizationsImportRepresentation:
+      type: object
+      properties:
+        version:
+          type: string
+          description: Import format version
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationExportRepresentation"
+        config:
+          $ref: "#/components/schemas/OrganizationsConfigRepresentation"
+    OrganizationsImportResultRepresentation:
+      type: object
+      properties:
+        imported:
+          type: integer
+          description: Number of organizations successfully imported
+        updated:
+          type: integer
+          description: Number of organizations updated
+        skipped:
+          type: integer
+          description: Number of organizations skipped
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              organizationName:
+                type: string
+              error:
+                type: string
+
+    OrganizationsConfigRepresentation:
+      type: object
+      properties:
+        createAdminUserEnabled:
+          type: boolean
+          description: Whether to create a default admin user for new organizations
+        sharedIdpsEnabled:
+          type: boolean
+          description: Whether identity providers can be shared across organizations
+    SwitchOrganizationRepresentation:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          description: The ID of the organization to switch to
+      required:
+        - organizationId
+
+    ActiveOrganizationRepresentation:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          description: The ID of the active organization
+        organizationName:
+          type: string
+          description: The name of the active organization
+        displayName:
+          type: string
+          description: The display name of the active organization
+        roles:
+          type: array
+          items:
+            type: string
+          description: User's roles in the active organization
+        switchedAt:
+          type: string
+          format: date-time
+          description: When the organization was last switched to
     OrganizationDomainRepresentation:
       type: object
       properties:
@@ -229,6 +376,15 @@ components:
         type: array
         items:
           $ref: "#/components/schemas/OrganizationRoleRepresentation"
+    OrganizationMemberAttributeRepresentation:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
     PortalLinkRepresentation:
       type: object
       properties:
@@ -452,7 +608,7 @@ components:
           $ref: "#/components/schemas/WebhookRepresentation"
         payload:
           type: string
-    MagicLinkRepresentation:
+    MagicLinkRequest:
       type: object
       properties:
         email:
@@ -466,6 +622,22 @@ components:
         force_create:
           type: boolean
         send_email:
+          type: boolean
+        update_profile:
+          type: boolean
+        update_password:
+          type: boolean
+        scope:
+          type: string
+        nonce:
+          type: string
+        code_challenge:
+          type: string
+        code_challenge_method:
+          type: string
+        remember_me:
+          type: boolean
+        reusable:
           type: boolean
       required:
         - email
@@ -659,6 +831,119 @@ paths:
       responses:
         204:
           description: success
+  /{realm}/orgs/export:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Export organizations
+      operationId: exportOrganizations
+      description: Export all organizations and their configurations from this realm
+      parameters:
+        - in: query
+          name: includeMembers
+          schema:
+            type: boolean
+            default: false
+          style: form
+          description: Include organization members in the export
+        - in: query
+          name: includeRoles
+          schema:
+            type: boolean
+            default: true
+          style: form
+          description: Include organization roles in the export
+        - in: query
+          name: includeIdps
+          schema:
+            type: boolean
+            default: true
+          style: form
+          description: Include identity providers in the export
+        - in: query
+          name: orgIds
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Specific organization IDs to export (if not provided, exports all)
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationsExportRepresentation"
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /{realm}/orgs/import:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Organizations
+      summary: Import organizations
+      operationId: importOrganizations
+      description: Import organizations and their configurations into this realm
+      parameters:
+        - in: query
+          name: skipExisting
+          schema:
+            type: boolean
+            default: false
+          style: form
+          description: Skip organizations that already exist instead of updating them
+        - in: query
+          name: importMembers
+          schema:
+            type: boolean
+            default: false
+          style: form
+          description: Import organization members (requires existing users in realm)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationsImportRepresentation"
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JSON file containing organizations export
+        required: true
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationsImportResultRepresentation"
+        400:
+          description: Invalid import data or format
+        409:
+          description: Conflicts with existing organizations
   /{realm}/orgs/{orgId}:
     parameters:
       - in: path
@@ -746,6 +1031,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PortalLinkRepresentation"
+  /{realm}/orgs/config:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organizations
+      summary: Get organization configuration
+      operationId: getOrganizationConfig
+      description: Get the global organization configuration for this realm
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationConfigRepresentation"
+    put:
+      tags:
+        - Organizations
+      summary: Update organization configuration
+      operationId: updateOrganizationConfig
+      description: Update the global organization configuration for this realm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationConfigRepresentation"
+        required: true
+      responses:
+        204:
+          description: success
+        400:
+          description: Invalid configuration
   # organization membership resources
   /{realm}/orgs/{orgId}/members:
     parameters:
@@ -991,6 +1315,77 @@ paths:
       responses:
         204:
           description: success
+  /{realm}/orgs/{orgId}/members/{userId}/attributes:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: userId
+        description: user id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization Memberships
+      summary: Get organization member attributes
+      operationId: getOrganizationMemberAttributes
+      description: Get attributes for a specific member of an organization
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+        400:
+          description: User is not a member of the organization
+        404:
+          description: User doesn't exist
+    put:
+      tags:
+        - Organization Memberships
+      summary: Add/update organization member attributes
+      operationId: addOrganizationMemberAttributes
+      description: Add or update attributes for a specific member of an organization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationMemberAttributeRepresentation"
+        required: true
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+        400:
+          description: User is not a member of the organization
+        404:
+          description: User doesn't exist
   # organization invitation resources
   /{realm}/orgs/{orgId}/invitations:
     parameters:
@@ -1824,6 +2219,61 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/BulkResponseItem"
+  /{realm}/users/switch-organization:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    put:
+      tags:
+        - Users
+      summary: Switch active organization for authenticated user
+      operationId: switchActiveOrganization
+      description: Switch the active organization context for the authenticated user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SwitchOrganizationRepresentation"
+        required: true
+      responses:
+        204:
+          description: Active organization switched successfully
+        400:
+          description: Invalid organization or user is not a member
+        404:
+          description: Organization not found
+        403:
+          description: User does not have access to the organization
+
+  /{realm}/users/active-organization:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Users
+      summary: Get active organization for authenticated user
+      operationId: getActiveOrganization
+      description: Get the currently active organization for the authenticated user
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveOrganizationRepresentation"
+        204:
+          description: No active organization set
   /{realm}/events:
     parameters:
       - in: path
@@ -2318,7 +2768,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MagicLinkRepresentation"
+              $ref: "#/components/schemas/MagicLinkRequest"
         required: true
       responses:
         200:

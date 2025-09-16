@@ -7,7 +7,7 @@ It is possible to customize styles for login screens to match your branding. Thi
 
 If you are looking to do a full custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/) to build it. This allows you to use React components to build your theme and provides backwards compatibility.
 
-Phase Two are sponsors of Keycloakify as we heavily believe the in the value of the project.
+Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we are deeply convinced by this project's value.
 
 ## Simple
 
@@ -112,3 +112,16 @@ Full customization details can be viewed in the Phase Two [Admin Portal Repo](ht
 If you decide to use a custom theme, you must contact Phase Two support to have it added to your Realm. It is only available to subscribes of dedicated clusters.
 
 Coming soon will be the ability to upload custom themes via the Phase Two dashboard.
+
+### Keycloakify
+
+[Keycloakify](https://www.keycloakify.dev) offers two methods for building custom themes:
+
+1. **CSS Customization**: Basic, but ok for simple changes. Learn more in the [Keycloakify documentation](https://docs.keycloakify.dev/css-customization).
+2. **Custom (React/Angular) Components**: Full customization using React or Angular components, allowing for a more robust and custom theme. If you have a theme library or set of components, you would take this route. Learn more in the [Keycloakify documentation](https://docs.keycloakify.dev/common-use-case-examples/using-a-component-library).
+
+Ultimately what you choose depends on your needs. We have found that CSS customization of Patternfly is very difficult to get right and cover all cases. In many situations, the built in Patternfly components leave much to be desired from a UX perspective. Our friends at Keycloakify are working on a solution to this, but until that's ready we've started out providing a Shadcn starter component theme which can be used.
+
+[<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5c.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34c-.46-1.16-1.11-1.47-1.11-1.47c-.91-.62.07-.6.07-.6c1 .07 1.53 1.03 1.53 1.03c.87 1.52 2.34 1.07 2.91.83c.09-.65.35-1.09.63-1.34c-2.22-.25-4.55-1.11-4.55-4.92c0-1.11.38-2 1.03-2.71c-.1-.25-.45-1.29.1-2.64c0 0 .84-.27 2.75 1.02c.79-.22 1.65-.33 2.5-.33s1.71.11 2.5.33c1.91-1.29 2.75-1.02 2.75-1.02c.55 1.35.2 2.39.1 2.64c.65.71 1.03 1.6 1.03 2.71c0 3.82-2.34 4.66-4.57 4.91c.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2"/></svg> **Shadcn Starter Theme**](https://github.com/p2-inc/keycloakify-starter-shadcn)
+
+[Shadcn](https://ui.shadcn.com/) is a component library that provides a set of varied and robust components that can be used to build a custom theme. It leverages [Tailwind CSS](https://tailwindcss.com) for styling and [Radix UI](https://www.radix-ui.com/) for components. The starter only handles a couple of pages, but gives a template to start from. Feel free to use it and PR additions to the templates, we would love to see them!

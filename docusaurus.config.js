@@ -124,6 +124,19 @@ module.exports = {
           position: "left",
           to: "support",
           items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+              activeBaseRegex: "^/support/$",
+            },
+            {
+              label: "Migration to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
+            {
+              label: "Emergency Keycloak Assistance",
+              to: "support/emergency-support",
+            },
             // {
             //   label: "Custom Extensions",
             //   to: "support/custom-extensions",
@@ -420,11 +433,7 @@ module.exports = {
             },
             {
               label: "Subprocessors",
-              to: "company/subprocessors",
-            },
-            {
-              label: "Subprocessors",
-              to: "docs/subprocessors",
+              to: "https://trust.phasetwo.io/subprocessors",
             },
             {
               label: "Service Agreement",
