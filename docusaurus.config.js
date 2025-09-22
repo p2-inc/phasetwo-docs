@@ -459,7 +459,7 @@ module.exports = {
             },
             {
               html: `
-                <img class="soc-2-footer" src="/img/soc2_type1/SOC 2 T1 Logo Rectangle Black.png" alt="SOC 2 Type 1" width="114" height="auto" />
+                <img class="soc-2-footer block dark:hidden" src="/img/soc2_type2/SOC 2 T2_Black_V.png" alt="SOC 2 Type 2" width="70px" height="auto" />
               `,
             },
           ],
@@ -563,8 +563,8 @@ module.exports = {
         sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
-    require.resolve('./plugins/docusaurus-tailwindcss-loader'),
-    require.resolve("./sitePlugin")
+    require.resolve("./plugins/docusaurus-tailwindcss-loader"),
+    require.resolve("./sitePlugin"),
   ],
   themes: [
     "@docusaurus/theme-live-codeblock",
