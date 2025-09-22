@@ -30,7 +30,7 @@ alt="Keycloak Phase Two Dedicated Cluster Card"
 style={{ width: "40%", borderRadius: "8px" }}
 />
 
-### Regions
+## Regions
 
 Dedicated clusters are currently available in the following regions using the self-service dashboard:
 
@@ -50,7 +50,7 @@ If you wish to launch a dedicated cluster in one of the following regions, we ca
 - GCP US East (South Carolina) `us-east1`
 - GCP US West (California) `us-west2`
 
-#### Global clusters
+### Global clusters
 
 For use cases that require global proximity to users and region failover behavior, we are currently in _beta_ for our global clusters. Global server load balancing provides geographic region affinity and failover to connect your users with the closest, available instances.
 
@@ -58,7 +58,7 @@ These clusters are backed by [CockroachDB](https://www.cockroachlabs.com/) multi
 
 Please contact [sales@phasetwo.io](mailto:sales@phasetwo.io) to talk to us about your global cluster use case.
 
-### Custom domains
+## Custom domains
 
 Support for custom domains is available for all cloud providers. In order to set up a custom domain that you already own, specify the desired domain when creating the cluster or visit the cluster config page for that specific cluster. Go to the Domains tab and add your desired domain.
 
@@ -88,7 +88,58 @@ style={{ width: "60%", borderRadius: "8px" }}
 
 Your cluster will be available from your custom domain within 24 hours of correct configuration of the DNS records.
 
-### Migrating from a shared deployment
+## Cluster Resources: Themes and Extensions
+
+Resources, like a theme or extension, can be uploaded to your cluster for deployment to any Realm (deployment) in that cluster.
+
+Note: Premium clusters are limited to a single theme resource and no extensions. Enterprise clusters can have multiple themes and extensions.
+
+<img
+src="/docs/resources/resources-overview.png"
+alt="Resources Overview"
+style={{ width: "100%", borderRadius: "8px" }}
+/>
+
+### Uploading a Theme or Extension
+
+1.  Start by visiting the `Cluster > Config > Resources tab`.
+2.  If you have not already done so, create a `Resource`. A resource is a named entity that allows your upload the theme or extension for a specific Keycloak version. Give the name of the resource something recognizable, like `theme-customer-1-0-0`.
+
+    <img
+    src="/docs/resources/resources-add-new.png"
+    alt="Resources Add New"
+    style={{ width: "60%", borderRadius: "8px" }}
+    />
+
+3.  After the resource is created, you can upload the theme or extension. Activate a specific version, say Keycloak 26 (only major versions are supported) and then click the upload icon. Select your file and upload it. The file must be a .jar file.
+
+    <img
+    src="/docs/resources/resources-upload.png"
+    alt="Resources Upload"
+    style={{ width: "60%", borderRadius: "8px" }}
+    />
+
+4.  After the upload is complete, your resource is ready to be deployed to your cluster. Click the `Update Resources on Cluster` button to alert Phase Two staff to trigger loading this resource. Due to the way Keycloak manages themes and extensions, this requires are restart of your cluster (usually a zero-downtime operation). Keycloak staff review all resources before applying them to a cluster to ensure uptime and functionality.
+
+    <img
+    src="/docs/resources/resources-update-cluster.png"
+    alt="Resources Update Cluster"
+    style={{ width: "60%", borderRadius: "8px" }}
+    />
+
+5.  After the cluster has been restarted, you can visit your Realm (deployment) and select the theme for use. If using an extension, then you will need to configure the extension in your Realm based on the operation of the extension.
+
+### Managing Resources
+
+You can disable or enable resources using the power icon in the card. This will activate or deactivate the resource on the cluster. You can remove the resource entirely from your cluster using the trash icon. Disabling is a good way to temporarily remove a resource without deleting it.
+
+<img
+src="/docs/resources/resources-manage.png"
+alt="Resources Manage"
+style={{ width: "60%", borderRadius: "8px" }}
+/>
+
+## Migrating from a shared deployment
 
 If you currently have a free, shared deployment, and you would like to migrate that deployment into your dedicated cluster, this can be done in a one-time operation. This is a batch operation, and will require 24 hours to process, so immediate migrations are not available. Please contact your customer success representative at [support@phasetwo.io](mailto:support@phasetwo.io) and indicate the deployment name you want to migrate, the target cluster, and the time you want to initiate the migration.
 
@@ -96,19 +147,19 @@ If you currently have a free, shared deployment, and you would like to migrate t
 
 Clusters are used much the same as our shared deployments. You can create up to 20 Realms per cluster.
 
-### Creating Deployments in your Cluster
+## Creating Deployments in your Cluster
 
 Once your Cluster has been provisioned, you can create Deployments as before, but you will open the create Deployment modal from the Cluster. Access to the admin console for those Realms is the same, using the _Open Console_ link next to each Deployment.
 
-### Billing
+## Billing
 
 Access to invoices and ability to change payment information can be accessed in the action menu next to the Cluster. This will take you to [Stripe](https://stripe.com), our payment partner, to access your billing history and update your payment information. This is restricted to users with the appropriate organization roles.
 
-### Deleting a Cluster
+## Deleting a Cluster
 
 Clusters that have reached the provisioing or active state cannot be immediately deleted. If you wish to delete your Cluster and end your subscription, you can schedule the deletion. Your cluster will be available until the end of your montly billing period. At that point, there will begin a 7-day grace period where the cluster will be available, and a 14-day grace period where the data will be preserved. Following that, the cluster will be de-provisioned and all data will be purged from our systems for security and compliance reasons.
 
-#### Refunds
+## Refunds
 
 There are no refunds available for subscriptions paid on a monthly basis.
 
