@@ -11,11 +11,11 @@ const prices = {
   annual: {
     starter: 0,
     premium: 749,
-    enterprise: 999,
+    enterprise: 2449,
   },
   monthly: {
     starter: 0,
-    premium: 2449,
+    premium: 999,
     enterprise: 2999,
   },
 };
@@ -281,7 +281,7 @@ export default function DetailedPriceComparison() {
                         className="content-end px-6 pt-2 xl:px-8"
                       >
                         {billingTermValue === "annual" && (
-                          <div className="text-3xl font-semibold text-red-500 line-through">
+                          <div className="text-4xl font-semibold text-red-500 line-through">
                             {tier.id !== "custom" &&
                               tier.id !== "starter" &&
                               CurrencyNumberFormat(
