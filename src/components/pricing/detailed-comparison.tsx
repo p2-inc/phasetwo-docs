@@ -11,7 +11,7 @@ const prices = {
   annual: {
     starter: 0,
     premium: 749,
-    enterprise: 2449,
+    enterprise: 2499,
   },
   monthly: {
     starter: 0,
