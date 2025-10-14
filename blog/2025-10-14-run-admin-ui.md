@@ -38,7 +38,7 @@ pnpm start --admin-dev --phasetwo --tag=latest
 pnpm i && pnpm dev
 ```
 
-Open <http://localhost:8080>. You’ll get auto-refresh and modern DX while the backend runs in Docker.
+Open [http://localhost:8080](http://localhost:8080). You’ll get auto-refresh and modern DX while the backend runs in Docker.
 
 ---
 
@@ -110,7 +110,7 @@ pnpm i
 pnpm dev
 ```
 
-Now open <http://localhost:8080>.
+Now open [http://localhost:8080](http://localhost:8080).
 
 ## Script flags
 
