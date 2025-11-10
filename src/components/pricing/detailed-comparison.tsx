@@ -83,7 +83,7 @@ export type Feature = {
 export default function DetailedPriceComparison() {
   const [term, setTerm] = useState(true);
   const billingTermValue = term ? "annual" : "monthly";
-  const billingTerm = term ? prices["annual"] : prices["monthly"];
+
   return (
     <div className="bg-white pb-10 pt-24 sm:pb-10 sm:pt-16">
       <div className="max-w-8xl mx-auto px-6 lg:px-8">

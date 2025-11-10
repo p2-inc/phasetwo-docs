@@ -51,6 +51,29 @@ const Sections: {
         },
       },
       {
+        name: "Additional clusters",
+        description:
+          "Additional dedicated Keycloak clusters for redundancy or global presence, either at the same tier or different tiers. Different tiers can be mixed and are offered at a discount.",
+        tiers: {
+          starter: false,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "Migration assistance",
+        description:
+          "Assistance with migrating existing Keycloak or other identity provider user bases to Phase Two.",
+        tiers: {
+          starter: false,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+
+      {
         name: "SSO connections",
         description: "Number of supported identity provider (SSO) connections.",
         tiers: {
@@ -83,7 +106,7 @@ const Sections: {
         tiers: {
           starter: false,
           premium: "1",
-          enterprise: true,
+          enterprise: "Unlimited",
           custom: true,
         },
       },
@@ -97,13 +120,23 @@ const Sections: {
           custom: true,
         },
       },
-
+      {
+        name: "IP allow/disallow list",
+        description:
+          "Restrict access to Keycloak admin and user endpoints by IP address. Number of allowed entries.",
+        tiers: {
+          starter: false,
+          premium: "2",
+          enterprise: "Unlimited",
+          custom: true,
+        },
+      },
       {
         name: "Environment variables",
         description: "Add Keycloak configuration via environment variables.",
         tiers: {
           starter: false,
-          premium: false,
+          premium: true,
           enterprise: true,
           custom: true,
         },
