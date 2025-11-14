@@ -315,7 +315,7 @@ components:
     SwitchOrganizationRepresentation:
       type: object
       properties:
-        organizationId:
+        id:
           type: string
           description: The ID of the organization to switch to
       required:
