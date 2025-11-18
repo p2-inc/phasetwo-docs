@@ -23,6 +23,12 @@ Note: Users must have a verified email address to accept an invitation, as it pr
 
 Following user creation and authentication, invitees will be prompted to accept or decline any outstanding invitations. In addition to any roles that were selected in the invitation, the user will automatically be added as a member to the inviting organization.
 
+#### Admin Portal
+
+If you plan to use the Admin Portal to manage invitations, then you must configure the invitation template because there is no `redirectUri` field provided like in the Keycloak admin UI. In order to configure this template easily in the Phase Two deployments, enable the `attributes` theme for emails in the Realm Settings > Themes > Email Theme.
+
+Once the attributes theme is set, go to (Extensions) Styles > [Emails](https://phasetwo.io/docs/getting-started/email/#content-templates), select the `invitation-email` template and configure the `{{link}}` you would like to have in your email for the user to click on. 
+
 ### Options for user registration
 
 #### Self-registration
