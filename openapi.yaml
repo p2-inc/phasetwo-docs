@@ -1407,6 +1407,7 @@ paths:
       tags:
         - Organization Invitation
       summary: Create an invitation to an organization
+      description: Create an invitation to join the specified organization. Requires a user to register with the application (if they don't already have an account) before they can accept the invitation. Acceptance happens during login via a required action.
       operationId: addOrganizationInvitation
       requestBody:
         content:
