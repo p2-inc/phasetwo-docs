@@ -1292,6 +1292,7 @@ paths:
     get:
       tags:
         - Organization Memberships
+        - Users
       summary: Check if a user is a member of an organization
       operationId: checkOrganizationMembership
       responses:
@@ -1300,6 +1301,7 @@ paths:
     put:
       tags:
         - Organization Memberships
+        - Users
       summary: Add an organization member
       operationId: addOrganizationMember
       description: Add the specified user to the specified organization as a member
