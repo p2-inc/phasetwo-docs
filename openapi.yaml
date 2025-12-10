@@ -1988,7 +1988,7 @@ paths:
               $ref: "#/components/schemas/IdentityProviderRepresentation"
         required: true
       responses:
-        200:
+        204:
           description: success
     delete:
       tags:
