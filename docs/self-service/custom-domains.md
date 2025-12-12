@@ -17,7 +17,9 @@ Once on the page, you can add a new domain by entering the domain the "Add a cus
 After entering the domain, you will be provided with a DNS record that you must add to your DNS provider. This is typically done through the management console of your domain registrar or DNS hosting provider.
 
 1. **Validation records**: needed to prove ownership of the domain.
-2. **Vanity records**: needed to route traffic to Phase Two.
+2. **Vanity records**: needed to route traffic to Phase Two. For all cloud providers use the following format for the vanity:
+
+   CNAME `yourdomain.com` TO `{cluster_name}.global.auth.ac`
 
 After you create the records, it may take some time for DNS propagation to complete. You can use tools like [DNS Checker](https://dnschecker.org/) to verify that the records have been propagated successfully. Once the records are verified, you can return to the Phase Two Dashboard to check that the records are present. Once the DNS records are verified, we will issue your cert. The verification and certificate issuance process are automatic, but are dependent on DNS entries.
 
