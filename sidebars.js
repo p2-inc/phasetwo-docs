@@ -25,15 +25,19 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Dashboard",
+      label: "Dashboard (self-service)",
       link: { type: "doc", id: "self-service/index" },
       items: [
         "self-service/access",
         "self-service/dashboard-overview",
         "self-service/deployments",
-        "self-service/dedicated-clusters",
         "self-service/your-organization",
+        "self-service/dedicated-clusters",
+        "self-service/create-a-cluster",
+        "self-service/regions",
         "self-service/custom-domains",
+        "self-service/resources",
+        "self-service/restrictions",
       ],
     },
     {
