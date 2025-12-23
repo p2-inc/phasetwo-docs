@@ -7,7 +7,7 @@ function Pricing() {
   const { siteConfig = {} } = context;
 
   useEffect(() => {
-    window.location = "/pricing/hosting";
+    window.location.replace = "/pricing/hosting";
   }, []);
 
   return <Layout description={`${siteConfig.tagline}`}></Layout>;
