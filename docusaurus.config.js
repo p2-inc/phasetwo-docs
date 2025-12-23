@@ -71,52 +71,79 @@ module.exports = {
         src: "img/logo_phase_slash.svg",
       },
       items: [
-        {
-          to: "/hosting",
-          label: "Hosting",
-          position: "left",
-          activeBasePath: "hosting",
-        },
         // {
-        //   type: "dropdown",
+        //   to: "/hosting",
         //   label: "Hosting",
         //   position: "left",
-        //   to: "hosting",
-        //   items: [
-        //     {
-        //       label: "Self Host vs Managed",
-        //       to: "hosting/self-host-vs-managed",
-        //     },
-        //     {
-        //       label: "Deployments",
-        //       to: "hosting/deployments",
-        //     },
-        //     {
-        //       label: "Configure",
-        //       to: "hosting/configure",
-        //     },
-        //     {
-        //       label: "Monitoring",
-        //       to: "hosting/monitoring",
-        //     },
-        //     {
-        //       label: "Support",
-        //       to: "hosting/support",
-        //     },
-        //     {
-        //       label: "Version Upgrades",
-        //       to: "hosting/version-upgrades",
-        //     },
-        //     {
-        //       label: "Backups",
-        //       to: "hosting/backups",
-        //     },
-        //     {
-        //       label: "Customize",
-        //       to: "hosting/customize",
-        //     },
-        //   ],
+        //   activeBasePath: "hosting",
         // },
+        {
+          type: "dropdown",
+          label: "Hosting",
+          position: "left",
+          to: "hosting",
+          items: [
+            {
+              label: "Dedicated Clusters",
+              to: "hosting/clusters",
+              activeBasePath: "hosting/clusters",
+            },
+            {
+              label: "Pricing",
+              to: "/pricing/hosting",
+              activeBasePath: "pricing/hosting",
+            },
+            {
+              label: "Security",
+              to: "hosting/configuration#security",
+              activeBasePath: "hosting/configuration",
+            },
+            // {
+            //   label: "Monitoring",
+            //   to: "hosting/configuration#monitoring",
+            //   activeBasePath: "hosting/configuration",
+            // },
+            {
+              label: "Custom Domains",
+              to: "hosting/configuration#custom-domains",
+              activeBasePath: "hosting/configuration#custom-domains",
+            },
+            {
+              label: "Extensions and Themes",
+              to: "hosting/configuration#extensions-and-themes",
+              activeBasePath: "hosting/configuration#extensions-and-themes",
+            },
+            {
+              label: "Environment Variables",
+              to: "hosting/configuration#environment-variables",
+              activeBasePath: "hosting/configuration#environment-variables",
+            },
+            {
+              label: "Support",
+              to: "hosting/support",
+              activeBasePath: "hosting/support",
+            },
+            {
+              label: "Version Upgrades",
+              to: "hosting/support#version-upgrades",
+              activeBasePath: "hosting/support#version-upgrades",
+            },
+            {
+              label: "Backups",
+              to: "hosting/support#backups",
+              activeBasePath: "hosting/support#backups",
+            },
+            {
+              label: "Self Host vs Managed",
+              to: "hosting/self-host-vs-managed",
+              activeBasePath: "hosting/self-host-vs-managed",
+            },
+            {
+              label: "Certifications",
+              to: "https://trust.phasetwo.io",
+            },
+          ],
+        },
         {
           type: "dropdown",
           label: "Support",
@@ -129,6 +156,14 @@ module.exports = {
               activeBaseRegex: "^/support/$",
             },
             {
+              label: "24/7 Coverage",
+              to: "support/24-7-coverage",
+            },
+            {
+              label: "On-premise Deployments",
+              to: "support/on-premise-deployments",
+            },
+            {
               label: "Migration to Keycloak",
               to: "support/migrate-to-keycloak",
             },
@@ -136,42 +171,26 @@ module.exports = {
               label: "Emergency Keycloak Assistance",
               to: "support/emergency-support",
             },
-            // {
-            //   label: "Custom Extensions",
-            //   to: "support/custom-extensions",
-            // },
-            // {
-            //   label: "Version Upgrades",
-            //   to: "support/keycloak-version-upgrades",
-            // },
-            // {
-            //   label: "On-premise Deployment",
-            //   to: "support/on-premise-deployment",
-            // },
-            // {
-            //   label: "Infrastructure Implementation (IAC)",
-            //   to: "support/infrastructure-implementation",
-            // },
-            // {
-            //   label: "Theming",
-            //   to: "support/theming",
-            // },
-            // {
-            //   label: "Architecture Review",
-            //   to: "support/architecture-review",
-            // },
-            // {
-            //   label: "Scale and Growth",
-            //   to: "support/scale-and-growth",
-            // },
-            // {
-            //   label: "On-call 24/7",
-            //   to: "support/24-7-on-call",
-            // },
-            // {
-            //   label: "Community",
-            //   to: "support/community",
-            // },
+            {
+              label: "Custom Extensions and Themes",
+              to: "support/custom-extensions-and-themes",
+            },
+            {
+              label: "Version Upgrades",
+              to: "support/keycloak-version-upgrades",
+            },
+            {
+              label: "Architecture Review",
+              to: "support/architecture-review",
+            },
+            {
+              label: "Pricing",
+              to: "/pricing/support",
+            },
+            {
+              label: "Community",
+              to: "support/community",
+            },
           ],
         },
         {
@@ -180,8 +199,13 @@ module.exports = {
           position: "left",
           items: [
             {
-              to: "product/onprem",
-              activeBasePath: "product/onprem",
+              to: "product/what-are-phasetwo-and-keycloak",
+              activeBasePath: "product/what-are-phasetwo-and-keycloak",
+              label: "What are Phase Two and Keycloak?",
+            },
+            {
+              to: "product/on-premise-deployment",
+              activeBasePath: "product/on-premise-deployment",
               label: "On-Premise Deployment",
             },
             {
@@ -205,8 +229,8 @@ module.exports = {
             //   label: "Theming",
             // },
             {
-              to: "product/adminportal",
-              activeBasePath: "product/adminportal",
+              to: "product/admin-portal",
+              activeBasePath: "product/admin-portal",
               label: "Admin Portal",
             },
             {
@@ -215,15 +239,20 @@ module.exports = {
               label: "Integrations",
             },
             // {
-            //   to: "product/cockroachdb",
-            //   activeBasePath: "product/cockroachdb",
-            //   label: "CockroachDB",
-            // },
-            // {
             //   to: "product/events",
             //   activeBasePath: "product/events",
             //   label: "Events (Audit Logs)",
             // },
+            {
+              to: "product/open-source-vs-commercial-offerings",
+              activeBasePath: "product/open-source-vs-commercial-offerings",
+              label: "Open-Source vs Commercial Offerings",
+            },
+            {
+              to: "product/cockroachdb",
+              activeBasePath: "product/cockroachdb",
+              label: "CockroachDB",
+            },
           ],
         },
         {
@@ -242,6 +271,10 @@ module.exports = {
               label: "API",
             },
             {
+              href: "https://github.com/p2-inc/",
+              label: "GitHub",
+            },
+            {
               href: "https://github.com/p2-inc#our-extensions-",
               label: "Keycloak Extensions",
             },
@@ -250,23 +283,13 @@ module.exports = {
             //   activeBasePath: "guides",
             //   label: "Guides",
             // },
-            {
-              to: "articles/introduction",
-              activeBasePath: "articles",
-              label: "Articles",
-            },
-            {
-              href: "https://github.com/p2-inc/",
-              label: "GitHub",
-            },
+            // {
+            //   to: "articles/introduction",
+            //   activeBasePath: "articles",
+            //   label: "Articles",
+            // },
           ],
         },
-        // {
-        //   to: "/pricing",
-        //   label: "Pricing",
-        //   position: "left",
-        //   activeBasePath: "pricing",
-        // },
         {
           type: "dropdown",
           label: "Pricing",
@@ -317,6 +340,10 @@ module.exports = {
               to: "company/about",
             },
             {
+              label: "Keycloak Support",
+              to: "/support",
+            },
+            {
               label: "Blog",
               to: "blog",
             },
@@ -350,8 +377,8 @@ module.exports = {
               label: "Organizations",
             },
             {
-              to: "product/adminportal",
-              activeBasePath: "product/adminportal",
+              to: "product/admin-portal",
+              activeBasePath: "product/admin-portal",
               label: "Admin Portal",
             },
             {
@@ -459,8 +486,16 @@ module.exports = {
             },
             {
               html: `
-                <img class="soc-2-footer block dark:hidden" src="/img/soc2_type2/SOC 2 T2_Black_V.png" alt="SOC 2 Type 2" width="70px" height="auto" />
+                <a href="https:trust.phasetwo.io" target="_blank"><img class="soc-2-footer block dark:hidden" src="/img/soc2_type2/SOC 2 T2_Black_V.png" alt="SOC 2 Type 2" width="70px" height="auto" /></a>
               `,
+            },
+            {
+              label: "ISO 27001",
+              to: "https://trust.phasetwo.io/",
+            },
+            {
+              label: "GDPR Compliant",
+              to: "https://trust.phasetwo.io/",
             },
           ],
         },
