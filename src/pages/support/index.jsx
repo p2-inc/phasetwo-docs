@@ -31,7 +31,8 @@ export default function Hosted() {
                 scaling
               </a>{" "}
               Keycloak, custom Keycloak development, and around the clock
-              support.
+              support. Our support can help teams running any version of
+              Keycloak (RHBK included).
             </p>
             <div className={`pageHeroCta`}>
               <a href="mailto:sales@phasetwo.io">
@@ -164,7 +165,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--offset-1 col--4 flex flex-align-center">
+                <div className="col col--offset-1 col--4 flex-align-center flex">
                   <img
                     src="/img/server-network-technology.svg"
                     alt="Architecture Review"
@@ -172,7 +173,7 @@ export default function Hosted() {
                     loading="lazy"
                   />
                 </div>
-                <div className="col col--4 col--offset-1 flex flex-align-center">
+                <div className="col col--4 col--offset-1 flex-align-center flex">
                   <div>
                     <h3>Keycloak Architecture Review and Scaling</h3>
                     <p>
@@ -200,7 +201,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--4 col--offset-1 flex flex-align-center">
+                <div className="col col--4 col--offset-1 flex-align-center flex">
                   <div>
                     <h3>Keycloak Installation and Configuration</h3>
                     <p>
@@ -225,7 +226,7 @@ export default function Hosted() {
                     </p>
                   </div>
                 </div>
-                <div className="col col--offset-1 col--5 flex flex-align-center">
+                <div className="col col--offset-1 col--5 flex-align-center flex">
                   <img
                     src="/img/software-engineer-developing.svg"
                     alt="Architecture Review"
@@ -244,7 +245,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--offset-2 col--4 flex flex-align-center">
+                <div className="col col--offset-2 col--4 flex-align-center flex">
                   <img
                     src="/img/health-checklist.svg"
                     alt="Health Assessment"
@@ -252,7 +253,7 @@ export default function Hosted() {
                     loading="lazy"
                   />
                 </div>
-                <div className="col col--4  flex flex-align-center">
+                <div className="col col--4 flex-align-center flex">
                   <div>
                     <h3>Infrastructure and Implementation Health Assessment</h3>
                     <p>
@@ -281,7 +282,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--4 col--offset-1 flex flex-align-center">
+                <div className="col col--4 col--offset-1 flex-align-center flex">
                   <div>
                     <h3>Custom Keycloak Development and Extensions</h3>
                     <p>
@@ -298,7 +299,7 @@ export default function Hosted() {
                     </p>
                   </div>
                 </div>
-                <div className="col col--offset-1 col--6 flex flex-align-center">
+                <div className="col col--offset-1 col--6 flex-align-center flex">
                   <img
                     src="/img/dev-team.svg"
                     alt="Custom Keycloak Development"
@@ -324,14 +325,15 @@ export default function Hosted() {
               <a href="https://phasetwo.io/support/migrate-to-keycloak">
                 migrating
               </a>{" "}
-              their system usage to Keycloak. From initial testing of migration
-              to the final cut-over and production launch, we will have your
-              back the entire way. To help make it easy to set up your
-              application, we have multiple examples demonstrating how to secure
-              your application with user management and single sign on (SSO)
-              using Keycloak for Authentication and Authorization. Just clone an
-              example to get a jump-start on more complex integrations and
-              examples.
+              their system usage to Keycloak. Phase Two works with any version
+              of Keycloak, including RHBK (RedHat build of Keycloak) or custom
+              images. From initial testing of migration to the final cut-over
+              and production launch, we will have your back the entire way. To
+              help make it easy to set up your application, we have multiple
+              examples demonstrating how to secure your application with user
+              management and single sign on (SSO) using Keycloak for
+              Authentication and Authorization. Just clone an example to get a
+              jump-start on more complex integrations and examples.
             </p>
           </div>
           <div className="contentBlockBody ta-center">
@@ -350,7 +352,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--4 col--offset-2 flex flex-align-center">
+                <div className="col col--4 col--offset-2 flex-align-center flex">
                   <div>
                     <h3>
                       SSO Connections and Identity Provider (IdP) Onboarding
@@ -370,7 +372,7 @@ export default function Hosted() {
                     </p>
                   </div>
                 </div>
-                <div className="col col--offset-1 col--4 flex flex-align-center">
+                <div className="col col--offset-1 col--4 flex-align-center flex">
                   <img
                     src="/img/sso-security.svg"
                     alt="SSO Connections and Identity Provider (IdP) Onboarding"
@@ -504,7 +506,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--offset-1 col--4 flex flex-align-center">
+                <div className="col col--offset-1 col--4 flex-align-center flex">
                   <img
                     src="/img/kc-updates.svg"
                     alt="Keycloak Version Upgrades to Keep Up-to-Date with Latest Releases"
@@ -512,7 +514,7 @@ export default function Hosted() {
                     loading="lazy"
                   />
                 </div>
-                <div className="col col--5  flex flex-align-center">
+                <div className="col col--5 flex-align-center flex">
                   <a id="upgrades"></a>
                   <div>
                     <h3>
@@ -550,7 +552,7 @@ export default function Hosted() {
           <div className="contentBlockBody">
             <div className="container">
               <div className="row">
-                <div className="col col--4 col--offset-1 flex flex-align-center">
+                <div className="col col--4 col--offset-1 flex-align-center flex">
                   <div>
                     <h3>Happy Customers</h3>
                     <p>
@@ -563,7 +565,7 @@ export default function Hosted() {
                     </p>
                   </div>
                 </div>
-                <div className="col col--offset-1 col--5 flex flex-align-center">
+                <div className="col col--offset-1 col--5 flex-align-center flex">
                   <img
                     src="/img/happy-customers.svg"
                     alt="Phase Two Happy Customers"
