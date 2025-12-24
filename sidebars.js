@@ -38,6 +38,7 @@ module.exports = {
         "self-service/custom-domains",
         "self-service/resources",
         "self-service/restrictions",
+        "self-service/environment-variables",
       ],
     },
     {
