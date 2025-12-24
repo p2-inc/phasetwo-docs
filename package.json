@@ -15,11 +15,11 @@
     "regen-api-docs": "npm run clean-api-docs && npm run gen-api-docs && rm api/sidebar.ts"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.9.1",
-    "@docusaurus/faster": "^3.9.1",
-    "@docusaurus/preset-classic": "^3.9.1",
-    "@docusaurus/theme-live-codeblock": "^3.9.1",
-    "@docusaurus/theme-mermaid": "^3.9.1",
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/faster": "^3.9.2",
+    "@docusaurus/preset-classic": "^3.9.2",
+    "@docusaurus/theme-live-codeblock": "^3.9.2",
+    "@docusaurus/theme-mermaid": "^3.9.2",
     "@headlessui/react": "^2.2.0",
     "@iconify/react": "^5.0.1",
     "classnames": "^2.2.6",
