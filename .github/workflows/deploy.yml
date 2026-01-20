@@ -20,7 +20,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.28.1
           run_install: false
 
       - uses: actions/setup-node@v4
@@ -44,7 +43,6 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.28.1
           run_install: false
 
       - uses: actions/setup-node@v4
