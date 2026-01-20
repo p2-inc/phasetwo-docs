@@ -27,14 +27,14 @@
     "@iconify/react": "^5.0.1",
     "classnames": "^2.2.6",
     "clsx": "^2.1.1",
-    "docusaurus-plugin-openapi-docs": "^4.3.1",
-    "docusaurus-theme-openapi-docs": "^4.3.1",
+    "docusaurus-plugin-openapi-docs": "^4.6.0",
+    "docusaurus-theme-openapi-docs": "^4.6.0",
     "keycloak-js": "^19.0.2",
     "radix-ui": "^1.4.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-fast-marquee": "^1.6.5",
-    "swagger-ui-react": "^4.18.2"
+    "swagger-ui-react": "^5.31.0"
   },
   "browserslist": {
     "production": [
