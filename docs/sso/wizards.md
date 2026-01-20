@@ -10,3 +10,7 @@ In order to facilitate easy setup of identity providers for single sign-on, it i
 From the Admin UI, go to the **Clients** section of the Realm you are trying to add an identity provider. In the `idp-wizard` client, click on the link in the **Home URL** column. This will open a separate browser window and launch the wizard as your admin user.
 
 Once you have configured and completed a wizard, you can close the window. Back in the Admin UI, you can select the **Identity providers** section in order to check that it was setup properly and view the data.
+
+### Launching the wizards for an Organization
+
+For information on how to launch the wizards for an organization, please see the [IdP Wizard documentation](/organizations/idp-wizard).

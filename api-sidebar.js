@@ -58,7 +58,7 @@ module.exports = {
         {
           type: "doc",
           id: "create-portal-link",
-          label: "Create a link for the organization's admin portal",
+          label: "Create a link for the organization's IdP Wizard",
           className: "api-method post",
         },
         {
