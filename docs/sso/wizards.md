@@ -13,4 +13,4 @@ Once you have configured and completed a wizard, you can close the window. Back 
 
 ### Launching the wizards for an Organization
 
-For information on how to launch the wizards for an organization, please see the [IdP Wizard documentation](/organizations/idp-wizard).
+For information on how to launch the wizards for an organization, please see the [IdP Wizard documentation](/docs/organizations/idp-wizard).
