@@ -5,13 +5,18 @@ title: IdP Wizard
 
 The Organization IdP Wizard allows members of an organization with appropriate permissions to self-manage their organization's identity providers. It allows users to set up and configure SAML and OIDC identity providers for their organization without requiring intervention from IT support or administrators.
 
-### Create a IdP Wizard link
+### Create an IdP Wizard link
 
-There are two mechanisms of creating a IdP Wizard link. Choosing one depends on how you wish to expose this to your users.
+There are two mechanisms of creating an IdP Wizard link. Choosing one depends on how you wish to expose this to your users.
 
 #### Admin UI
 
-In the Admin UI, in the Organizations tab, when you select an organization, the upper right context menu allows you to select "Create IdP Wizard link". This will create a IdP Wizard link for the **default** organization user. This is a user that is created by default when the organization is created for the purpose of executing administrative tasks for the organization. It is not associated with a real member of the organization. It has full privileges within the organization, so be careful who and how this link is distributed. It will be active for 1 day following creation.
+In the Admin UI, in the Organizations tab, when you select an organization, the upper right context menu allows you to select "Create IdP Wizard link". This will create an IdP Wizard link for the **default** organization user. This is a user that is created by default when the organization is created for the purpose of executing administrative tasks for the organization. It is not associated with a real member of the organization. It has full privileges within the organization, so be careful who and how this link is distributed. It will be active for 1 day following creation.
+
+<figure>
+<img src="/docs/organizations/wizard/idp-wizard-link.png" alt="IdP Wizard link creation in Keycloak Admin UI" className="max-w-3xl" />
+  <figcaption>Create an IdP Wizard Link</figcaption>
+</figure>
 
 #### API
 
