@@ -96,7 +96,7 @@ module.exports = {
         "organizations/roles",
         "organizations/idp-wizard",
         "organizations/identity-providers",
-        { type: "doc", id: "admin-portal", label: "Admin Portal" },
+        { type: "doc", id: "admin-portal/index", label: "Admin Portal" },
         "organizations/active-organization",
         "organizations/active-organization-authenticator",
         "organizations/organizations-import-export",
