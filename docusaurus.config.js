@@ -486,6 +486,7 @@ module.exports = {
       indexName: "phasetwo",
       // Optional: see doc section below
       contextualSearch: true,
+      exclusionPatterns: ["/landing/**"],
     },
     prism: {
       additionalLanguages: ["java", "yaml"],
