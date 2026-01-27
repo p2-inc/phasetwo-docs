@@ -3,11 +3,11 @@ import Layout from "@theme/Layout";
 
 const Configure = () => {
   return (
-    <Layout title="Configure Hosting" description="Configuration page for hosting">
-      <div>
-        <h1>Configure Hosting</h1>
+    <Layout title="Configuration" description="Configuration options for hosting">
+      <main className="hosting-page">
+        <h1>Configuration</h1>
         <p>This is the configuration page for hosting.</p>
-      </div>
+      </main>
     </Layout>
   );
 };

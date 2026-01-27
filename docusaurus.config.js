@@ -20,6 +20,28 @@ module.exports = {
       tagName: "link",
       attributes: {
         rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossorigin: "anonymous",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&display=swap",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
         href: "https://www.google-analytics.com",
       },
     },
@@ -71,109 +93,7 @@ module.exports = {
         src: "img/logo_phase_slash.svg",
       },
       items: [
-        {
-          to: "/hosting",
-          label: "Hosting",
-          position: "left",
-          activeBasePath: "hosting",
-        },
-        // {
-        //   type: "dropdown",
-        //   label: "Hosting",
-        //   position: "left",
-        //   to: "hosting",
-        //   items: [
-        //     {
-        //       label: "Self Host vs Managed",
-        //       to: "hosting/self-host-vs-managed",
-        //     },
-        //     {
-        //       label: "Deployments",
-        //       to: "hosting/deployments",
-        //     },
-        //     {
-        //       label: "Configure",
-        //       to: "hosting/configure",
-        //     },
-        //     {
-        //       label: "Monitoring",
-        //       to: "hosting/monitoring",
-        //     },
-        //     {
-        //       label: "Support",
-        //       to: "hosting/support",
-        //     },
-        //     {
-        //       label: "Version Upgrades",
-        //       to: "hosting/version-upgrades",
-        //     },
-        //     {
-        //       label: "Backups",
-        //       to: "hosting/backups",
-        //     },
-        //     {
-        //       label: "Customize",
-        //       to: "hosting/customize",
-        //     },
-        //   ],
-        // },
-        {
-          type: "dropdown",
-          label: "Support",
-          position: "left",
-          to: "support",
-          items: [
-            {
-              label: "Enterprise Support",
-              to: "support",
-              activeBaseRegex: "^/support/$",
-            },
-            {
-              label: "Migration to Keycloak",
-              to: "support/migrate-to-keycloak",
-            },
-            {
-              label: "Emergency Keycloak Assistance",
-              to: "support/emergency-support",
-            },
-            // {
-            //   label: "Custom Extensions",
-            //   to: "support/custom-extensions",
-            // },
-            // {
-            //   label: "Version Upgrades",
-            //   to: "support/keycloak-version-upgrades",
-            // },
-            // {
-            //   label: "On-premise Deployment",
-            //   to: "support/on-premise-deployment",
-            // },
-            // {
-            //   label: "Infrastructure Implementation (IAC)",
-            //   to: "support/infrastructure-implementation",
-            // },
-            // {
-            //   label: "Theming",
-            //   to: "support/theming",
-            // },
-            // {
-            //   label: "Architecture Review",
-            //   to: "support/architecture-review",
-            // },
-            // {
-            //   label: "Scale and Growth",
-            //   to: "support/scale-and-growth",
-            // },
-            // {
-            //   label: "On-call 24/7",
-            //   to: "support/24-7-on-call",
-            // },
-            // {
-            //   label: "Community",
-            //   to: "support/community",
-            // },
-          ],
-        },
+        // Left side items: Product, Hosting, Pricing
         {
           type: "dropdown",
           label: "Product",
@@ -199,11 +119,6 @@ module.exports = {
               activeBasePath: "product/organizations",
               label: "Organizations",
             },
-            // {
-            //   to: "product/theming",
-            //   activeBasePath: "product/theming",
-            //   label: "Theming",
-            // },
             {
               to: "product/adminportal",
               activeBasePath: "product/adminportal",
@@ -214,59 +129,39 @@ module.exports = {
               activeBasePath: "product/integrations",
               label: "Integrations",
             },
-            // {
-            //   to: "product/cockroachdb",
-            //   activeBasePath: "product/cockroachdb",
-            //   label: "CockroachDB",
-            // },
-            // {
-            //   to: "product/events",
-            //   activeBasePath: "product/events",
-            //   label: "Events (Audit Logs)",
-            // },
           ],
         },
         {
           type: "dropdown",
-          label: "Developers",
+          label: "Hosting",
           position: "left",
           items: [
             {
-              to: "docs/introduction",
-              activeBasePath: "docs",
-              label: "Docs",
+              label: "Dedicated Clusters",
+              to: "hosting/dedicated-clusters",
             },
             {
-              to: "api/phase-two-admin-rest-api",
-              activeBasePath: "api",
-              label: "API",
+              label: "Self Host vs Managed",
+              to: "hosting/self-host-vs-managed",
             },
             {
-              href: "https://github.com/p2-inc#our-extensions-",
-              label: "Keycloak Extensions",
-            },
-            // {
-            //   to: "guides",
-            //   activeBasePath: "guides",
-            //   label: "Guides",
-            // },
-            {
-              to: "articles/introduction",
-              activeBasePath: "articles",
-              label: "Articles",
+              label: "Support",
+              to: "hosting/support",
             },
             {
-              href: "https://github.com/p2-inc/",
-              label: "GitHub",
+              label: "Configuration",
+              to: "hosting/configure",
+            },
+            {
+              label: "Pricing",
+              to: "pricing/hosting",
+            },
+            {
+              label: "Legacy",
+              to: "hosting",
             },
           ],
         },
-        // {
-        //   to: "/pricing",
-        //   label: "Pricing",
-        //   position: "left",
-        //   activeBasePath: "pricing",
-        // },
         {
           type: "dropdown",
           label: "Pricing",
@@ -284,11 +179,63 @@ module.exports = {
             },
           ],
         },
+        // Right side items: Support, Developers, Blog
+        {
+          type: "dropdown",
+          label: "Support",
+          position: "right",
+          to: "support",
+          items: [
+            {
+              label: "Enterprise Support",
+              to: "support",
+              activeBaseRegex: "^/support/$",
+            },
+            {
+              label: "Migration to Keycloak",
+              to: "support/migrate-to-keycloak",
+            },
+            {
+              label: "Emergency Keycloak Assistance",
+              to: "support/emergency-support",
+            },
+          ],
+        },
+        {
+          type: "dropdown",
+          label: "Developers",
+          position: "right",
+          items: [
+            {
+              to: "docs/introduction",
+              activeBasePath: "docs",
+              label: "Docs",
+            },
+            {
+              to: "api/phase-two-admin-rest-api",
+              activeBasePath: "api",
+              label: "API",
+            },
+            {
+              href: "https://github.com/p2-inc#our-extensions-",
+              label: "Keycloak Extensions",
+            },
+            {
+              to: "articles/introduction",
+              activeBasePath: "articles",
+              label: "Articles",
+            },
+            {
+              href: "https://github.com/p2-inc/",
+              label: "GitHub",
+            },
+          ],
+        },
         {
           to: "blog",
           activeBasePath: "blog",
           label: "Blog",
-          position: "left",
+          position: "right",
         },
         {
           to: "contact",
@@ -472,7 +419,7 @@ module.exports = {
     },
     colorMode: {
       // "light" | "dark"
-      defaultMode: "light",
+      defaultMode: "dark",
       disableSwitch: true,
     },
     docs: {

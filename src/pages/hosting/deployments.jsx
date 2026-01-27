@@ -62,7 +62,7 @@ const Deployments = () => {
       title="Keycloak Deployments"
       description="Multi-region High-availability Keycloak deployments that are extended with additional features, 99.95% uptime SLA, and 24/7 support."
     >
-      <main>
+      <main className="hosting-page">
         <div className="pageHero mt-20">
           <div className="pageHeroMsg">
             <h1>Enterprise-Level Keycloak Deployments</h1>

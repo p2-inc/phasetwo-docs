@@ -76,7 +76,7 @@ export default function Hosted() {
       title="Managed Hosting for Keycloak"
       description="Phase Two provides Keycloak as a Service. This includes managed hosting for Keycloak to help you with your Identity and Access Management needs."
     >
-      <main>
+      <main className="hosting-page">
         <div className="pageHero">
           <div className="pageHeroMsg">
             <h1>Premium Managed Hosting for Keycloak</h1>
