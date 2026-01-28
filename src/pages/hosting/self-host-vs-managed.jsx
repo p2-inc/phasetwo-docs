@@ -143,7 +143,7 @@ export default function SelfHostVsManaged() {
               {costs.map((item, idx) => (
                 <CardWithIcon
                   key={idx}
-                  icon={IconExpense}
+                  icon={<IconExpense aria-hidden="true" className="size-8 text-red-400" />}
                   iconAlt=""
                   description={item.description}
                 />

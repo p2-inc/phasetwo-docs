@@ -134,7 +134,7 @@ export default function Support() {
                     icon={
                       <IconQuestionMarkCircle
                         aria-hidden="true"
-                        className="size-5 text-red-400 [&_*]:fill-current"
+                        className="size-8 text-red-400 [&_*]:fill-current"
                       />
                     }
                     iconAlt=""
@@ -177,7 +177,7 @@ export default function Support() {
                     icon={
                       <InlineIcon
                         icon={card.icon}
-                        className="size-6 text-sky-300"
+                        className="size-8 text-sky-300"
                         aria-hidden="true"
                       />
                     }
@@ -204,7 +204,7 @@ export default function Support() {
                 <CardWithIcon
                   key={item.title}
                   variant="light"
-                  icon={<InlineIcon icon={item.icon} className="size-6" aria-hidden="true" />}
+                    icon={<InlineIcon icon={item.icon} className="size-8" aria-hidden="true" />}
                   iconAlt=""
                   heading={item.title}
                   description={item.description}

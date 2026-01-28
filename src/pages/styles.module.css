@@ -73,7 +73,7 @@
     align-items: stretch;
   }
   .heroSectionPicto {
-    width: 48px;
+    width: 32px;
     margin-bottom: 8px;
   }
   .heroSection {
@@ -257,8 +257,8 @@ p.heroIntegrationsCopy {
   align-items: flex-start;
 }
 .featCardLucideIcon {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: block;
 }
 .featCardContent {
@@ -576,7 +576,7 @@ p.heroIntegrationsCopy {
   top: -4px;
 }
 .sectHeadline .heart {
-  width: 40px;
+  width: 32px;
   height: auto;
 }
 .sectOsArrow {
@@ -602,7 +602,7 @@ p.heroIntegrationsCopy {
     margin: 0 12px;
   }
   .sectHeadline .heart {
-    width: 60px;
+    width: 32px;
   }
   .sectOpenSource {
     padding-top: 40px;

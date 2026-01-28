@@ -1,17 +1,45 @@
 import React from "react";
 
+function shouldForceFillCurrent(className) {
+  if (!className) return true;
+
+  // If the consumer explicitly styles stroke icons, don't force fill.
+  const strokeHints = [
+    "stroke-",
+    "strokeCurrent",
+    "stroke-current",
+    "fill-none",
+    "icon-stroke",
+    "[&_*]:stroke",
+    "[&_*]:fill-none",
+  ];
+
+  return !strokeHints.some((hint) => className.includes(hint));
+}
+
+function shouldForceFillCurrentForElement(iconEl, className) {
+  // Iconify's InlineIcon uses `icon="set:name"`. Lucide icons are stroke-based.
+  const iconId = iconEl?.props?.icon;
+  if (typeof iconId === "string" && iconId.startsWith("lucide:")) return false;
+  return shouldForceFillCurrent(className);
+}
+
 function renderIcon(icon, { width, alt, className }) {
   if (!icon) return null;
 
   // Docusaurus SVGR imports yield a React component.
   if (typeof icon === "function") {
     const Icon = icon;
+    const mergedClassName = [className]
+      .filter(Boolean)
+      .concat(shouldForceFillCurrent(className) ? ["[&_*]:fill-current"] : [])
+      .join(" ");
     return (
       <Icon
         aria-hidden={alt ? undefined : true}
         role={alt ? "img" : undefined}
         aria-label={alt || undefined}
-        className={[className, "[&_*]:fill-current"].filter(Boolean).join(" ")}
+        className={mergedClassName}
         style={{ width, height: "auto" }}
       />
     );
@@ -30,7 +58,32 @@ function renderIcon(icon, { width, alt, className }) {
     );
   }
 
-  // If a React node is passed, render as-is.
+  // If a React element is passed, size it consistently.
+  if (React.isValidElement(icon)) {
+    const baseClassName = [icon.props?.className, className].filter(Boolean).join(" ");
+    const mergedClassName = [
+      baseClassName,
+      shouldForceFillCurrentForElement(icon, baseClassName) ? "[&_*]:fill-current" : null,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
+    const mergedStyle = {
+      ...(icon.props?.style || {}),
+      width,
+      height: "auto",
+    };
+
+    return React.cloneElement(icon, {
+      "aria-hidden": alt ? undefined : icon.props?.["aria-hidden"] ?? true,
+      role: alt ? "img" : icon.props?.role,
+      "aria-label": alt || icon.props?.["aria-label"],
+      className: [mergedClassName, "[&_*]:fill-current"].filter(Boolean).join(" "),
+      style: mergedStyle,
+    });
+  }
+
+  // Otherwise, render as-is.
   return icon;
 }
 
@@ -42,7 +95,7 @@ function renderIcon(icon, { width, alt, className }) {
 export default function CardWithIcon({
   icon,
   iconAlt = "",
-  iconWidth = 24,
+  iconWidth = 32,
   description,
   heading,
   layout = "stacked", // "stacked" | "horizontal"

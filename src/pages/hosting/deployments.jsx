@@ -12,7 +12,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:cloud-arrow-up-solid"
-        className="absolute left-1 top-1 size-5 text-sky-600"
+        className="absolute left-1 top-1 size-8 text-sky-600"
       />
     ),
   },
@@ -23,7 +23,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:lock-closed-solid"
-        className="absolute left-1 top-1 size-5 text-sky-600"
+        className="absolute left-1 top-1 size-8 text-sky-600"
       />
     ),
   },
@@ -33,7 +33,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:server-solid"
-        className="absolute left-1 top-1 size-5 text-sky-600"
+        className="absolute left-1 top-1 size-8 text-sky-600"
       />
     ),
   },
@@ -44,7 +44,7 @@ const features = [
     icon: (
       <InlineIcon
         icon="heroicons:lifebuoy-solid"
-        className="absolute left-1 top-1 size-5 text-sky-600"
+        className="absolute left-1 top-1 size-8 text-sky-600"
       />
     ),
   },
@@ -99,7 +99,7 @@ const Deployments = () => {
                   </p>
                   <dl className="mt-10 max-w-xl space-y-8 text-base/7 text-gray-600 lg:max-w-none">
                     {features.map((feature) => (
-                      <div key={feature.name} className="relative pl-9">
+                      <div key={feature.name} className="relative pl-12">
                         <dt className="inline font-semibold text-gray-900">
                           {feature.icon}
                           {feature.name}
@@ -227,7 +227,7 @@ const Deployments = () => {
                     <InlineIcon
                       aria-hidden="true"
                       icon="heroicons:arrow-path-solid"
-                      className="mt-1 size-5 flex-none text-sky-600"
+                      className="mt-1 size-8 flex-none text-sky-600"
                     />
                     <span>
                       <strong className="font-semibold text-gray-900">
@@ -243,7 +243,7 @@ const Deployments = () => {
                     <InlineIcon
                       aria-hidden="true"
                       icon="heroicons:wrench-screwdriver-solid"
-                      className="mt-1 size-5 flex-none text-sky-600"
+                      className="mt-1 size-8 flex-none text-sky-600"
                     />
                     <span>
                       <strong className="font-semibold text-gray-900">
@@ -259,7 +259,7 @@ const Deployments = () => {
                     <InlineIcon
                       aria-hidden="true"
                       icon="heroicons:server-solid"
-                      className="mt-1 size-5 flex-none text-sky-600"
+                      className="mt-1 size-8 flex-none text-sky-600"
                     />
                     <span>
                       <strong className="font-semibold text-gray-900">
