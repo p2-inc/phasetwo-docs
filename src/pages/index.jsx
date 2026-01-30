@@ -2,7 +2,7 @@ import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { InlineIcon } from "@iconify/react";
 import Layout from "@theme/Layout";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StartYourJourney from "../components/ctas/start-your-journey";
 import Cta from "../components/ctas/homepage-dual-line-cta";
 import styles from "./styles.module.css";
@@ -311,6 +311,9 @@ function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   const [activeTab, setActiveTab] = useState(0);
+  const mainRef = useRef(null);
+  const gsapApiRef = useRef(null);
+  const gsapCtxRef = useRef(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -318,97 +321,143 @@ function Home() {
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reduceMotion) return;
 
-    // Defer scroll reveal setup to idle time to avoid blocking first paint.
-    const schedule = (cb) => {
-      if ("requestIdleCallback" in window) {
-        return window.requestIdleCallback(cb, { timeout: 1500 });
-      }
-      return window.setTimeout(cb, 1);
-    };
-    const cancel = (id) => {
-      if ("cancelIdleCallback" in window) {
-        // eslint-disable-next-line no-undef
-        window.cancelIdleCallback(id);
-        return;
-      }
-      window.clearTimeout(id);
-    };
+    let cancelled = false;
 
-    // If IntersectionObserver isn't available, do nothing (content remains visible).
-    if (!("IntersectionObserver" in window)) return;
+    const register = async () => {
+      const scopeEl = mainRef.current;
+      if (!scopeEl) return;
 
-    let observer;
-    const idleId = schedule(() => {
-      const elements = document.querySelectorAll(
-        "[data-scroll-slide-in]:not([data-scroll-slide-in-registered='true'])"
+      if (!gsapApiRef.current) {
+        // Load as early as possible (no idle deferral) so animations can start quickly.
+        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+          import("gsap"),
+          import("gsap/ScrollTrigger"),
+        ]);
+        if (cancelled) return;
+
+        gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.config({
+          limitCallbacks: true,
+          ignoreMobileResize: true,
+        });
+
+        gsapApiRef.current = { gsap, ScrollTrigger };
+      }
+
+      const { gsap, ScrollTrigger } = gsapApiRef.current;
+
+      if (!gsapCtxRef.current) {
+        // Create a single context for the whole homepage and add animations into it over time.
+        gsapCtxRef.current = gsap.context(() => {}, scopeEl);
+      }
+
+      // Capture candidates (only those not registered yet).
+      const candidates = Array.from(scopeEl.querySelectorAll("[data-scroll-slide-in]")).filter(
+        (el) => el instanceof HTMLElement && el.dataset.gsapScrollSlideInRegistered !== "true"
       );
-      if (!elements.length) return;
+      if (!candidates.length) return;
 
+      // Measure first to avoid layout thrash (read first, then write).
+      const measured = candidates.map((el) => ({
+        el,
+        rect: el.getBoundingClientRect(),
+      }));
+
+      const parseDelayMs = (el) => {
+        const raw = el.style.getPropertyValue("--scroll-slide-in-delay")?.trim();
+        if (!raw) return null;
+        const ms = Number.parseFloat(raw);
+        return Number.isFinite(ms) ? ms : null;
+      };
+
+      // Compute delays with group-based staggering (same behavior as before).
       const groupCounters = new WeakMap();
       let globalSeq = 0;
-      const getStaggerIndex = (el) => {
+      const getDelayMs = (el) => {
+        const existing = parseDelayMs(el);
+        if (existing != null) return existing;
+
         const groupEl = el.closest("[data-scroll-slide-group]");
-        if (!groupEl) {
-          const idx = globalSeq;
-          globalSeq += 1;
-          return { idx, baseDelayMs: 0 };
-        }
+        if (!groupEl) return Math.min(globalSeq++ * 80, 560);
 
         const prev = groupCounters.get(groupEl) ?? 0;
         groupCounters.set(groupEl, prev + 1);
         const baseDelayMs =
-          Number(groupEl.getAttribute("data-scroll-slide-group-base-delay") ?? 0) ||
-          0;
-        return { idx: prev, baseDelayMs };
+          Number(groupEl.getAttribute("data-scroll-slide-group-base-delay") ?? 0) || 0;
+        return baseDelayMs + Math.min(prev * 80, 560);
       };
 
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const el = entry.target;
-            if (entry.isIntersecting) {
-              el.classList.remove("scroll-slide-in--hidden");
-              el.classList.add("scroll-slide-in--visible");
-              observer.unobserve(el);
-            } else {
-              // Mark non-intersecting elements as hidden once IO reports their state.
-              el.classList.add("scroll-slide-in--hidden");
-            }
+      const startY = -24; // slightly less motion = less work + less jank
+      const startThreshold = window.innerHeight * 0.85;
+
+      gsapCtxRef.current.add(() => {
+        for (const { el, rect } of measured) {
+          el.dataset.gsapScrollSlideInRegistered = "true";
+
+          // If element is already within the trigger zone, keep it visible (no flash/hide).
+          const alreadyInZone = rect.top < startThreshold && rect.bottom > 0;
+          if (alreadyInZone) {
+            gsap.set(el, { autoAlpha: 1, y: 0, clearProps: "transform,opacity" });
+            continue;
           }
-        },
-        {
-          threshold: 0.15,
-          rootMargin: "0px 0px -10% 0px",
+
+          // Initial hidden state only for content below the fold.
+          gsap.set(el, {
+            autoAlpha: 0,
+            y: startY,
+            willChange: "transform,opacity",
+          });
+
+          const delayMs = getDelayMs(el);
+          const tween = gsap.to(el, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+            delay: delayMs / 1000,
+            paused: true,
+            // Drop will-change after animating to reduce layer pressure.
+            onComplete: () => {
+              el.style.willChange = "";
+            },
+            clearProps: "transform,opacity",
+          });
+
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 85%",
+            onEnter: (self) => {
+              tween.play();
+              self.kill();
+            },
+          });
         }
-      );
 
-      for (const el of elements) {
-        el.dataset.scrollSlideInRegistered = "true";
-        el.classList.add("scroll-slide-in");
+        // Refresh once per registration pass (not per element).
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
+    };
 
-        // If the element already has a custom delay, keep it; otherwise apply a small stagger.
-        if (!el.style.getPropertyValue("--scroll-slide-in-delay")) {
-          const { idx, baseDelayMs } = getStaggerIndex(el);
-          el.style.setProperty(
-            "--scroll-slide-in-delay",
-            `${baseDelayMs + Math.min(idx * 80, 560)}ms`
-          );
-        }
-
-        observer.observe(el);
-      }
-    });
+    register();
 
     return () => {
-      cancel(idleId);
-      observer?.disconnect();
+      cancelled = true;
+      // NOTE: we intentionally don't revert the whole context on every tab switch
+      // (it would kill triggers that haven't fired yet). We only revert on unmount.
+    };
+  }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      gsapCtxRef.current?.revert();
+      gsapCtxRef.current = null;
     };
   }, []);
 
   return (
     <Layout description={`${siteConfig.tagline}`}>
       {/* Main Content */}
-      <main>
+      <main ref={mainRef}>
         {/* Hero Section */}
         <section className="homepage-section homepage-hero-section">
           <div className="relative isolate">

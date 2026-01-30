@@ -78,7 +78,7 @@ function renderIcon(icon, { width, alt, className }) {
       "aria-hidden": alt ? undefined : icon.props?.["aria-hidden"] ?? true,
       role: alt ? "img" : icon.props?.role,
       "aria-label": alt || icon.props?.["aria-label"],
-      className: [mergedClassName, "[&_*]:fill-current"].filter(Boolean).join(" "),
+      className: mergedClassName,
       style: mergedStyle,
     });
   }

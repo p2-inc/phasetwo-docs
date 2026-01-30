@@ -89,7 +89,7 @@ export default function Configure() {
                   />
                 </div>
                 <h1 className="text-white">Control and Configure Your Keycloak Deployment</h1>
-                <p className="mt-6 text-gray-300">
+                <p className="mt-6 text-gray-300 text--body-large">
                   Tools for managing your cluster with security controls, branding options, and
                   extension-ready infrastructure—without the operational burden.
                 </p>

@@ -106,7 +106,7 @@ export default function SelfHostVsManaged() {
                   />
                 </div>
                 <h1 className="text-white">Managed vs Self-Hosted</h1>
-                <p className="mt-6 text-gray-300">
+                <p className="mt-6 text-gray-300 text--body-large">
                   Open-source does not mean you should run it yourself. Learn
                   the hidden costs of self-hosting Keycloak and why teams choose
                   Phase Two to operate it reliably at scale.

@@ -25,6 +25,7 @@
     "classnames": "^2.2.6",
     "docusaurus-plugin-openapi-docs": "^4.3.1",
     "docusaurus-theme-openapi-docs": "^4.3.1",
+    "gsap": "^3.14.2",
     "keycloak-js": "^19.0.2",
     "radix-ui": "^1.4.2",
     "react": "18.3.1",
