@@ -100,6 +100,16 @@ module.exports = {
           position: "left",
           items: [
             {
+              to: "product/keycloak-and-phase-two",
+              activeBasePath: "product/keycloak-and-phase-two",
+              label: "What are Keycloak and Phase Two",
+            },
+            {
+              to: "product/open-source-vs-commercial-offering",
+              activeBasePath: "product/open-source-vs-commercial-offering",
+              label: "Open Source vs Commercial Offering",
+            },
+            {
               to: "product/onprem",
               activeBasePath: "product/onprem",
               label: "On-Premise Deployment",

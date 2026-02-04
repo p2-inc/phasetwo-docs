@@ -25,6 +25,7 @@ export default function CardWithImage({
   imageSrc,
   imageAlt = "",
   layout = "imageBottom", // "imageBottom" | "horizontal"
+  imagePosition = "right", // "right" | "left" (only applies to "horizontal")
   className = "",
   style,
 }) {
@@ -32,6 +33,58 @@ export default function CardWithImage({
   const rootStyle = { height: "100%", ...style };
   const isHorizontal = layout === "horizontal";
   const TitleTag = titleAs === "h3" ? "h3" : "h4";
+  const isImageLeft = imagePosition === "left";
+
+  const contentEl = (
+    <div className="hosting-bento-content">
+      <TitleTag className="text-white mb-4">{title}</TitleTag>
+      <div className="text-gray-300 hosting-bento-text">
+        {description}
+      </div>
+
+      {linkLabel && linkUrl ? (
+        external ? (
+          <a
+            href={linkUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="hosting-bento-link"
+          >
+            {linkLabel}{" "}
+            <span className="hosting-bento-link-arrow" aria-hidden="true">
+              →
+            </span>
+          </a>
+        ) : (
+          <Link to={linkUrl} className="hosting-bento-link">
+            {linkLabel}{" "}
+            <span className="hosting-bento-link-arrow" aria-hidden="true">
+              →
+            </span>
+          </Link>
+        )
+      ) : null}
+    </div>
+  );
+
+  const imageEl = imageSrc ? (
+    <div
+      className={[
+        "hosting-bento-image",
+        "flex",
+        "justify-center",
+        isImageLeft ? "lg:justify-start" : "lg:justify-end",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <img
+        src={imageSrc}
+        alt={imageAlt}
+        className="w-full max-w-[420px] h-auto"
+      />
+    </div>
+  ) : null;
 
   return (
     <div
@@ -47,45 +100,17 @@ export default function CardWithImage({
     >
       {isHorizontal ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center h-full">
-          <div className="hosting-bento-content">
-            <TitleTag className="text-white mb-4">{title}</TitleTag>
-            <div className="text-gray-300 hosting-bento-text">
-              {description}
-            </div>
-
-            {linkLabel && linkUrl ? (
-              external ? (
-                <a
-                  href={linkUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hosting-bento-link"
-                >
-                  {linkLabel}{" "}
-                  <span className="hosting-bento-link-arrow" aria-hidden="true">
-                    →
-                  </span>
-                </a>
-              ) : (
-                <Link to={linkUrl} className="hosting-bento-link">
-                  {linkLabel}{" "}
-                  <span className="hosting-bento-link-arrow" aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              )
-            ) : null}
-          </div>
-
-          {imageSrc ? (
-            <div className="hosting-bento-image flex justify-center lg:justify-end">
-              <img
-                src={imageSrc}
-                alt={imageAlt}
-                className="w-full max-w-[420px] h-auto"
-              />
-            </div>
-          ) : null}
+          {isImageLeft ? (
+            <>
+              {imageEl}
+              {contentEl}
+            </>
+          ) : (
+            <>
+              {contentEl}
+              {imageEl}
+            </>
+          )}
         </div>
       ) : (
         <>

@@ -5,6 +5,7 @@ import Layout from "@theme/Layout";
 import { useEffect, useRef, useState } from "react";
 import StartYourJourney from "../components/ctas/start-your-journey";
 import Cta from "../components/ctas/homepage-dual-line-cta";
+import FrameworkTabs from "../components/FrameworkTabs";
 import styles from "./styles.module.css";
 
 const HostingItems = [
@@ -875,67 +876,55 @@ function Home() {
             </div>
             
             {/* Tabbed Structure */}
-            <div className="framework-tabs-container">
-              <div className="framework-tabs-header">
-                <button 
-                  className={`framework-tab ${activeTab === 0 ? 'active' : ''}`}
-                  onClick={() => setActiveTab(0)}
-                >
-                  Developer Frameworks
-                </button>
-                <button 
-                  className={`framework-tab ${activeTab === 1 ? 'active' : ''}`}
-                  onClick={() => setActiveTab(1)}
-                >
-                  Protocols
-                </button>
-                <button 
-                  className={`framework-tab ${activeTab === 2 ? 'active' : ''}`}
-                  onClick={() => setActiveTab(2)}
-                >
-                  Identity Providers
-                </button>
-              </div>
-              
-              <div className="framework-tabs-content">
-                {activeTab === 0 && (
-                  <div className="framework-tab-panel">
-                    <p className="framework-tab-text">
-                      Phase Two can secure <span className="underline">web frameworks</span> or native applications to provide authentication and authorization services.
-                    </p>
-                    <div className="framework-tab-image">
-                      <div className={styles.engLogoGrid} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
-                        {Object.entries(engineeringFrameworkLogos).map(([key, logo]) => (
-                          <div key={key} className={styles.engLogoTile} role="listitem" data-scroll-slide-in>
-                            <img
-                              src={`/eng-logos/${logo.file}`}
-                              alt={logo.alt}
-                              className={styles.engLogoImg}
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          </div>
-                        ))}
-                      </div>
+            <FrameworkTabs
+              tabs={[
+                { key: "frameworks", label: "Developer Frameworks" },
+                { key: "protocols", label: "Protocols" },
+                { key: "idps", label: "Identity Providers" },
+              ]}
+              activeIndex={activeTab}
+              onChange={setActiveTab}
+              panels={[
+                <div key="frameworks" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Phase Two can secure <span className="underline">web frameworks</span> or native applications
+                    to provide authentication and authorization services.
+                  </p>
+                  <div className="framework-tab-image">
+                    <div
+                      className={styles.engLogoGrid}
+                      role="list"
+                      data-scroll-slide-group
+                      data-scroll-slide-group-base-delay="80"
+                    >
+                      {Object.entries(engineeringFrameworkLogos).map(([key, logo]) => (
+                        <div key={key} className={styles.engLogoTile} role="listitem" data-scroll-slide-in>
+                          <img
+                            src={`/eng-logos/${logo.file}`}
+                            alt={logo.alt}
+                            className={styles.engLogoImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
-                {activeTab === 1 && (
-                  <div className="framework-tab-panel">
-                    <p className="framework-tab-text">
-                      Support for industry-standard protocols including OAuth 2.0, OpenID Connect, SAML 2.0, and more. Seamlessly integrate with existing authentication systems.
-                    </p>
-                  </div>
-                )}
-                {activeTab === 2 && (
-                  <div className="framework-tab-panel">
-                    <p className="framework-tab-text">
-                      Connect with major identity providers including Okta, Auth0, Azure AD, Google Workspace, Active Directory, and many others. Migrate or broker identities seamlessly.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+                </div>,
+                <div key="protocols" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Support for industry-standard protocols including OAuth 2.0, OpenID Connect, SAML 2.0, and
+                    more. Seamlessly integrate with existing authentication systems.
+                  </p>
+                </div>,
+                <div key="idps" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Connect with major identity providers including Okta, Auth0, Azure AD, Google Workspace,
+                    Active Directory, and many others. Migrate or broker identities seamlessly.
+                  </p>
+                </div>,
+              ]}
+            />
             
           </div>
         </section>
