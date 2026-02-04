@@ -36,6 +36,7 @@ module.exports = {
         "self-service/create-a-cluster",
         "self-service/regions",
         "self-service/custom-domains",
+        "self-service/observability",
         "self-service/resources",
         "self-service/restrictions",
         "self-service/environment-variables",
