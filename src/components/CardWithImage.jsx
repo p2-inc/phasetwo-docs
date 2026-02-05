@@ -10,6 +10,8 @@ function isExternalUrl(url) {
  *
  * - Title: ReactNode
  * - TitleAs: "h4" | "h3" (optional; defaults to "h4")
+ * - ReverseHorizontal: boolean (horizontal layout only; when true, image renders on the right)
+ * - ImagePosition: "left" | "right" (horizontal layout only; overrides ReverseHorizontal)
  * - Description: ReactNode (rich formatting supported)
  * - Optional link: label + URL
  * - Optional image: src + alt
@@ -25,7 +27,8 @@ export default function CardWithImage({
   imageSrc,
   imageAlt = "",
   layout = "imageBottom", // "imageBottom" | "horizontal"
-  imagePosition = "right", // "right" | "left" (only applies to "horizontal")
+  reverseHorizontal = false,
+  imagePosition, // "right" | "left" (only applies to "horizontal")
   className = "",
   style,
 }) {
@@ -33,10 +36,23 @@ export default function CardWithImage({
   const rootStyle = { height: "100%", ...style };
   const isHorizontal = layout === "horizontal";
   const TitleTag = titleAs === "h3" ? "h3" : "h4";
-  const isImageLeft = imagePosition === "left";
+  const isReversed =
+    imagePosition === "right"
+      ? true
+      : imagePosition === "left"
+        ? false
+        : reverseHorizontal;
 
   const contentEl = (
-    <div className="hosting-bento-content">
+    <div
+      className={[
+        "hosting-bento-content",
+        // Keep text first on mobile; swap on desktop when not reversed
+        isReversed ? "lg:order-1" : "lg:order-2",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <TitleTag className="text-white mb-4">{title}</TitleTag>
       <div className="text-gray-300 hosting-bento-text">
         {description}
@@ -73,7 +89,8 @@ export default function CardWithImage({
         "hosting-bento-image",
         "flex",
         "justify-center",
-        isImageLeft ? "lg:justify-start" : "lg:justify-end",
+        // Keep image second on mobile; swap on desktop when not reversed
+        isReversed ? "lg:order-2 lg:justify-end" : "lg:order-1 lg:justify-start",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -100,17 +117,8 @@ export default function CardWithImage({
     >
       {isHorizontal ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center h-full">
-          {isImageLeft ? (
-            <>
-              {imageEl}
-              {contentEl}
-            </>
-          ) : (
-            <>
-              {contentEl}
-              {imageEl}
-            </>
-          )}
+          {contentEl}
+          {imageEl}
         </div>
       ) : (
         <>

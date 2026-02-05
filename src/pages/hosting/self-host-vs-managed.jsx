@@ -170,6 +170,7 @@ export default function SelfHostVsManaged() {
                     imageSrc={BENEFIT_IMAGES[idx] ?? PLACEHOLDER_IMG}
                     imageAlt={b.title}
                     layout={idx === 0 ? "horizontal" : "imageBottom"}
+                    reverseHorizontal={idx === 0}
                     className={idx === 0 ? "lg:col-span-2" : ""}
                   />
                 ))}
