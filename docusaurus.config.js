@@ -139,6 +139,11 @@ module.exports = {
               activeBasePath: "product/integrations",
               label: "Integrations",
             },
+            {
+              to: "product/cockroachdb",
+              activeBasePath: "product/cockroachdb",
+              label: "CockroachDB",
+            },
           ],
         },
         {
@@ -315,6 +320,11 @@ module.exports = {
               to: "product/onprem",
               activeBasePath: "product/onprem",
               label: "On-Prem",
+            },
+            {
+              to: "product/cockroachdb",
+              activeBasePath: "product/cockroachdb",
+              label: "CockroachDB",
             },
           ],
         },

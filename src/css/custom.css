@@ -78,13 +78,21 @@
   --success: #18cc6d;
   --form-outline: rgba(255, 255, 255, 0.2);
   --form-outline-focus: rgba(63, 161, 227, 0.5);
-  --inner-width: 1400px;
-  --inner-width-narrow: 1040px;
-  --ifm-container-width: 1400px;
+  --inner-width: 1560px;
+  --inner-width-narrow: 1200px;
+  --ifm-container-width: 1560px;
   
   /* Layout Variables */
-  --content-width-wide: 1400px;
-  --content-width-narrow: 1040px;
+  --content-width-wide: 1560px;
+  --content-width-narrow: 1200px;
+
+  /**
+   * Content container horizontal padding.
+   * Intended to replace repeated Tailwind wrappers like:
+   * `mx-auto max-w-7xl px-6 lg:px-8`
+   */
+  --content-padding-x: 24px; /* ~= px-6 */
+  --content-padding-x-lg: 32px; /* ~= lg:px-8 */
   /**
    * Breakpoints
    * Note: CSS media queries can't reliably use CSS vars; keep the values below
@@ -94,6 +102,7 @@
   --breakpoint-medium-down: 767px;
   --breakpoint-mid: 800px;
   --breakpoint-lar: 1200px;
+  --breakpoint-xl: 1600px;
 
   /* Responsive outer gutters */
   --layout-margin-mobile: 8px;
@@ -181,6 +190,33 @@
     --ifm-h5-font-size: var(--p2-h5-desktop);
     --ifm-h6-font-size: var(--p2-h6-desktop);
     --p2-markdown-h1-first-font-size: var(--p2-markdown-h1-first-desktop);
+  }
+}
+
+/* >= 1024px: container padding increases (lg) */
+@media (min-width: 1024px) {
+  :root {
+    --content-padding-x: var(--content-padding-x-lg);
+  }
+}
+
+/* >= 1600px: super-large defaults */
+@media (min-width: 1600px) {
+  :root {
+    /* Body */
+    --ifm-font-size-base: 18px;
+    --p2-font-size-body-large: 20px;
+
+    /* Headings */
+    --ifm-h1-font-size: calc(var(--p2-h1-desktop) + 4px);
+    --ifm-h2-font-size: calc(var(--p2-h2-desktop) + 4px);
+    --ifm-h3-font-size: calc(var(--p2-h3-desktop) + 4px);
+    --ifm-h4-font-size: calc(var(--p2-h4-desktop) + 4px);
+    --ifm-h5-font-size: calc(var(--p2-h5-desktop) + 4px);
+    --ifm-h6-font-size: calc(var(--p2-h6-desktop) + 4px);
+    --p2-markdown-h1-first-font-size: calc(
+      var(--p2-markdown-h1-first-desktop) + 4px
+    );
   }
 }
 
@@ -288,6 +324,15 @@ main {
   margin-right: var(--margin-right);
   width: calc(100% - var(--margin-left) - var(--margin-right));
   max-width: 100%;
+}
+
+/* Global content container */
+.p2-content {
+  width: 100%;
+  max-width: var(--content-width-wide);
+  margin-inline: auto;
+  padding-inline: var(--content-padding-x);
+  box-sizing: border-box;
 }
 
 /* Section separator lines - extend full width including margins */

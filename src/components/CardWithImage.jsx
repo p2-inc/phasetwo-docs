@@ -33,8 +33,13 @@ export default function CardWithImage({
   style,
 }) {
   const external = isExternalUrl(linkUrl);
-  const rootStyle = { height: "100%", ...style };
   const isHorizontal = layout === "horizontal";
+  const rootStyle = {
+    height: "100%",
+    // 400px content + existing top/bottom padding (24px + 24px)
+    ...(isHorizontal ? { minHeight: 448 } : {}),
+    ...style,
+  };
   const TitleTag = titleAs === "h3" ? "h3" : "h4";
   const isReversed =
     imagePosition === "right"
@@ -42,6 +47,9 @@ export default function CardWithImage({
       : imagePosition === "left"
         ? false
         : reverseHorizontal;
+  const horizontalColsClass = isReversed
+    ? "lg:grid-cols-[45%_55%]"
+    : "lg:grid-cols-[55%_45%]";
 
   const contentEl = (
     <div
@@ -53,33 +61,33 @@ export default function CardWithImage({
         .filter(Boolean)
         .join(" ")}
     >
-      <TitleTag className="text-white mb-4">{title}</TitleTag>
-      <div className="text-gray-300 hosting-bento-text">
-        {description}
-      </div>
+      <div className="w-full max-w-[460px] mx-auto">
+        <TitleTag className="text-white mb-4">{title}</TitleTag>
+        <div className="text-gray-300 hosting-bento-text">{description}</div>
 
-      {linkLabel && linkUrl ? (
-        external ? (
-          <a
-            href={linkUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="hosting-bento-link"
-          >
-            {linkLabel}{" "}
-            <span className="hosting-bento-link-arrow" aria-hidden="true">
-              →
-            </span>
-          </a>
-        ) : (
-          <Link to={linkUrl} className="hosting-bento-link">
-            {linkLabel}{" "}
-            <span className="hosting-bento-link-arrow" aria-hidden="true">
-              →
-            </span>
-          </Link>
-        )
-      ) : null}
+        {linkLabel && linkUrl ? (
+          external ? (
+            <a
+              href={linkUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="hosting-bento-link"
+            >
+              {linkLabel}{" "}
+              <span className="hosting-bento-link-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          ) : (
+            <Link to={linkUrl} className="hosting-bento-link">
+              {linkLabel}{" "}
+              <span className="hosting-bento-link-arrow" aria-hidden="true">
+                →
+              </span>
+            </Link>
+          )
+        ) : null}
+      </div>
     </div>
   );
 
@@ -89,8 +97,12 @@ export default function CardWithImage({
         "hosting-bento-image",
         "flex",
         "justify-center",
+        isHorizontal ? "h-[400px] items-center" : "",
         // Keep image second on mobile; swap on desktop when not reversed
-        isReversed ? "lg:order-2 lg:justify-end" : "lg:order-1 lg:justify-start",
+        // Center image horizontally within its column on desktop.
+        isReversed
+          ? "lg:order-2 lg:justify-center lg:pr-8"
+          : "lg:order-1 lg:justify-center lg:pl-8",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -98,7 +110,11 @@ export default function CardWithImage({
       <img
         src={imageSrc}
         alt={imageAlt}
-        className="w-full max-w-[420px] h-auto"
+        className={[
+          isHorizontal ? "h-full w-auto max-w-full object-contain" : "w-full h-auto",
+        ]
+          .filter(Boolean)
+          .join(" ")}
       />
     </div>
   ) : null;
@@ -116,7 +132,16 @@ export default function CardWithImage({
       style={rootStyle}
     >
       {isHorizontal ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center h-full">
+        <div
+          className={[
+            "grid",
+            "grid-cols-1",
+            horizontalColsClass,
+            "gap-8",
+            "items-center",
+            "h-full",
+          ].join(" ")}
+        >
           {contentEl}
           {imageEl}
         </div>

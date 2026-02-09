@@ -46,7 +46,6 @@ module.exports = {
       addComponents({
         // Link styles
         '.link-primary': {
-          fontSize: '14px',
           lineHeight: '1.5',
           fontWeight: '500',
           fontFamily: theme('fontFamily.sans'),
