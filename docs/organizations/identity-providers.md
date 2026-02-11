@@ -46,6 +46,16 @@ When using organization specific IdP and users are part of multiple organization
 
 This can be achieved by using `prompt=login` as the `idpHint` to force the user to log into the `beta-corp-idp`. This is described in more detail in the [SSO documentation](/docs/sso/sso-without-auth/#add-identity-provider-redirect-to-your-application).
 
+### Assigning multiple IdPs to an organization
+
+On the main realms page, under **Manage Settings**, that "Multiple IDPs enabled" is selected in the modal.
+
+![Organizations Multiple IdPs enabled](/docs/organizations/identity-providers/organizations-multiple-idps.png)
+
+Once this is enabled, you can assign multiple IdPs to an organization by navigating to the **Identity providers** tab of the organizations details and using the **Add identity provider** button.
+
+![Organizations Details Identity Providers](/docs/organizations/identity-providers/organization-details-identity-providers.png)
+
 ### API access
 
 It is possible to manage all aspects of the identity provider and its relationship to the organization using the [API](/api/phase-two-admin-rest-api). You will notice that the method in the Phase Two API are similar to those in the Keycloak Admin API. If you are building software that is targeted at organization administrators, you should use the Phase Two API, as it uses the permission model for organizations, and is not compatible with the Keycloak Admin API.

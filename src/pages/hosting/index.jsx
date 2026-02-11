@@ -74,7 +74,7 @@ export default function Hosted() {
   return (
     <Layout
       title="Managed Hosting for Keycloak"
-      description="Phase Two provides Keycloak as a Service. This includes managed hosting for Keycloak to help you with your Identity and Access Management needs."
+      description="Fully managed Keycloak hosting with 99.99% SLA, SOC II + ISO 27001 certifications and GDPR compliancy, and 24/7 support from top Keycloak experts/contributors. Available in multiple regions."
     >
       <main className="hosting-page">
         <div className="pageHero">
@@ -85,7 +85,7 @@ export default function Hosted() {
             </h3>
           </div>
           <div>
-            <div className="row max-w-4xl mx-auto pt-4">
+            <div className="row mx-auto max-w-4xl pt-4">
               <div className="col margin-bottom--md">
                 <div className="card card--full-height text--center">
                   <div className="card__header">
@@ -145,7 +145,7 @@ export default function Hosted() {
             </div>
           </div>
           <div className="mt-20">
-            <div className="pageHeroCta flex gap-2 w-full justify-center">
+            <div className="pageHeroCta flex w-full justify-center gap-2">
               <a href="mailto:sales@phasetwo.io">
                 <button className={`btnSecondary`}>Contact Sales</button>
               </a>
@@ -177,13 +177,13 @@ export default function Hosted() {
             </h3>
           </div>
           <div className="contentBlockBody">
-            <dl className="mx-auto mt-10 max-w-5xl grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-3 lg:gap-y-16 text-left">
+            <dl className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-x-8 gap-y-10 text-left text-base leading-7 text-gray-600 sm:grid-cols-3 lg:gap-y-16">
               {features.map((feature) => (
                 <div key={feature.name} className="relative pl-9">
                   <dt className="font-semibold text-gray-900">
                     <InlineIcon
                       icon="akar-icons:check"
-                      className="w-6 h-6 absolute left-0 top-1"
+                      className="absolute left-0 top-1 h-6 w-6"
                     />
                     {feature.name}
                   </dt>
@@ -387,7 +387,7 @@ export default function Hosted() {
                   rel="noopener noreferrer"
                   className="margin-right--md"
                 >
-                  <button className="btnTertiary ">Get Started For Free</button>
+                  <button className="btnTertiary">Get Started For Free</button>
                 </a>
                 <a
                   href="https://scheduler.zoom.us/phasetwo"

@@ -1013,9 +1013,9 @@ paths:
     post:
       tags:
         - Organizations
-      summary: Create a link for the organization's admin portal
+      summary: Create a link for the organization's IdP Wizard
       operationId: createPortalLink
-      description: Create a link for this organizations admin portal. This link encodes an action token on behalf of the organization's default admin user, or the user that is optionally specified in this request. The user specified must be a member of this organization, and have full organization admin roles.
+      description: Create a link for this organization's IdP Wizard. This link encodes an action token on behalf of the organization's default admin user, or the user that is optionally specified in this request. The user specified must be a member of this organization, and have full organization admin roles.
       requestBody:
         content:
           application/x-www-form-urlencoded:
