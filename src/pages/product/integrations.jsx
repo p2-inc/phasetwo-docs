@@ -65,41 +65,13 @@ function Integrations() {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <FrameworkTabs
               tabs={[
-                { key: "protocols", label: "Protocols" },
                 { key: "idps", label: "Identity Providers" },
                 { key: "frameworks", label: "Frameworks" },
+                { key: "protocols", label: "Protocols" },
               ]}
               activeIndex={activeTab}
               onChange={setActiveTab}
               panels={[
-                <div key="protocols" className="framework-tab-panel">
-                  <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
-                    <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
-                      Phase Two supports the most common protocols for seamless
-                      integration with <b>any system</b>.
-                    </p>
-                  </div>
-
-                  <div className="mt-10 flex justify-center">
-                    <div className={pageStyles.engLogoGrid} role="list">
-                      {[
-                        { src: "/img/saml.svg", alt: "SAML", className: styles.logoImgWide },
-                        { src: "/img/openid.svg", alt: "OpenID", className: styles.logoImgWide },
-                      ].map((logo) => (
-                        <div key={logo.alt} className={pageStyles.engLogoTile} role="listitem">
-                          <img
-                            src={logo.src}
-                            alt={logo.alt}
-                            className={logo.className}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>,
-
                 <div key="idps" className="framework-tab-panel">
                   <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
                     <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
@@ -260,6 +232,34 @@ function Integrations() {
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                </div>,
+
+                <div key="protocols" className="framework-tab-panel">
+                  <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+                    <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
+                      Phase Two supports the most common protocols for seamless
+                      integration with <b>any system</b>.
+                    </p>
+                  </div>
+
+                  <div className="mt-10 flex justify-center">
+                    <div className={pageStyles.engLogoGrid} role="list">
+                      {[
+                        { src: "/img/saml.svg", alt: "SAML", className: styles.logoImgWide },
+                        { src: "/img/openid.svg", alt: "OpenID", className: styles.logoImgWide },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={pageStyles.engLogoTile} role="listitem">
+                          <img
+                            src={logo.src}
+                            alt={logo.alt}
+                            className={logo.className}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>,

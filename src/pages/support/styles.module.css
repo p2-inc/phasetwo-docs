@@ -48,14 +48,52 @@
   margin-bottom: 0;
 }
 
+.frameworkGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  justify-content: center;
+}
 .frameworkGridCol {
   align-items: center;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
-  font-size: 1.2rem;
-  border: 1px solid #e0e0e0;
+  padding: 1.25rem 1.5rem;
+  font-size: 1.1rem;
+  border: 1px solid var(--line-color);
+  border-radius: 16px;
+  background: rgba(15, 15, 15, 0.5);
+  color: var(--ifm-color-content);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
 }
+.frameworkGridCol:hover {
+  border-color: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary);
+  text-decoration: none;
+}
+@media (min-width: 1024px) {
+  .frameworkGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+/* Support plans table: page-specific overrides */
+.supportPagePlansTable table td:first-child {
+  font-style: normal;
+}
+.supportPagePlansTable .btnPrimary {
+  background-color: var(--ifm-color-secondary);
+  border-color: var(--ifm-color-secondary);
+}
+.supportPagePlansTable .btnPrimary:hover {
+  background-color: var(--ifm-color-secondary-dark);
+  border-color: var(--ifm-color-secondary-dark);
+}
+.supportPagePlansTable [class*="rounded-full"] {
+  border-color: var(--ifm-color-secondary) !important;
+  background-color: var(--ifm-color-secondary) !important;
+}
+
 .frameworkGridColMigrate {
   align-items: center;
   display: flex;
@@ -63,4 +101,17 @@
   padding: 2rem 1rem;
   font-size: 1.2rem;
   border: none;
+}
+
+/* IdP logos: 3 per row on large screens (even grid) */
+.idpLogoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 670px;
+}
+@media (min-width: 1024px) {
+  .idpLogoGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

@@ -495,12 +495,14 @@ main {
 }
 
 .framework-tab.active {
-  background-color: var(--ifm-color-primary-dark);
+  /* 20% darker shade of the accent color */
+  background-color: color-mix(in srgb, var(--ifm-color-primary) 70%, #000);
   color: var(--color-wh);
 }
 
 .framework-tab.active:hover {
-  background-color: var(--ifm-color-primary-dark);
+  /* Keep hover behavior the same as active */
+  background-color: color-mix(in srgb, var(--ifm-color-primary) 70%, #000);
 }
 
 .framework-tabs-content {
@@ -1733,6 +1735,14 @@ a.menu__link.menu__link--sublist {
   background-repeat: repeat;
 }
 
+/* Contact page: links in accent color */
+.contact-page .contact-links a {
+  color: var(--ifm-color-primary);
+}
+.contact-page .contact-links a:hover {
+  color: var(--ifm-color-primary-light);
+}
+
 .hosting-block {
   background-image: url(/img/pattern-plus.svg);
   background-repeat: repeat;
@@ -1818,6 +1828,7 @@ a.menu__link.menu__link--sublist {
 table.tw-table-pricing {
   display: table;
   margin-bottom: 0;
+  font-family: var(--ifm-font-family-base);
 }
 
 table.tw-table-pricing thead {

@@ -1,9 +1,19 @@
 import React from "react";
 import styles from "./styles.module.css";
-import { InlineIcon } from "@iconify/react";
+
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M10.1791 1.10639C10.4179 0.94065 10.7419 0.968577 10.952 1.19004L11.8198 2.10514C12.0601 2.35857 12.0601 2.76937 11.8198 3.02277L4.43508 10.81C4.19476 11.0633 3.80519 11.0633 3.56488 10.81L0.18022 7.24085C-0.0600894 6.98744 -0.0600573 6.57664 0.18022 6.32321L1.04802 5.40811L1.14417 5.32446C1.38281 5.15833 1.70789 5.18687 1.91822 5.40811L3.99998 7.597L10.0818 1.19004L10.1791 1.10639Z" fill="black" />
+  </svg>
+);
 
 const CheckMark = () => (
-  <InlineIcon icon="fa-solid:check" className="size-4 text-green-500" />
+  <span
+    className="inline-flex size-6 flex-none items-center justify-center rounded-full border-[1.5px] border-p2blue-400 bg-p2blue-500"
+    aria-hidden="true"
+  >
+    <CheckIcon />
+  </span>
 );
 const Dash = () => <span className={styles.notPartOfPlan}>&mdash;</span>;
 
@@ -81,32 +91,27 @@ export const KeycloakSupportPackages = () => {
   return (
     <div className={styles.planSupport} id="experts">
       <div className={styles.plan}>
-        <div className={styles.planHead}>
-          <img
-            className={styles.featCardPicto}
-            src="/img/plan-community.svg"
-            alt="Enterprise plan"
-            loading="lazy"
-          />
-          <h3>Enterprise Keycloak Support Packages</h3>
-        </div>
-        <div className={styles.tableThemeWrapper}>
+        <div className={`${styles.tableThemeWrapper} pt-8`}>
           <table className={styles.tableTheme}>
             <thead>
               <tr>
                 <th></th>
-                <th>
-                  <InlineIcon
-                    icon="map:chairlift"
-                    style={{ fontSize: "1.8rem", color: "#40a2e3" }}
+                <th className="text-white">
+                  <img
+                    src="/img/support-hosting-silver.svg"
+                    alt=""
+                    style={{ width: "64px" }}
+                    loading="lazy"
                   />
                   <br />
                   Silver
                 </th>
-                <th>
-                  <InlineIcon
-                    icon="ph:cable-car-light"
-                    style={{ fontSize: "3.2rem", color: "#40a2e3" }}
+                <th className="text-white">
+                  <img
+                    src="/img/support-hosting-gold.svg"
+                    alt=""
+                    style={{ width: "64px" }}
+                    loading="lazy"
                   />
                   <br />
                   Gold
@@ -114,11 +119,11 @@ export const KeycloakSupportPackages = () => {
               </tr>
             </thead>
             <tbody>
-              {features.map(({ feature, silver, gold }) => (
-                <tr>
-                  <td>{feature}</td>
-                  <td>{silver}</td>
-                  <td>{gold}</td>
+              {features.map(({ feature, silver, gold }, idx) => (
+                <tr key={idx}>
+                  <td className="text-gray-300">{feature}</td>
+                  <td className="text-gray-300">{silver}</td>
+                  <td className="text-gray-300">{gold}</td>
                 </tr>
               ))}
             </tbody>
@@ -131,7 +136,7 @@ export const KeycloakSupportPackages = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <button className={`btnPrimary ${styles.btnPlan}`}>
+            <button className={`btnPrimary btnSupport ${styles.btnPlan}`}>
               Contact sales
             </button>
           </a>

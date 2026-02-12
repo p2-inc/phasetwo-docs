@@ -20,6 +20,12 @@ const prices = {
   },
 };
 
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M10.1791 1.10639C10.4179 0.94065 10.7419 0.968577 10.952 1.19004L11.8198 2.10514C12.0601 2.35857 12.0601 2.76937 11.8198 3.02277L4.43508 10.81C4.19476 11.0633 3.80519 11.0633 3.56488 10.81L0.18022 7.24085C-0.0600894 6.98744 -0.0600573 6.57664 0.18022 6.32321L1.04802 5.40811L1.14417 5.32446C1.38281 5.15833 1.70789 5.18687 1.91822 5.40811L3.99998 7.597L10.0818 1.19004L10.1791 1.10639Z" fill="black" />
+  </svg>
+);
+
 const tiers = [
   {
     name: "Starter",
@@ -82,29 +88,25 @@ export type Feature = {
 
 export default function DetailedPriceComparison() {
   const [term, setTerm] = useState(true);
+  const [expandedMobile, setExpandedMobile] = useState<Set<string>>(new Set());
   const billingTermValue = term ? "annual" : "monthly";
 
-  return (
-    <div className="bg-white pb-10 pt-24 sm:pb-10 sm:pt-16">
-      <div className="max-w-8xl mx-auto px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-base/7 font-semibold text-p2blue-500">
-            Pricing for Hosting
-          </h2>
-          <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-            Simple. Predictable. Scalable.
-          </p>
-        </div>
-        <p className="mx-auto mt-6 max-w-2xl text-pretty text-center text-lg font-medium text-gray-600 sm:text-xl/8">
-          Phase Two hosting is priced per cluster. No hidden fees, no
-          unpredictable costs, and generous limits to get your team started. All
-          tiers can be purchased directly in the dashboard.
-        </p>
+  const toggleMobile = (id: string) => {
+    setExpandedMobile((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
+  return (
+    <div className="pb-10">
+      <div className="max-w-8xl mx-auto px-6 lg:px-8">
         <Field className="flex items-center justify-center gap-2">
           <Label
-            className={cs({
-              "font-bold": billingTermValue === "monthly",
+            className={cs("text-gray-300", {
+              "font-bold text-white": billingTermValue === "monthly",
             })}
           >
             Monthly
@@ -117,97 +119,118 @@ export default function DetailedPriceComparison() {
             <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
           </Switch>
           <Label
-            className={cs({
-              "font-bold": billingTermValue === "annual",
+            className={cs("text-gray-300", {
+              "font-bold text-white": billingTermValue === "annual",
             })}
           >
             Annual
           </Label>
         </Field>
 
-        {/* xs to lg */}
-        <div className="mx-auto mt-12 max-w-md space-y-8 sm:mt-16 lg:hidden">
-          {tiers.map((tier) => (
-            <section
-              key={tier.id}
-              className={cn(
-                tier.mostPopular
-                  ? "ring-2 ring-p2blue-500"
-                  : "ring-1 ring-gray-200",
-                "rounded-lg bg-white p-6 shadow-sm",
-              )}
-            >
-              <h3 className="text-lg font-semibold text-gray-900">
-                {tier.name}
-              </h3>
-              <p className="mt-2 flex items-baseline gap-x-1 text-gray-900">
-                <span className="text-3xl font-semibold">
-                  {tier.id === "custom"
-                    ? tier.priceMonthly[billingTermValue]
-                    : CurrencyNumberFormat(
-                        tier.priceMonthly[billingTermValue] as number,
-                      )}
-                </span>
-                {tier.id !== "custom" && (
-                  <span className="text-sm font-medium text-gray-500">
-                    /month
-                  </span>
-                )}
-              </p>
-              <a
-                href={tier.href}
+        {/* xs to lg - collapsible mobile cards */}
+        <div className="mx-auto mt-8 max-w-md space-y-8 sm:mt-8 lg:hidden">
+          {tiers.map((tier) => {
+            const isExpanded = expandedMobile.has(tier.id);
+            return (
+              <section
+                key={tier.id}
                 className={cn(
                   tier.mostPopular
-                    ? "bg-p2blue-600 text-white hover:bg-p2blue-500"
-                    : "text-p2blue-600 ring-1 ring-inset ring-p2blue-300 hover:ring-p2blue-500",
-                  "mt-6 block rounded-md px-3 py-2 text-center text-sm font-semibold transition",
+                    ? "ring-2 ring-p2blue-500"
+                    : "ring-1 ring-white/10",
+                  "rounded-[32px] border border-white/10 bg-[var(--ifm-background-surface-color)] overflow-hidden",
                 )}
               >
-                {tier.id === "custom" ? "Contact sales" : "Get started"}
-              </a>
-
-              <div className="mt-6 border-t border-gray-200 pt-4">
-                {sections.map((section) => (
-                  <div key={section.name} className="mb-6">
-                    <h4 className="mb-2 text-sm font-semibold text-gray-700">
-                      {section.name}
-                    </h4>
-                    <ul
-                      role="list"
-                      className="ml-0 list-inside list-none space-y-4 pl-0 text-sm text-gray-800"
-                    >
-                      {section.features.map((feature) =>
-                        feature.tiers[tier.id] ? (
-                          <li
-                            key={feature.name}
-                            className="flex items-start gap-x-2"
-                          >
-                            <Icon
-                              icon="mdi:check"
-                              className="mt-0.5 h-5 w-5 text-p2blue-500"
-                              aria-hidden="true"
-                            />
-                            <span>
-                              {feature.name}
-                              {typeof feature.tiers[tier.id] === "string" && (
-                                <span className="ml-1 text-gray-500">
-                                  ({feature.tiers[tier.id]})
-                                </span>
-                              )}
-                            </span>
-                          </li>
-                        ) : null,
+                <button
+                  type="button"
+                  onClick={() => toggleMobile(tier.id)}
+                  className="flex w-full items-center justify-between gap-3 p-4 text-left"
+                  aria-expanded={isExpanded}
+                >
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-semibold text-white">
+                      {tier.name}
+                    </h3>
+                    <p className="mt-1 flex items-baseline gap-x-1 text-white">
+                      <span className="text-2xl font-semibold">
+                        {tier.id === "custom"
+                          ? tier.priceMonthly[billingTermValue]
+                          : CurrencyNumberFormat(
+                              tier.priceMonthly[billingTermValue] as number,
+                            )}
+                      </span>
+                      {tier.id !== "custom" && (
+                        <span className="text-sm font-medium text-gray-400">
+                          /month
+                        </span>
                       )}
-                    </ul>
+                    </p>
                   </div>
-                ))}
-              </div>
-            </section>
-          ))}
+                  <Icon
+                    icon="mdi:chevron-down"
+                    className={cn(
+                      "size-6 flex-shrink-0 text-gray-400",
+                      isExpanded && "rotate-180",
+                    )}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                {isExpanded && (
+                  <div className="border-t border-white/10 p-4 pt-4">
+                    <a href={tier.href} className="mb-4 block">
+                      <button className="btnPrimary w-full" type="button">
+                        {tier.id === "custom" ? "Contact sales" : "Get started"}
+                      </button>
+                    </a>
+
+                    <div>
+                      {sections.map((section) => (
+                        <div key={section.name} className="mb-6">
+                          <h4 className="mb-2 text-sm font-semibold text-gray-300">
+                            {section.name}
+                          </h4>
+                          <ul
+                            role="list"
+                            className="ml-0 list-inside list-none space-y-4 pl-0 text-sm text-gray-300"
+                          >
+                            {section.features.map((feature) =>
+                              feature.tiers[tier.id] ? (
+                                <li
+                                  key={feature.name}
+                                  className="flex items-start gap-x-2"
+                                >
+                                  <span
+                                    className="mt-0.5 inline-flex size-5 flex-shrink-0 items-center justify-center rounded-full border-[1.5px] border-p2blue-400 bg-p2blue-500"
+                                    aria-hidden="true"
+                                  >
+                                    <CheckIcon />
+                                  </span>
+                                  <span>
+                                    {feature.name}
+                                    {typeof feature.tiers[tier.id] ===
+                                      "string" && (
+                                      <span className="ml-1 text-gray-400">
+                                        ({feature.tiers[tier.id]})
+                                      </span>
+                                    )}
+                                  </span>
+                                </li>
+                              ) : null,
+                            )}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
 
         {/* lg+ */}
-        <div className="isolate mt-20 hidden rounded-md bg-stone-100 p-2 pb-0 lg:block">
+        <div className="isolate mt-8 hidden rounded-[32px] border border-white/10 bg-[var(--ifm-background-surface-color)] p-2 pb-0 lg:block">
           <div className="relative -mx-8">
             {tiers.some((tier) => tier.mostPopular) ? (
               <div className="absolute inset-x-4 inset-y-0 -z-10 flex">
@@ -218,7 +241,7 @@ export default function DetailedPriceComparison() {
                   aria-hidden="true"
                   className="flex w-1/5 px-4"
                 >
-                  <div className="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-500/5" />
+                  <div className="w-full rounded-t-xl border-x border-t border-white/10 bg-white/5" />
                 </div>
               </div>
             ) : null}
@@ -240,7 +263,7 @@ export default function DetailedPriceComparison() {
                       scope="col"
                       className="px-6 pt-6 xl:px-8 xl:pt-8"
                     >
-                      <div className="text-sm/7 font-semibold text-gray-900">
+                      <div className="text-sm/7 font-semibold text-white">
                         {tier.name}
                       </div>
                     </th>
@@ -258,21 +281,15 @@ export default function DetailedPriceComparison() {
                         key={tier.id}
                         className="content-end px-6 pt-2 xl:px-8"
                       >
-                        <div className="flex items-baseline gap-x-1 text-gray-900">
+                        <div className="flex items-baseline gap-x-1 text-white">
                           <span className="text-4xl font-semibold">
                             {tier.priceMonthly[billingTermValue]}
                           </span>
                         </div>
-                        <a
-                          href={tier.href}
-                          className={cn(
-                            tier.mostPopular
-                              ? "bg-p2blue-600 text-white hover:bg-p2blue-500 hover:text-white"
-                              : "text-p2blue-500 ring-1 ring-inset ring-p2blue-400 hover:ring-p2blue-600",
-                            "mt-8 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-p2blue-600",
-                          )}
-                        >
-                          Contact sales
+                        <a href={tier.href} className="mt-8 block">
+                          <button className="btnPrimary w-full">
+                            Contact sales
+                          </button>
                         </a>
                       </td>
                     ) : (
@@ -281,7 +298,7 @@ export default function DetailedPriceComparison() {
                         className="content-end px-6 pt-2 xl:px-8"
                       >
                         {billingTermValue === "annual" && (
-                          <div className="text-4xl font-semibold text-red-500 line-through">
+                          <div className="text-4xl font-semibold text-gray-500 line-through">
                             {tier.id !== "custom" &&
                               tier.id !== "starter" &&
                               CurrencyNumberFormat(
@@ -289,27 +306,21 @@ export default function DetailedPriceComparison() {
                               )}
                           </div>
                         )}
-                        <div className="flex items-baseline gap-x-1 text-gray-900">
+                        <div className="flex items-baseline gap-x-1 text-white">
                           <span className="text-4xl font-semibold">
                             {CurrencyNumberFormat(
                               tier.priceMonthly[billingTermValue],
                             )}
                           </span>
-                          <span className="text-sm/6 font-semibold">
+                          <span className="text-sm/6 font-semibold text-gray-400">
                             {tier.id === "custom" ? "" : "/month"}
                           </span>
                         </div>
 
-                        <a
-                          href={tier.href}
-                          className={cn(
-                            tier.mostPopular
-                              ? "bg-p2blue-600 text-white hover:bg-p2blue-500 hover:text-white"
-                              : "text-p2blue-500 ring-1 ring-inset ring-p2blue-400 hover:ring-p2blue-600",
-                            "mt-8 block rounded-md px-3 py-2 text-center text-sm/6 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-p2blue-600",
-                          )}
-                        >
-                          Get started
+                        <a href={tier.href} className="mt-8 block">
+                          <button className="btnPrimary w-full">
+                            Get started
+                          </button>
                         </a>
                       </td>
                     ),
@@ -318,23 +329,23 @@ export default function DetailedPriceComparison() {
                 {sections.map((section, sectionIdx) => (
                   <Fragment key={section.name}>
                     <tr>
-                      <th
-                        scope="colgroup"
-                        colSpan={4}
-                        className={cn(
-                          sectionIdx === 0 ? "pt-8" : "pt-16",
-                          "pb-4 text-sm/6 font-semibold text-gray-900",
-                        )}
-                      >
-                        {section.name}
-                        <div className="absolute inset-x-8 mt-4 h-px bg-gray-900/10" />
+                    <th
+                      scope="colgroup"
+                      colSpan={4}
+                      className={cn(
+                        sectionIdx === 0 ? "pt-8" : "pt-16",
+                        "pb-4 text-sm/6 font-semibold text-gray-300",
+                      )}
+                    >
+                      {section.name}
+                      <div className="absolute inset-x-8 mt-4 h-px bg-white/10" />
                       </th>
                     </tr>
                     {section.features.map((feature) => (
                       <tr key={feature.name}>
                         <th
                           scope="row"
-                          className="py-4 text-sm/6 font-normal text-gray-900"
+                          className="py-4 text-sm/6 font-normal text-gray-300"
                         >
                           <div className="flex items-center justify-between gap-2">
                             {feature.name}
@@ -344,7 +355,7 @@ export default function DetailedPriceComparison() {
                                   href={feature.externalLink.href}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center text-gray-900/60 hover:text-p2blue-500"
+                                  className="flex items-center text-gray-400 hover:text-p2blue-400"
                                 >
                                   <Icon
                                     icon={feature.externalLink.icon}
@@ -359,13 +370,13 @@ export default function DetailedPriceComparison() {
                                     <Tooltip.Trigger>
                                       <Icon
                                         icon="mdi:information-circle-outline"
-                                        className="-mb-1 size-4 text-gray-900/50"
+                                        className="-mb-1 size-4 text-gray-400"
                                       />
                                     </Tooltip.Trigger>
                                     <Tooltip.Portal>
-                                      <Tooltip.Content className="rounded-md bg-white px-3 py-2 text-sm/6 text-gray-900 shadow-md">
+                                      <Tooltip.Content className="rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-2 text-sm/6 text-gray-200 shadow-lg">
                                         {feature.description}
-                                        <Tooltip.Arrow className="fill-white" />
+                                        <Tooltip.Arrow className="fill-[#1a1a1a]" />
                                       </Tooltip.Content>
                                     </Tooltip.Portal>
                                   </Tooltip.Root>
@@ -373,28 +384,34 @@ export default function DetailedPriceComparison() {
                               )}
                             </div>
                           </div>
-                          <div className="absolute inset-x-8 mt-4 h-px bg-gray-900/5" />
+                          <div className="absolute inset-x-8 mt-4 h-px bg-white/5" />
                         </th>
                         {tiers.map((tier) => (
                           <td key={tier.id} className="px-6 py-4 xl:px-8">
                             {typeof feature.tiers[tier.id] === "string" ? (
-                              <div className="text-center text-sm/6 text-gray-800">
+                              <div className="text-center text-sm/6 text-gray-300">
                                 {feature.tiers[tier.id]}
                               </div>
                             ) : (
                               <>
                                 {feature.tiers[tier.id] === true ? (
-                                  <Icon
-                                    icon="mdi:check"
+                                  <span
+                                    className="mx-auto flex size-6 flex-none items-center justify-center rounded-full border-[1.5px] border-p2blue-400 bg-p2blue-500"
                                     aria-hidden="true"
-                                    className="mx-auto block h-6 w-5 flex-none text-p2blue-500"
-                                  />
+                                  >
+                                    <CheckIcon />
+                                  </span>
                                 ) : (
-                                  <Icon
-                                    icon="mdi:minus"
+                                  <span
+                                    className="mx-auto flex size-6 flex-none items-center justify-center rounded-full border-[1.5px] border-p2blue-400 bg-p2blue-500"
                                     aria-hidden="true"
-                                    className="mx-auto block size-5 text-gray-400"
-                                  />
+                                  >
+                                    <Icon
+                                      icon="mdi:minus"
+                                      aria-hidden="true"
+                                      className="size-3.5 text-[#131313]"
+                                    />
+                                  </span>
                                 )}
 
                                 <span className="sr-only">
