@@ -10,7 +10,7 @@ import CardWithIcon from "../../components/CardWithIcon";
 import CardWithImage from "../../components/CardWithImage";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
-const PLACEHOLDER_IMG = "/img/placeholder.svg";
+const PLACEHOLDER_IMG = "/img/placeholder-keycloak.svg";
 
 const HERO = {
   title: "Dedicated Clusters",

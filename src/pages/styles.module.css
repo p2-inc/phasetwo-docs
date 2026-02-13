@@ -900,6 +900,12 @@ p.heroIntegrationsCopy {
   max-width: 670px;
   margin: 0 auto;
 }
+@media (max-width: 768px) {
+  .engLogoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 
 .engLogoTile {
   min-width: 100px;
@@ -911,10 +917,21 @@ p.heroIntegrationsCopy {
   border: 1px solid var(--line-color);
   border-radius: 16px;
   background: rgba(15, 15, 15, 0.5);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.engLogoTile:hover {
+  border-color: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary);
+  text-decoration: none;
+}
+.engLogoTile:hover .engLogoImg {
+  opacity: 0.8;
 }
 
 .engLogoImg {
-  width: 40px;
-  height: 40px;
+  width: 100%;
+  max-width: 140px;
+  height: auto;
   object-fit: contain;
 }

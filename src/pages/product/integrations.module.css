@@ -58,3 +58,45 @@
   height: 32px;
   object-fit: contain;
 }
+
+/* Integrations page overrides: do not affect index or support/migrate-to-keycloak */
+.integrationsGrid {
+  max-width: none !important;
+}
+.integrationsGrid img {
+  max-width: 120px;
+}
+.integrationsTile {
+  min-width: 140px !important;
+}
+.integrationsTileIdp {
+  min-width: unset !important;
+}
+.idpLogoImg {
+  max-width: 120px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+/* No hover for non-linked items; primary hover only for linked items (tiles inside <a>) */
+.integrationsGrid .integrationsTile:hover {
+  border-color: var(--line-color) !important;
+  color: inherit !important;
+}
+.integrationsGrid .integrationsTile:hover img {
+  opacity: 1;
+}
+.integrationsGrid a .integrationsTile:hover {
+  border-color: var(--ifm-color-primary) !important;
+  color: var(--ifm-color-primary) !important;
+}
+.integrationsGrid a .integrationsTile:hover img {
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .integrationsGrid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

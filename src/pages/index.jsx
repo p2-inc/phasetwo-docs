@@ -7,6 +7,12 @@ import StartYourJourney from "../components/ctas/start-your-journey";
 import Cta from "../components/ctas/homepage-dual-line-cta";
 import FrameworkTabs from "../components/FrameworkTabs";
 import styles from "./styles.module.css";
+import integrationsStyles from "./product/integrations.module.css";
+
+const INTEGRATIONS_ICON_COLOR = "#A0A9DB";
+function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
+  return `https://api.iconify.design/${icon}.svg?color=${encodeURIComponent(color)}`;
+}
 
 const HostingItems = [
   {
@@ -288,25 +294,6 @@ const customerLogos = [
   //{ file: "tsmc@2x.png", name: "TSMC", classes: "m-8 h-[50px]" },
   { file: "unstructured.svg", name: "Unstructured", classes: "m-8" },
 ];
-
-const engineeringFrameworkLogos = {
-  django: { file: "django.svg", alt: "Django" },
-  spring: { file: "spring.svg", alt: "Spring" },
-  javascript: { file: "js.svg", alt: "JavaScript" },
-  nodejs: { file: "nodejs.svg", alt: "Node.js" },
-  react: { file: "react.svg", alt: "React" },
-  nextjs: { file: "nextjs.svg", alt: "Next.js" },
-  vue: { file: "vue.svg", alt: "Vue" },
-  nuxtjs: { file: "nuxtjs.svg", alt: "Nuxt" },
-  remix: { file: "remix.svg", alt: "Remix" },
-  svelte: { file: "svelte.svg", alt: "Svelte" },
-  angular: { file: "angular.svg", alt: "Angular" },
-  go: { file: "go.svg", alt: "Go" },
-  android: { file: "android.svg", alt: "Android" },
-  apple: { file: "apple.svg", alt: "Apple" },
-  php: { file: "php.svg", alt: "PHP" },
-  csharp: { file: "csharp.svg", alt: "C#" },
-};
 
 function Home() {
   const context = useDocusaurusContext();
@@ -892,22 +879,44 @@ function Home() {
                   </p>
                   <div className="framework-tab-image">
                     <div
-                      className={styles.engLogoGrid}
+                      className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`}
                       role="list"
                       data-scroll-slide-group
                       data-scroll-slide-group-base-delay="80"
                     >
-                      {Object.entries(engineeringFrameworkLogos).map(([key, logo]) => (
-                        <div key={key} className={styles.engLogoTile} role="listitem" data-scroll-slide-in>
-                          <img
-                            src={`/eng-logos/${logo.file}`}
-                            alt={logo.alt}
-                            className={styles.engLogoImg}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </div>
-                      ))}
+                      {[
+                        { href: "https://phasetwo.io/docs/securing-applications/django", title: "Django", src: "/customer-logos/django.svg", alt: "Django" },
+                        { href: "https://phasetwo.io/docs/securing-applications/springboot", title: "Spring Boot", src: "/customer-logos/spring.svg", alt: "Spring" },
+                        { href: "https://phasetwo.io/docs/securing-applications/javascript", title: "Javascript", src: "/customer-logos/js.svg", alt: "JavaScript" },
+                        { title: "nodejs", src: "/customer-logos/nodejs.svg", alt: "Node.js" },
+                        { href: "https://phasetwo.io/docs/securing-applications/react", title: "React", src: "/customer-logos/react.svg", alt: "React" },
+                        { href: "https://phasetwo.io/docs/securing-applications/next", title: "Next.js", src: "/customer-logos/nextjs.svg", alt: "Next.js" },
+                        { href: "https://phasetwo.io/docs/securing-applications/vue", title: "Vue", src: "/customer-logos/vue.svg", alt: "Vue" },
+                        { href: "https://phasetwo.io/docs/securing-applications/nuxt", title: "Nuxt", src: "/customer-logos/nuxtjs.svg", alt: "Nuxt" },
+                        { href: "https://phasetwo.io/docs/securing-applications/remix", title: "Remix", src: "/customer-logos/remix.svg", alt: "Remix" },
+                        { href: "https://phasetwo.io/docs/securing-applications/sveltekit", title: "Sveltekit", src: "/customer-logos/svelte.svg", alt: "Svelte" },
+                        { href: "https://phasetwo.io/docs/securing-applications/angular", title: "Angular", src: "/customer-logos/angular.svg", alt: "Angular" },
+                        { title: "GoLang", src: "/customer-logos/go.svg", alt: "Go" },
+                        { title: "Android", src: "/customer-logos/android.svg", alt: "Android" },
+                        { title: "Apple", src: "/customer-logos/apple.svg", alt: "Apple" },
+                        { title: "php", src: "/customer-logos/php.svg", alt: "PHP" },
+                        { title: "c#", src: "/customer-logos/csharp.svg", alt: "C#" },
+                      ].map((logo) => {
+                        const tile = (
+                          <div className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                            <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                          </div>
+                        );
+                        return logo.href ? (
+                          <a key={logo.title || logo.alt} href={logo.href} title={logo.title}>
+                            {tile}
+                          </a>
+                        ) : (
+                          <div key={logo.title || logo.alt} title={logo.title}>
+                            {tile}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>,
@@ -916,12 +925,52 @@ function Home() {
                     Support for industry-standard protocols including OAuth 2.0, OpenID Connect, SAML 2.0, and
                     more. Seamlessly integrate with existing authentication systems.
                   </p>
+                  <div className="framework-tab-image">
+                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                      {[
+                        { src: "/customer-logos/saml.svg", alt: "SAML" },
+                        { src: "/customer-logos/openid.svg", alt: "OpenID" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                          <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>,
                 <div key="idps" className="framework-tab-panel">
                   <p className="framework-tab-text">
                     Connect with major identity providers including Okta, Auth0, Azure AD, Google Workspace,
                     Active Directory, and many others. Migrate or broker identities seamlessly.
                   </p>
+                  <div className="framework-tab-image">
+                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                      {[
+                        { src: "/customer-logos/bitbucket.svg", alt: "Bitbucket", icon: "fa-brands:bitbucket" },
+                        { src: "/customer-logos/facebook.svg", alt: "Facebook", icon: "fa-brands:facebook" },
+                        { src: "/customer-logos/github.svg", alt: "Github", icon: "fa-brands:github" },
+                        { src: "/customer-logos/gitlab.svg", alt: "Gitlab", icon: "fa-brands:gitlab" },
+                        { src: "/customer-logos/google.svg", alt: "Google", icon: "fa-brands:google" },
+                        { src: "/customer-logos/instagram.svg", alt: "Instagram", icon: "fa-brands:instagram" },
+                        { src: "/customer-logos/linkedin.svg", alt: "LinkedIn", icon: "fa-brands:linkedin" },
+                        { src: "/customer-logos/microsoft.svg", alt: "Microsoft", icon: "fa-brands:microsoft" },
+                        { src: "/customer-logos/azure.svg", alt: "Azure", icon: "carbon:logo-azure" },
+                        { src: "/customer-logos/openshift.svg", alt: "Openshift", icon: "carbon:logo-openshift" },
+                        { src: "/customer-logos/paypal.svg", alt: "Paypal", icon: "fa-brands:paypal" },
+                        { src: "/customer-logos/stack-overflow.svg", alt: "StackOverflow", icon: "fa-brands:stack-overflow" },
+                        { src: "/customer-logos/x.svg", alt: "X", icon: "fa6-brands:x-twitter" },
+                        { src: "/customer-logos/onelogin.svg", alt: "Onelogin" },
+                        { src: "/customer-logos/adsf.svg", alt: "ADFS" },
+                        { src: "/customer-logos/ping-identity.svg", alt: "PingIdentity" },
+                        { src: "/customer-logos/duo.svg", alt: "DUO" },
+                        { src: "/customer-logos/jumpcloud.svg", alt: "JumpCloud" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                          <img src={logo.src ?? iconifyImgSrc(logo.icon)} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>,
               ]}
             />

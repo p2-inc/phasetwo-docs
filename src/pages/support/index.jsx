@@ -235,7 +235,7 @@ export default function Support() {
                 >
                   <InlineIcon
                     icon={link.icon}
-                    style={{ fontSize: "1.2rem", marginRight: "0.4rem" }}
+                    style={{ fontSize: "1.68rem", marginRight: "0.4rem" }}
                     aria-hidden="true"
                   />
                   {link.label}

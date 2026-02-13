@@ -55,37 +55,37 @@ const IDP_LOGOS = [
   {
     href: "https://phasetwo.io/blog/keycloak-vs-auth0-open-source-alternative/",
     icon: "logos:auth0",
-    src: null,
+    src: "/customer-logos/auth0.svg",
     alt: "Auth0",
   },
   {
     href: "https://phasetwo.io/blog/keycloak-vs-okta-open-source-alternative/",
     icon: "logos:okta",
-    src: null,
+    src: "/customer-logos/okta.svg",
     alt: "Okta",
   },
   {
     href: "https://phasetwo.io/blog/keycloak-vs-PingIdentity-open-source-alternative/",
     icon: null,
-    src: "/img/logo-ping-identity.svg",
+    src: "/customer-logos/ping-identity.svg",
     alt: "Ping Identity",
   },
   {
     href: "https://phasetwo.io/blog/keycloak-vs-workos-open-source-alternative/",
     icon: "logos:workos",
-    src: null,
+    src: "/customer-logos/workos.svg",
     alt: "WorkOS",
   },
   {
     href: "https://phasetwo.io/blog/keycloak-vs-frontegg-open-source-alternative/",
     icon: null,
-    src: "/img/logo-frontegg.svg",
+    src: "/customer-logos/frontegg.svg",
     alt: "Frontegg",
   },
   {
     href: "https://phasetwo.io/blog/keycloak-vs-onelogin-open-source-alternative/",
     icon: null,
-    src: "/img/logo-onelogin.svg",
+    src: "/customer-logos/onelogin.svg",
     alt: "OneLogin",
   },
 ];

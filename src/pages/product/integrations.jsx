@@ -19,7 +19,9 @@ const PAGE_CTA = {
   ctaHref: "https://dash.phasetwo.io/",
 };
 
-function iconifyImgSrc(icon, { color = "#fff" } = {}) {
+const INTEGRATIONS_ICON_COLOR = "#A0A9DB"; /* matches --color-framework-grid */
+
+function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
   // Use Iconify's static SVG endpoint so we can render icons with <img>
   // and keep the tile structure consistent with the homepage.
   return `https://api.iconify.design/${icon}.svg?color=${encodeURIComponent(color)}`;
@@ -90,32 +92,32 @@ function Integrations() {
                   </div>
 
                   <div className="mt-10 flex justify-center">
-                    <div className={pageStyles.engLogoGrid} role="list">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
                       {[
-                        { icon: "fa-brands:bitbucket", alt: "Bitbucket" },
-                        { icon: "fa-brands:facebook", alt: "Facebook" },
-                        { icon: "fa-brands:github", alt: "Github" },
-                        { icon: "fa-brands:gitlab", alt: "Gitlab" },
-                        { icon: "fa-brands:google", alt: "Google" },
-                        { icon: "fa-brands:instagram", alt: "Instagram" },
-                        { icon: "fa-brands:linkedin", alt: "LinkedIn" },
-                        { icon: "fa-brands:microsoft", alt: "Microsoft" },
-                        { src: "/img/logo-azure.svg", alt: "Azure", className: styles.logoImgWide },
-                        { icon: "carbon:logo-openshift", alt: "Openshift" },
-                        { icon: "fa-brands:paypal", alt: "Paypal" },
-                        { icon: "fa-brands:stack-overflow", alt: "StackOverflow" },
-                        { icon: "fa6-brands:x-twitter", alt: "X" },
-                        { src: "/img/logo-onelogin.svg", alt: "Onelogin", className: styles.logoImgWide },
-                        { src: "/img/logo-adfs.svg", alt: "ADFS", className: styles.logoImgWide },
-                        { src: "/img/logo-ping-identity.svg", alt: "PingIdentity", className: styles.logoImgWide },
-                        { src: "/img/logo-duo-security.svg", alt: "DUO", className: styles.logoImgWide },
-                        { src: "/img/logo-jumpcloud-logo.svg", alt: "JumpCloud", className: styles.logoImgWide },
+                        { src: "/customer-logos/bitbucket.svg", alt: "Bitbucket", icon: "fa-brands:bitbucket" },
+                        { src: "/customer-logos/facebook.svg", alt: "Facebook", icon: "fa-brands:facebook" },
+                        { src: "/customer-logos/github.svg", alt: "Github", icon: "fa-brands:github" },
+                        { src: "/customer-logos/gitlab.svg", alt: "Gitlab", icon: "fa-brands:gitlab" },
+                        { src: "/customer-logos/google.svg", alt: "Google", icon: "fa-brands:google" },
+                        { src: "/customer-logos/instagram.svg", alt: "Instagram", icon: "fa-brands:instagram" },
+                        { src: "/customer-logos/linkedin.svg", alt: "LinkedIn", icon: "fa-brands:linkedin" },
+                        { src: "/customer-logos/microsoft.svg", alt: "Microsoft", icon: "fa-brands:microsoft" },
+                        { src: "/customer-logos/azure.svg", alt: "Azure", icon: "carbon:logo-azure" },
+                        { src: "/customer-logos/openshift.svg", alt: "Openshift", icon: "carbon:logo-openshift" },
+                        { src: "/customer-logos/paypal.svg", alt: "Paypal", icon: "fa-brands:paypal" },
+                        { src: "/customer-logos/stack-overflow.svg", alt: "StackOverflow", icon: "fa-brands:stack-overflow" },
+                        { src: "/customer-logos/x.svg", alt: "X", icon: "fa6-brands:x-twitter" },
+                        { src: "/customer-logos/onelogin.svg", alt: "Onelogin" },
+                        { src: "/customer-logos/adsf.svg", alt: "ADFS" },
+                        { src: "/customer-logos/ping-identity.svg", alt: "PingIdentity" },
+                        { src: "/customer-logos/duo.svg", alt: "DUO" },
+                        { src: "/customer-logos/jumpcloud.svg", alt: "JumpCloud" },
                       ].map((logo) => (
-                        <div key={logo.alt} className={pageStyles.engLogoTile} role="listitem">
+                        <div key={logo.alt} className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
                           <img
                             src={logo.src ?? iconifyImgSrc(logo.icon)}
                             alt={logo.alt}
-                            className={logo.className ?? pageStyles.engLogoImg}
+                            className={logo.className ?? styles.idpLogoImg}
                             loading="lazy"
                             decoding="async"
                           />
@@ -141,81 +143,81 @@ function Integrations() {
                   </div>
 
                   <div className="mt-10 flex justify-center">
-                    <div className={pageStyles.engLogoGrid} role="list">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
                       {[
                         {
                           href: "https://phasetwo.io/docs/securing-applications/django",
                           title: "Django",
-                          src: "/eng-logos/django.svg",
+                          src: "/customer-logos/django.svg",
                           alt: "Django",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/springboot",
                           title: "Spring Boot",
-                          src: "/eng-logos/spring.svg",
+                          src: "/customer-logos/spring.svg",
                           alt: "Spring",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/javascript",
                           title: "Javascript",
-                          src: "/eng-logos/js.svg",
+                          src: "/customer-logos/js.svg",
                           alt: "JavaScript",
                         },
-                        { title: "nodejs", src: "/eng-logos/nodejs.svg", alt: "Node.js" },
+                        { title: "nodejs", src: "/customer-logos/nodejs.svg", alt: "Node.js" },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/react",
                           title: "React",
-                          src: "/eng-logos/react.svg",
+                          src: "/customer-logos/react.svg",
                           alt: "React",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/next",
                           title: "Next.js",
-                          src: "/eng-logos/nextjs.svg",
+                          src: "/customer-logos/nextjs.svg",
                           alt: "Next.js",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/vue",
                           title: "Vue",
-                          src: "/eng-logos/vue.svg",
+                          src: "/customer-logos/vue.svg",
                           alt: "Vue",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/nuxt",
                           title: "Nuxt",
-                          src: "/eng-logos/nuxtjs.svg",
+                          src: "/customer-logos/nuxtjs.svg",
                           alt: "Nuxt",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/remix",
                           title: "Remix",
-                          src: "/eng-logos/remix.svg",
+                          src: "/customer-logos/remix.svg",
                           alt: "Remix",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/sveltekit",
                           title: "Sveltekit",
-                          src: "/eng-logos/svelte.svg",
+                          src: "/customer-logos/svelte.svg",
                           alt: "Svelte",
                         },
                         {
                           href: "https://phasetwo.io/docs/securing-applications/angular",
                           title: "Angular",
-                          src: "/eng-logos/angular.svg",
+                          src: "/customer-logos/angular.svg",
                           alt: "Angular",
                         },
-                        { title: "GoLang", src: "/eng-logos/go.svg", alt: "Go" },
-                        { title: "Android", src: "/eng-logos/android.svg", alt: "Android" },
-                        { title: "Apple", src: "/eng-logos/apple.svg", alt: "Apple" },
-                        { title: "php", src: "/eng-logos/php.svg", alt: "PHP" },
-                        { title: "c#", src: "/eng-logos/csharp.svg", alt: "C#" },
+                        { title: "GoLang", src: "/customer-logos/go.svg", alt: "Go" },
+                        { title: "Android", src: "/customer-logos/android.svg", alt: "Android" },
+                        { title: "Apple", src: "/customer-logos/apple.svg", alt: "Apple" },
+                        { title: "php", src: "/customer-logos/php.svg", alt: "PHP" },
+                        { title: "c#", src: "/customer-logos/csharp.svg", alt: "C#" },
                       ].map((logo) => {
                         const tile = (
-                          <div className={pageStyles.engLogoTile} role="listitem">
+                          <div className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
                             <img
                               src={logo.src}
                               alt={logo.alt}
-                              className={pageStyles.engLogoImg}
+                              className={styles.idpLogoImg}
                               loading="lazy"
                               decoding="async"
                             />
@@ -245,16 +247,16 @@ function Integrations() {
                   </div>
 
                   <div className="mt-10 flex justify-center">
-                    <div className={pageStyles.engLogoGrid} role="list">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
                       {[
-                        { src: "/img/saml.svg", alt: "SAML", className: styles.logoImgWide },
-                        { src: "/img/openid.svg", alt: "OpenID", className: styles.logoImgWide },
+                        { src: "/customer-logos/saml.svg", alt: "SAML" },
+                        { src: "/customer-logos/openid.svg", alt: "OpenID" },
                       ].map((logo) => (
-                        <div key={logo.alt} className={pageStyles.engLogoTile} role="listitem">
+                        <div key={logo.alt} className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
                           <img
                             src={logo.src}
                             alt={logo.alt}
-                            className={logo.className}
+                            className={styles.idpLogoImg}
                             loading="lazy"
                             decoding="async"
                           />

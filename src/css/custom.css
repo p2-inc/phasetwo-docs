@@ -91,7 +91,8 @@
    * Intended to replace repeated Tailwind wrappers like:
    * `mx-auto max-w-7xl px-6 lg:px-8`
    */
-  --content-padding-x: 24px; /* ~= px-6 */
+  --content-padding-x: 0.5rem; /* mobile */
+  --content-padding-x-md: 24px; /* ~= px-6, tablet+ */
   --content-padding-x-lg: 32px; /* ~= lg:px-8 */
   /**
    * Breakpoints
@@ -127,6 +128,7 @@
   --color-n1: rgba(255, 255, 255, 0.6);
   --color-n5: rgba(255, 255, 255, 0.8);
   --color-planbadge: #f36529;
+  --color-framework-grid: #A0A9DB;
   --soft-shadow-branded: 0px 2px 12px rgba(210, 82, 181, 0.55);
   --soft-shadow-branded-strong: 0px 5px 12px rgba(210, 82, 181, 0.85);
 
@@ -174,6 +176,13 @@
     --p2-markdown-h1-first-font-size: calc(
       var(--p2-markdown-h1-first-desktop) - 2px
     );
+  }
+}
+
+/* >= 768px: tablet+ content padding */
+@media (min-width: 768px) {
+  :root {
+    --content-padding-x: var(--content-padding-x-md);
   }
 }
 
@@ -333,6 +342,29 @@ main {
   margin-inline: auto;
   padding-inline: var(--content-padding-x);
   box-sizing: border-box;
+}
+
+/* Mobile: reduce horizontal padding on content containers (Tailwind px-6 → 0.5rem) */
+@media (max-width: 767px) {
+  main [class*="max-w-7xl"],
+  .homepage-section > div[class*="max-w"],
+  .subpage-section [class*="max-w-7xl"],
+  section [class*="max-w-7xl"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  /* Section-level px-6 (e.g. px-6 sm:px-6 lg:px-8) */
+  .homepage-section[class*="px-"],
+  .support-block[class*="px-"],
+  .hosting-block[class*="px-"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  /* Tailwind px-6 containers (exact match to avoid px-64 etc) */
+  [class~="px-6"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
 }
 
 /* Section separator lines - extend full width including margins */
@@ -506,7 +538,7 @@ main {
 }
 
 .framework-tabs-content {
-  min-height: 400px;
+  /* Height is dynamic; pass contentMinHeight to FrameworkTabs if a min-height is needed */
 }
 
 .framework-tab-panel {
@@ -1920,6 +1952,14 @@ table.tw-table-pricing th {
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+/* Doc layout: apply margin vars to doc root when sidebar panel is visible (>= 997px) */
+@media (min-width: 997px) {
+  [class*="docRoot"] {
+    padding-left: var(--margin-left);
+    padding-right: var(--margin-right);
   }
 }
 
