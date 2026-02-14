@@ -48,6 +48,11 @@ module.exports = {
       link: { type: "doc", id: "securing-applications/index" },
       items: [
         "securing-applications/django",
+        {
+          type: "doc",
+          id: "securing-applications/native-apps",
+          label: "Native - iOS/Android/macOS",
+        },
         "securing-applications/springboot",
         "securing-applications/javascript",
         "securing-applications/react",
