@@ -38,6 +38,8 @@ Following a successful login using an IdP associated with an organization, a few
 
 These are values that survive the duration of a user login session, and can be used in token mappers. In order to add such a mapper in the admin UI, navigate to the client you are using, select the **Client scopes** tab, select the `{client}-dedicated` scope link, select the _Mappers_ tab and configure a new mapper of type `User Session Notes`. You can choose the _Token Claim Name_ that you require, and configure which tokens it is included.
 
+For more details on setting up mappers, see [token mappers](./token-mappers.md).
+
 ![Keycloak Phase Two Organizations Protocol Mapper](/docs/organizations-idps-mapper.png)
 
 ### Handling user in multiple organization, each with a specific IdP
