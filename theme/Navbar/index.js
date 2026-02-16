@@ -78,8 +78,6 @@ function Navbar() {
   const { title, logo = {}, links = [], hideOnScroll = false } = navbar;
 
   const [sidebarShown, setSidebarShown] = useState(false);
-  const [isSearchBarExpanded, setIsSearchBarExpanded] = useState(false);
-
   const { isDarkTheme, setLightTheme, setDarkTheme } = useThemeContext();
   const { navbarRef, isNavbarVisible } = useHideableNavbar(hideOnScroll);
 
@@ -174,13 +172,7 @@ function Navbar() {
               />
             )}
             {title != null && (
-              <strong
-                className={classnames("navbar__title", {
-                  [styles.hideLogoText]: isSearchBarExpanded,
-                })}
-              >
-                {title}
-              </strong>
+              <strong className="navbar__title">{title}</strong>
             )}
           </Link>
         </div>
@@ -196,42 +188,9 @@ function Navbar() {
         </div>
 
         <div className="navbar__items navbar__items--right">
-          {/* Search Icon */}
-          <div
-            className="navbar__item navbar__search-icon"
-            onClick={() => setIsSearchBarExpanded(!isSearchBarExpanded)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                setIsSearchBarExpanded(!isSearchBarExpanded);
-              }
-            }}
-            aria-label="Search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+          <div className="navbar__search-item">
+            <SearchBar />
           </div>
-          {isSearchBarExpanded && (
-            <div className="navbar__search-container">
-              <SearchBar
-                handleSearchBarToggle={setIsSearchBarExpanded}
-                isSearchBarExpanded={isSearchBarExpanded}
-              />
-            </div>
-          )}
           {/* GitHub Icon */}
           <a
             href="https://github.com/p2-inc/"
@@ -256,13 +215,14 @@ function Navbar() {
               to={contactButton.to}
               className={classnames(
                 "navbar__item",
+                "navbar__contact-button",
                 contactButton.buttonType === "btnPrimary"
                   ? "btnPrimary"
                   : contactButton.buttonType === "btnSecondary"
                   ? "btnSecondary"
                   : ""
               )}
-              buttontype={contactButton.buttonType}
+              data-button-type={contactButton.buttonType}
             >
               {contactButton.label}
             </Link>
@@ -273,13 +233,14 @@ function Navbar() {
               href={dashboardButton.href}
               className={classnames(
                 "navbar__item",
+                "navbar__dashboard-button",
                 dashboardButton.buttonType === "btnPrimary"
                   ? "btnPrimary"
                   : dashboardButton.buttonType === "btnSecondary"
                   ? "btnSecondary"
                   : ""
               )}
-              buttontype={dashboardButton.buttonType}
+              data-button-type={dashboardButton.buttonType}
             >
               {dashboardButton.label}
             </Link>

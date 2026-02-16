@@ -159,6 +159,7 @@
 
   --docsearch-text-color: var(--ifm-color-primary) !important;
   --docsearch-muted-color: var(--ifm-color-primary-light) !important;
+  --docsearch-modal-z-index: 3002;
 }
 
 /* 601–767px: desktop - 2px */
@@ -1120,7 +1121,6 @@ a.support:hover {
   margin-left: auto;
 }
 
-.navbar__search-icon,
 .navbar__github-icon {
   display: flex;
   align-items: center;
@@ -1131,29 +1131,66 @@ a.support:hover {
   color: var(--ifm-navbar-link-color);
 }
 
-.navbar__search-icon svg,
 .navbar__github-icon svg {
   width: 24px;
   height: 24px;
 }
 
-.navbar__search-icon:hover,
 .navbar__github-icon:hover {
   opacity: 0.7;
 }
 
-.navbar__search-container {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  left: 0;
-  background-color: var(--ifm-navbar-background-color);
-  padding: 1rem;
-  z-index: 2002;
-  border-top: 1px solid var(--line-color);
-  margin-left: calc(-1 * var(--margin-left));
-  margin-right: calc(-1 * var(--margin-right));
-  width: 100vw;
+.navbar__items--right .navbar__search-item,
+.navbar__items--right .navbar__search,
+.navbar__items--right [class*="navbarSearchContainer"],
+.navbar__items--right .DocSearch {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__items--right .DocSearch-Button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0 8px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: opacity 0.2s;
+  color: var(--ifm-navbar-link-color);
+}
+
+.navbar__items--right .DocSearch-Button:hover {
+  opacity: 0.7;
+  background: transparent;
+}
+
+.navbar__items--right .DocSearch-Search-Icon {
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+}
+
+.navbar__items--right .DocSearch-Button-Placeholder,
+.navbar__items--right .DocSearch-Button-Keys,
+.navbar__items--right .DocSearch-Button-Key {
+  display: none;
+}
+
+.navbar__items--right .DocSearch-Button:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+
+/* Keep Algolia modal above sticky header layers */
+.DocSearch-Container {
+  z-index: 3002 !important;
 }
 
 @media (max-width: 997px) {
@@ -1171,7 +1208,7 @@ a.support:hover {
   }
 
   /* Let toggle + brand become grid items */
-  .navbar .navbar__items {
+  .navbar .navbar__items:not(.navbar__items--right) {
     display: contents;
   }
 
@@ -1192,29 +1229,57 @@ a.support:hover {
   .navbar__items--right {
     grid-column: 3;
     justify-self: end;
-    display: flex;
+    display: inline-flex !important;
+    justify-content: flex-end;
     align-items: center;
-    column-gap: 8px;
+    column-gap: 4px;
+    flex-wrap: nowrap;
+    flex-direction: row !important;
     margin-left: 0;
     flex: 0 0 auto;
     width: auto;
+    overflow: visible;
   }
 
-  /* Only keep Search + Contact visible on mobile */
-  .navbar__items--right > * {
-    display: none;
-  }
-
+  .navbar__items--right .navbar__search-item,
+  .navbar__items--right .navbar__contact-button,
+  .navbar__items--right .navbar__dashboard-button,
+  .navbar__items--right .navbar__search-item .navbar__search,
+  .navbar__items--right [class*="navbarSearchContainer"],
+  .navbar__items--right .DocSearch,
+  .navbar__items--right .DocSearch-Button,
+  .navbar__items--right [data-button-type="btnSecondary"],
   .navbar__items--right [buttontype="btnSecondary"] {
-    display: flex;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    right: auto !important;
+    float: none !important;
+    margin: 0;
+    width: auto;
+    flex: 0 0 auto;
   }
 
+  .navbar__items--right .DocSearch-Button {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  .navbar__items--right .DocSearch-Search-Icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .navbar__items--right [data-button-type="btnSecondary"],
+  .navbar__items--right [buttontype="btnSecondary"] {
+    display: inline-flex !important;
+  }
+
+  .navbar__items--right [data-button-type="btnPrimary"],
   .navbar__items--right [buttontype="btnPrimary"] {
     display: none !important;
-  }
-
-  .navbar__search-icon {
-    display: flex;
   }
 
   .navbar__github-icon {
@@ -1222,6 +1287,7 @@ a.support:hover {
   }
 }
 
+.navbar__items--right [data-button-type="btnSecondary"],
 .navbar__items--right [buttontype="btnSecondary"] {
   display: flex;
   align-items: center;
@@ -1239,6 +1305,7 @@ a.support:hover {
   padding: 0 24px;
 }
 
+.navbar__items--right [data-button-type="btnSecondary"]:hover,
 .navbar__items--right [buttontype="btnSecondary"]:hover {
   cursor: pointer;
   background-color: transparent;
@@ -1246,6 +1313,7 @@ a.support:hover {
   border-color: var(--ifm-color-primary-light);
 }
 
+.navbar__items--right [data-button-type="btnPrimary"],
 .navbar__items--right [buttontype="btnPrimary"] {
   display: flex;
   align-items: center;
@@ -1263,6 +1331,7 @@ a.support:hover {
   padding: 0 24px;
 }
 
+.navbar__items--right [data-button-type="btnPrimary"]:hover,
 .navbar__items--right [buttontype="btnPrimary"]:hover {
   cursor: pointer;
   background-color: var(--ifm-color-primary-light);
@@ -1270,9 +1339,40 @@ a.support:hover {
   box-shadow: none;
 }
 
-/* Hide default search bar */
-.navbar .navbar__item.navbar__search {
-  display: none;
+@media (max-width: 997px) {
+  .navbar__items--right {
+    column-gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .navbar__items--right .navbar__search-item,
+  .navbar__items--right [class*="navbarSearchContainer"],
+  .navbar__items--right .DocSearch,
+  .navbar__items--right .DocSearch-Button,
+  .navbar__items--right [data-button-type="btnSecondary"],
+  .navbar__items--right [buttontype="btnSecondary"] {
+    flex: 0 0 auto;
+  }
+
+  .navbar__items--right [data-button-type="btnSecondary"],
+  .navbar__items--right [buttontype="btnSecondary"] {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar__items--right {
+    column-gap: 6px;
+  }
+
+  .navbar__items--right [data-button-type="btnSecondary"],
+  .navbar__items--right [buttontype="btnSecondary"] {
+    padding: 0 10px;
+    font-size: 12px;
+  }
 }
 
 .dropdown__menu {
