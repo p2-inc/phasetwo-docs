@@ -16,7 +16,7 @@ For more information on how to set up token mappers, see [token mappers](./token
 
 ### Member attributes
 
-Members can have attributes that are specific to their membership in an organization. Visit the Orgs > Desired Org > Members and right click on the menu for the member to see the option to "Manage attributes" option. For more information, see [Membership](./membership).
+Members can have attributes that are specific to their membership in an organization. Visit the Orgs > Desired Org > Members and right click on the menu for the member to see the option to "Manage attributes" option. For more information, see [Membership](./membership.md).
 
 ### API access
 
