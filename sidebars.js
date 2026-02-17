@@ -103,6 +103,7 @@ module.exports = {
         "organizations/idp-wizard",
         "organizations/identity-providers",
         { type: "doc", id: "admin-portal/index", label: "Admin Portal" },
+        "organizations/token-mappers",
         "organizations/active-organization",
         "organizations/active-organization-authenticator",
         "organizations/organizations-import-export",
@@ -113,7 +114,13 @@ module.exports = {
       type: "category",
       label: "Admin Portal",
       link: { type: "doc", id: "admin-portal/index" },
-      items: ["admin-portal/portal-link"],
+      items: [
+        "admin-portal/configuration",
+        "admin-portal/access-control",
+        "admin-portal/api",
+        "admin-portal/listening-for-changes",
+        "admin-portal/portal-link",
+      ],
     },
     {
       type: "category",

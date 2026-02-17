@@ -13,7 +13,11 @@ When an organization is created, you will notice that a user is created with the
 
 ### Adding organizations to the token
 
-It is possible to map organization membership into the access token, ID token or userinfo endpoint response using the **Organization Role** token claim mapper for OIDC. It is possible to configure the mapper to exclude the roles. If you have users that will have a large number of organization memberships or roles per organization, it is recommended that you only add the claim to the userinfo endpoint response, as it may cause large token sizes.
+It is possible to map organization membership into the access token, ID token or `userinfo` endpoint response using the **Organization Role** token claim mapper for OIDC. It is possible to configure the mapper to exclude the roles. If you have users that will have a large number of organization memberships or roles per organization, it is recommended that you only add the claim to the userinfo endpoint response, as it may cause large token sizes.
+
+### Membership attributes
+
+Members can have attributes that are specific to their membership in an organization. Visit the Orgs > Desired Org > Members and right click on the menu for the member to see the option to "Manage attributes" option.
 
 ### API access
 

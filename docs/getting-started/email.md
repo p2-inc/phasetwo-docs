@@ -40,7 +40,7 @@ Finally, before you click **Save**, click the **Test connection** button to send
 
 ## Content templates
 
-Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab. There are several default email types that you can modify.
+Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify. 
 
 - Execute Required Actions
 - Link to Identity Provider
