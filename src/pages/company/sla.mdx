@@ -3,8 +3,6 @@ id: sla
 title: Phase Two Dedicated and Enterprise Clusters Service Level Agreement (SLA)
 ---
 
-_SLA Last updated: November 22, 2024_
-
 > Please read this Service Level Agreement carefully before subscribing to our Dedicated or Enterprise Cluster offering.
 
 This Service Level Agreement between Phase Two and the customer outlines the level of service, the process by which the customer can request technical support or submit a claim for not meeting the service level and request credit for the period of time service level was not met.
@@ -15,9 +13,11 @@ We guarantee at least 99.5% availability on Dedicated plans and 99.95% on Enterp
 
 Service credit = (Annualized subscription cost / 12) \* 50%
 
+Definition of Availability. “Availability” means the ability for end users to successfully authenticate through the primary Keycloak authentication endpoint. Availability is measured at the application endpoint level and excludes Excluded Events as defined in this SLA. Availability does not include performance degradation, latency, partial feature unavailability, or issues affecting only administrative functionality, unless such issues prevent user authentication entirely.
+
 ### Response and resolution times
 
-- Urgent server-down issues will be resolved within 4 hours. Urgent level is reached when the Customer’s Keycloak deployment has availability issues (user cannot login).
+- Urgent server-down issues will receive a response within one (1) hour and Phase Two will use commercially reasonable efforts to restore service within four (4) hours. Urgent level is reached when the Customer’s Keycloak deployment has availability issues (user cannot login).
 - Routine issues will be acknowledged within 1 working day. Issues within Phase Two’s span of control will also be resolved within 1 working day. Routine priority level is for every other support request.
 
 ### How to Claim a SLA Credit
@@ -28,7 +28,9 @@ Request for an SLA credit must be submitted in writing, within 30 days from the 
 
 ### Payment of Compensation
 
-The compensation will be in the form of Phase Two usage credits and may not be exchanged for cash or other forms of payment. All outage periods and compensation are calculated by Phase Two and are based on the plan that the customer is using. Once we’ve verified the outage, we’ll issue an SLA payment as a credit to be used against your invoice for the following month.
+The compensation will be in the form of Phase Two usage credits and may not be exchanged for cash or other forms of payment. All outage periods and compensation are calculated by Phase Two and are based on the plan that the customer is using. Once we’ve verified the outage, we’ll issue an SLA payment as a credit to be used against your invoice for the following month. Service credits described in this SLA constitute Customer’s sole and exclusive remedy for any failure to meet the uptime commitments set forth herein.
+
+In no event shall total service credits for a calendar month exceed fifty percent (50%) of the monthly subscription fee for the affected Service.
 
 Exclusions to the Uptime Guarantee
 Phase Two does all that we can to keep your service up and running. However, there are a few things that we can’t be held accountable for. Thus, they are excluded from our SLA. The following events will be exempt from Phase Two's availability guarantee:
@@ -42,3 +44,5 @@ Phase Two does all that we can to keep your service up and running. However, the
 - Routing or other faults caused by intermediary or external networks.
 - Errors caused by factors outside of Phase Two’s reasonable control.
 - Features or Services designated Alpha or Beta or deprecated.
+
+_SLA Last updated: February, 2026_
