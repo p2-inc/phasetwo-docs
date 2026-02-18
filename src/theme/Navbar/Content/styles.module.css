@@ -19,6 +19,15 @@
   width: 660px;
   padding: 20px;
   overflow: hidden;
+
+  .megaMenuSection {
+    border-right: 1px solid var(--ifm-color-info);
+    padding-right: 24px;
+
+    &:last-of-type {
+      border-right: none;
+    }
+  }
 }
 
 .megaMenu :global(.dropdown__link) {
@@ -42,8 +51,7 @@
 .megaMenuSectionTitle {
   margin: 0 0 8px;
   padding: 0 12px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 18px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ifm-color-content-secondary);
