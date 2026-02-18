@@ -150,6 +150,8 @@ module.exports = {
           type: "dropdown",
           label: "Hosting",
           position: "left",
+          activeBasePath: "hosting",
+          to: "hosting",
           items: [
             {
               label: "Dedicated Clusters",
@@ -170,10 +172,6 @@ module.exports = {
             {
               label: "Pricing",
               to: "pricing/hosting",
-            },
-            {
-              label: "Legacy",
-              to: "hosting",
             },
           ],
         },
@@ -292,7 +290,7 @@ module.exports = {
           title: "Product",
           items: [
             {
-              to: "hosting",
+              to: "hosting/dedicated-clusters/",
               activeBasePath: "hosting",
               label: "Hosting",
             },
