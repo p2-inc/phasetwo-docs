@@ -65,7 +65,7 @@
   --ifm-footer-title-color: #ffffff;
 
   /* Navbar */
-  --ifm-navbar-height: 92px;
+  --ifm-navbar-height: 68px;
   
   /* Code */
   --ifm-code-font-size: 95%;
@@ -1050,10 +1050,10 @@ a.support:hover {
   position: sticky;
   top: 0;
   z-index: 2000;
-  padding-top: 22px;
-  padding-bottom: 22px;
-  min-height: 92px;
-  height: 92px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  min-height: 68px;
+  height: 68px;
   display: flex;
   align-items: center;
 }
@@ -1086,7 +1086,11 @@ a.support:hover {
 .navbar .navbar__items {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+}
+
+.navbar .navbar__link {
+  font-size: 14px;
 }
 
 .navbarMain {
@@ -1296,13 +1300,13 @@ a.support:hover {
   border: 2px solid var(--ifm-color-primary);
   background-color: transparent;
   color: var(--ifm-color-primary);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 100%;
   font-weight: 500;
   font-family: var(--ifm-font-family-base);
   transition: 0.2s all;
-  height: 48px;
-  padding: 0 24px;
+  height: 36px;
+  padding: 0 16px;
 }
 
 .navbar__items--right [data-button-type="btnSecondary"]:hover,
@@ -1322,13 +1326,13 @@ a.support:hover {
   border: none;
   background-color: var(--ifm-color-primary);
   color: var(--color-wh);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 100%;
   font-weight: 500;
   font-family: var(--ifm-font-family-base);
   transition: 0.2s all;
-  height: 48px;
-  padding: 0 24px;
+  height: 36px;
+  padding: 0 16px;
 }
 
 .navbar__items--right [data-button-type="btnPrimary"]:hover,
@@ -1384,9 +1388,9 @@ a.support:hover {
 }
 .dropdown__link {
   border-radius: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   line-height: 1.2em;
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: var(--ifm-color-content);
 }
 .dropdown__link:hover {
@@ -1394,7 +1398,7 @@ a.support:hover {
   color: var(--ifm-color-content);
 }
 .dropdown > .navbar__link:after {
-  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI0IiB2aWV3Qm94PSIwIDAgNiA0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMC41IDAuNzVMMyAzLjI1TDUuNSAwLjc1IiBzdHJva2U9IiMxRjJDMzQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=")
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4' fill='none'%3E%3Cpath d='M.5.75L3 3.25 5.5.75' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
     no-repeat center;
   width: 10px;
   height: 8px;

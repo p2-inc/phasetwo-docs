@@ -93,7 +93,7 @@ module.exports = {
         src: "img/logo_phase_slash.svg",
       },
       items: [
-        // Left side items: Product, Hosting, Pricing
+        // Left side items: Product (mega-menu), Developers, Pricing, Resources, Blog
         {
           type: "dropdown",
           label: "Product",
@@ -101,77 +101,140 @@ module.exports = {
           items: [
             {
               to: "product/keycloak-and-phase-two",
-              activeBasePath: "product/keycloak-and-phase-two",
               label: "What are Keycloak and Phase Two",
             },
             {
-              to: "product/open-source-vs-commercial-offering",
-              activeBasePath: "product/open-source-vs-commercial-offering",
-              label: "Open Source vs Commercial Offering",
-            },
-            {
-              to: "product/onprem",
-              activeBasePath: "product/onprem",
-              label: "On-Premise Deployment",
-            },
-            {
               to: "product/sso",
-              activeBasePath: "product/sso",
               label: "SSO",
             },
             {
               to: "product/identity",
-              activeBasePath: "product/identity",
               label: "Identity",
             },
             {
               to: "product/organizations",
-              activeBasePath: "product/organizations",
               label: "Organizations",
             },
             {
-              to: "product/adminportal",
-              activeBasePath: "product/adminportal",
-              label: "Admin Portal",
+              to: "hosting/dedicated-clusters",
+              label: "Dedicated Clusters",
             },
             {
-              to: "product/integrations",
-              activeBasePath: "product/integrations",
-              label: "Integrations",
-            },
-            {
-              to: "product/cockroachdb",
-              activeBasePath: "product/cockroachdb",
-              label: "CockroachDB",
+              to: "support",
+              label: "Enterprise Support",
             },
           ],
+          megaMenu: {
+            sections: [
+              {
+                title: "Platform",
+                links: [
+                  {
+                    to: "product/keycloak-and-phase-two",
+                    activeBasePath: "product/keycloak-and-phase-two",
+                    label: "What are Keycloak and Phase Two",
+                  },
+                  {
+                    to: "product/open-source-vs-commercial-offering",
+                    activeBasePath: "product/open-source-vs-commercial-offering",
+                    label: "Open Source vs Commercial Offering",
+                  },
+                  {
+                    to: "product/onprem",
+                    activeBasePath: "product/onprem",
+                    label: "On-Premise Deployment",
+                  },
+                  {
+                    to: "product/sso",
+                    activeBasePath: "product/sso",
+                    label: "SSO",
+                  },
+                  {
+                    to: "product/identity",
+                    activeBasePath: "product/identity",
+                    label: "Identity",
+                  },
+                  {
+                    to: "product/organizations",
+                    activeBasePath: "product/organizations",
+                    label: "Organizations",
+                  },
+                  {
+                    to: "product/adminportal",
+                    activeBasePath: "product/adminportal",
+                    label: "Admin Portal",
+                  },
+                  {
+                    to: "product/integrations",
+                    activeBasePath: "product/integrations",
+                    label: "Integrations",
+                  },
+                  {
+                    to: "product/cockroachdb",
+                    activeBasePath: "product/cockroachdb",
+                    label: "CockroachDB",
+                  },
+                ],
+              },
+              {
+                title: "Hosting",
+                links: [
+                  {
+                    label: "Dedicated Clusters",
+                    to: "hosting/dedicated-clusters",
+                  },
+                  {
+                    label: "Self Host vs Managed",
+                    to: "hosting/self-host-vs-managed",
+                  },
+                  {
+                    label: "Support",
+                    to: "hosting/support",
+                  },
+                  {
+                    label: "Configuration",
+                    to: "hosting/configure",
+                  },
+                  {
+                    label: "Pricing",
+                    to: "pricing/hosting",
+                  },
+                ],
+              },
+              {
+                title: "Support",
+                links: [
+                  {
+                    label: "Enterprise Support",
+                    to: "support",
+                    activeBaseRegex: "^/support/$",
+                  },
+                  {
+                    label: "Migration to Keycloak",
+                    to: "support/migrate-to-keycloak",
+                  },
+                  {
+                    label: "Emergency Keycloak Assistance",
+                    to: "support/emergency-support",
+                  },
+                ],
+              },
+            ],
+          },
         },
         {
           type: "dropdown",
-          label: "Hosting",
+          label: "Developers",
           position: "left",
-          activeBasePath: "hosting",
-          to: "hosting",
           items: [
             {
-              label: "Dedicated Clusters",
-              to: "hosting/dedicated-clusters",
+              to: "api/phase-two-admin-rest-api",
+              activeBasePath: "api",
+              label: "API",
             },
             {
-              label: "Self Host vs Managed",
-              to: "hosting/self-host-vs-managed",
-            },
-            {
-              label: "Support",
-              to: "hosting/support",
-            },
-            {
-              label: "Configuration",
-              to: "hosting/configure",
-            },
-            {
-              label: "Pricing",
-              to: "pricing/hosting",
+              href: "https://github.com/p2-inc#our-extensions-",
+              label: "Keycloak Extensions",
             },
           ],
         },
@@ -192,46 +255,15 @@ module.exports = {
             },
           ],
         },
-        // Right side items: Support, Developers, Blog
         {
           type: "dropdown",
-          label: "Support",
-          position: "right",
-          to: "support",
-          items: [
-            {
-              label: "Enterprise Support",
-              to: "support",
-              activeBaseRegex: "^/support/$",
-            },
-            {
-              label: "Migration to Keycloak",
-              to: "support/migrate-to-keycloak",
-            },
-            {
-              label: "Emergency Keycloak Assistance",
-              to: "support/emergency-support",
-            },
-          ],
-        },
-        {
-          type: "dropdown",
-          label: "Developers",
-          position: "right",
+          label: "Resources",
+          position: "left",
           items: [
             {
               to: "docs/introduction",
               activeBasePath: "docs",
               label: "Docs",
-            },
-            {
-              to: "api/phase-two-admin-rest-api",
-              activeBasePath: "api",
-              label: "API",
-            },
-            {
-              href: "https://github.com/p2-inc#our-extensions-",
-              label: "Keycloak Extensions",
             },
             {
               to: "articles/introduction",
@@ -248,18 +280,18 @@ module.exports = {
           to: "blog",
           activeBasePath: "blog",
           label: "Blog",
-          position: "right",
+          position: "left",
         },
         {
           to: "contact",
           activeBasePath: "contact",
           label: "Contact",
-          position: "right",
-          buttonType: "btnSecondary",
+          position: "left",
         },
+        // Right side items: Log in
         {
           href: "https://dash.phasetwo.io/",
-          label: "Dashboard",
+          label: "Log in",
           position: "right",
           buttonType: "btnPrimary",
           title: "Login or Register",
