@@ -45,10 +45,7 @@ function MegaMenuNavbarItem({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        !dropdownRef.current ||
-        dropdownRef.current.contains(event.target)
-      ) {
+      if (!dropdownRef.current || dropdownRef.current.contains(event.target)) {
         return;
       }
       setShowDropdown(false);
@@ -76,7 +73,7 @@ function MegaMenuNavbarItem({
         {
           "dropdown--right": position === "right",
           "dropdown--show": showDropdown,
-        }
+        },
       )}
     >
       <NavbarNavLink
@@ -129,9 +126,11 @@ function MegaMenuMobileFallback({ label, megaMenu, ...rest }) {
     (section.links || []).map((link) => ({
       ...link,
       label: `${section.title}: ${link.label}`,
-    }))
+    })),
   );
-  return <NavbarItem type="dropdown" label={label} items={flatItems} {...rest} />;
+  return (
+    <NavbarItem type="dropdown" label={label} items={flatItems} {...rest} />
+  );
 }
 
 function NavbarItems({ items, isMobile }) {
@@ -145,7 +144,7 @@ function NavbarItems({ items, isMobile }) {
               `A theme navbar item failed to render.
 Please double-check the following navbar item (themeConfig.navbar.items) of your Docusaurus config:
 ${JSON.stringify(item, null, 2)}`,
-              { cause: error }
+              { cause: error },
             )
           }
         >
@@ -170,7 +169,7 @@ function NavbarContentLayout({ left, right }) {
       <div
         className={clsx(
           ThemeClassNames.layout.navbar.containerLeft,
-          "navbar__items"
+          "navbar__items",
         )}
       >
         {left}
@@ -178,7 +177,7 @@ function NavbarContentLayout({ left, right }) {
       <div
         className={clsx(
           ThemeClassNames.layout.navbar.containerRight,
-          "navbar__items navbar__items--right"
+          "navbar__items navbar__items--right",
         )}
       >
         {right}

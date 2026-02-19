@@ -183,7 +183,8 @@ module.exports = {
                   },
                   {
                     to: "product/open-source-vs-commercial-offering",
-                    activeBasePath: "product/open-source-vs-commercial-offering",
+                    activeBasePath:
+                      "product/open-source-vs-commercial-offering",
                     label: "Open Source vs Commercial Offering",
                   },
                   {
@@ -275,13 +276,27 @@ module.exports = {
           position: "left",
           items: [
             {
+              to: "docs/introduction",
+              activeBasePath: "docs",
+              label: "Docs",
+            },
+            {
               to: "api/phase-two-admin-rest-api",
               activeBasePath: "api",
               label: "API",
             },
             {
+              href: "https://github.com/p2-inc/",
+              label: "GitHub",
+            },
+            {
               href: "https://github.com/p2-inc#our-extensions-",
               label: "Keycloak Extensions",
+            },
+            {
+              to: "articles/introduction",
+              activeBasePath: "articles",
+              label: "Articles",
             },
           ],
         },
@@ -308,32 +323,24 @@ module.exports = {
           position: "left",
           items: [
             {
-              to: "docs/introduction",
-              activeBasePath: "docs",
-              label: "Docs",
+              to: "blog",
+              activeBasePath: "blog",
+              label: "Blog",
             },
             {
-              to: "articles/introduction",
-              activeBasePath: "articles",
-              label: "Articles",
+              to: "contact",
+              activeBasePath: "contact",
+              label: "Contact",
             },
             {
-              href: "https://github.com/p2-inc/",
-              label: "GitHub",
+              label: "About",
+              to: "company/about",
+            },
+            {
+              label: "Trust Center",
+              href: "https://trust.phasetwo.io",
             },
           ],
-        },
-        {
-          to: "blog",
-          activeBasePath: "blog",
-          label: "Blog",
-          position: "left",
-        },
-        {
-          to: "contact",
-          activeBasePath: "contact",
-          label: "Contact",
-          position: "left",
         },
         // Right side items: Log in
         {
