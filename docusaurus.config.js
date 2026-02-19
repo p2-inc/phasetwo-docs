@@ -99,9 +99,18 @@ module.exports = {
           label: "Product",
           position: "left",
           items: [
+            // Platform
             {
               to: "product/keycloak-and-phase-two",
               label: "What are Keycloak and Phase Two",
+            },
+            {
+              to: "product/open-source-vs-commercial-offering",
+              label: "Open Source vs Commercial Offering",
+            },
+            {
+              to: "product/onprem",
+              label: "On-Premise Deployment",
             },
             {
               to: "product/sso",
@@ -116,12 +125,50 @@ module.exports = {
               label: "Organizations",
             },
             {
+              to: "product/adminportal",
+              label: "Admin Portal",
+            },
+            {
+              to: "product/integrations",
+              label: "Integrations",
+            },
+            {
+              to: "product/cockroachdb",
+              label: "CockroachDB",
+            },
+            // Hosting
+            {
               to: "hosting/dedicated-clusters",
               label: "Dedicated Clusters",
             },
             {
+              to: "hosting/self-host-vs-managed",
+              label: "Self Host vs Managed",
+            },
+            {
+              to: "hosting/support",
+              label: "Hosting Support",
+            },
+            {
+              to: "hosting/configure",
+              label: "Configuration",
+            },
+            {
+              to: "pricing/hosting",
+              label: "Hosting Pricing",
+            },
+            // Support
+            {
               to: "support",
               label: "Enterprise Support",
+            },
+            {
+              to: "support/migrate-to-keycloak",
+              label: "Migration to Keycloak",
+            },
+            {
+              to: "support/emergency-support",
+              label: "Emergency Keycloak Assistance",
             },
           ],
           megaMenu: {
