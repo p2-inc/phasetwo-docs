@@ -97,7 +97,7 @@ function MegaMenuMobileAccordion({ item, onClick }) {
                 {isOpen && (
                   <ul className="menu__list">
                     {(section.links || []).map((link) => (
-                      <li key={link.label} className="menu__list-item">
+                      <li key={link.label} className={clsx("menu__list-item", styles.megaMenuSectionItem_menuListItem)}>
                         <NavbarItem
                           mobile
                           isDropdownLink

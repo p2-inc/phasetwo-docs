@@ -1,3 +1,7 @@
 .megaMenuSectionItem {
-  margin-left: 12px;
+  margin-left: .875rem;
+}
+
+.megaMenuSectionItem_menuListItem {
+  padding-left: 1rem;
 }
