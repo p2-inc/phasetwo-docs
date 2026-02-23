@@ -1,477 +1,285 @@
 import Layout from "@theme/Layout";
+import Link from "@docusaurus/Link";
 import styles from "./integrations.module.css";
-import { InlineIcon } from "@iconify/react";
+import { useState } from "react";
+import FrameworkTabs from "../../components/FrameworkTabs";
+import pageStyles from "../styles.module.css";
+import Cta from "../../components/ctas/homepage-dual-line-cta";
+
+const HERO_BG_STYLE = {
+  backgroundImage:
+    "radial-gradient(52.86% 64.72% at 50% 6.64%, color-mix(in srgb, var(--ifm-color-primary) 40%, transparent) 0%, transparent 100%)",
+  backgroundRepeat: "no-repeat",
+};
+
+const PAGE_CTA = {
+  primaryText: "Ready to Try Keycloak?",
+  secondaryText: "Create Your Free Deployment Today.",
+  ctaLabel: "Try for Free",
+  ctaHref: "https://dash.phasetwo.io/",
+};
+
+const INTEGRATIONS_ICON_COLOR = "#A0A9DB"; /* matches --color-framework-grid */
+
+function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
+  // Use Iconify's static SVG endpoint so we can render icons with <img>
+  // and keep the tile structure consistent with the homepage.
+  return `https://api.iconify.design/${icon}.svg?color=${encodeURIComponent(color)}`;
+}
 
 function Integrations() {
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
     <Layout
       title="Integrations"
       description="Easily integrate Phase Two with many identity providers and application frameworks."
     >
-      <main>
+      <main className="hosting-page">
         {/* Hero */}
-        <div className={`pageHero`}>
-          <div className={`pageHeroBgCircles`}>
-            <img
-              src="/img/circles.svg"
-              alt="Concentric Circles"
-              loading="lazy"
+        <section className="subpage-section subpage-hero-section">
+          <div className="relative isolate overflow-hidden" style={HERO_BG_STYLE}>
+            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
+              <div className="mx-auto max-w-3xl text-center">
+                <h1 className="text-white text-balance">
+                  Integrate with Existing Identity Providers and Frameworks
+                </h1>
+                <p className="mt-6 text-gray-300 text--body-large text-balance mb-0">
+                  Set up Phase Two to work with your existing identity provider
+                  which can include any social login, SAML, or OAuth provider. We
+                  also provide SDKs for popular application frameworks.
+                </p>
+
+                <div className="mt-10 flex flex-col items-center justify-center gap-4">
+                  <a href="mailto:support@phasetwo.io">
+                    <button className="btnPrimary min-w-[160px]">
+                      Contact Sales
+                    </button>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Support */}
+        <section className="subpage-section texture-plus">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <FrameworkTabs
+              tabs={[
+                { key: "idps", label: "Identity Providers" },
+                { key: "frameworks", label: "Frameworks" },
+                { key: "protocols", label: "Protocols" },
+              ]}
+              activeIndex={activeTab}
+              onChange={setActiveTab}
+              panels={[
+                <div key="idps" className="framework-tab-panel">
+                  <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+                    <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
+                      Phase Two works out of the box with all of the following
+                      Identity Providers and enables all{" "}
+                      <Link to="/product/organizations" className="link-primary">
+                        Organization
+                      </Link>{" "}
+                      admins to set up configured their chosen Identity
+                      Providers using the{" "}
+                      <Link to="/product/adminportal/" className="link-primary">
+                        Admin Portal
+                      </Link>
+                      .
+                    </p>
+                  </div>
+
+                  <div className="mt-10 flex justify-center">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
+                      {[
+                        { src: "/customer-logos/bitbucket.svg", alt: "Bitbucket", icon: "fa-brands:bitbucket" },
+                        { src: "/customer-logos/facebook.svg", alt: "Facebook", icon: "fa-brands:facebook" },
+                        { src: "/customer-logos/github.svg", alt: "Github", icon: "fa-brands:github" },
+                        { src: "/customer-logos/gitlab.svg", alt: "Gitlab", icon: "fa-brands:gitlab" },
+                        { src: "/customer-logos/google.svg", alt: "Google", icon: "fa-brands:google" },
+                        { src: "/customer-logos/instagram.svg", alt: "Instagram", icon: "fa-brands:instagram" },
+                        { src: "/customer-logos/linkedin.svg", alt: "LinkedIn", icon: "fa-brands:linkedin" },
+                        { src: "/customer-logos/microsoft.svg", alt: "Microsoft", icon: "fa-brands:microsoft" },
+                        { src: "/customer-logos/azure.svg", alt: "Azure", icon: "carbon:logo-azure" },
+                        { src: "/customer-logos/openshift.svg", alt: "Openshift", icon: "carbon:logo-openshift" },
+                        { src: "/customer-logos/paypal.svg", alt: "Paypal", icon: "fa-brands:paypal" },
+                        { src: "/customer-logos/stack-overflow.svg", alt: "StackOverflow", icon: "fa-brands:stack-overflow" },
+                        { src: "/customer-logos/x.svg", alt: "X", icon: "fa6-brands:x-twitter" },
+                        { src: "/customer-logos/onelogin.svg", alt: "Onelogin" },
+                        { src: "/customer-logos/adsf.svg", alt: "ADFS" },
+                        { src: "/customer-logos/ping-identity.svg", alt: "PingIdentity" },
+                        { src: "/customer-logos/duo.svg", alt: "DUO" },
+                        { src: "/customer-logos/jumpcloud.svg", alt: "JumpCloud" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
+                          <img
+                            src={logo.src ?? iconifyImgSrc(logo.icon)}
+                            alt={logo.alt}
+                            className={logo.className ?? styles.idpLogoImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>,
+
+                <div key="frameworks" className="framework-tab-panel">
+                  <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+                    <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
+                      Phase Two can secure{" "}
+                      <a
+                        href="https://phasetwo.io/docs/securing-applications/"
+                        className="link-primary"
+                      >
+                        web frameworks
+                      </a>{" "}
+                      or native applications to provide authentication and
+                      authorization services.
+                    </p>
+                  </div>
+
+                  <div className="mt-10 flex justify-center">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
+                      {[
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/django",
+                          title: "Django",
+                          src: "/customer-logos/django.svg",
+                          alt: "Django",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/springboot",
+                          title: "Spring Boot",
+                          src: "/customer-logos/spring.svg",
+                          alt: "Spring",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/javascript",
+                          title: "Javascript",
+                          src: "/customer-logos/js.svg",
+                          alt: "JavaScript",
+                        },
+                        { title: "nodejs", src: "/customer-logos/nodejs.svg", alt: "Node.js" },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/react",
+                          title: "React",
+                          src: "/customer-logos/react.svg",
+                          alt: "React",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/next",
+                          title: "Next.js",
+                          src: "/customer-logos/nextjs.svg",
+                          alt: "Next.js",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/vue",
+                          title: "Vue",
+                          src: "/customer-logos/vue.svg",
+                          alt: "Vue",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/nuxt",
+                          title: "Nuxt",
+                          src: "/customer-logos/nuxtjs.svg",
+                          alt: "Nuxt",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/remix",
+                          title: "Remix",
+                          src: "/customer-logos/remix.svg",
+                          alt: "Remix",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/sveltekit",
+                          title: "Sveltekit",
+                          src: "/customer-logos/svelte.svg",
+                          alt: "Svelte",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/angular",
+                          title: "Angular",
+                          src: "/customer-logos/angular.svg",
+                          alt: "Angular",
+                        },
+                        { title: "GoLang", src: "/customer-logos/go.svg", alt: "Go" },
+                        { title: "Android", src: "/customer-logos/android.svg", alt: "Android" },
+                        { title: "Apple", src: "/customer-logos/apple.svg", alt: "Apple" },
+                        { title: "php", src: "/customer-logos/php.svg", alt: "PHP" },
+                        { title: "c#", src: "/customer-logos/csharp.svg", alt: "C#" },
+                      ].map((logo) => {
+                        const tile = (
+                          <div className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
+                            <img
+                              src={logo.src}
+                              alt={logo.alt}
+                              className={styles.idpLogoImg}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          </div>
+                        );
+
+                        return logo.href ? (
+                          <a key={logo.title} href={logo.href} title={logo.title}>
+                            {tile}
+                          </a>
+                        ) : (
+                          <div key={logo.title} title={logo.title}>
+                            {tile}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>,
+
+                <div key="protocols" className="framework-tab-panel">
+                  <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+                    <p className="mt-6 text-gray-300 subpage-section-intro mb-0">
+                      Phase Two supports the most common protocols for seamless
+                      integration with <b>any system</b>.
+                    </p>
+                  </div>
+
+                  <div className="mt-10 flex justify-center">
+                    <div className={`${pageStyles.engLogoGrid} ${styles.integrationsGrid}`} role="list">
+                      {[
+                        { src: "/customer-logos/saml.svg", alt: "SAML" },
+                        { src: "/customer-logos/openid.svg", alt: "OpenID" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${pageStyles.engLogoTile} ${styles.integrationsTile} ${styles.integrationsTileIdp}`} role="listitem">
+                          <img
+                            src={logo.src}
+                            alt={logo.alt}
+                            className={styles.idpLogoImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>,
+              ]}
             />
           </div>
-          <div className={`pageHeroMsg`}>
-            <h1>Integrate with Existing Identity Providers and Frameworks</h1>
-            <h2 className={`pageHeroMsgIntro`}>
-              Set up Phase Two to work with your existing identity provider
-              which can include any social login, SAML, or OAuth provider. We
-              also provide SDKs for popular application frameworks.
-            </h2>
-            <div className={`pageHeroCta`}>
-              <a href="mailto:support@phasetwo.io">
-                <button className={`btnPrimary`}>Contact Sales</button>
-              </a>
-            </div>
-          </div>
-        </div>
+        </section>
 
-        {/* Protocols */}
-        <div className={`contentBlock margin-bottom--sm`}>
-          <div className={`text--center`}>
-            <h2>Protocol Support</h2>
-            <h3 className={`pageHeroMsgIntro`}>
-              Phase Two supports the most common protocols for seamless
-              integration with <b>any system</b>.
-            </h3>
-            <div
-              className={`${styles.gridGroup} ${styles.gridGroupProtocol} padding-vert--lg`}
-            >
-              <div className={styles.gridGroupItem} title="SAML">
-                <img
-                  src="/img/saml.svg"
-                  alt="SAML"
-                  loading="lazy"
-                  width="72"
-                  height="22"
-                />
-                <span className="sr-only">SAML</span>
-              </div>
-              <div className={styles.gridGroupItem} title="OpenID">
-                <img
-                  src="/img/openid.svg"
-                  alt="OpenID"
-                  loading="lazy"
-                  width="93"
-                  height="32"
-                />
-                <span className="sr-only">OpenID</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Identity Providers */}
-        <div className={`contentBlock  margin-bottom--sm`}>
-          <div className={`text--center`}>
-            <h2>Identity Providers</h2>
-            <h3 className={`pageHeroMsgIntro`}>
-              Phase Two works out of the box with all of the following Identity
-              Providers and enables all{" "}
-              <a href="https://phasetwo.io/product/organizations">
-                Organization
-              </a>{" "}
-              admins to set up configured their chosen Identity Providers using
-              the{" "}
-              <a href="https://phasetwo.io/product/adminportal/">
-                Admin Portal
-              </a>
-              .
-            </h3>
-            <div
-              className={`${styles.gridGroup} ${styles.gridGroupIDP} padding-vert--lg`}
-            >
-              <div className={styles.gridGroupItem} title="Bitbucket">
-                <InlineIcon
-                  icon="fa-brands:bitbucket"
-                  style={{ fontSize: "2rem" }}
-                  alt="Bitbucket"
-                />
-                <span className="sr-only">Bitbucket</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Facebook">
-                <InlineIcon
-                  icon="fa-brands:facebook"
-                  style={{ fontSize: "2rem" }}
-                  alt="Facebook"
-                />
-                <span className="sr-only">Facebook</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Github">
-                <InlineIcon
-                  icon="fa-brands:github"
-                  style={{ fontSize: "2rem" }}
-                  alt="Github"
-                />
-                <span className="sr-only">Github</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Gitlab">
-                <InlineIcon
-                  icon="fa-brands:gitlab"
-                  style={{ fontSize: "2rem" }}
-                  alt="Gitlab"
-                />
-                <span className="sr-only">Gitlab</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Google">
-                <InlineIcon
-                  icon="fa-brands:google"
-                  style={{ fontSize: "2rem" }}
-                  alt="Google"
-                />
-                <span className="sr-only">Google</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Instagram">
-                <InlineIcon
-                  icon="fa-brands:instagram"
-                  style={{ fontSize: "2rem" }}
-                  alt="Instagram"
-                />
-                <span className="sr-only">Instagram</span>
-              </div>
-              <div className={styles.gridGroupItem} title="LinkedIn">
-                <InlineIcon
-                  icon="fa-brands:linkedin"
-                  style={{ fontSize: "2rem" }}
-                  alt="LinkedIn"
-                />
-                <span className="sr-only">LinkedIn</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Microsoft">
-                <InlineIcon
-                  icon="fa-brands:microsoft"
-                  style={{ fontSize: "2rem" }}
-                  alt="Microsoft"
-                />
-                <span className="sr-only">Microsoft</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Azure">
-                <InlineIcon
-                  icon="devicon-plain:azure"
-                  style={{ fontSize: "2rem" }}
-                  alt="Azure"
-                />
-                <span className="sr-only">Azure</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Openshift">
-                <InlineIcon
-                  icon="carbon:logo-openshift"
-                  style={{ fontSize: "2rem" }}
-                  alt="Openshift"
-                />
-                <span className="sr-only">Openshift</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Paypal">
-                <InlineIcon
-                  icon="fa-brands:paypal"
-                  style={{ fontSize: "2rem" }}
-                  alt="Paypal"
-                />
-                <span className="sr-only">Paypal</span>
-              </div>
-              <div className={styles.gridGroupItem} title="StackOverflow">
-                <InlineIcon
-                  icon="fa-brands:stack-overflow"
-                  style={{ fontSize: "2rem" }}
-                  alt="StackOverflow"
-                />
-                <span className="sr-only">StackOverflow</span>
-              </div>
-              <div className={styles.gridGroupItem} title="X">
-                <InlineIcon
-                  icon="fa6-brands:x-twitter"
-                  style={{ fontSize: "2rem" }}
-                  alt="X"
-                />
-                <span className="sr-only">X</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Onelogin">
-                <img
-                  src="/img/logo-onelogin.svg"
-                  alt="Onelogin"
-                  loading="lazy"
-                  height="20"
-                />
-                <span className="sr-only">Onelogin</span>
-              </div>
-              <div className={styles.gridGroupItem} title="ADFS">
-                <img
-                  src="/img/logo-adfs.svg"
-                  alt="ADFS"
-                  loading="lazy"
-                  height="20"
-                />
-                <span className="sr-only">ADFS</span>
-              </div>
-              <div className={styles.gridGroupItem} title="PingIdentity">
-                <img
-                  src="/img/logo-ping-identity-black.svg"
-                  alt="PingIdentity"
-                  loading="lazy"
-                  height="20"
-                />
-                <span className="sr-only">PingIdentity</span>
-              </div>
-              <div className={styles.gridGroupItem} title="DUO">
-                <img
-                  src="/img/logo-duo-security-black.svg"
-                  alt="DUO"
-                  loading="lazy"
-                  height="20"
-                />
-                <span className="sr-only">DUO</span>
-              </div>
-              <div className={styles.gridGroupItem} title="JumpCloud">
-                <img
-                  src="/img/logo-jumpcloud-logo.svg"
-                  alt="JumpCloud"
-                  loading="lazy"
-                  height="20"
-                />
-                <span className="sr-only">JumpCloud</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Protocols */}
-        <div className={`contentBlock `}>
-          <div className={`kubernetesBgImg bgImg`}>
-            <img
-              src="/img/gradient-bg.webp"
-              alt="Color Gradient"
-              loading="lazy"
-            />
-          </div>
-          <div className={`text--center`}>
-            <h2>Framework Support</h2>
-            <h3 className={`pageHeroMsgIntro`}>
-              Phase Two can secure{" "}
-              <a href="https://phasetwo.io/docs/securing-applications/">
-                web frameworks
-              </a>{" "}
-              or native applications to provide authentication and authorization
-              services.
-            </h3>
-            <div
-              className={`${styles.gridGroup} ${styles.gridGroupFramework} padding-vert--lg`}
-            >
-              <a
-                href="https://phasetwo.io/docs/securing-applications/django"
-                title="Django"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:django"
-                    style={{ fontSize: "2rem" }}
-                    alt="django"
-                  />
-                  <span className="sr-only">Django</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/springboot"
-                title="Spring Boot"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:spring"
-                    style={{ fontSize: "2rem" }}
-                    alt="spring boot"
-                  />
-                  <span className="sr-only">Spring Boot</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/javascript"
-                title="Javascript"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:javascript"
-                    style={{ fontSize: "2rem" }}
-                    alt="javascript"
-                  />
-                  <span className="sr-only">Javascript</span>
-                </div>
-              </a>
-              <div className={styles.gridGroupItem} title="nodejs">
-                <InlineIcon
-                  icon="simple-icons:nodedotjs"
-                  style={{ fontSize: "2rem" }}
-                  alt="nodejs"
-                />
-                <span className="sr-only">nodejs</span>
-              </div>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/react"
-                title="React"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:react"
-                    style={{ fontSize: "2rem" }}
-                    alt="react"
-                  />
-                  <span className="sr-only">React</span>
-                </div>
-              </a>
-              <a href="https://phasetwo.io/docs/securing-applications/next">
-                <div className={styles.gridGroupItem} title="Next.js">
-                  <InlineIcon
-                    icon="simple-icons:nextdotjs"
-                    style={{ fontSize: "2rem" }}
-                    alt="next.js"
-                  />
-                  <span className="sr-only">Next.js</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/vue"
-                title="Vue"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:vuedotjs"
-                    style={{ fontSize: "2rem" }}
-                    alt="vue"
-                  />
-                  <span className="sr-only">Vue</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/nuxt"
-                title="Nuxt"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:nuxtdotjs"
-                    style={{ fontSize: "2rem" }}
-                    alt="nuxt"
-                  />
-                  <span className="sr-only">Nuxt</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/remix"
-                title="Remix"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:remix"
-                    style={{ fontSize: "2rem" }}
-                    alt="remix"
-                  />
-                  <span className="sr-only">Remix</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/sveltekit"
-                title="Sveltekit"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:svelte"
-                    style={{ fontSize: "2rem" }}
-                    alt="sveltekit"
-                  />
-                  <span className="sr-only">Sveltekit</span>
-                </div>
-              </a>
-              <a
-                href="https://phasetwo.io/docs/securing-applications/angular"
-                title="Angular"
-              >
-                <div className={styles.gridGroupItem}>
-                  <InlineIcon
-                    icon="simple-icons:angular"
-                    style={{ fontSize: "2rem" }}
-                    alt="angular"
-                  />
-                  <span className="sr-only">Angular</span>
-                </div>
-              </a>
-              <div className={styles.gridGroupItem} title="GoLang">
-                <InlineIcon
-                  icon="fa6-brands:golang"
-                  style={{ fontSize: "2rem" }}
-                  alt="golang"
-                />
-                <span className="sr-only">GoLang</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Android">
-                <InlineIcon
-                  icon="simple-icons:android"
-                  style={{ fontSize: "2rem" }}
-                  alt="android"
-                />
-                <span className="sr-only">Android</span>
-              </div>
-              <div className={styles.gridGroupItem} title="Apple">
-                <InlineIcon
-                  icon="simple-icons:apple"
-                  style={{ fontSize: "2rem" }}
-                  alt="apple"
-                />
-                <span className="sr-only">Apple</span>
-              </div>
-              <div className={styles.gridGroupItem} title="php">
-                <InlineIcon
-                  icon="simple-icons:php"
-                  style={{ fontSize: "2rem" }}
-                  alt="php"
-                />
-                <span className="sr-only">php</span>
-              </div>
-              <div className={styles.gridGroupItem} title="c#">
-                <InlineIcon
-                  icon="devicon-plain:csharp"
-                  style={{ fontSize: "2rem" }}
-                  alt="c-sharp"
-                />
-                <span className="sr-only">c-sharp</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="contentBlock">
-          <div className="contentBlockBody">
-            <div className={`${styles.callout} card`}>
-              <h4 className={styles.calloutHeader}>
-                Learn more about Phase Two's Integrations
-              </h4>
-              <div className="margin-top--md">
-                <a
-                  href="mailto:sales@phasetwo.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="margin-right--md"
-                >
-                  <button className="btnTertiary">
-                    Let&apos;s Talk About It
-                  </button>
-                </a>
-                <a
-                  href="https://dash.phasetwo.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <button className="btnTertiary margin-right--md">
-                    Get Started For Free
-                  </button>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* CTA */}
+        <Cta
+          sectionClassName="subpage-section cta-section-gradient"
+          background="primary"
+          primaryText={PAGE_CTA.primaryText}
+          secondaryText={PAGE_CTA.secondaryText}
+          showCta
+          ctaLabel={PAGE_CTA.ctaLabel}
+          ctaHref={PAGE_CTA.ctaHref}
+        />
       </main>
     </Layout>
   );

@@ -39,3 +39,11 @@
   width: 100%;
   height: auto;
 }
+
+.bentoWide {
+  max-width: var(--content-width-wide);
+}
+
+.noBottomPadding {
+  padding-bottom: 0;
+}

@@ -1,198 +1,181 @@
-import React, { useEffect } from "react";
+import React from "react";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
-import styles from "./identity.module.css";
+
+import CardWithImage from "../../components/CardWithImage";
+
+const PAGE_META = {
+  title: "Identity Provider",
+  description:
+    "Identity - Authentication with Social Login, Multi-factor, Passwordless, Magic links and more. User self-management with a user account portal",
+};
+
+const HERO = {
+  title: "Frictionless, Customized, Cost-Effective Authentication",
+  description:
+    "Securely authenticate users across every application with flexible, branded login experiences—without building a maze of edge-case flows.",
+  imageSrc: "/img/hero-identity.svg",
+  primaryCtaLabel: "Get Started",
+  primaryCtaHref: "https://dash.phasetwo.io/",
+  secondaryCtaLabel: "Learn more",
+  secondaryCtaHref: "#features",
+};
+
+const INTRO = {
+  headline:
+    "Phase Two gives you customizable authentication flows that match your product and your requirements. From first sign-in to account recovery, you get a complete set of login paths—without the ongoing maintenance burden of a custom solution.",
+};
+
+const FEATURES = {
+  title: "Authentication Features",
+  intro:
+    "Everything you need to deliver secure login, reduce friction, and support modern authentication across your applications.",
+  cards: [
+    {
+      title: "Social Login or Corporate IDPs",
+      description:
+        "Offer social login (Google, GitHub, Facebook) or connect customer-managed corporate identity providers—so users sign in with the identity they already use.",
+      imageSrc: "/img/social-login-or-corp-idp.svg",
+    },
+    {
+      title: "Multi-Factor Authentication",
+      description:
+        "Add strong second factors with TOTP apps and WebAuthn security keys, including passkeys, for higher-assurance authentication.",
+      imageSrc: "/img/multi-factor-auth.svg",
+    },
+    {
+      title: "Magic Links, Passwordless Login",
+      description:
+        "Let users sign in with emailed magic links for a fast, secure passwordless experience—no passwords to reset or reuse.",
+      imageSrc: "/img/magic-links.svg",
+    },
+    {
+      title: "User Account Management",
+      description:
+        "Give users a self-service account portal to manage profile and security settings—reducing common support requests.",
+      imageSrc: "/img/user-account-management.svg",
+    },
+    {
+      title: "Cost Effective Authentication",
+      description:
+        "Keep costs predictable as you scale: Phase Two doesn’t charge based on user counts or login methods.",
+      imageSrc: "/img/cost-effective-auth.svg",
+    },
+    {
+      title: "Passkeys",
+      description: "Adopt modern passkeys for phishing-resistant, passwordless authentication with maximum security.",
+      imageSrc: "/img/passkeys.svg",
+    },
+  ],
+};
+
+const MAGIC_LINK_GUIDE_URL = "/blog/set-up-magic-links";
+
+function SectionHeading({ title, intro, align = "center" }) {
+  return (
+    <div className={align === "center" ? "text-center" : "subpage-section-heading"}>
+      <h2 className="text-white">{title}</h2>
+      {intro ? <p className="mt-6 text-gray-300 subpage-section-intro">{intro}</p> : null}
+    </div>
+  );
+}
 
 function Identity() {
-  useEffect(() => {
-    document.body.classList.add("page-identity", "page-bg");
-    return () => {
-      document.body.classList.remove("page-identity", "page-bg");
-    };
-  }, []);
-
   return (
-    <Layout
-      title="Identity Provider"
-      description="Identity - Authentication with Social Login, Multi-factor, Passwordless, Magic links and more. User self-management with a user account portal"
-    >
-      <main>
+    <Layout title={PAGE_META.title} description={PAGE_META.description}>
+      <main className="hosting-page">
         {/* Hero */}
-        <div className={`pageHero`}>
-          <div className={`pageHeroMsg`}>
-            <h1>Frictionless, Customized, Cost-Effective Authentication</h1>
-            <h2 className={`pageHeroMsgIntro`}>
-              Authenticate your users securely across every application, from
-              the first click to the last. Phase Two provides highly
-              customizable Authentication flows that can be tailored to your
-              application's needs. Login pages can be customized with branding
-              to match your application's look and feel to create a seamless
-              experience. In addition, all possible login use cases are covered,
-              meaning no building out the multivariate login flows that
-              inevitably come with a custom solution.
-            </h2>
-            <div className={`pageHeroCta`}>
-              <a
-                href="https://dash.phasetwo.io/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <button className={`btnPrimary`}>Get Started</button>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Social Login */}
-        <div className={`contentBlock`}>
-          <div className={`socialLoginBgCircles bgImg`}>
-            <img
-              src="/img/circles.svg"
-              alt="Concentric Circles"
-              loading="lazy"
-            />
-          </div>
-          <div className={`socialLoginBgImg bgImg`}>
-            <img
-              src="/img/social-login-bg.svg"
-              alt="Social Login Symbols"
-              loading="lazy"
-            />
-          </div>
-          <div className={`contentBlockHead`}>
-            <h2>Social Login or Corporate IDPs</h2>
-            <p>
-              Add social login with popular providers like Google, Github and
-              Facebook to remove barriers to engagement, and allow your users to
-              maintain one identity. Or connect the corporate identity provider
-              to link directly to an existing provider.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.bodyImg}>
-              <img
-                src="/img/img-social-login.svg"
-                alt="Illustration showing Google and Microsoft social login buttons"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* MFA */}
-        <div className={`contentBlock`}>
-          <div className={`mfaBgImg bgImg`}>
-            <img
-              src="/img/gradient-bg.webp"
-              alt="Color Gradient"
-              loading="lazy"
-            />
-          </div>
-          <div className={`contentBlockHead`}>
-            <h2>Multi-Factor Authentication</h2>
-            <p>
-              Add an additional layer of security by allowing users to add
-              second factors using advanced methods such as TOTP authenticator
-              apps or WebAuthn devices like Yubikey or Passkeys.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.bodyImg}>
-              <img
-                src="/img/img-mfa.svg"
-                alt="Illustration showing various Multi-Factor Authentiation Means"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Magic Link */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2>Magic Links, Passwordless Login</h2>
-            <p>
-              Removes friction to sign up and identity using your user’s email,
-              all without compromising account security. Passwordless login
-              immediately avoids password breaches, and removes the need for
-              forgotten password problems.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.bodyImg}>
-              <img
-                src="/img/img-magic-links.svg"
-                alt="Illustration showing logging in with magic link"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Magic Link */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2>User Account Management</h2>
-            <p>
-              Empower your users with a user account portal that allows them to
-              self-manage their account details and identity. Massively reduces
-              the most common customer service issues.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.bodyImg}>
-              <img
-                src="/img/img-user-management.svg"
-                alt="Illustration showing managing users"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Read More */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2>Cost Effective Authentication</h2>
-            <p>
-              With all the various features for customizing the login
-              experience, this can save immense time in development cycles
-              trying to handle all the authentication use-cases. In addition,
-              Phase Two does not charge based on user count or login methods,
-              meaning that as app grows, you are future-proofed against
-              spiraling costs.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={`readMore`}>
-              <div className={`readMoreL`}>
-                <img
-                  className={`readMoreImg`}
-                  src="/img/icon-lock-access.svg"
-                  alt="A magician with a hat and magic wand"
-                  loading="lazy"
-                />
-              </div>
-              <div className={`readMoreR`}>
-                <h3>Magic Link Guide</h3>
-                <p>
-                  Magic links are a type of passwordless authentication that
-                  allow your users to log in to your application following a
-                  link that is emailed to them, rather than typing a username
-                  and password. Read our guide to understand if they're right
-                  for you and how to implement it in 5-minutes.
-                </p>
-                <a href="/blog/set-up-magic-links" className={`btnReadMore`}>
-                  Read More
+        <section className="subpage-section subpage-hero-section">
+          <div
+            className="relative isolate overflow-hidden"
+            style={{
+              backgroundImage:
+                "radial-gradient(52.86% 64.72% at 50% 6.64%, color-mix(in srgb, var(--ifm-color-primary) 40%, transparent) 0%, transparent 100%)",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
+              <div className="mx-auto max-w-3xl text-center">
+                <div className="hero-box-image mb-6">
                   <img
-                    src="/img/arrow-long-right.svg"
-                    alt="Arrow"
+                    src={HERO.imageSrc}
+                    alt=""
+                    className="hero-box-image-img"
                     loading="lazy"
+                    decoding="async"
                   />
-                </a>
+                </div>
+
+                <h1 className="text-white text-balance">{HERO.title}</h1>
+                <p className="mt-6 text-gray-300 text--body-large whitespace-pre-line mb-0">
+                  {HERO.description}
+                </p>
+
+                <div className="mt-10 flex flex-col items-center justify-center gap-4">
+                  <a href={HERO.primaryCtaHref} target="_blank" rel="noreferrer">
+                    <button className="btnPrimary min-w-[160px]">{HERO.primaryCtaLabel}</button>
+                  </a>
+                  <Link href={HERO.secondaryCtaHref} className="link-primary">
+                    {HERO.secondaryCtaLabel} <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* Intro */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+              <h3 className="mb-0 text-gray-300 font-normal text-balance whitespace-pre-line">
+                {INTRO.headline}
+              </h3>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section id="features" className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <SectionHeading title={FEATURES.title} intro={FEATURES.intro} />
+
+            <div className="mx-auto mt-14 max-w-[var(--content-width-wide)] space-y-6">
+              {FEATURES.cards.slice(0, 1).map((card) => (
+                <CardWithImage
+                  key={card.title}
+                  layout="horizontal"
+                  imagePosition="left"
+                  titleAs="h3"
+                  title={card.title}
+                  description={<p className="mb-0">{card.description}</p>}
+                  imageSrc={card.imageSrc}
+                  imageAlt=""
+                />
+              ))}
+            </div>
+
+            <div className="mx-auto mt-6 grid max-w-[var(--content-width-wide)] grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {FEATURES.cards.slice(1).map((card) => (
+                <CardWithImage
+                  key={card.title}
+                  title={card.title}
+                  description={<p className="mb-0">{card.description}</p>}
+                  imageSrc={card.imageSrc}
+                  imageAlt=""
+                />
+              ))}
+            </div>
+
+            <p className="mt-10 mb-0 text-gray-300 text--body-large text-center text-balance">
+              Want a quick way to ship passwordless login? Read our{" "}
+              <Link to={MAGIC_LINK_GUIDE_URL} className="link-primary">
+                Magic Link guide
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
       </main>
     </Layout>
   );

@@ -1,92 +1,81 @@
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
-import { useEffect } from "react";
+import Link from "@docusaurus/Link";
 import { KeycloakSupportPackages } from "../../components/keycloak-support-packages";
-import styles from "../styles.module.css";
-import { Icon } from "@iconify/react";
 
 function Pricing() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
 
-  useEffect(() => {
-    document.body.classList.add("page-bg");
-  });
-
   return (
-    <Layout description={`${siteConfig.tagline}`}>
-      <main>
-        <div className="container">
-          <div className="contentBlock">
-            <div className="contentBlockBody">
-              <div>
-                <h2
-                  id="supportPackages"
-                  style={{ textAlign: "center", marginTop: "3rem" }}
-                >
+    <Layout
+      title="Support Pricing"
+      description={`${siteConfig.tagline}`}
+    >
+      <main className="hosting-page">
+        <section className="subpage-section subpage-hero-section">
+          <div
+            className="relative isolate overflow-hidden"
+            style={{
+              backgroundImage:
+                "radial-gradient(52.86% 64.72% at 50% 6.64%, color-mix(in srgb, var(--ifm-color-primary) 40%, transparent) 0%, transparent 100%)",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
+              <div className="mx-auto max-w-2xl text-center">
+                <h1 id="supportPackages" className="text-white">
                   Enterprise Keycloak Support Packages
-                </h2>
-                <div className="mb-2 mt-2 text-center">
-                  <a
-                    href="/support"
-                    className="flex items-center justify-center gap-4"
-                  >
-                    Learn more about our Enterprise Support{" "}
-                    <Icon icon="mdi:arrow-right" />
-                  </a>
-                </div>
-
-                <div
-                  className={styles.planBody}
-                  style={{ maxWidth: "760px", margin: "0 auto" }}
-                >
-                  <p>
-                    Configuring, integrating and operating an Identity and
-                    Access Management system can be daunting. The Support
-                    package provides customers with the expertise on how to
-                    implement Keycloak. This is separate from our hosting, but
-                    can be bundled together (many customers do).
-                  </p>
-                  <p>
-                    For both hosted, on-prem customers, or those with their own
-                    Keycloak deployment, our goal is to create an understanding
-                    in your organization of what is possible with Keycloak. We
-                    want to support your goals as you adopt and implement
-                    Keycloak in your products. Let us lend our expertise to
-                    every step of your journey.
-                  </p>
-                </div>
+                </h1>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Intro */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+              <h4 className="mb-0 text-gray-300 font-normal text-balance">
+                Implementing Identity and Access Management doesn&apos;t have to be overwhelming. Our Support package provides expert guidance on implementing Keycloak—whether you use our hosting, run on-premise, or manage your own deployment.
+              </h4>
+            </div>
+          </div>
+        </section>
+
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <p className="text-center text-gray-300 subpage-section-intro">
+              Choose the support level that matches your needs:
+            </p>
+
+            <div className="mt-6">
               <KeycloakSupportPackages />
             </div>
-          </div>
-          <div className="contentBlock">
-            <div className="contentBlockBody">
-              <div className={`${styles.callout} card`}>
-                <h4 className={styles.calloutHeader}>
-                  Learn more about Phase Two's Enterprise Support
-                </h4>
-                <div className="margin-top--md">
-                  <a
-                    href="https://scheduler.zoom.us/phasetwo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="margin-right--md"
-                  >
-                    <button className="btnTertiary">
-                      Let&apos;s Talk About It
-                    </button>
-                  </a>
-                  <a href="/support" className="">
-                    <button className="btnTertiary margin-right--md">
-                      Details
-                    </button>
-                  </a>
-                </div>
+
+            <div className="mt-16 text-center">
+              <h3 className="text-gray-300 font-normal" style={{ marginBottom: "20px" }}>
+                Learn more about Phase Two&apos;s
+                <br />
+                Enterprise Support
+              </h3>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <a
+                  href="https://scheduler.zoom.us/phasetwo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <button className="btnSecondary min-w-[200px]">
+                    Let&apos;s Talk About It
+                  </button>
+                </a>
+                <Link to="/support">
+                  <button className="btnSecondary min-w-[200px]">Details</button>
+                </Link>
               </div>
             </div>
           </div>
-        </div>
+        </section>
       </main>
     </Layout>
   );

@@ -73,7 +73,7 @@
     align-items: stretch;
   }
   .heroSectionPicto {
-    width: 48px;
+    width: 32px;
     margin-bottom: 8px;
   }
   .heroSection {
@@ -197,37 +197,92 @@ p.heroIntegrationsCopy {
   left: 0;
 }
 
+.phaseTwoSection {
+  border-top: 1px solid var(--line-color);
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0;
+  padding-top: 64px;
+}
+
+.phaseTwoSection :global(.contentBlockBody) {
+  max-width: 100%;
+  padding: 0;
+}
+
+.phaseTwoSection :global(.contentBlockHead) {
+  padding-bottom: 24px;
+}
+
+.heart {
+  vertical-align: middle;
+  margin: 0 8px;
+}
+
+.keycloakButton {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
 .featCards {
   display: flex;
   flex-direction: column;
-  row-gap: 12px;
+  row-gap: 0;
+  width: 100%;
 }
 .featCard {
-  background-color: var(--color-wh);
-  border-radius: 16px;
-  padding: 24px 32px;
+  background-color: #0f0f0f;
+  border: 1px solid var(--line-color);
+  border-radius: 0;
+  border-top: 1px solid var(--line-color);
+  padding: 32px 32px;
   flex: 1;
-  text-align: center;
-  box-shadow: var(--soft-shadow-branded);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.featCard h5 {
-  font-size: 1rem;
-  margin: 16px 0;
+.featCardInner {
+  max-width: 360px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  column-gap: 24px;
+  text-align: left;
 }
-.featCard p {
+.featCardIcon {
+  flex-shrink: 0;
+  color: var(--ifm-color-primary);
+  margin-top: 2px;
+  display: flex;
+  align-items: flex-start;
+}
+.featCardLucideIcon {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+.featCardContent {
+  flex: 1;
+}
+.featCardContent p {
   margin-bottom: 0;
 }
 
 @media (min-width: 800px) {
   .featCards {
     flex-direction: row;
-    column-gap: 12px;
+    column-gap: 0;
     row-gap: 0;
   }
   .featCard {
-    flex-direction: row;
-    row-gap: 0;
-    column-gap: 32px;
+    flex: 1;
+    border-right: none;
+  }
+  .featCard:not(:last-child) {
+    border-right: none;
+  }
+  .featCard:last-child {
+    border-right: 1px solid var(--line-color);
   }
 }
 
@@ -290,9 +345,6 @@ p.heroIntegrationsCopy {
   }
 }
 
-.heart {
-  margin: 0 8px;
-}
 
 .plans {
   display: flex;
@@ -370,10 +422,6 @@ p.heroIntegrationsCopy {
 .planFoot .btnPlan {
   width: 100%;
   display: block;
-}
-
-.featCardPicto {
-  height: 50px;
 }
 
 @media (min-width: 600px) {
@@ -528,7 +576,7 @@ p.heroIntegrationsCopy {
   top: -4px;
 }
 .sectHeadline .heart {
-  width: 40px;
+  width: 32px;
   height: auto;
 }
 .sectOsArrow {
@@ -554,7 +602,7 @@ p.heroIntegrationsCopy {
     margin: 0 12px;
   }
   .sectHeadline .heart {
-    width: 60px;
+    width: 32px;
   }
   .sectOpenSource {
     padding-top: 40px;
@@ -840,4 +888,50 @@ p.heroIntegrationsCopy {
   font-size: 2rem;
   color: #ffffff;
   margin-bottom: 0;
+}
+
+.engLogoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  align-content: center;
+  width: 100%;
+  max-width: 670px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) {
+  .engLogoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.engLogoTile {
+  min-width: 100px;
+  min-height: 72px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-color);
+  border-radius: 16px;
+  background: rgba(15, 15, 15, 0.5);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+.engLogoTile:hover {
+  border-color: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary);
+  text-decoration: none;
+}
+.engLogoTile:hover .engLogoImg {
+  opacity: 0.8;
+}
+
+.engLogoImg {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+  object-fit: contain;
 }

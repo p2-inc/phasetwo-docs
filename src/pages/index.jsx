@@ -1,47 +1,47 @@
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { InlineIcon } from "@iconify/react";
-import CodeBlock from "@theme/CodeBlock";
 import Layout from "@theme/Layout";
-import { useEffect } from "react";
-import Marquee from "react-fast-marquee";
+import { useEffect, useRef, useState } from "react";
 import StartYourJourney from "../components/ctas/start-your-journey";
+import Cta from "../components/ctas/homepage-dual-line-cta";
+import FrameworkTabs from "../components/FrameworkTabs";
 import styles from "./styles.module.css";
+import integrationsStyles from "./product/integrations.module.css";
 
-function docsEntry() {
-  window.location = `/docs/introduction`;
+const INTEGRATIONS_ICON_COLOR = "#A0A9DB";
+function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
+  return `https://api.iconify.design/${icon}.svg?color=${encodeURIComponent(color)}`;
 }
 
-export const CheckMark = () => (
-  <InlineIcon
-    icon="fa-solid:check"
-    className="absolute left-0 mt-2 h-auto w-[10px] text-green-500"
-  />
-);
-
 const HostingItems = [
-  {
-    name: "Flat, Predictable Pricing",
-    desc: (
-      <p>
-        A generous <span className="font-semibold">free tier</span> to get
-        started and test out Keycloak. Simple, flat pricing for paid tiers.
-        Migrate any initial test setups from test to production.
-      </p>
-    ),
-    icon: "tabler:pig-money",
-    cta: "Get started",
-    href: "/pricing",
-  },
   {
     name: "Multi-Region, High-Availability Clusters",
     desc: (
       <p>
-        Hosted in multiple regions for high availability and low latency. Ensure{" "}
-        <span className="font-semibold">uptime</span> and{" "}
-        <span className="font-semibold">performance</span>. Choose to deploy in
-        areas to comply with data residency requirements or specific
-        applications needs.
+        Hosted in multiple regions for high availability and low latency. Ensure uptime and performance. Choose to deploy in areas to comply with data residency requirements or specific applications needs.
+      </p>
+    ),
+    icon: "tabler:pig-money",
+    cta: "Explore Architecture",
+    href: "/pricing",
+  },
+  {
+    name: "Unlimited Users & SSO Connections",
+    desc: (
+      <p>
+        Unlimited users and SSO connections for a single, flat price. Fees don't explode as your app grows and scales.
+      </p>
+    ),
+    icon: "carbon:ibm-dynamic-route-server",
+    cta: "Explore Architecture",
+    href: "/product/sso",
+  },
+  {
+    name: "24/7 Monitor, Alert, Backup",
+    desc: (
+      <p>
+        24/7/365 support. We aggressively monitor your clusters and can connect to your existing systems to integrate with existing SRE practices. Routine DB backups are included.
       </p>
     ),
     icon: "gis:globe-alt",
@@ -49,58 +49,105 @@ const HostingItems = [
     href: "/hosting",
   },
   {
-    name: "Unlimited Users & SSO Connections",
-    desc: (
-      <p>
-        Unlimited users and SSO connections for a{" "}
-        <span className="font-semibold">single, flat price</span>. Fees don't
-        explode as your app grows and scales.
-      </p>
-    ),
-    icon: "carbon:ibm-dynamic-route-server",
-    cta: "Learn more",
-    href: "/product/sso",
-  },
-  {
-    name: "Extend and Customize",
-    desc: (
-      <p>
-        Our included extensions make it{" "}
-        <span className="font-semibold">easy to run Keycloak</span>. Customize
-        your Keycloak instance further with your own extensions and themes.
-      </p>
-    ),
-    icon: "grommet-icons:server-cluster",
-    cta: "Learn more",
-    href: "/hosting",
-  },
-  {
     name: "Version Upgrades",
     desc: (
       <p>
-        We keep your instance(s) up to date with the latest Keycloak releases
-        ensuring CVE's and other security issues are patched. Teams that{" "}
-        <b>self-host</b> cite this as a <b>major pain point</b>.
+        We keep your instance(s) up to date with the latest Keycloak releases ensuring CVE's and other security issues are patched. Teams that self-host cite this as a major pain point.
       </p>
     ),
     icon: "ix:project-server",
     cta: "Why it matters",
     href: "/hosting",
   },
-
   {
-    name: "24/7 Monitor, Alert, Backup",
+    name: "Load-based Pricing, Not User Count",
     desc: (
       <p>
-        <span className="font-semibold">24/7/365 support</span>. We aggressively{" "}
-        <span className="font-semibold">monitor your clusters</span> and can
-        connect to your existing systems to integrate with existing SRE
-        practices. Routine DB backups are included.
+        Clusters are priced by active session count, not total users in the database.
       </p>
     ),
-    icon: "mdi:graph-line",
-    cta: "Learn more",
-    href: "/hosting",
+  },
+  {
+    name: "Extend and Customize",
+    desc: (
+      <p>
+        Our included extensions make it easy to run Keycloak. Customize your Keycloak instance further with your own extensions and themes.
+      </p>
+    ),
+  },
+  {
+    name: "Access Control",
+    desc: (
+      <p>
+        Control access to your cluster and deployments to ensure secure settings and access to Admin endpoints and public access.
+      </p>
+    ),
+  },
+];
+
+const EnhancedFeatures = [
+  {
+    title: "Organizations",
+    description: "Multi-tenancy for applications coupled with Enterprise SSO. Enable customer domain based SSO for one or many domains.",
+    icon: "lucide:building-2",
+  },
+  {
+    title: "IdP Wizard",
+    description: "Enable customers to automatically configure identity providers and SSO saving your team time.",
+    icon: "lucide:wand-2",
+  },
+  {
+    title: "Magic Link",
+    description: "Add passwordless authentication via links sent to emails.",
+    icon: "lucide:link",
+  },
+  {
+    title: "Admin Portal",
+    description: "User self-management for their account (mfa methods and more) along with organizations.",
+    icon: "lucide:layout-dashboard",
+  },
+  {
+    title: "Events",
+    description: "Audit logging for compliance and webhooks for user and system activity notifications.",
+    icon: "lucide:calendar-clock",
+  },
+  {
+    title: "Themes",
+    description: "Admin UI theme customization to avoid building a custom theme.",
+    icon: "lucide:palette",
+  },
+];
+
+const ScaleFeatures = [
+  {
+    title: "Proactive Load Monitoring",
+    description: "We let you know there might be an issue before there is",
+    icon: "lucide:chart-line",
+  },
+  {
+    title: "24/7 Support and On-Call",
+    description: "Here when you need us",
+    icon: "lucide:phone",
+  },
+  {
+    title: "Smart App Integration",
+    description: "Lean on our expertise to integrate with Keycloak for multiple use-cases",
+    icon: "lucide:puzzle",
+  },
+  {
+    title: "Export Logs",
+    description: "Integrate logs to your own SIEM/SOAR for additional monitoring",
+    icon: "lucide:file-output",
+  },
+  {
+    title: "Zero-Downtime Upgrades",
+    description: "Stay on the most recent Keycloak version with zero effort or downtime",
+    icon: "lucide:circle-arrow-up",
+  },
+  {
+    title: "Access and Permissions",
+    description: "Manage team members and roles",
+    icon: "lucide:key-round",
   },
 ];
 
@@ -218,187 +265,295 @@ const SupportItems = [
 ];
 
 const customerLogos = [
-  { file: "alarm_com@2x.png", name: "Alarm.com", classes: "m-8 h-[50px]" },
-  { file: "benifex@2x.png", name: "Benifex", classes: "m-8 h-[50px]" },
-  { file: "bosch@2x.png", name: "Bosch", classes: "m-8 h-[50px]" },
-  { file: "brightsign@2x.png", name: "BrightSign", classes: "m-8 h-[45px]" },
-  { file: "continental@2x.png", name: "Continental", classes: "m-8 h-[50px]" },
-  { file: "dandh@2x.png", name: "D&H", classes: "m-8 h-[50px]" },
-  { file: "dexcom@2x.png", name: "Dexcom", classes: "m-8 h-[42px]" },
-  { file: "fastly@2x.png", name: "Fastly", classes: "m-8 h-[50px]" },
-  { file: "granicus@2x.png", name: "Granicus", classes: "m-8 h-[50px]" },
-  { file: "gusto@2x.png", name: "Gusto", classes: "m-8 h-[50px]" },
-  { file: "idemia@2x.png", name: "IDEMIA", classes: "m-8 h-[50px]" },
-  { file: "kape@2x.png", name: "Kape Technologies", classes: "m-8 h-[50px]" },
-  {
-    file: "keenfinity-group-fka-Bosch@2x.png",
-    name: "Keenfinity Group",
-    classes: "m-8 h-[42px]",
-  },
-  { file: "later@2x.png", name: "Later", classes: "m-8 h-[45px]" },
-  { file: "ndoe@2x.png", name: "NDOE", classes: "m-8 h-[50px]" },
-  {
-    file: "nieuwestroom@2x.png",
-    name: "Nieuwestroom",
-    classes: "m-8 h-[50px]",
-  },
-  { file: "nura@2x.png", name: "Nura", classes: "m-8 h-[50px]" },
-  { file: "perforce@2x.png", name: "Perforce", classes: "m-8 h-[50px]" },
-  { file: "plotly@2x.png", name: "Plotly", classes: "m-8 h-[50px]" },
-  { file: "spl_logo@2x.png", name: "SPL", classes: "m-8 h-[50px]" },
-  {
-    file: "spl_presentmore@2x.png",
-    name: "SPL PresentMore",
-    classes: "m-8 h-[50px]",
-  },
-  { file: "teamworks@2x.png", name: "Teamworks", classes: "m-8 h-[50px]" },
-  { file: "testaify@2x.png", name: "Testaify", classes: "m-8 h-[50px]" },
-  { file: "toolstation@2x.png", name: "Toolstation", classes: "m-8 h-[50px]" },
-  {
-    file: "toppan-merrill@2x.png",
-    name: "Toppan Merrill",
-    classes: "m-8 h-[50px]",
-  },
-  { file: "trivalence@2x.png", name: "Trivalence", classes: "m-8 h-[50px]" },
-  { file: "tsmc@2x.png", name: "TSMC", classes: "m-8 h-[50px]" },
-  {
-    file: "unstructured@2x.png",
-    name: "Unstructured",
-    classes: "m-8 h-[50px]",
-  },
+  { file: "alarm-com.svg", name: "Alarm.com", classes: "" },
+  // { file: "benifex@2x.png", name: "Benifex", classes: "m-8 h-[50px]" },
+  { file: "bosch.svg", name: "Bosch", classes: "m-8" },
+  { file: "brightsign.svg", name: "BrightSign", classes: "m-8" },
+  { file: "continental.svg", name: "Continental", classes: "m-8" },
+  // { file: "dandh@2x.png", name: "D&H", classes: "m-8 h-[50px]" },
+  { file: "dexcom.svg", name: "Dexcom", classes: "m-8" },
+  { file: "fastly.svg", name: "Fastly", classes: "m-8" },
+  // { file: "granicus@2x.png", name: "Granicus", classes: "m-8 h-[50px]" },
+  { file: "gusto.svg", name: "Gusto", classes: "m-8" },
+  { file: "idemia.svg", name: "IDEMIA", classes: "m-8" },
+  // { file: "kape@2x.png", name: "Kape Technologies", classes: "m-8 h-[50px]" },
+  // { file: "keenfinity-group-fka-Bosch.svg", name: "Keenfinity Group", classes: "m-8 h-[42px]" },
+  // { file: "later@2x.png", name: "Later", classes: "m-8 h-[45px]" },
+  // { file: "ndoe@2x.png", name: "NDOE", classes: "m-8 h-[50px]" },
+  // { file: "nieuwestroom@2x.png", name: "Nieuwestroom", classes: "m-8 h-[50px]" },
+  // { file: "nura@2x.png", name: "Nura", classes: "m-8 h-[50px]" },
+  { file: "perforce.svg", name: "Perforce", classes: "m-8" },
+  // { file: "plotly@2x.png", name: "Plotly", classes: "m-8 h-[50px]" },
+  // { file: "spl_logo@2x.png", name: "SPL", classes: "m-8 h-[50px]" },
+  //{ file: "spl_presentmore@2x.png", name: "SPL PresentMore", classes: "m-8 h-[50px]" },
+  { file: "teamworks.svg", name: "Teamworks", classes: "m-8" },
+  //{ file: "testaify@2x.png", name: "Testaify", classes: "m-8 h-[50px]" },
+  //{ file: "toolstation@2x.png", name: "Toolstation", classes: "m-8 h-[50px]" },
+  { file: "toppan-merrill.svg", name: "Toppan Merrill", classes: "m-8" },
+  //{ file: "trivalence@2x.png", name: "Trivalence", classes: "m-8 h-[50px]" },
+  //{ file: "tsmc@2x.png", name: "TSMC", classes: "m-8 h-[50px]" },
+  { file: "unstructured.svg", name: "Unstructured", classes: "m-8" },
 ];
 
 function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
+  const [activeTab, setActiveTab] = useState(0);
+  const mainRef = useRef(null);
+  const gsapApiRef = useRef(null);
+  const gsapCtxRef = useRef(null);
 
   useEffect(() => {
-    document.body.classList.add("page-bg");
-  });
+    if (typeof window === "undefined") return;
+
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (reduceMotion) return;
+
+    let cancelled = false;
+
+    const register = async () => {
+      const scopeEl = mainRef.current;
+      if (!scopeEl) return;
+
+      if (!gsapApiRef.current) {
+        // Load as early as possible (no idle deferral) so animations can start quickly.
+        const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+          import("gsap"),
+          import("gsap/ScrollTrigger"),
+        ]);
+        if (cancelled) return;
+
+        gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.config({
+          limitCallbacks: true,
+          ignoreMobileResize: true,
+        });
+
+        gsapApiRef.current = { gsap, ScrollTrigger };
+      }
+
+      const { gsap, ScrollTrigger } = gsapApiRef.current;
+
+      if (!gsapCtxRef.current) {
+        // Create a single context for the whole homepage and add animations into it over time.
+        gsapCtxRef.current = gsap.context(() => {}, scopeEl);
+      }
+
+      // Capture candidates (only those not registered yet).
+      const candidates = Array.from(scopeEl.querySelectorAll("[data-scroll-slide-in]")).filter(
+        (el) => el instanceof HTMLElement && el.dataset.gsapScrollSlideInRegistered !== "true"
+      );
+      if (!candidates.length) return;
+
+      // Measure first to avoid layout thrash (read first, then write).
+      const measured = candidates.map((el) => ({
+        el,
+        rect: el.getBoundingClientRect(),
+      }));
+
+      const parseDelayMs = (el) => {
+        const raw = el.style.getPropertyValue("--scroll-slide-in-delay")?.trim();
+        if (!raw) return null;
+        const ms = Number.parseFloat(raw);
+        return Number.isFinite(ms) ? ms : null;
+      };
+
+      // Compute delays with group-based staggering (same behavior as before).
+      const groupCounters = new WeakMap();
+      let globalSeq = 0;
+      const getDelayMs = (el) => {
+        const existing = parseDelayMs(el);
+        if (existing != null) return existing;
+
+        const groupEl = el.closest("[data-scroll-slide-group]");
+        if (!groupEl) return Math.min(globalSeq++ * 80, 560);
+
+        const prev = groupCounters.get(groupEl) ?? 0;
+        groupCounters.set(groupEl, prev + 1);
+        const baseDelayMs =
+          Number(groupEl.getAttribute("data-scroll-slide-group-base-delay") ?? 0) || 0;
+        return baseDelayMs + Math.min(prev * 80, 560);
+      };
+
+      const startY = -24; // slightly less motion = less work + less jank
+      const startThreshold = window.innerHeight * 0.85;
+
+      gsapCtxRef.current.add(() => {
+        for (const { el, rect } of measured) {
+          el.dataset.gsapScrollSlideInRegistered = "true";
+
+          // If element is already within the trigger zone, keep it visible (no flash/hide).
+          const alreadyInZone = rect.top < startThreshold && rect.bottom > 0;
+          if (alreadyInZone) {
+            gsap.set(el, { autoAlpha: 1, y: 0, clearProps: "transform,opacity" });
+            continue;
+          }
+
+          // Initial hidden state only for content below the fold.
+          gsap.set(el, {
+            autoAlpha: 0,
+            y: startY,
+            willChange: "transform,opacity",
+          });
+
+          const delayMs = getDelayMs(el);
+          const tween = gsap.to(el, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.55,
+            ease: "power2.out",
+            delay: delayMs / 1000,
+            paused: true,
+            // Drop will-change after animating to reduce layer pressure.
+            onComplete: () => {
+              el.style.willChange = "";
+            },
+            clearProps: "transform,opacity",
+          });
+
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 85%",
+            onEnter: (self) => {
+              tween.play();
+              self.kill();
+            },
+          });
+        }
+
+        // Refresh once per registration pass (not per element).
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
+    };
+
+    register();
+
+    return () => {
+      cancelled = true;
+      // NOTE: we intentionally don't revert the whole context on every tab switch
+      // (it would kill triggers that haven't fired yet). We only revert on unmount.
+    };
+  }, [activeTab]);
+
+  useEffect(() => {
+    return () => {
+      gsapCtxRef.current?.revert();
+      gsapCtxRef.current = null;
+    };
+  }, []);
 
   return (
     <Layout description={`${siteConfig.tagline}`}>
-      <picture>
-        <source media="(max-width: 767px)" srcset="/img/home-bg-mobile.webp" />
-        <source media="(min-width: 768px)" srcset="/img/home-bg.webp" />
-        <img
-          className="page-home"
-          src="/img/home-bg-mobile.webp"
-          alt="Gradient Background"
-          loading="lazy"
-        />
-      </picture>
-
       {/* Main Content */}
-      <main>
-        {/* Top level offerings */}
-        <div className={``}>
-          <div>
-            <div className="relative isolate px-6 lg:px-8">
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
-              >
-                <div
-                  style={{
-                    clipPath:
-                      "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-                  }}
-                  className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-                />
-              </div>
-              <div className="pb-16 sm:pt-10 lg:pt-14">
-                <div className="mx-auto max-w-4xl">
-                  <div className="hidden sm:mb-8 sm:flex sm:justify-center">
-                    <div className="relative rounded-full px-3 py-1 text-sm/6 text-gray-600 ring-1 ring-p2blue-800/40 hover:ring-p2blue-800/50">
-                      On-prem and Managed Infrastructure?{" "}
+      <main ref={mainRef}>
+        {/* Hero Section */}
+        <section className="homepage-section homepage-hero-section">
+          <div className="relative isolate">
+            <div>
+              <div className="hero-boxes-container flex flex-col md:flex-row gap-0">
+                {/* Managed Keycloak Hosting Box */}
+                <div className="hero-box hero-box-primary">
+                  <div className="hero-box-image mb-6">
+                    <img 
+                      src="/img/hero-managed-keycloak-hosting.svg" 
+                      alt="Managed Keycloak Hosting"
+                      className="hero-box-image-img"
+                    />
+                  </div>
+                  
+                  <div className="hero-box-content">
+                    <h1 className="text-balance text-white mb-6">
+                      Managed Keycloak Hosting
+                    </h1>
+                    
+                    <p className="text-pretty text-gray-300 mb-6">
+                      Simple, Cost-Conscious, Customizable, Enhanced Keycloak
+                      Hosting for 99% of Use-Cases.
+                    </p>
+                    
+                    <div className="mt-auto flex flex-col items-center justify-center gap-4">
+                      <a href="https://dash.phasetwo.io/" target="_blank">
+                        <button className="btnPrimary min-w-[160px]">Try for Free</button>
+                      </a>
                       <Link
-                        to="/product/onprem"
-                        className="font-semibold text-p2blue-600"
+                        href={"/hosting"}
+                        className="link-primary"
                       >
-                        <span aria-hidden="true" className="absolute inset-0" />
-                        Read more <span aria-hidden="true">&rarr;</span>
+                        Learn more <span aria-hidden="true">→</span>
                       </Link>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 items-stretch gap-4 text-center md:grid-cols-2">
-                    <div className="flex flex-col items-center justify-between rounded-md border-2 border-p2blue-300 bg-p2blue-200/30 p-8">
-                      <h1 className="text-balance text-5xl font-semibold tracking-tight text-p2blue-800 sm:text-5xl">
-                        Managed Keycloak Hosting
-                      </h1>
-                      {/* <InlineIcon
-                        icon="grommet-icons:server-cluster"
-                        className="text-p2blue-800 h-12 w-12 my-3"
-                      /> */}
-                      <div className="text-pretty py-4 text-lg font-medium text-sky-900 sm:text-lg">
-                        Simple, Cost-Conscious, Customizable, Enhanced Keycloak
-                        Hosting for 99% of Use-Cases.
-                      </div>
-                      <div className="mt-4 flex items-center justify-center gap-2">
-                        <a href="https://dash.phasetwo.io/" target="_blank">
-                          <button className={`btnPrimary`}>Try for Free</button>
-                        </a>
-                        <Link
-                          href={"/hosting"}
-                          className="text-sm font-semibold leading-6 text-p2blue-800"
-                        >
-                          Learn more <span aria-hidden="true">→</span>
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center justify-between rounded-md border-2 border-fuchsia-400 bg-fuchsia-300/30 p-8">
-                      <h1 className="text-balance text-5xl font-semibold tracking-tight text-fuchsia-600 sm:text-5xl">
-                        Enterprise Keycloak Support
-                      </h1>
-                      {/* <InlineIcon
-                        icon="fluent-mdl2:teamwork"
-                        className="text-fuchsia-600 h-12 w-12 my-3"
-                      /> */}
-                      <div className="text-pretty py-4 text-lg font-medium text-fuchsia-900 sm:text-lg">
-                        Expert Keycloak Support for Enterprises Coming to or
-                        Using Keycloak at any Level of Complexity.
-                      </div>
-                      <div className="mt-4 flex items-center justify-center gap-2">
-                        <Link to="/contact">
-                          <button className={`btnPrimary btnSupport`}>
-                            Contact
-                          </button>
-                        </Link>
-                        <Link
-                          to="/support"
-                          className="text-sm font-semibold leading-6 text-fuchsia-700"
-                        >
-                          Learn more <span aria-hidden="true">→</span>
-                        </Link>
-                      </div>
+                </div>
+                
+                {/* Enterprise Keycloak Support Box */}
+                <div className="hero-box hero-box-secondary">
+                  <div className="hero-box-image mb-6">
+                    <img 
+                      src="/img/hero-enterprise-keycloak-support.svg" 
+                      alt="Enterprise Keycloak Support"
+                      className="hero-box-image-img"
+                    />
+                  </div>
+                  
+                  <div className="hero-box-content">
+                    <h1 className="text-balance text-white mb-6">
+                      Enterprise Keycloak Support
+                    </h1>
+                    
+                    <p className="text-pretty text-gray-300 mb-6">
+                      Expert Keycloak Support for Enterprises Coming to or
+                      Using Keycloak at any Level of Complexity.
+                    </p>
+                    
+                    <div className="mt-auto flex flex-col items-center justify-center gap-4">
+                      <Link to="/contact">
+                        <button className="btnPrimary btnSupport min-w-[160px]">
+                          Contact
+                        </button>
+                      </Link>
+                      <Link
+                        to="/support"
+                        className="link-secondary"
+                      >
+                        Learn more <span aria-hidden="true">→</span>
+                      </Link>
                     </div>
                   </div>
                 </div>
               </div>
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-              >
-                <div
-                  style={{
-                    clipPath:
-                      "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-                  }}
-                  className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-                />
-              </div>
+              
             </div>
           </div>
-        </div>
+        </section>
+
+        <section className="onprem-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8 flex justify-center">
+            <div>
+              <span className="text-white">On-prem and Managed Infrastructure? </span>
+              <Link to="/product/onprem">
+                Read more <span aria-hidden="true">&rarr;</span>
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* Top level explanation */}
-        <div className="">
-          <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-            <div className="mx-auto max-w-4xl text-center">
-              <h2 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
+        <section className="homepage-section">
+          <div className="px-6 sm:px-6 lg:px-8">
+            {/* Top image */}
+            <div className="mb-12 flex justify-center">
+              <img 
+                src="/img/keycloak-general.svg" 
+                alt="Keycloak" 
+                className="w-full max-w-4xl"
+              />
+            </div>
+            
+            <div className="mx-auto text-center max-w-[var(--content-width-narrow)]" data-scroll-slide-group>
+              <h2 className="text-balance" data-scroll-slide-in>
                 Enterprise-Grade, Open-Source Identity and Access Management
               </h2>
-              <p className="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-600">
+              <p className="mx-auto mt-6 max-w-xl text-pretty text-gray-600" data-scroll-slide-in>
                 Keycloak is a powerful open-source identity and access
                 management system capable of replacing any IAM with capabilities
                 for{" "}
@@ -421,584 +576,579 @@ function Home() {
                 </a>
                 <Link
                   href="/product/sso"
-                  className="text-sm/6 font-semibold text-p2blue-600"
+                  className="font-semibold text-p2blue-600"
                 >
                   Learn more <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="pb-16">
-          <div className="mx-auto px-6 lg:px-20">
-            <h2 className="text-center text-lg/8 font-semibold text-gray-900 dark:text-white">
-              Working with customers from startups to Fortune 500 companies.
-            </h2>
-            <Marquee>
-              {customerLogos.map((logo, index) => (
-                <img
-                  key={index}
-                  src={`/customer-logos/${logo.file}`}
-                  className={logo.classes}
-                  alt={`${logo.name} logo`}
-                />
-              ))}
-            </Marquee>
+        <section className="homepage-section logos-section">
+          <div>
+            <div>
+              <p className="text-center font-normal text-white" data-scroll-slide-in>
+                Working with customers from startups to Fortune 500 companies.
+              </p>
+              <div className="p2-marquee mt-6 overflow-hidden" aria-label="Customer logos">
+                <div className="p2-marquee-track flex">
+                  {[...customerLogos, ...customerLogos].map((logo, index) => (
+                    <img
+                      key={`${logo.file}-${index}`}
+                      src={`/customer-logos/${logo.file}`}
+                      className={logo.classes}
+                      alt={`${logo.name} logo`}
+                      loading="lazy"
+                      decoding="async"
+                      {...(index >= customerLogos.length
+                        ? { "aria-hidden": true }
+                        : undefined)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* Hosting */}
-        <div className="hosting-block sm:py-18 bg-p2blue-500/20 bg-[linear-gradient(30deg,_#EBF5FC_0%,_#BAE2FF_100%)] px-6 py-24 sm:px-6 lg:px-8">
+        <section className="homepage-section hosting-block px-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl lg:text-center">
-              <h2 className="text-base/7 font-semibold text-p2blue-800">
-                Extended with everything you need to run Keycloak.
-              </h2>
-              <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-p2blue-700 sm:text-5xl lg:text-balance">
-                Managed Keycloak Hosting
-              </p>
-              <p className="mt-6 text-lg/8 text-gray-600">
-                Every deployment is packed with our{" "}
-                <a
-                  href="https://github.com/p2-inc#our-extensions-"
-                  target="_blank"
-                  className="font-bold"
-                >
-                  popular extensions
-                </a>{" "}
-                to make Keycloak easier to use and more powerful. Provided at a{" "}
-                <b>consistent, predictable price</b> that doesn't balloon based
-                on users or IdP connections.
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <a href="https://dash.phasetwo.io/" target="_blank">
-                  <button className={`btnPrimary`}>Try for Free</button>
-                </a>
-                {/* <Link href="/hosting/self-host-vs-managed">
-                  <button className={`btnSecondary`}>
-                    Self-host vs Managed?
-                  </button>
-                </Link> */}
+            {/* Section title */}
+            <div className="mb-12 flex justify-center" data-scroll-slide-group>
+              <h2 className="section-title-primary" data-scroll-slide-in>Managed Keycloak Hosting</h2>
+            </div>
+            
+            {/* Header with h2 on left and intro text on right */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16 mx-auto" style={{maxWidth: '880px'}} data-scroll-slide-group>
+              <div>
+                <h2 className="text-white" data-scroll-slide-in>
+                  Extended with Everything You Need To Run Keycloak
+                </h2>
+              </div>
+              <div className="flex items-center">
+                <p className="text-gray-300" data-scroll-slide-in>
+                  Every deployment is packed with our{" "}
+                  <a
+                    href="https://github.com/p2-inc#our-extensions-"
+                    target="_blank"
+                    className="font-medium text-p2blue-400 hover:text-p2blue-300"
+                  >
+                    popular extensions
+                  </a>{" "}
+                  to make Keycloak easier to use and more powerful. Provided at a{" "}
+                  <span className="font-medium">consistent, predictable price</span> that doesn't balloon based
+                  on users or IdP connections.
+                </p>
               </div>
             </div>
-            <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-              <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-                {HostingItems.map((item) => (
-                  <div key={item.name} className="flex flex-col">
-                    <dt className="flex items-center gap-x-3 text-base font-bold leading-7 text-gray-900">
-                      <InlineIcon
-                        icon={item.icon}
-                        className="h-8 w-8 self-start text-p2blue-700"
-                      />
-                      {item.name}
-                    </dt>
-                    <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                      <p className="flex-auto">{item.desc}</p>
-                      <p className="mt-6">
+
+            {/* Bento Layout */}
+            <div className="hosting-bento-grid" data-scroll-slide-group>
+              {/* Row 1: Full width box */}
+              <div className="hosting-bento-box hosting-bento-box-full" data-scroll-slide-in>
+                <div className="hosting-bento-image">
+                  <img 
+                    src="/img/managed-keycloak-hosting-top.svg" 
+                    alt={HostingItems[0].name}
+                    className="w-full h-auto"
+                  />
+                </div>
+                <div className="hosting-bento-content hosting-bento-content-first">
+                  <h3 className="text-white mb-4">{HostingItems[0].name}</h3>
+                  <div className="text-gray-300 hosting-bento-text">{HostingItems[0].desc}</div>
+                  {HostingItems[0].cta && HostingItems[0].href && (
+                    <Link
+                      to={HostingItems[0].href}
+                      className="hosting-bento-link"
+                    >
+                      {HostingItems[0].cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 2: 3 boxes with images */}
+              {HostingItems.slice(1, 4).map((item, index) => {
+                const imageMap = [
+                  "/img/managed-keycloak-hosting-unlimited-users.svg",
+                  "/img/managed-keycloak-hosting-monitor-backup.svg",
+                  "/img/managed-keycloak-hosting-version-upgrades.svg"
+                ];
+                return (
+                  <div key={item.name} className="hosting-bento-box hosting-bento-box-image-bottom" data-scroll-slide-in>
+                    <div className="hosting-bento-content">
+                      <h4 className="text-white mb-4">{item.name}</h4>
+                      <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                      {item.cta && item.href && (
                         <Link
                           to={item.href}
-                          className="text-sm font-semibold leading-6 text-p2blue-800"
+                          className="hosting-bento-link"
                         >
-                          {item.cta} <span aria-hidden="true">→</span>
+                          {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
                         </Link>
-                      </p>
-                    </dd>
+                      )}
+                    </div>
+                    <div className="hosting-bento-image hosting-bento-image-bottom">
+                      <img 
+                        src={imageMap[index]} 
+                        alt={item.name}
+                        className="w-full h-auto"
+                      />
+                    </div>
                   </div>
-                ))}
-              </dl>
-            </div>
-          </div>
-        </div>
+                );
+              })}
 
-        <div className="bg-p2blue-700 text-white">
-          <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
-            <h2 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Ready to try Keycloak? <br />
-              Create your free deployment today.
-            </h2>
-            <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-              <a href="https://dash.phasetwo.io/" target="_blank">
-                <button className={`btnPrimary btnLarge`}>Try now</button>
-              </a>
+              {/* Row 3: 3 boxes (last 3 items) */}
+              {HostingItems.slice(4, 7).map((item) => (
+                <div key={item.name} className="hosting-bento-box" data-scroll-slide-in>
+                  <div className="hosting-bento-content">
+                    <h4 className="text-white mb-4">{item.name}</h4>
+                    <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                    {item.cta && item.href && (
+                      <Link
+                        to={item.href}
+                        className="hosting-bento-link"
+                      >
+                        {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+
+        <Cta
+          background="primary"
+          primaryText="Ready to try Keycloak?"
+          secondaryText="Create your free deployment today."
+          showCta
+          ctaLabel="Try for Free"
+          ctaHref="https://dash.phasetwo.io/"
+          animateHeading
+        />
 
         {/* Support */}
-        <div className="support-block sm:py-18 bg-[linear-gradient(270deg,_#EDA4F5_0%,_#EDCEF0_100%)] px-6 py-24 sm:px-6 lg:px-8">
+        <section className="homepage-section support-block support-bento-section px-6 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl lg:text-center">
-              <h2 className="text-base/7 font-semibold text-fuchsia-800">
-                Expertise to help adopt or extend Keycloak.
-              </h2>
-              <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-fuchsia-600 sm:text-5xl lg:text-balance">
-                Enterprise Keycloak Support
-              </p>
-              <p className="mt-6 text-lg/8 text-gray-800">
-                Wherever you find yourself in your Keycloak journey, we can
-                assist. We are active <b>Keycloak community members</b>,
-                contributing some of the most{" "}
-                <a
-                  href="https://github.com/p2-inc#our-extensions-"
-                  target="_blank"
-                  className="support font-bold"
-                >
-                  popular extensions
-                </a>
-                .
-              </p>
-              <Link to="/contact">
-                <button className={`btnPrimary btnSupport`}>Contact</button>
-              </Link>
+            {/* Section title */}
+            <div className="mb-12 flex justify-center" data-scroll-slide-group>
+              <h2 className="section-title-primary" data-scroll-slide-in>Enterprise Keycloak Support</h2>
+            </div>
+            
+            {/* Header with h2 on left and intro text on right */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16 mx-auto" style={{maxWidth: '880px'}} data-scroll-slide-group>
+              <div>
+                <h2 className="text-white" data-scroll-slide-in>
+                  Expertise to Help Adopt or Extend Keycloak
+                </h2>
+              </div>
+              <div className="flex items-center">
+                <p className="text-gray-300" data-scroll-slide-in>
+                  Every deployment is packed with our popular extensions to make Keycloak easier to use and more powerful. Provided at a consistent, predictable price that doesn't balloon based on users or IdP connections.
+                </p>
+              </div>
             </div>
 
-            <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-              <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-                {SupportItems.map((item) => (
-                  <div key={item.name} className="relative pl-16">
-                    <dt className="text-base font-bold leading-7 text-gray-900">
-                      <div className="absolute left-0 top-0 flex h-12 w-12 items-center justify-center rounded-lg bg-fuchsia-600/80 text-white">
-                        <InlineIcon icon={item.icon} className="h-8 w-8" />
-                      </div>
-                      {item.name}
-                    </dt>
-                    <dd className="mt-2 text-base leading-7 text-gray-800">
-                      <p>{item.desc}</p>
-                      <p className="mt-6">
+            {/* Bento Layout */}
+            <div className="hosting-bento-grid" data-scroll-slide-group>
+              {/* Row 1: Full width box */}
+              <div className="hosting-bento-box hosting-bento-box-full" data-scroll-slide-in>
+                <div className="hosting-bento-image">
+                  <img 
+                    src="/img/enterprise-keycloak-support-top.svg" 
+                    alt={SupportItems[0].name}
+                    className="w-full h-auto"
+                  />
+                </div>
+                <div className="hosting-bento-content hosting-bento-content-first">
+                  <h3 className="text-white mb-4">{SupportItems[0].name}</h3>
+                  <div className="text-gray-300 hosting-bento-text">{SupportItems[0].desc}</div>
+                  {SupportItems[0].cta && SupportItems[0].href && (
+                    <Link
+                      to={SupportItems[0].href}
+                      className="hosting-bento-link"
+                    >
+                      {SupportItems[0].cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 2: 3 boxes */}
+              {SupportItems.slice(1, 4).map((item, index) => {
+                const imageMap = [
+                  "/img/enterprise-keycloak-support-scale.svg",
+                  "/img/enterprise-keycloak-support-infra.svg",
+                  "/img/enterprise-keycloak-support-migration.svg"
+                ];
+                return (
+                  <div key={item.name} className="hosting-bento-box hosting-bento-box-image-bottom" data-scroll-slide-in>
+                    <div className="hosting-bento-content">
+                      <h4 className="text-white mb-4">{item.name}</h4>
+                      <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                      {item.cta && item.href && (
                         <Link
                           to={item.href}
-                          className="support text-sm font-semibold leading-6"
+                          className="hosting-bento-link"
                         >
-                          {item.cta} <span aria-hidden="true">→</span>
+                          {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
                         </Link>
-                      </p>
-                    </dd>
+                      )}
+                    </div>
+                    <div className="hosting-bento-image hosting-bento-image-bottom">
+                      <img 
+                        src={imageMap[index]} 
+                        alt={item.name}
+                        className="w-full h-auto"
+                      />
+                    </div>
                   </div>
-                ))}
-              </dl>
+                );
+              })}
+
+              {/* Row 3: 3 boxes (items 5-7) */}
+              {SupportItems.slice(4, 7).map((item) => (
+                <div key={item.name} className="hosting-bento-box" data-scroll-slide-in>
+                  <div className="hosting-bento-content">
+                    <h4 className="text-white mb-4">{item.name}</h4>
+                    <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                    {item.cta && item.href && (
+                      <Link
+                        to={item.href}
+                        className="hosting-bento-link"
+                      >
+                        {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          {/* Logo section */}
-          {/* <div className="py-24 sm:py-32">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-              <h2 className="text-center text-lg/8 font-semibold text-gray-900">
-                Trusted by the world’s most innovative teams
+        </section>
+
+        <Cta
+          background="secondary"
+          primaryText="Working with our team is easy."
+          secondaryText="Let us show you how."
+          showCta
+          ctaLabel="Get in touch"
+          ctaHref="/contact"
+        />
+
+        {/* Migrate to Phase Two */}
+        <section className="homepage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[560px] text-center mb-12">
+              <h2 id="replaceIAMs" className="text-white mb-4">
+                Migrate to Phase Two and Keycloak from Any Existing Identity Provider
               </h2>
-              <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-                <img
-                  alt="Transistor"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/transistor-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="Reform"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/reform-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="Tuple"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/tuple-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                />
-                <img
-                  alt="SavvyCal"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/savvycal-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
-                />
-                <img
-                  alt="Statamic"
-                  src="https://tailwindcss.com/plus-assets/img/logos/158x48/statamic-logo-gray-900.svg"
-                  width={158}
-                  height={48}
-                  className="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
-                />
-              </div>
-            </div>
-          </div> */}
-        </div>
-
-        <div className="bg-fuchsia-700/90 text-white">
-          <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
-            <h2 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Working with our team is easy.
-              <br />
-              Let us show you how.
-            </h2>
-            <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-              <a href="/contact">
-                <button className={`btnTertiary btnLarge text-fuchsia-800`}>
-                  Get in touch
-                </button>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="contentBlock">
-          <div className="relative text-center">
-            <div className={styles.heroIntegrations}>
-              <h2 id="replaceIAMs">REPLACE/BROKER IAMs</h2>
-              <p className="pb-4">
-                Migrate off expensive IAMs or broker them into Keycloak.
+              <p className="text-gray-300">
+                Connect to any framework in any developer stack.
               </p>
-              <picture>
-                <source
-                  media="(max-width: 767px)"
-                  srcset="/img/integration-lines-mobile.svg"
-                />
-                <source
-                  media="(min-width: 768px)"
-                  srcset="/img/integration-lines.svg"
-                />
-                <img
-                  className={styles.heroIntegrationsLines}
-                  src="/img/integration-lines.svg"
-                  alt="Integration Lines"
-                  loading="lazy"
-                />
-              </picture>
-              <div className={styles.heroIntegrationRow}>
-                <div className={styles.heroIntegration}>
-                  <img src="img/logo-okta.svg" alt="Okta Logo" loading="lazy" />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-auth0.svg"
-                    alt="Auth0 Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-azure.svg"
-                    alt="Azure Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-google-workspace.svg"
-                    alt="Google Workspace Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-active-directory.svg"
-                    alt="Active Directory Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-jump-cloud.svg"
-                    alt="JumpCloud Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-onelogin.svg"
-                    alt="Onelogin Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-ping-identity.svg"
-                    alt="Ping Identity Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.heroIntegration}>
-                  <img
-                    src="img/logo-duo-security.svg"
-                    alt="Duo Security Logo"
-                    loading="lazy"
-                  />
-                </div>
-                <div
-                  className={`${styles.heroIntegration} ${styles.heroIntegrationMore}`}
-                >
-                  <p>+ many more</p>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
-        {/* Enterprise SSO */}
-        <div className={`contentBlock`}>
-          <div className={`enterpriseSsoBgImg bgImg`}>
-            <img
-              src="/img/enterprise-sso-bg.webp"
-              alt="Color Gradient"
-              loading="lazy"
-            />
-          </div>
-          <div className={`contentBlockHead`}>
-            <h2 id="openSourceSSO">Open Source Enterprise Single Sign-on</h2>
-            <p>
-              Leap up market into enterprise adoption with seamless, no-code SSO
-              support.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.enterpriseSSO}>
-              <div className={styles.enterpriseSSOL}>
-                <img
-                  className={styles.listFeatsImg}
-                  src="img/hero-feature-sso.webp"
-                  alt="SSO Login Examples"
-                  loading="lazy"
-                />
-              </div>
-              <div className={styles.enterpriseSSOR}>
-                <ul className={styles.listFeats}>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-5-min-integration.svg"
-                      alt="Pictogram showing 5 minutes on a hour"
-                      loading="lazy"
-                    />
-                    <h5>5-minute integration</h5>
-                    <p>
-                      One integration adds all enterprise identity providers.
-                      With or without adopting our identity feature, you can
-                      support all popular identity providers.
-                    </p>
-                  </li>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-integrate-once.svg"
-                      alt="Pictogram showing puzzle pieces"
-                      loading="lazy"
-                    />
-                    <h5>Integrate Once</h5>
-                    <p>
-                      SAML, OIDC, OAuth2? Support all the standards without
-                      years of development and debugging.
-                    </p>
-                  </li>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-no-variable-cost.svg"
-                      alt="Pictogram showing US dollar sign"
-                      loading="lazy"
-                    />
-                    <h5>No variable cost</h5>
-                    <p>
-                      We're not a parasite on your business model. Unlimited SSO
-                      connections for a single price.
-                    </p>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Admin Portal */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2 id="adminPortal">Admin Portal</h2>
-            <p>
-              Seamless onboarding and self-management for your customer
-              administrators and users. Empower your users and customers to
-              self-service Keycloak and easily manage every aspect of identity,
-              organization and SSO. Drastically reduce customer support.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.aportal}>
-              <picture>
-                <source
-                  media="(max-width: 767px)"
-                  srcset="/img/img-admin-portal-new1-mobile.webp"
-                />
-                <source
-                  media="(min-width: 768px)"
-                  srcset="/img/img-admin-portal-new1.webp"
-                />
-                <img
-                  src="/img/img-admin-portal-new1.webp"
-                  alt="Screenshots showing management of users, domains and SSO"
-                  loading="lazy"
-                />
-              </picture>
-            </div>
-          </div>
-        </div>
-        {/* Developers */}
-        <div className={`contentBlock`}>
-          <div className={`contentBlockHead`}>
-            <h2 id="devleopers">By Developers, For Developers</h2>
-            <p>
-              Create delightful, seamless experiences for your customers. In
-              just a few minutes!
-            </p>
-            <div className={`pt-6`}>
-              <button className={`btnPrimary`} onClick={docsEntry}>
-                Go to Documentation
-              </button>
-            </div>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.devs}>
-              <div className={styles.devsL}>
-                <ul className={styles.listFeats}>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-simple-integration.svg"
-                      alt="Pictogram showing a code"
-                      loading="lazy"
-                    />
-                    <h5>Simple Integration</h5>
-                    <p>
-                      Our goal is to make it as easy as possible for developers
-                      to integrate with our system so they can add SSO and other
-                      features quickly and then move on to what's
-                      important—their app!
-                    </p>
-                  </li>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-documentation.svg"
-                      alt="Pictogram showing documents"
-                      loading="lazy"
-                    />
-                    <h5>Full Documentation</h5>
-                    <p>
-                      We are building great documentation, tutorials and modern
-                      SDKs, so implementation is easy regardless of skill level
-                      or technology stack.
-                    </p>
-                  </li>
-                  <li>
-                    <img
-                      className={styles.listFeatsPicto}
-                      src="img/picto-secure.svg"
-                      alt="Pictogram showing a key inside the shield"
-                      loading="lazy"
-                    />
-                    <h5>Secure and Standardized</h5>
-                    <p>
-                      Standards compliance and security are our strengths so you
-                      can focus on your your customers.
-                    </p>
-                  </li>
-                </ul>
-              </div>
-              <div className={styles.devsR}>
-                <CodeBlock language="javascript" title="Protect a page">
-                  {`var auth = new Keycloak({
-  url: 'https://{host}/auth',
-  realm: '{realm}',
-  clientId: '{clientId}'
-});
-auth.init({
-  onLoad: 'login-required'
-}).then(function(authenticated) {
-  alert(authenticated ? 'authenticated' :
-       'not authenticated');
-}).catch(function() {
-   alert('failed to initialize');
-});
-`}
-                </CodeBlock>
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* PhaseTwo Loves Keycoak */}
-        <div className={`contentBlock`}>
-          <div className={`keycloakBgCircles bgImg`}>
-            <img
-              src="/img/circles.svg"
-              alt="Concentric Circles"
-              loading="lazy"
-            />
-          </div>
-          <div className={`contentBlockHead`}>
-            <h2 id="phaseTwoLovesKeycloak">
-              Phase Two{" "}
-              <img
-                className={styles.heart}
-                src="img/heart-filled.svg"
-                alt="Heart symbols"
-                loading="lazy"
-              />{" "}
-              Keycloak
-            </h2>
-            <p>
-              Phase Two is based on the Keycloak Open Source Identity and Access
-              Management system, built and maintained by Red Hat.
-            </p>
-          </div>
-          <div className={`contentBlockBody`}>
-            <div className={styles.keycloak}>
-              <img
-                className={styles.keycloakImg}
-                src="img/diagram-keycloak.svg"
-                alt="Diagram showing how Keycloak works with Phase Two"
-                loading="lazy"
+            
+            {/* Top Image */}
+            <div className="mb-12 flex justify-center">
+              <img 
+                src="/img/migrate-to-keycloak.svg" 
+                alt="Migrate to Keycloak" 
+                className="w-full max-w-4xl"
               />
+            </div>
+            
+            {/* Tabbed Structure */}
+            <FrameworkTabs
+              tabs={[
+                { key: "frameworks", label: "Developer Frameworks" },
+                { key: "protocols", label: "Protocols" },
+                { key: "idps", label: "Identity Providers" },
+              ]}
+              activeIndex={activeTab}
+              onChange={setActiveTab}
+              panels={[
+                <div key="frameworks" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Phase Two can secure <span className="underline">web frameworks</span> or native applications
+                    to provide authentication and authorization services.
+                  </p>
+                  <div className="framework-tab-image">
+                    <div
+                      className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`}
+                      role="list"
+                      data-scroll-slide-group
+                      data-scroll-slide-group-base-delay="80"
+                    >
+                      {[
+                        { href: "https://phasetwo.io/docs/securing-applications/django", title: "Django", src: "/customer-logos/django.svg", alt: "Django" },
+                        { href: "https://phasetwo.io/docs/securing-applications/springboot", title: "Spring Boot", src: "/customer-logos/spring.svg", alt: "Spring" },
+                        { href: "https://phasetwo.io/docs/securing-applications/javascript", title: "Javascript", src: "/customer-logos/js.svg", alt: "JavaScript" },
+                        { title: "nodejs", src: "/customer-logos/nodejs.svg", alt: "Node.js" },
+                        { href: "https://phasetwo.io/docs/securing-applications/react", title: "React", src: "/customer-logos/react.svg", alt: "React" },
+                        { href: "https://phasetwo.io/docs/securing-applications/next", title: "Next.js", src: "/customer-logos/nextjs.svg", alt: "Next.js" },
+                        { href: "https://phasetwo.io/docs/securing-applications/vue", title: "Vue", src: "/customer-logos/vue.svg", alt: "Vue" },
+                        { href: "https://phasetwo.io/docs/securing-applications/nuxt", title: "Nuxt", src: "/customer-logos/nuxtjs.svg", alt: "Nuxt" },
+                        { href: "https://phasetwo.io/docs/securing-applications/remix", title: "Remix", src: "/customer-logos/remix.svg", alt: "Remix" },
+                        { href: "https://phasetwo.io/docs/securing-applications/sveltekit", title: "Sveltekit", src: "/customer-logos/svelte.svg", alt: "Svelte" },
+                        { href: "https://phasetwo.io/docs/securing-applications/angular", title: "Angular", src: "/customer-logos/angular.svg", alt: "Angular" },
+                        { title: "GoLang", src: "/customer-logos/go.svg", alt: "Go" },
+                        { title: "Android", src: "/customer-logos/android.svg", alt: "Android" },
+                        { title: "Apple", src: "/customer-logos/apple.svg", alt: "Apple" },
+                        { title: "php", src: "/customer-logos/php.svg", alt: "PHP" },
+                        { title: "c#", src: "/customer-logos/csharp.svg", alt: "C#" },
+                      ].map((logo) => {
+                        const tile = (
+                          <div className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                            <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                          </div>
+                        );
+                        return logo.href ? (
+                          <a key={logo.title || logo.alt} href={logo.href} title={logo.title}>
+                            {tile}
+                          </a>
+                        ) : (
+                          <div key={logo.title || logo.alt} title={logo.title}>
+                            {tile}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>,
+                <div key="protocols" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Support for industry-standard protocols including OAuth 2.0, OpenID Connect, SAML 2.0, and
+                    more. Seamlessly integrate with existing authentication systems.
+                  </p>
+                  <div className="framework-tab-image">
+                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                      {[
+                        { src: "/customer-logos/saml.svg", alt: "SAML" },
+                        { src: "/customer-logos/openid.svg", alt: "OpenID" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                          <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>,
+                <div key="idps" className="framework-tab-panel">
+                  <p className="framework-tab-text">
+                    Connect with major identity providers including Okta, Auth0, Azure AD, Google Workspace,
+                    Active Directory, and many others. Migrate or broker identities seamlessly.
+                  </p>
+                  <div className="framework-tab-image">
+                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                      {[
+                        { src: "/customer-logos/bitbucket.svg", alt: "Bitbucket", icon: "fa-brands:bitbucket" },
+                        { src: "/customer-logos/facebook.svg", alt: "Facebook", icon: "fa-brands:facebook" },
+                        { src: "/customer-logos/github.svg", alt: "Github", icon: "fa-brands:github" },
+                        { src: "/customer-logos/gitlab.svg", alt: "Gitlab", icon: "fa-brands:gitlab" },
+                        { src: "/customer-logos/google.svg", alt: "Google", icon: "fa-brands:google" },
+                        { src: "/customer-logos/instagram.svg", alt: "Instagram", icon: "fa-brands:instagram" },
+                        { src: "/customer-logos/linkedin.svg", alt: "LinkedIn", icon: "fa-brands:linkedin" },
+                        { src: "/customer-logos/microsoft.svg", alt: "Microsoft", icon: "fa-brands:microsoft" },
+                        { src: "/customer-logos/azure.svg", alt: "Azure", icon: "carbon:logo-azure" },
+                        { src: "/customer-logos/openshift.svg", alt: "Openshift", icon: "carbon:logo-openshift" },
+                        { src: "/customer-logos/paypal.svg", alt: "Paypal", icon: "fa-brands:paypal" },
+                        { src: "/customer-logos/stack-overflow.svg", alt: "StackOverflow", icon: "fa-brands:stack-overflow" },
+                        { src: "/customer-logos/x.svg", alt: "X", icon: "fa6-brands:x-twitter" },
+                        { src: "/customer-logos/onelogin.svg", alt: "Onelogin" },
+                        { src: "/customer-logos/adsf.svg", alt: "ADFS" },
+                        { src: "/customer-logos/ping-identity.svg", alt: "PingIdentity" },
+                        { src: "/customer-logos/duo.svg", alt: "DUO" },
+                        { src: "/customer-logos/jumpcloud.svg", alt: "JumpCloud" },
+                      ].map((logo) => (
+                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
+                          <img src={logo.src ?? iconifyImgSrc(logo.icon)} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>,
+              ]}
+            />
+            
+          </div>
+        </section>
+        {/* Keycloak Enhanced */}
+        <section className="homepage-section cta-section-radial-pattern">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[560px] text-center mb-12" data-scroll-slide-group>
+              <h2 id="openSourceSSO" className="text-white mb-4" data-scroll-slide-in>
+                Keycloak Enhanced to Fully Solve Modern Application Requirements
+              </h2>
+              <p className="text-gray-300" data-scroll-slide-in>
+                Phase Two's extensions to core Keycloak solve for the needs that Applications need, and core Keycloak is missing. All deployments on Phase Two come automatically ready with all features ready.
+              </p>
+            </div>
+            
+            {/* Features Grid */}
+            <div className="grid grid-cols-12 gap-6 mt-16 items-center">
+              {/* Features Grid - 8 columns */}
+              <div className="col-span-12 lg:col-span-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-scroll-slide-group>
+                  {EnhancedFeatures.map((feature, index) => (
+                    <div key={index} className="flex flex-col items-center text-center p-6" data-scroll-slide-in>
+                      <div className="mb-4 w-16 h-16 rounded-2xl flex items-center justify-center bg-[#0f0f0f]">
+                        <InlineIcon
+                          icon={feature.icon}
+                          className="w-8 h-8 text-p2blue-500"
+                        />
+                      </div>
+                      <h4 className="text-white mb-3">{feature.title}</h4>
+                      <p className="text-gray-300">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Empty space for graphic - 4 columns */}
+              <div className="hidden lg:grid col-span-4 place-items-center">
+                <img
+                  src="/img/keycloak-modern-app-reqs.svg"
+                  alt="Modern application requirements illustration"
+                  className="w-full max-w-[380px] h-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+
+        {/* Operate at Scale */}
+        <section className="homepage-section cta-section-radial-pattern">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[560px] text-center mb-12" data-scroll-slide-group>
+              <h2 id="adminPortal" className="text-white mb-4" data-scroll-slide-in>
+                Operate at Scale with Ease
+              </h2>
+              <p className="text-gray-300" data-scroll-slide-in>
+                Open-source means you can deploy it yourself, but does not mean you necessarily should. Our deployments stay up and perform well, with no concern by your team members about performance or uptime.
+              </p>
+            </div>
+            
+            {/* Features Grid */}
+            <div className="grid grid-cols-12 gap-6 mt-16 items-center">
+              {/* Empty space for graphic - 4 columns (left side) */}
+              <div className="hidden lg:grid col-span-4 place-items-center">
+                <img
+                  src="/img/keycloak-operate-at-scale.svg"
+                  alt="Operate at scale illustration"
+                  className="w-full max-w-[380px] h-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              
+              {/* Features Grid - 8 columns (right side) */}
+              <div className="col-span-12 lg:col-span-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-scroll-slide-group>
+                  {ScaleFeatures.map((feature, index) => (
+                    <div key={index} className="flex flex-col items-center text-center p-6" data-scroll-slide-in>
+                      <div className="mb-4 w-16 h-16 rounded-2xl flex items-center justify-center bg-[#0f0f0f]">
+                        <InlineIcon
+                          icon={feature.icon}
+                          className="w-8 h-8 text-p2blue-500"
+                        />
+                      </div>
+                      <h4 className="text-white mb-3">{feature.title}</h4>
+                      <p className="text-gray-300">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/* PhaseTwo Loves Keycoak */}
+        <div className={`contentBlock ${styles.phaseTwoSection}`}>
+          <div className={`contentBlockHead`}>
+            <div data-scroll-slide-group>
+              <h2 id="phaseTwoLovesKeycloak" data-scroll-slide-in>
+                Phase Two{" "}
+                <img
+                  className={styles.heart}
+                  src="img/heart-filled.svg"
+                  alt="Heart symbols"
+                  loading="lazy"
+                />{" "}
+                Keycloak
+              </h2>
+              <p data-scroll-slide-in>
+                Phase Two is built and run by active Keycloak community contributors and authors of the most popular Keycloak extensions. We sponsor the Keycloak projects we believe in. We believe in Keycloak as a viable alternative to any existing commercial offering. 
+              </p>
+            </div>
+          </div>
+          <div className={`contentBlockBody`}>
+            <div className={styles.keycloakButton}>
+              <Link to="/docs/introduction">
+                <button className="btnSecondary">Go to Documentation</button>
+              </Link>
             </div>
 
             <div className={styles.featCards}>
               <div className={styles.featCard}>
-                <img
-                  className={styles.featCardPicto}
-                  src="img/picto-open-source-alt.svg"
-                  alt="Pictogram showing Open Source logo"
-                  loading="lazy"
-                />
-                <h5>Always Open Source</h5>
-                <p>
-                  Phase Two is built as a collection of open source Keycloak
-                  extensions. While we endeavor to make Keycloak simple to use,
-                  operate and scale, in the cloud or on prem.
-                </p>
+                <div className={styles.featCardInner}>
+                  <div className={styles.featCardIcon}>
+                    <InlineIcon
+                      icon="lucide:code-2"
+                      className={styles.featCardLucideIcon}
+                    />
+                  </div>
+                  <div className={styles.featCardContent}>
+                    <h4>Always Open Source</h4>
+                    <p>
+                      Phase Two is built as a collection of open source Keycloak
+                      extensions. While we endeavor to make Keycloak simple to use,
+                      operate and scale, in the cloud or on prem.
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className={styles.featCard}>
-                <img
-                  className={styles.featCardPicto}
-                  src="img/picto-hardened.svg"
-                  alt="Pictogram showing a fortress"
-                  loading="lazy"
-                />
-                <h5>Battle-tested and hardened</h5>
-                <p>
-                  Keycloak has been battle-tested and hardened for over 7 years.
-                  Its security and reliability is depended on by organizations
-                  from small startups to governments and Fortune 500 companies.
-                </p>
+                <div className={styles.featCardInner}>
+                  <div className={styles.featCardIcon}>
+                    <InlineIcon
+                      icon="lucide:shield-check"
+                      className={styles.featCardLucideIcon}
+                    />
+                  </div>
+                  <div className={styles.featCardContent}>
+                    <h4>Battle-tested and hardened</h4>
+                    <p>
+                      Keycloak has been battle-tested and hardened for over 7 years.
+                      Its security and reliability is depended on by organizations
+                      from small startups to governments and Fortune 500 companies.
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className={styles.featCard}>
-                <img
-                  className={styles.featCardPicto}
-                  src="img/picto-community.svg"
-                  alt="Pictogram showing a group of people interconnected"
-                  loading="lazy"
-                />
-                <h5>Community Superpower</h5>
-                <p>
-                  We believe that community participation in building our
-                  software is a superpower, and can't wait to see what you will
-                  help us build.
-                </p>
+                <div className={styles.featCardInner}>
+                  <div className={styles.featCardIcon}>
+                    <InlineIcon
+                      icon="lucide:users"
+                      className={styles.featCardLucideIcon}
+                    />
+                  </div>
+                  <div className={styles.featCardContent}>
+                    <h4>Community Superpower</h4>
+                    <p>
+                      We believe that community participation in building our
+                      software is a superpower, and can't wait to see what you will
+                      help us build.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

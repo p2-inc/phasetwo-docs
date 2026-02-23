@@ -1,636 +1,283 @@
 import React from "react";
 import Layout from "@theme/Layout";
-import styles from "./styles.module.css";
+import Link from "@docusaurus/Link";
 import { InlineIcon } from "@iconify/react";
+import CardWithIcon from "../../components/CardWithIcon";
+import CardWithImage from "../../components/CardWithImage";
+import Cta from "../../components/ctas/homepage-dual-line-cta";
 import { KeycloakSupportPackages } from "../../components/keycloak-support-packages";
+import supportStyles from "./styles.module.css";
 
-export default function Hosted() {
+const HERO_BG_STYLE = {
+  backgroundImage:
+    "radial-gradient(52.86% 64.72% at 50% 6.64%, color-mix(in srgb, var(--ifm-color-secondary) 40%, transparent) 0%, transparent 100%)",
+  backgroundRepeat: "no-repeat",
+};
+
+const TOP_METRICS = [
+  { value: "< 30 days", label: "average implementation time" },
+  { value: "100+", label: "successful deployments" },
+  { value: "Awesome", label: "customer satisfaction" },
+];
+
+const TOP_BENEFIT_IMAGES = [
+  "/img/structured-project-process.svg",
+  "/img/architecture-review-and-scaling.svg",
+  "/img/migration-from-any-provider.svg",
+];
+
+const TOP_BENEFITS = [
+  {
+    title: "Structured Project Process",
+    description: (
+      <p>
+        After hundreds of successful projects, we have a proven process for executing Keycloak implementations. You'll receive an Onboarding Kit and Project Plan with clear deliverables, ownership, and regular cadence meetings.
+      </p>
+    ),
+    reverseHorizontal: false,
+  },
+  {
+    title: "Architecture Review and Scaling",
+    description: (
+      <p>
+        Avoid outages, trim costs, and scale your infrastructure to meet demand. We've configured systems handling 100K+ active users globally, including Kubernetes configurations and deployment strategies.
+      </p>
+    ),
+    reverseHorizontal: true,
+  },
+  {
+    title: "Migration from Any Provider",
+    description: (
+      <p>
+        Migrate from Okta, Auth0, WorkOS, Cognito, or other providers with confidence. We support any Keycloak version, including RHBK, from initial testing through production launch.
+      </p>
+    ),
+    reverseHorizontal: false,
+  },
+];
+
+const SUPPORT_SERVICES = [
+  {
+    title: "Installation & Configuration",
+    description:
+      "Tailored setup to meet your specific needs, including managed testing clusters with Phase Two extensions and sample applications for rapid integration testing.",
+    icon: "lucide:settings",
+  },
+  {
+    title: "Health Assessment",
+    description:
+      "Assessment of your current infrastructure and implementation—cluster management, token usage, CLI configuration, upgrade paths, and ongoing periodic reviews.",
+    icon: "lucide:git-branch",
+  },
+  {
+    title: "Custom Development",
+    description:
+      "Custom login flows, authenticators, and full Keycloak extension development. Brand customization including styles, colors, logos, and CSS.",
+    icon: "lucide:code-2",
+  },
+  {
+    title: "SSO & IdP Onboarding",
+    description:
+      "Simplified identity provider configuration with our Connect wizards and dashboards. Domain associations, organization structures, and role management.",
+    icon: "lucide:headphones",
+  },
+  {
+    title: "Version Upgrades",
+    description:
+      "Upgrade support from legacy versions (even 10+ versions behind) to the latest release. Fast-follow upgrades with new major releases to keep you current.",
+    icon: "lucide:graduation-cap",
+  },
+];
+
+const FRAMEWORK_LINKS = [
+  {
+    label: "Next.js",
+    href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nextjs/",
+    icon: "devicon:nextjs",
+  },
+  {
+    label: "React",
+    href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs/",
+    icon: "simple-icons:react",
+  },
+  { label: "Django", href: "https://phasetwo.io/blog/secure-django/", icon: "devicon-plain:django" },
+  {
+    label: "Spring Boot + Angular",
+    href: "https://phasetwo.io/blog/secure-spring-boot/",
+    icon: "simple-icons:spring",
+  },
+  {
+    label: "Nuxt",
+    href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nuxt/",
+    icon: "devicon-plain:nuxtjs",
+  },
+  { label: "Vue", href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-vue/", icon: "ion:logo-vue" },
+  {
+    label: "Svelte",
+    href: "https://phasetwo.io/blog/instant-user-management-and-sso-for-sveltekit/",
+    icon: "simple-icons:svelte",
+  },
+  {
+    label: "Remix",
+    href: "https://phasetwo.io/blog/instant-user-management-and-sso-for-remix/",
+    icon: "simple-icons:remix",
+  },
+];
+
+export default function Support() {
   return (
     <Layout
       title="Enterprise Support for Keycloak"
-      description="Phase Two provides Enterprise Support for Keycloak and Keycloak as a Service. We can help with Keycloak installation, configuration, and maintenance."
+      description="Phase Two provides Expert Keycloak Support without the enterprise price tag. We help with migration, configuration, and maintenance for hosted and on-prem deployments."
     >
-      <main>
-        <div className="pageHero">
-          <div className="pageHeroMsg">
-            <h1>Enterprise Keycloak Support</h1>
+      <main className="hosting-page">
+        {/* Hero */}
+        <section className="subpage-section subpage-hero-section">
+          <div className="relative isolate overflow-hidden" style={HERO_BG_STYLE}>
+            <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
+              <div className="mx-auto max-w-3xl text-center">
+                <h1 className="text-white text-balance">
+                  Enterprise Keycloak Support Without the Enterprise Price Tag
+                </h1>
+                <h4 className="mt-6 mb-0 text-gray-300 font-normal text-balance">
+                  Migration, scaling, custom development, and 24/7 support for any Keycloak deployment—including RHBK. Get teams productive faster with experts who've completed hundreds of successful projects.
+                </h4>
+
+                <div className="mt-10 flex flex-col items-center justify-center gap-4">
+                  <a href="mailto:sales@phasetwo.io">
+                    <button className="btnPrimary btnSupport min-w-[160px]">
+                      Let&apos;s talk
+                    </button>
+                  </a>
+                  <Link to="/support/#experts" className="link-primary">
+                    Show me pricing <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="pageHeroMsgIntro">
-            <p>
-              Configuring, integrating, and operating an Identity and Access
-              Management system can be challenging. For{" "}
-              <a href="https://phasetwo.io/hosting">hosted</a> and{" "}
-              <a href="https://phasetwo.io/product/onprem/">on-prem</a>{" "}
-              customers, or those with their own Keycloak deployment, we can
-              provide expert help with{" "}
-              <a href="https://phasetwo.io/support/migrate-to-keycloak">
-                migration to
-              </a>{" "}
-              or{" "}
-              <a href="https://phasetwo.io/blog/identity-brokering-on-prem/">
-                scaling
-              </a>{" "}
-              Keycloak, custom Keycloak development, and around the clock
-              support. Our support can help teams running any version of
-              Keycloak (RHBK included).
+        </section>
+
+        {/* Top Metrics */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-3">
+              {TOP_METRICS.map((metric) => (
+                <div key={metric.label} className="px-6 py-8 text-center">
+                  <div className="text-2xl font-semibold text-white md:text-3xl">
+                    {metric.value}
+                  </div>
+                  <p className="mt-2 mb-0 text-gray-300 text-sm">{metric.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Top Benefits: Why Organizations Choose Phase Two Support */}
+        <section className="subpage-section texture-plus">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="subpage-section-heading">
+              <h2 className="text-white">
+                Why Organizations Choose Phase Two Support
+              </h2>
+            </div>
+            <div className="mt-14 flex flex-col gap-12">
+              {TOP_BENEFITS.map((benefit, idx) => (
+                <CardWithImage
+                  key={benefit.title}
+                  title={benefit.title}
+                  description={benefit.description}
+                  imageSrc={TOP_BENEFIT_IMAGES[idx]}
+                  imageAlt=""
+                  layout="horizontal"
+                  reverseHorizontal={benefit.reverseHorizontal}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Other Benefits: Complete Keycloak Support Services */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="subpage-section-heading">
+              <h2 className="text-white">
+                Complete Keycloak Support Services
+              </h2>
+            </div>
+            <div className="mt-14 hosting-bento-grid">
+              {SUPPORT_SERVICES.map((service) => (
+                <CardWithIcon
+                  key={service.title}
+                  heading={service.title}
+                  description={service.description}
+                  icon={<InlineIcon icon={service.icon} className="size-8" style={{ color: "var(--ifm-color-secondary)" }} aria-hidden="true" />}
+                  layout="stacked"
+                />
+              ))}
+            </div>
+
+            {/* SSO Connections and Identity Provider (IdP) Onboarding */}
+            <p className="mt-14 mb-6 text-center text-gray-300 text--body-large">
+              SSO Connections and Identity Provider (IdP) Onboarding
             </p>
-            <div className={`pageHeroCta`}>
-              <a href="mailto:sales@phasetwo.io">
-                <button className={`btnPrimary`}>Let's talk</button>
-              </a>
-              <a href="#experts" className="margin-left--md">
-                <button className={`btnPrimary`}>Show me pricing</button>
-              </a>
-            </div>
-          </div>
-          <div className={styles.bgImg}>
-            <img
-              src="/img/gradient-bg.webp"
-              alt="Color Gradient"
-              loading="lazy"
-            />
-          </div>
-          <div className={`pageHeroBgCircles`}>
-            <img
-              src="/img/circles.svg"
-              alt="Concentric Circles"
-              loading="lazy"
-            />
-          </div>
-        </div>
-        <div className="contentBlock z-5 stats">
-          <div className="contentBlockHead">
-            <h2>Professional Keycloak Adoption, Migration, and Maintenance</h2>
-          </div>
-          <div className="contentBlockBody">
-            <div className="row">
-              <div className="col margin-bottom--md">
-                <div
-                  className={`card card--full-height text--center ${styles.statsCard}`}
-                >
-                  <div className="card__header">
-                    <h2>
-                      <InlineIcon
-                        icon="tdesign:calendar-1"
-                        style={{ fontSize: "1.8rem" }}
-                      />
-                      {" <"} 30 days{" "}
-                    </h2>
-                  </div>
-                  <div className="card__body">
-                    <p>average project launch time</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col margin-bottom--md">
-                <div
-                  className={`card card--full-height text--center ${styles.statsCard}`}
-                >
-                  <div className="card__header">
-                    <h2>
-                      100's{" "}
-                      <InlineIcon
-                        icon="clarity:blocks-group-solid"
-                        style={{ fontSize: "2rem" }}
-                      />
-                    </h2>
-                  </div>
-                  <div className="card__body">
-                    <p>of successful projects</p>
-                  </div>
-                </div>
-              </div>
-              <div className="col margin-bottom--md">
-                <div
-                  className={`card card--full-height text--center ${styles.statsCard}`}
-                >
-                  <div className="card__header">
-                    <h2>
-                      <InlineIcon
-                        icon="fluent-emoji:star-struck"
-                        style={{ fontSize: "1.7rem" }}
-                      />
-                      <InlineIcon
-                        icon="fluent-emoji:star-struck"
-                        style={{ fontSize: "1.7rem" }}
-                      />
-                      <InlineIcon
-                        icon="fluent-emoji:star-struck"
-                        style={{ fontSize: "1.7rem" }}
-                      />
-                      <InlineIcon
-                        icon="fluent-emoji:star-struck"
-                        style={{ fontSize: "1.7rem" }}
-                      />
-                      <InlineIcon
-                        icon="fluent-emoji:star-struck"
-                        style={{ fontSize: "1.7rem" }}
-                      />
-                    </h2>
-                  </div>
-                  <div className="card__body">
-                    <p>customer experience</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className={`contentBlock contentBlockRow ${styles.lightBlueBg} ${styles.contentBlockRow}`}
-        >
-          <div className="contentBlockHead">
-            <h3>Structured Project Process and Workflow</h3>
-            <p>
-              After completing 100s of successful Keycloak support projects, we
-              have a well-structured process for understanding the work required
-              to execute. We provide an Onboarding Kit along with a Project Plan
-              which clearly outlines the required work and owners. We will meet
-              with your team on a regular cadence to cover current use-cases and
-              how any existing implementation can be mapped into Keycloak APIs.
-            </p>
-          </div>
-          <div className="contentBlockBody ta-center">
-            <img
-              src="/img/team-planning.svg"
-              alt="Team Planning"
-              style={{ maxHeight: "400px" }}
-              loading="lazy"
-            />
-          </div>
-        </div>
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow}`}
-        >
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--offset-1 col--4 flex-align-center flex">
-                  <img
-                    src="/img/server-network-technology.svg"
-                    alt="Architecture Review"
-                    style={{ maxHeight: "300px" }}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="col col--4 col--offset-1 flex-align-center flex">
-                  <div>
-                    <h3>Keycloak Architecture Review and Scaling</h3>
-                    <p>
-                      Avoid outages, trim costs, and become more agile in the
-                      face of infrastructure changes. We will help scale your
-                      architecture to meet the demands of any large-scale
-                      implementation. We've{" "}
-                      <a href="https://phasetwo.io/blog/identity-brokering-on-prem/">
-                        helped customers
-                      </a>{" "}
-                      configure their systems for handling up to 100K+ active
-                      users on a global basis. We can help review and configure
-                      Kubernetes configurations, deployment strategies, and
-                      other infrastructure needs.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow} ${styles.lightBlueBg}`}
-        >
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--4 col--offset-1 flex-align-center flex">
-                  <div>
-                    <h3>Keycloak Installation and Configuration</h3>
-                    <p>
-                      While our{" "}
-                      <a href="https://phasetwo.io/docs/getting-started/configuration/">
-                        pre-configured defaults
-                      </a>{" "}
-                      are designed to meet the needs of most common use cases,
-                      our team is here to help you tailor the functionality to
-                      suit your specific needs and goals. For initial testing
-                      and setup, we can include a managed Keycloak cluster to
-                      make initial setup and testing fast and easy. This comes
-                      with a build that includes all of Phase Two's{" "}
-                      <a href="https://phasetwo.io/docs/introduction/open-source/">
-                        extensions
-                      </a>{" "}
-                      and a sample client application pointing to your instance
-                      for the ability to quickly test authentication flows,
-                      login flow styling, and more. This means while your team
-                      converges on their final architecture, you can leverage a
-                      Keycloak instance for App integration and setup.
-                    </p>
-                  </div>
-                </div>
-                <div className="col col--offset-1 col--5 flex-align-center flex">
-                  <img
-                    src="/img/software-engineer-developing.svg"
-                    alt="Architecture Review"
-                    style={{ maxHeight: "300px" }}
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow}`}
-        >
-          <div className="contentBlockHead"></div>
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--offset-2 col--4 flex-align-center flex">
-                  <img
-                    src="/img/health-checklist.svg"
-                    alt="Health Assessment"
-                    style={{ maxHeight: "300px" }}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="col col--4 flex-align-center flex">
-                  <div>
-                    <h3>Infrastructure and Implementation Health Assessment</h3>
-                    <p>
-                      Many customers come to us in various states of Keycloak
-                      adoption and implementation. Regardless of your current
-                      state, we can do an assessment of your current
-                      infrastructure and implementation. This could be a review
-                      of how you are managing your cluster, your token usage,
-                      your usage of the CLI tool for configuration, how to
-                      upgrade to a newer version of Keycloak, just to name a
-                      few. In addition, we can do a periodic review of your
-                      infrastructure as time goes on to make sure that you
-                      continue to follow best practices.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow} ${styles.pinkGradBg}`}
-        >
-          <div className="contentBlockHead"></div>
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--4 col--offset-1 flex-align-center flex">
-                  <div>
-                    <h3>Custom Keycloak Development and Extensions</h3>
-                    <p>
-                      Take control of your Keycloak implementation. A strong
-                      argument for Keycloak adoption is the ability to customize
-                      it to your application’s needs. This could be a login flow
-                      experience for specific authenticators all the way to full
-                      Keycloak extension development. We can help to{" "}
-                      <a href="https://github.com/p2-inc/keycloak-themes">
-                        customize login experiences
-                      </a>{" "}
-                      to create a seamless brand experience with styles, colors,
-                      logos, and CSS to match your branding.
-                    </p>
-                  </div>
-                </div>
-                <div className="col col--offset-1 col--6 flex-align-center flex">
-                  <img
-                    src="/img/dev-team.svg"
-                    alt="Custom Keycloak Development"
-                    style={{ maxHeight: "400px" }}
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow}`}
-        >
-          <div className="contentBlockHead">
-            <h3>Migration to Keycloak from Other Identity Provider Systems</h3>
-            <p>
-              Many customers come to Keycloak from other Identity Providers like
-              Okta, Auth0, WorkOS, Cognito and more, and need a path to{" "}
-              <a href="https://phasetwo.io/blog/open-source-iam/">adopting</a>{" "}
-              and{" "}
-              <a href="https://phasetwo.io/support/migrate-to-keycloak">
-                migrating
-              </a>{" "}
-              their system usage to Keycloak. Phase Two works with any version
-              of Keycloak, including RHBK (RedHat build of Keycloak) or custom
-              images. From initial testing of migration to the final cut-over
-              and production launch, we will have your back the entire way. To
-              help make it easy to set up your application, we have multiple
-              examples demonstrating how to secure your application with user
-              management and single sign on (SSO) using Keycloak for
-              Authentication and Authorization. Just clone an example to get a
-              jump-start on more complex integrations and examples.
-            </p>
-          </div>
-          <div className="contentBlockBody ta-center">
-            <img
-              src="/img/kc-migration.svg"
-              alt="Migration to Keycloak from Other Identity Provider Systems"
-              style={{ maxHeight: "400px" }}
-              loading="lazy"
-            />
-          </div>
-        </div>
-
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow} ${styles.lightBlueBg}`}
-        >
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--4 col--offset-2 flex-align-center flex">
-                  <div>
-                    <h3>
-                      SSO Connections and Identity Provider (IdP) Onboarding
-                    </h3>
-                    <p>
-                      Even experienced dev and operations professionals can
-                      struggle deciphering SSO configurations. We offer tailored
-                      solutions to simplify IdP onboarding, including our
-                      intuitive{" "}
-                      <a href="https://phasetwo.io/docs/hosting/connect/">
-                        Phase Two Connect
-                      </a>{" "}
-                      on-prem wizards and dashboards. Associating domains to
-                      specific IDPs, set up organization structures with roles
-                      to make sure that users are able to do what they need to
-                      without additional security exposure.
-                    </p>
-                  </div>
-                </div>
-                <div className="col col--offset-1 col--4 flex-align-center flex">
-                  <img
-                    src="/img/sso-security.svg"
-                    alt="SSO Connections and Identity Provider (IdP) Onboarding"
-                    style={{ maxHeight: "300px" }}
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="contentBlockBody margin-top--md"
-              style={{ maxWidth: "960px" }}
-            >
-              <p>
-                To help make it easy to set up your application, we have
-                multiple examples demonstrating how to secure your application
-                with user management and single sign on (SSO) using Keycloak for
-                Authentication and Authorization. Just clone an example to get a
-                jump-start on more complex integrations and examples.
-              </p>
-            </div>
-            <div className="container" style={{ maxWidth: "960px" }}>
-              <div className={`row frameworkGridTop`}>
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a
-                    href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nextjs/"
-                    className="margin-right--sm"
-                  >
-                    <InlineIcon
-                      icon="devicon:nextjs"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />{" "}
-                    Next.js
-                  </a>
-                  +
-                  <a
-                    href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs/"
-                    className="margin-left--sm"
-                  >
-                    <InlineIcon
-                      icon="simple-icons:react"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    ReactJS
-                  </a>
-                </div>
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a href="https://phasetwo.io/blog/secure-django/">
-                    <InlineIcon
-                      icon="devicon-plain:django"
-                      color="black"
-                      style={{ fontSize: "1.4rem", marginRight: ".3rem" }}
-                    />
-                    Django
-                  </a>
-                </div>
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a href="https://phasetwo.io/blog/secure-spring-boot/">
-                    <InlineIcon
-                      icon="simple-icons:spring"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Springboot +{" "}
-                    <InlineIcon
-                      icon="teenyicons:angular-solid"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Angular
-                  </a>
-                </div>
-              </div>
-              <div className="row frameworkGridBottom">
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a
-                    href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nuxt/"
-                    className="margin-right--sm"
-                  >
-                    <InlineIcon
-                      icon="devicon-plain:nuxtjs"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Nuxt
-                  </a>
-                  +{" "}
-                  <a
-                    href="https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-vue/"
-                    className="margin-left--sm"
-                  >
-                    <InlineIcon
-                      icon="ion:logo-vue"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Vue
-                  </a>
-                </div>
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a href="https://phasetwo.io/blog/instant-user-management-and-sso-for-sveltekit/">
-                    <InlineIcon
-                      icon="simple-icons:svelte"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Svelte
-                  </a>
-                </div>
-                <div className={`col ${styles.frameworkGridCol}`}>
-                  <a href="https://phasetwo.io/blog/instant-user-management-and-sso-for-remix/">
-                    <InlineIcon
-                      icon="simple-icons:remix"
-                      color="black"
-                      style={{ fontSize: "1.5rem", marginRight: ".3rem" }}
-                    />
-                    Remix
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow}`}
-        >
-          <div className="contentBlockHead"></div>
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--offset-1 col--4 flex-align-center flex">
-                  <img
-                    src="/img/kc-updates.svg"
-                    alt="Keycloak Version Upgrades to Keep Up-to-Date with Latest Releases"
-                    style={{ maxHeight: "300px" }}
-                    loading="lazy"
-                  />
-                </div>
-                <div className="col col--5 flex-align-center flex">
-                  <a id="upgrades"></a>
-                  <div>
-                    <h3>
-                      Keycloak Version Upgrades to Keep Up-to-Date with Latest
-                      Releases
-                    </h3>
-                    <p>
-                      Keeping Keycloak up-to-date can be a difficult process to
-                      support from a time and risk perspective. Some customers
-                      come to us over 10 major versions behind and need help
-                      with upgrading to the latest version. A major piece of
-                      this can be understanding the variations between versions
-                      and how to address those items. Once upgraded to a latest
-                      version, we can be proactive in helping your team stay up
-                      to date with{" "}
-                      <a href="https://github.com/p2-inc/phasetwo-containers">
-                        new releases
-                      </a>{" "}
-                      with fast-follow upgrades with major releases. Depending
-                      on architecture needs, many customers opt to migrate to
-                      the Phase Two hosted and managed Keycloak cluster model to
-                      offload that work entirely.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`contentBlock contentBlockRow ${styles.contentBlockRow} ${styles.pinkGradBg}`}
-        >
-          <div className="contentBlockHead"></div>
-          <div className="contentBlockBody">
-            <div className="container">
-              <div className="row">
-                <div className="col col--4 col--offset-1 flex-align-center flex">
-                  <div>
-                    <h3>Happy Customers</h3>
-                    <p>
-                      Phase Two has many happy customers across the globe that
-                      include Tier 1 CDNs, global transport companies, digital
-                      security providers, digital signage providers, and more.
-                      Our customers have saved hundreds of thousands of dollars
-                      migrating to Keycloak and delivered better experiences in
-                      the process.
-                    </p>
-                  </div>
-                </div>
-                <div className="col col--offset-1 col--5 flex-align-center flex">
-                  <img
-                    src="/img/happy-customers.svg"
-                    alt="Phase Two Happy Customers"
-                    style={{ maxHeight: "400px" }}
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="contentBlock">
-          <div className="contentBlockBody">
-            <KeycloakSupportPackages />
-          </div>
-        </div>
-
-        <div className="contentBlock">
-          <div className="contentBlockBody">
-            <div className={`${styles.callout} card`}>
-              <h4 className={styles.calloutHeader}>
-                Learn more about Phase Two's Enterprise Support
-              </h4>
-              <div className="margin-top--md">
+            <div className={supportStyles.frameworkGrid} role="list">
+              {FRAMEWORK_LINKS.map((link) => (
                 <a
-                  href="https://scheduler.zoom.us/phasetwo"
+                  key={link.label}
+                  href={link.href}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className="margin-right--md"
+                  rel="noreferrer"
+                  className={supportStyles.frameworkGridCol}
+                  role="listitem"
+                  title={link.label}
                 >
-                  <button className="btnTertiary">
-                    Let&apos;s Talk About It
-                  </button>
+                  <InlineIcon
+                    icon={link.icon}
+                    style={{ fontSize: "1.68rem", marginRight: "0.4rem" }}
+                    aria-hidden="true"
+                  />
+                  {link.label}
                 </a>
-                <a
-                  href="https://dash.phasetwo.io/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <button className="btnTertiary margin-right--md">
-                    Get Started For Free
-                  </button>
-                </a>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-        {/* <div class="contentBlock">
-          <div className="contentBlockHead">
-            <h2>Frequently Asked Questions?</h2>
-          </div>
-          <div class="contentBlockBody">
-            <div className={faqStyles.questionsBox}>
-              <div className={faqStyles.questionBox}>
-                <div className={faqStyles.question}>
-                  
-                </div>
-                <div className={faqStyles.questionAnswer}>
-                  
-                </div>
-              </div>
+        </section>
+
+        {/* Happy Customers */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
+              <h3 className="mb-0 text-gray-300 font-normal text-balance">
+                Phase Two supports customers globally including Tier 1 CDNs, global transport companies, digital security providers, and digital signage platforms. Our customers have saved hundreds of thousands of dollars migrating to Keycloak while delivering better user experiences.
+              </h3>
             </div>
           </div>
-        </div> */}
+        </section>
+
+        {/* Plans / Pricing Table */}
+        <section id="experts" className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="subpage-section-heading">
+              <h2 className="text-white">Support Plans</h2>
+            </div>
+            <div className={`mt-10 ${supportStyles.supportPagePlansTable}`}>
+              <KeycloakSupportPackages />
+            </div>
+          </div>
+        </section>
+
+        {/* CTA - secondary color */}
+        <Cta
+          sectionClassName="subpage-section cta-section-gradient-secondary"
+          background="secondary"
+          primaryText="Working With Your Team is Easy."
+          secondaryText="Let Us Show You How."
+          showCta
+          ctaLabel="See How"
+          ctaHref="https://scheduler.zoom.us/phasetwo"
+        />
       </main>
     </Layout>
   );
