@@ -10,6 +10,7 @@ import {
   splitNavbarItems,
   useNavbarMobileSidebar,
 } from "@docusaurus/theme-common/internal";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import NavbarColorModeToggle from "@theme/Navbar/ColorModeToggle";
 import NavbarItem from "@theme/NavbarItem";
 import NavbarNavLink from "@theme/NavbarItem/NavbarNavLink";
@@ -193,6 +194,7 @@ export default function NavbarContent() {
   const searchBarItem = items.find((item) => item.type === "search");
   const windowSize = useWindowSize();
   const isMobile = windowSize === "mobile";
+  const githubIconUrl = useBaseUrl("img/icon-github.svg");
 
   return (
     <NavbarContentLayout
@@ -212,6 +214,15 @@ export default function NavbarContent() {
               <SearchBar />
             </NavbarSearch>
           )}
+          <a
+            href="https://github.com/p2-inc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="navbar__item navbar__github-icon"
+            aria-label="GitHub"
+          >
+            <img src={githubIconUrl} alt="" width={20} height={20} />
+          </a>
         </>
       }
     />
