@@ -71,7 +71,7 @@ module.exports = {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dashboard-launch/">Announcing our new Dashboard!</a> New self-serve features for cluster/realm management (observability, configuration, and more).',
+        '<a href="/blog/cockroach-labs-features-phasetwo-managed-keycloak-hosting/">Cockroach Labs features Phase Two!</a> - Get fully managed, multi-region, high-availability Keycloak hosting with top extensions and 24/7 support.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
