@@ -1176,9 +1176,20 @@ a.support:hover {
 }
 
 .navbar__items--right .DocSearch-Search-Icon {
+  display: none;
+}
+
+.navbar__items--right .DocSearch-Button-Container::before {
+  content: "";
+  display: block;
   width: 24px;
   height: 24px;
-  color: currentColor;
+  background-image: url("/img/icon-loupe.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px 20px;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1); /* Make icon visible on dark navbar */
 }
 
 .navbar__items--right .DocSearch-Button-Placeholder,
@@ -1271,9 +1282,10 @@ a.support:hover {
     padding: 0;
   }
 
-  .navbar__items--right .DocSearch-Search-Icon {
+  .navbar__items--right .DocSearch-Button-Container::before {
     width: 20px;
     height: 20px;
+    background-size: 16px 16px;
   }
 
   .navbar__items--right [data-button-type="btnSecondary"],
