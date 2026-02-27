@@ -346,11 +346,11 @@ module.exports = {
               activeBasePath: "blog",
               label: "Blog",
             },
-            {
-              to: "resources/case-studies",
-              activeBasePath: "case-studies",
-              label: "Case Studies",
-            },
+            // {
+            //   to: "resources/case-studies",
+            //   activeBasePath: "case-studies",
+            //   label: "Case Studies",
+            // },
             {
               to: "contact",
               activeBasePath: "contact",
