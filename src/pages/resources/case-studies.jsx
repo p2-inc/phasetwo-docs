@@ -19,6 +19,14 @@ const CASE_STUDIES = [
     shortBlurb:
       "Phase Two helped Dexcom implement Keycloak to secure their growing ecosystem of diabetes management applications.",
   },
+  {
+    assetId: "benifex",
+    title: "Benifex + Phase Two: Securing Large Systems with Keycloak",
+    description:
+      "Phase Two helped Benifex implement Keycloak to secure their growing ecosystem of diabetes management applications, enabling seamless SSO and robust access control across their platform.",
+    shortBlurb:
+      "Phase Two helped Benifex implement Keycloak to secure their growing ecosystem of diabetes management applications.",
+  },
 ];
 
 const HERO = {
@@ -50,7 +58,6 @@ const EMPTY_CASE_STUDY_REQUEST_FORM = {
 export default function CaseStudies() {
   const { siteConfig } = useDocusaurusContext();
   const customFields = siteConfig?.customFields || {};
-  console.log("🚀 ~ CaseStudies ~ siteConfig:", siteConfig);
   const caseStudyRequestEndpoint =
     typeof customFields.caseStudyRequestEndpoint === "string"
       ? customFields.caseStudyRequestEndpoint
