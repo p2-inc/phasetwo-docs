@@ -121,10 +121,9 @@ sequenceDiagram
 
 
     User->>Okta: Authenticates with IdP
-    Okta->>KeycloakBroker: SAML AuthnRequest
-    KeycloakBroker->>KeycloakClient: SAML AuthnRequest
-    KeycloakClient->>KeycloakBroker: SAML Response (assertion)
-    KeycloakBroker->>SpringApp: SAML Response (assertion)
+    Okta->>KeycloakBroker: SAML Response
+    KeycloakBroker->>KeycloakClient: Redirect to client
+    KeycloakClient->>SpringApp: SAML Response (assertion)
     SpringApp->>User: Logs user in
 ```
 
@@ -205,11 +204,10 @@ sequenceDiagram
 
 
     User->>Okta: Authenticates with IdP
-    Okta->>KeycloakBroker: SAML AuthnRequest
-    KeycloakBroker->>KeycloakClient: SAML AuthnRequest
-    KeycloakClient->>KeycloakBroker: SAML Response (assertion)
-    KeycloakBroker->>KeycloakAdminConsole: SAML Response (assertion)
-    KeycloakAdminConsole->>KeycloakAdminConsole: GET SAML response (assertion)
+    Okta->>KeycloakBroker: SAMLResponse
+    KeycloakBroker->>KeycloakClient: Redirect to client
+    KeycloakClient->>KeycloakAdminConsole: Get SAML Response (assertion)
+    KeycloakAdminConsole->>KeycloakAdminConsole: Cookie Authenticator
     KeycloakAdminConsole->>User: Logs user in
 ```
 
