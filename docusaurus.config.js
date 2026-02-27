@@ -15,6 +15,13 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
+  customFields: {
+    caseStudyRequestEndpoint:
+      process.env.CASE_STUDY_REQUEST_ENDPOINT ||
+      "https://marketing-dl.phasetwo-iam.io/api/case-studies/request",
+    turnstileSiteKey:
+      process.env.TURNSTILE_SITE_KEY || "0x4AAAAAACjXlnccRgW3nXgA",
+  },
   headTags: [
     {
       tagName: "link",
@@ -52,6 +59,13 @@ module.exports = {
         href: "https://www.googletagmanager.com",
       },
     },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://challenges.cloudflare.com",
+      },
+    },
   ],
   scripts: [
     {
@@ -66,12 +80,17 @@ module.exports = {
       async: true,
       "data-cookie-consent": "tracking",
     },
+    {
+      src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
+      async: true,
+      defer: true,
+    },
   ],
   themeConfig: {
     announcementBar: {
       id: "dedicated_clusters",
       content:
-        '<a href="/blog/dashboard-launch/">Announcing our new Dashboard!</a> New self-serve features for cluster/realm management (observability, configuration, and more).',
+        '<a href="/blog/cockroach-labs-features-phasetwo-managed-keycloak-hosting/">Cockroach Labs features Phase Two!</a> - Get fully managed, multi-region, high-availability Keycloak hosting with top extensions and 24/7 support.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
@@ -326,6 +345,11 @@ module.exports = {
               to: "blog",
               activeBasePath: "blog",
               label: "Blog",
+            },
+            {
+              to: "resources/case-studies",
+              activeBasePath: "case-studies",
+              label: "Case Studies",
             },
             {
               to: "contact",
