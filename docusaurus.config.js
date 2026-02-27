@@ -15,6 +15,13 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
+  customFields: {
+    caseStudyRequestEndpoint:
+      process.env.CASE_STUDY_REQUEST_ENDPOINT ||
+      "https://marketing-dl.phasetwo-iam.io/api/case-studies/request",
+    turnstileSiteKey:
+      process.env.TURNSTILE_SITE_KEY || "0x4AAAAAACjXlnccRgW3nXgA",
+  },
   headTags: [
     {
       tagName: "link",
@@ -52,6 +59,13 @@ module.exports = {
         href: "https://www.googletagmanager.com",
       },
     },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://challenges.cloudflare.com",
+      },
+    },
   ],
   scripts: [
     {
@@ -65,6 +79,11 @@ module.exports = {
       src: "https://www.googletagmanager.com/gtag/js?id=UA-160183620-1",
       async: true,
       "data-cookie-consent": "tracking",
+    },
+    {
+      src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
+      async: true,
+      defer: true,
     },
   ],
   themeConfig: {
@@ -327,6 +346,11 @@ module.exports = {
               activeBasePath: "blog",
               label: "Blog",
             },
+            // {
+            //   to: "resources/case-studies",
+            //   activeBasePath: "case-studies",
+            //   label: "Case Studies",
+            // },
             {
               to: "contact",
               activeBasePath: "contact",
