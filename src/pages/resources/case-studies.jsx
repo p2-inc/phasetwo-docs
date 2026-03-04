@@ -2,10 +2,11 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React from "react";
 
+import CardDocument from "../../components/CardDocument";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PAGE_META = {
-  title: "Phase Two Case Studies",
+  title: "Case Studies",
   description:
     "Discover how leading organizations leverage Phase Two's Keycloak expertise for secure, scalable, and cost-effective identity management. Explore our case studies to see real-world results and learn how we can help you achieve your IAM goals.",
 };
@@ -13,7 +14,8 @@ const PAGE_META = {
 const CASE_STUDIES = [
   {
     assetId: "dexcom",
-    title: "Dexcom + Phase Two: Securing Large Systems with Keycloak",
+    company: "Dexcom",
+    title: "Securing Large Systems with Keycloak",
     description:
       "Phase Two helped Dexcom implement Keycloak to secure their growing ecosystem of diabetes management applications, enabling seamless SSO and robust access control across their platform.",
     shortBlurb:
@@ -21,19 +23,19 @@ const CASE_STUDIES = [
   },
   {
     assetId: "benifex",
-    title: "Benifex + Phase Two: Securing Large Systems with Keycloak",
+    company: "Benifex",
+    title: "Securing Large Systems with Keycloak",
     description:
-      "Phase Two helped Benifex implement Keycloak to secure their growing ecosystem of diabetes management applications, enabling seamless SSO and robust access control across their platform.",
+      "Phase Two helped Benifex implement Keycloak for seamless SSO and robust access control.",
     shortBlurb:
       "Phase Two helped Benifex implement Keycloak to secure their growing ecosystem of diabetes management applications.",
   },
 ];
 
 const HERO = {
-  title: "Enterprise Identity Management Without the Enterprise Price Tag",
+  title: "Case Studies",
   description:
-    "Explore real-world case studies showing how organizations use Phase Two and Keycloak to deliver secure, scalable identity experiences.",
-  imageSrc: "/img/hero-keycloak-and-phasetwo.svg",
+    "Learn from real-world Keycloak implementations—how complex authentication problems were solved, security was hardened, and scalable identity architectures were delivered.",
 };
 
 const HERO_BG_STYLE = {
@@ -260,15 +262,6 @@ export default function CaseStudies() {
           >
             <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
               <div className="mx-auto max-w-3xl text-center">
-                <div className="hero-box-image mb-6">
-                  <img
-                    src={HERO.imageSrc}
-                    alt=""
-                    className="hero-box-image-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
                 <h1 className="text-balance text-white">{HERO.title}</h1>
                 <p className="text--body-large mb-0 mt-6 whitespace-pre-line text-gray-300">
                   {HERO.description}
@@ -277,52 +270,58 @@ export default function CaseStudies() {
             </div>
           </div>
         </section>
-        <section>
-          <div className="flex flex-wrap gap-4">
-            {CASE_STUDIES.map((study) => (
-              <div
-                key={study.title}
-                className="case-study-card min-w-[300px] flex-1 rounded-lg border border-white/10 p-6"
-              >
-                <h3>{study.title}</h3>
-                <p>{study.description}</p>
-                <p>{study.shortBlurb}</p>
-                <button
-                  type="button"
-                  onClick={() => openRequestModal(study)}
-                  className="mt-3 inline-flex items-center rounded-md bg-[var(--ifm-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[var(--ifm-color-primary)] focus:ring-offset-2 focus:ring-offset-black"
-                >
-                  Get case study
-                </button>
-              </div>
-            ))}
+        <section className="texture-plus subpage-section py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="mx-auto grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-5 sm:grid-cols-2">
+              {CASE_STUDIES.map((study) => (
+                <CardDocument
+                  key={study.assetId}
+                  eyebrow={`${study.company} + Phase Two`}
+                  title={study.title}
+                  description={study.description}
+                  showButton
+                  buttonLabel="Get Case Study"
+                  onAction={() => openRequestModal(study)}
+                />
+              ))}
+            </div>
           </div>
         </section>
         {selectedCaseStudy ? (
           <div
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 px-4 py-8"
+            className="fixed inset-0 z-[1000] flex items-center justify-center px-4 py-8 backdrop-blur-[8px]"
+            style={{ backgroundColor: "rgba(33, 33, 33, 0.85)" }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="case-study-request-modal-title"
             onClick={closeRequestModal}
           >
             <div
-              className="w-full max-w-lg rounded-xl border border-white/10 bg-slate-950 p-6 shadow-2xl"
+              className="w-full max-w-lg rounded-[32px] border p-8 shadow-2xl"
+              style={{ borderColor: "#383838", backgroundColor: "rgba(20, 20, 20, 0.85)" }}
               onClick={(event) => event.stopPropagation()}
             >
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <h3
-                    id="case-study-request-modal-title"
-                    className="mb-1 text-white"
-                  >
-                    {selectedCaseStudy.title} Case Study
-                  </h3>
-                  <p className="mb-0 text-sm text-gray-300">
-                    Enter your details to receive an email with a download link.
-                  </p>
-                </div>
+              <div className="mb-5 flex flex-col">
+                <p
+                  className="mb-5 text-base uppercase tracking-wider text-gray-400"
+                  style={{ fontWeight: "var(--ifm-font-weight-semibold)" }}
+                >
+                  {selectedCaseStudy.company} + Phase Two
+                </p>
+                <h3
+                  id="case-study-request-modal-title"
+                  className="mb-0 text-white"
+                  style={{
+                    fontWeight: "var(--ifm-font-weight-base)",
+                    fontSize: "1.8rem",
+                  }}
+                >
+                  {selectedCaseStudy.title} Case Study
+                </h3>
               </div>
+              <p className="mb-8 text-sm text-gray-300">
+                Enter your details to receive an email with a download link.
+              </p>
 
               <form
                 className="flex flex-col gap-4"
@@ -336,7 +335,7 @@ export default function CaseStudies() {
                     value={requestForm.name}
                     onChange={handleRequestFieldChange}
                     required
-                    className="rounded border border-white/20 bg-black/30 px-3 py-2 text-white"
+                    className="h-12 rounded-[16px] border border-[var(--form-outline)] bg-white/[0.02] px-4 text-white transition-colors duration-200 focus:bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--form-outline-focus)]"
                     placeholder="Jane Doe"
                   />
                 </label>
@@ -349,7 +348,7 @@ export default function CaseStudies() {
                     value={requestForm.email}
                     onChange={handleRequestFieldChange}
                     required
-                    className="rounded border border-white/20 bg-black/30 px-3 py-2 text-white"
+                    className="h-12 rounded-[16px] border border-[var(--form-outline)] bg-white/[0.02] px-4 text-white transition-colors duration-200 focus:bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--form-outline-focus)]"
                     placeholder="you@example.com"
                   />
                 </label>
@@ -362,7 +361,7 @@ export default function CaseStudies() {
                     value={requestForm.company}
                     onChange={handleRequestFieldChange}
                     required
-                    className="rounded border border-white/20 bg-black/30 px-3 py-2 text-white"
+                    className="h-12 rounded-[16px] border border-[var(--form-outline)] bg-white/[0.02] px-4 text-white transition-colors duration-200 focus:bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--form-outline-focus)]"
                     placeholder="Phase Two"
                   />
                 </label>
@@ -390,7 +389,7 @@ export default function CaseStudies() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    className="rounded border border-white/20 px-4 py-2 text-white"
+                    className="btnSecondary"
                     onClick={closeRequestModal}
                     disabled={isSubmittingRequest}
                   >
@@ -398,7 +397,7 @@ export default function CaseStudies() {
                   </button>
                   <button
                     type="submit"
-                    className="rounded bg-[var(--ifm-color-primary)] px-4 py-2 text-white disabled:opacity-60"
+                    className="btnPrimary disabled:opacity-60"
                     disabled={
                       isSubmittingRequest ||
                       (isTurnstileEnabled && !turnstileToken)

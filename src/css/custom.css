@@ -345,26 +345,95 @@ main {
   box-sizing: border-box;
 }
 
-/* Mobile: reduce horizontal padding on content containers (Tailwind px-6 → 0.5rem) */
+/* Mobile: horizontal padding tweaks */
 @media (max-width: 767px) {
+  /* Footer: 16px left/right */
+  .footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  /* All sections with content: 16px left/right */
+  .homepage-section,
+  .subpage-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  /* Hero sections: 24px left/right (overrides section default) */
+  .homepage-section.homepage-hero-section,
+  .subpage-section.subpage-hero-section {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  /* Hero content containers: no extra padding (section provides 24px) */
+  .subpage-hero-section [class*="max-w-7xl"],
+  .subpage-hero-section [class~="px-6"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  /* Content containers inside sections (fallback for nested max-w) */
   main [class*="max-w-7xl"],
   .homepage-section > div[class*="max-w"],
   .subpage-section [class*="max-w-7xl"],
   section [class*="max-w-7xl"] {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
   /* Section-level px-6 (e.g. px-6 sm:px-6 lg:px-8) */
   .homepage-section[class*="px-"],
   .support-block[class*="px-"],
   .hosting-block[class*="px-"] {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
   /* Tailwind px-6 containers (exact match to avoid px-64 etc) */
   [class~="px-6"] {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  /* CTA component: 20px left/right on inner content (section padding overridden to avoid double) */
+  .cta-section-gradient,
+  .cta-section-gradient-secondary {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .cta-section-gradient [class*="max-w-7xl"],
+  .cta-section-gradient-secondary [class*="max-w-7xl"],
+  .cta-section-gradient [class~="px-6"],
+  .cta-section-gradient-secondary [class~="px-6"] {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  /* Tabs: container full width on mobile */
+  .framework-tabs-container {
+    width: 100%;
+    overflow: visible;
+  }
+  .framework-tabs-header {
+    width: 100%;
+  }
+}
+
+/* Tabs: left-align + scroll when overflow (center alignment clips first/last tab) */
+@media (max-width: 992px) {
+  .framework-tabs-header {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .framework-tabs-header::-webkit-scrollbar {
+    display: none;
+  }
+  .framework-tab {
+    flex-shrink: 0;
+  }
+  .framework-tab:first-child {
+    margin-left: 16px;
+  }
+  .framework-tab:last-child {
+    margin-right: 16px;
   }
 }
 
