@@ -15,6 +15,7 @@ const CASE_STUDIES = [
   {
     assetId: "dexcom",
     company: "Dexcom",
+    pictogram: "/customer-logos/dexcom.svg",
     title: "Modernizing Keycloak for Global Healthcare Scale",
     description:
       "See how Dexcom upgraded from Keycloak 22 to 26 with zero customer impact, lower infrastructure cost, and a clear path to multi-region HA.",
@@ -22,6 +23,7 @@ const CASE_STUDIES = [
   {
     assetId: "benifex",
     company: "Benifex",
+    pictogram: "/customer-logos/benifex@2x.png",
     title: "Consolidating 1M MAU Identity in 60 Days",
     description:
       "Learn how Benifex replaced fragmented identity systems, completed an Okta migration in 60 days, and scaled multi-tenant SSO with Keycloak.",
@@ -29,6 +31,7 @@ const CASE_STUDIES = [
   {
     assetId: "gusto",
     company: "Gusto",
+    pictogram: "/customer-logos/gusto.svg",
     title: "Scaling a Deeply Customized Keycloak Deployment",
     description:
       "Read how Gusto modernized a complex Keycloak stack, reduced upgrade risk, and enabled CI/CD-friendly identity changes at high velocity.",
@@ -36,6 +39,7 @@ const CASE_STUDIES = [
   {
     assetId: "plotly",
     company: "Plotly",
+    pictogram: "/customer-logos/plotly@2x.png",
     title: "Secure On-Prem Identity for Dash Enterprise",
     description:
       "Explore how Plotly delivered self-service enterprise SSO, audit-ready identity events, and upgradeable Keycloak in customer-managed environments.",
@@ -284,6 +288,7 @@ export default function CaseStudies() {
               {CASE_STUDIES.map((study) => (
                 <CardDocument
                   key={study.assetId}
+                  pictogram={study.pictogram}
                   eyebrow={`${study.company} + Phase Two`}
                   title={study.title}
                   description={study.description}
