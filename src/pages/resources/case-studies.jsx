@@ -15,20 +15,30 @@ const CASE_STUDIES = [
   {
     assetId: "dexcom",
     company: "Dexcom",
-    title: "Securing Large Systems with Keycloak",
+    title: "Modernizing Keycloak for Global Healthcare Scale",
     description:
-      "Phase Two helped Dexcom implement Keycloak to secure their growing ecosystem of diabetes management applications, enabling seamless SSO and robust access control across their platform.",
-    shortBlurb:
-      "Phase Two helped Dexcom implement Keycloak to secure their growing ecosystem of diabetes management applications.",
+      "See how Dexcom upgraded from Keycloak 22 to 26 with zero customer impact, lower infrastructure cost, and a clear path to multi-region HA.",
   },
   {
     assetId: "benifex",
     company: "Benifex",
-    title: "Securing Large Systems with Keycloak",
+    title: "Consolidating 1M MAU Identity in 60 Days",
     description:
-      "Phase Two helped Benifex implement Keycloak for seamless SSO and robust access control.",
-    shortBlurb:
-      "Phase Two helped Benifex implement Keycloak to secure their growing ecosystem of diabetes management applications.",
+      "Learn how Benifex replaced fragmented identity systems, completed an Okta migration in 60 days, and scaled multi-tenant SSO with Keycloak.",
+  },
+  {
+    assetId: "gusto",
+    company: "Gusto",
+    title: "Scaling a Deeply Customized Keycloak Deployment",
+    description:
+      "Read how Gusto modernized a complex Keycloak stack, reduced upgrade risk, and enabled CI/CD-friendly identity changes at high velocity.",
+  },
+  {
+    assetId: "plotly",
+    company: "Plotly",
+    title: "Secure On-Prem Identity for Dash Enterprise",
+    description:
+      "Explore how Plotly delivered self-service enterprise SSO, audit-ready identity events, and upgradeable Keycloak in customer-managed environments.",
   },
 ];
 
@@ -51,11 +61,11 @@ const PAGE_CTA = {
   ctaHref: "https://dash.phasetwo.io/",
 };
 
-const EMPTY_CASE_STUDY_REQUEST_FORM = {
-  name: "jeff",
-  email: "jpatzer+testlocal1@phasetwo.io",
-  company: "phase two",
-};
+const buildInitialRequestForm = () => ({
+  name: "",
+  email: "",
+  company: "",
+});
 
 export default function CaseStudies() {
   const { siteConfig } = useDocusaurusContext();
@@ -74,9 +84,7 @@ export default function CaseStudies() {
   const isTurnstileEnabled = Boolean(turnstileSiteKey) && !isLocalDevelopment;
 
   const [selectedCaseStudy, setSelectedCaseStudy] = React.useState(null);
-  const [requestForm, setRequestForm] = React.useState(
-    EMPTY_CASE_STUDY_REQUEST_FORM,
-  );
+  const [requestForm, setRequestForm] = React.useState(buildInitialRequestForm);
   const [isSubmittingRequest, setIsSubmittingRequest] = React.useState(false);
   const [requestError, setRequestError] = React.useState("");
   const [requestSuccess, setRequestSuccess] = React.useState("");
@@ -171,7 +179,7 @@ export default function CaseStudies() {
   const openRequestModal = (study) => {
     clearAutoDismissTimer();
     setSelectedCaseStudy(study);
-    setRequestForm(EMPTY_CASE_STUDY_REQUEST_FORM);
+    setRequestForm(buildInitialRequestForm());
     setRequestError("");
     setRequestSuccess("");
     setTurnstileToken("");
@@ -238,7 +246,7 @@ export default function CaseStudies() {
       autoDismissTimerRef.current = setTimeout(() => {
         autoDismissTimerRef.current = null;
         setSelectedCaseStudy(null);
-        setRequestForm(EMPTY_CASE_STUDY_REQUEST_FORM);
+        setRequestForm(buildInitialRequestForm());
         setRequestError("");
         setRequestSuccess("");
         setTurnstileToken("");
@@ -298,7 +306,10 @@ export default function CaseStudies() {
           >
             <div
               className="w-full max-w-lg rounded-[32px] border p-8 shadow-2xl"
-              style={{ borderColor: "#383838", backgroundColor: "rgba(20, 20, 20, 0.85)" }}
+              style={{
+                borderColor: "#383838",
+                backgroundColor: "rgba(20, 20, 20, 0.85)",
+              }}
               onClick={(event) => event.stopPropagation()}
             >
               <div className="mb-5 flex flex-col">
