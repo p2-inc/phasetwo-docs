@@ -36,12 +36,12 @@ export default function CardDocument({
       <img
         src={pictogram}
         alt=""
-        className="h-auto max-h-12 w-auto max-w-[180px] object-contain"
+        className="h-auto w-[148px] object-contain"
         loading="lazy"
         decoding="async"
       />
     ) : pictogram ? (
-      <div className="h-auto w-auto max-w-[180px]">{pictogram}</div>
+      <div className="h-auto w-[148px]">{pictogram}</div>
     ) : null;
 
   const buttonEl =
@@ -68,7 +68,8 @@ export default function CardDocument({
 
   return (
     <div className="card-document flex min-h-full flex-col rounded-[32px] border border-white/10 bg-[#111111] p-8 shadow-lg transition-all duration-1000 ease-in-out hover:border-[var(--ifm-color-primary)] hover:shadow-[0_12px_24px_color-mix(in_srgb,var(--ifm-color-primary)_30%,transparent)]">
-      <div className="mb-4 flex min-h-[56px] items-center gap-4">
+      <div className="mb-4 flex min-h-[56px] items-center justify-between gap-4">
+        {logoEl ? <div className="flex items-center shrink-0">{logoEl}</div> : <div />}
         <img
           src={DEFAULT_PICTOGRAM}
           alt=""
@@ -76,11 +77,13 @@ export default function CardDocument({
           loading="lazy"
           decoding="async"
         />
-        {logoEl ? <div className="flex items-center">{logoEl}</div> : null}
       </div>
       <p
-        className="mb-3 text-base uppercase tracking-wider text-gray-400 sm:mb-5"
-        style={{ fontWeight: "var(--ifm-font-weight-semibold)" }}
+        className="mb-3 text-[14px] uppercase tracking-wider sm:mb-5"
+        style={{
+          fontWeight: "var(--ifm-font-weight-semibold)",
+          color: "var(--color-n1)",
+        }}
       >
         {eyebrow}
       </p>

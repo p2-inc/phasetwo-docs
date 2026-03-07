@@ -23,7 +23,7 @@ const CASE_STUDIES = [
   {
     assetId: "benifex",
     company: "Benifex",
-    pictogram: "/customer-logos/benifex@2x.png",
+    pictogram: "/customer-logos/benefex.svg",
     title: "Consolidating 1M MAU Identity in 60 Days",
     description:
       "Learn how Benifex replaced fragmented identity systems, completed an Okta migration in 60 days, and scaled multi-tenant SSO with Keycloak.",
@@ -39,7 +39,7 @@ const CASE_STUDIES = [
   {
     assetId: "plotly",
     company: "Plotly",
-    pictogram: "/customer-logos/plotly@2x.png",
+    pictogram: "/customer-logos/plotly.svg",
     title: "Secure On-Prem Identity for Dash Enterprise",
     description:
       "Explore how Plotly delivered self-service enterprise SSO, audit-ready identity events, and upgradeable Keycloak in customer-managed environments.",

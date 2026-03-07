@@ -125,7 +125,7 @@
   --color-wh: #fff;
   --color-bg: #1a1a1a;
   --color-main: #ffffff;
-  --color-n1: rgba(255, 255, 255, 0.6);
+  --color-n1: #A0A9DB;
   --color-n5: rgba(255, 255, 255, 0.8);
   --color-planbadge: #f36529;
   --color-framework-grid: #A0A9DB;
@@ -844,7 +844,7 @@ a.support:hover {
   border-radius: 100px;
   border: none;
   background-color: var(--ifm-color-primary);
-  color: var(--color-wh);
+  color: #1a1a1a;
   font-size: 15px;
   line-height: 100%;
   font-weight: 500;
@@ -857,7 +857,7 @@ a.support:hover {
 .btnCta:hover {
   cursor: pointer;
   background-color: var(--ifm-color-primary-light);
-  color: var(--color-wh);
+  color: #1a1a1a;
 }
 
 .btnPrimary {
@@ -867,7 +867,7 @@ a.support:hover {
   border-radius: 100px;
   border: none;
   background-color: var(--ifm-color-primary);
-  color: var(--color-wh);
+  color: #1a1a1a;
   font-size: 15px;
   line-height: 100%;
   font-weight: 500;
@@ -880,7 +880,7 @@ a.support:hover {
 .btnPrimary:hover {
   cursor: pointer;
   background-color: var(--ifm-color-primary-light);
-  color: var(--color-wh);
+  color: #1a1a1a;
 }
 .btnSecondary {
   display: inline-flex;
@@ -1173,6 +1173,18 @@ a.support:hover {
   .navbarMain {
     display: flex;
   }
+
+  /* Main nav dropdown triggers (Product, Developers, etc.) - uppercase on desktop */
+  .navbar .dropdown > .navbar__link {
+    text-transform: uppercase;
+  }
+}
+
+/* Mobile sidebar: dropdown labels (Product, Developers, etc.) and section titles (Platform, Hosting, Support) - uppercase */
+@media (max-width: 997px) {
+  .navbar-sidebar .menu__link--sublist {
+    text-transform: uppercase;
+  }
 }
 
 .navbarMainRight {
@@ -1394,7 +1406,7 @@ a.support:hover {
   border-radius: 100px;
   border: none;
   background-color: var(--ifm-color-primary);
-  color: var(--color-wh);
+  color: #1a1a1a;
   font-size: 14px;
   line-height: 100%;
   font-weight: 500;
@@ -1408,7 +1420,7 @@ a.support:hover {
 .navbar__items--right [buttontype="btnPrimary"]:hover {
   cursor: pointer;
   background-color: var(--ifm-color-primary-light);
-  color: var(--color-wh);
+  color: #1a1a1a;
   box-shadow: none;
 }
 
