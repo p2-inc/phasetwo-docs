@@ -2,6 +2,7 @@ import { Feature } from "./detailed-comparison";
 
 const Sections: {
   name: string;
+  description?: string;
   features: Feature[];
 }[] = [
   {

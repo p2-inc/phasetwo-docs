@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import cn from "classnames";
 import { Tooltip } from "radix-ui";
@@ -20,13 +20,35 @@ const prices = {
   },
 };
 
+type BillingTerm = "annual" | "monthly";
+type TierId = "starter" | "premium" | "enterprise" | "custom";
+type TierValue = boolean | string | ReactNode;
+
+type BaseTier = {
+  name: string;
+  href: string;
+  mostPopular: boolean;
+};
+
+type StandardTier = BaseTier & {
+  id: Exclude<TierId, "custom">;
+  priceMonthly: Record<BillingTerm, number>;
+};
+
+type CustomTier = BaseTier & {
+  id: "custom";
+  priceMonthly: Record<BillingTerm, string>;
+};
+
+type Tier = StandardTier | CustomTier;
+
 const CheckIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M10.1791 1.10639C10.4179 0.94065 10.7419 0.968577 10.952 1.19004L11.8198 2.10514C12.0601 2.35857 12.0601 2.76937 11.8198 3.02277L4.43508 10.81C4.19476 11.0633 3.80519 11.0633 3.56488 10.81L0.18022 7.24085C-0.0600894 6.98744 -0.0600573 6.57664 0.18022 6.32321L1.04802 5.40811L1.14417 5.32446C1.38281 5.15833 1.70789 5.18687 1.91822 5.40811L3.99998 7.597L10.0818 1.19004L10.1791 1.10639Z" fill="black" />
   </svg>
 );
 
-const tiers = [
+const tiers: Tier[] = [
   {
     name: "Starter",
     id: "starter",
@@ -69,8 +91,6 @@ const tiers = [
   },
 ];
 
-type TierValue = boolean | string | React.ReactNode;
-
 export type Feature = {
   name: string;
   description?: string;
@@ -78,20 +98,15 @@ export type Feature = {
     href: string;
     icon: string;
   };
-  tiers: {
-    starter: TierValue;
-    premium: TierValue;
-    enterprise: TierValue;
-    custom: TierValue;
-  };
+  tiers: Record<TierId, TierValue>;
 };
 
 export default function DetailedPriceComparison() {
   const [term, setTerm] = useState(true);
-  const [expandedMobile, setExpandedMobile] = useState<Set<string>>(new Set());
-  const billingTermValue = term ? "annual" : "monthly";
+  const [expandedMobile, setExpandedMobile] = useState<Set<TierId>>(new Set());
+  const billingTermValue: BillingTerm = term ? "annual" : "monthly";
 
-  const toggleMobile = (id: string) => {
+  const toggleMobile = (id: TierId) => {
     setExpandedMobile((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -156,7 +171,7 @@ export default function DetailedPriceComparison() {
                         {tier.id === "custom"
                           ? tier.priceMonthly[billingTermValue]
                           : CurrencyNumberFormat(
-                              tier.priceMonthly[billingTermValue] as number,
+                              tier.priceMonthly[billingTermValue],
                             )}
                       </span>
                       {tier.id !== "custom" && (
@@ -302,7 +317,7 @@ export default function DetailedPriceComparison() {
                             {tier.id !== "custom" &&
                               tier.id !== "starter" &&
                               CurrencyNumberFormat(
-                                tier.priceMonthly["monthly"] as number,
+                                tier.priceMonthly["monthly"],
                               )}
                           </div>
                         )}
@@ -394,7 +409,7 @@ export default function DetailedPriceComparison() {
                               </div>
                             ) : (
                               <>
-                                {feature.tiers[tier.id] === true ? (
+                                {feature.tiers[tier.id] !== false ? (
                                   <span
                                     className="mx-auto flex size-6 flex-none items-center justify-center rounded-full border-[1.5px] border-p2blue-400 bg-p2blue-500"
                                     aria-hidden="true"
@@ -415,9 +430,9 @@ export default function DetailedPriceComparison() {
                                 )}
 
                                 <span className="sr-only">
-                                  {feature.tiers[tier.name] === true
-                                    ? "Included"
-                                    : "Not included"}{" "}
+                                  {feature.tiers[tier.id] === false
+                                    ? "Not included"
+                                    : "Included"}{" "}
                                   in {tier.name}
                                 </span>
                               </>
