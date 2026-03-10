@@ -254,7 +254,7 @@ export default function CaseStudies() {
         setRequestError("");
         setRequestSuccess("");
         setTurnstileToken("");
-      }, 5000);
+      }, 10000);
     } catch (error) {
       resetTurnstile();
       setRequestError(error?.message || "Unable to submit request.");
