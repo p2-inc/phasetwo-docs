@@ -44,31 +44,17 @@ info:
     | Python | https://github.com/p2-inc/phasetwo-python |
   version: "v1"
 servers:
-  - url: "{protocol}://{host}{port}{relativePath}/realms"
+  - url: "{baseUrl}/realms"
     variables:
-      host:
-        enum:
-          - app.phasetwo.io
-          - localhost
-        default: app.phasetwo.io
-        description: API host
-      port:
-        enum:
-          - ""
-          - "8081"
-        default: ""
-        description: API port
-      relativePath:
-        enum:
-          - ""
-          - "/auth"
-        default: ""
-        description: Relative path
-      protocol:
-        enum:
-          - http
-          - https
-        default: https
+      baseUrl:
+        default: https://app.phasetwo.io
+        description: |
+          API base URL without a trailing slash.
+          Examples:
+          - https://app.phasetwo.io
+          - https://app.phasetwo.io/auth
+          - http://localhost:8081
+          - http://localhost:8081/auth
 components:
   securitySchemes:
     access_token:
