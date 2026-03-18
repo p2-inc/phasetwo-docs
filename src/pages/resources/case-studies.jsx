@@ -383,7 +383,7 @@ export default function CaseStudies() {
                 </label>
 
                 {isTurnstileEnabled ? (
-                  <div className="rounded border border-white/10 bg-black/20 p-3">
+                  <div className="">
                     <div ref={turnstileContainerRef} />
                     {!isTurnstileReady ? (
                       <p className="mb-0 mt-2 text-xs text-gray-400">
