@@ -39,6 +39,11 @@ function Pricing() {
               <h4 className="mb-0 text-gray-300 font-normal text-balance">
                 Implementing Identity and Access Management doesn&apos;t have to be overwhelming. Our Support package provides expert guidance on implementing Keycloak—whether you use our hosting, run on-premise, or manage your own deployment.
               </h4>
+              <div className="mt-6">
+                <Link to="/support">
+                  <button className="btnSecondary min-w-[200px]">Learn more</button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>

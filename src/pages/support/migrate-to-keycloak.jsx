@@ -49,6 +49,13 @@ const MIGRATION_SUPPORT_CARDS = [
     imageSrc: "/img/org-roles-permissions.svg",
     imageAlt: "Organizations and roles diagram",
   },
+  {
+    title: "Cutover Planning & Rollback Safety",
+    description:
+      "Execute a phased production cutover with parallel validation, staged traffic shifts, and a tested rollback path so migration to Keycloak happens without customer disruption.",
+    // imageSrc: "/img/kc-migration.svg",
+    // imageAlt: "Cutover planning and rollback diagram",
+  },
 ];
 
 const IDP_LOGOS = [
@@ -99,14 +106,19 @@ export default function MigrateToKeycloak() {
       <main className="hosting-page">
         {/* Hero */}
         <section className="subpage-section subpage-hero-section">
-          <div className="relative isolate overflow-hidden" style={HERO_BG_STYLE}>
+          <div
+            className="relative isolate overflow-hidden"
+            style={HERO_BG_STYLE}
+          >
             <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
               <div className="mx-auto max-w-3xl text-center">
-                <h1 className="text-white text-balance">
+                <h1 className="text-balance text-white">
                   Migrate to Keycloak Without the Downtime
                 </h1>
-                <p className="mt-6 text-gray-300 text--body-large text-balance mb-0">
-                  Expert migration support from Auth0, Okta, Ping, WorkOS, FrontEgg, OneLogin, and any IAM system—with zero disruption to your users.
+                <p className="text--body-large mb-0 mt-6 text-balance text-gray-300">
+                  Expert migration support from Auth0, Okta, Ping, WorkOS,
+                  FrontEgg, OneLogin, and any IAM system—with zero disruption to
+                  your users.
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4">
@@ -128,8 +140,12 @@ export default function MigrateToKeycloak() {
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
-              <h4 className="mb-0 text-gray-300 font-normal text-balance">
-                Phase Two can help migrate from any existing IAM system to Keycloak. Whether you need to migrate users, recreate authentication flows, reestablish endpoints, or customize functionality, we handle migrations of varying complexity while maintaining service continuity.
+              <h4 className="mb-0 text-balance font-normal text-gray-300">
+                Phase Two can help migrate from any existing IAM system to
+                Keycloak. Whether you need to migrate users, recreate
+                authentication flows, reestablish endpoints, or customize
+                functionality, we handle migrations of varying complexity while
+                maintaining service continuity.
               </h4>
             </div>
           </div>
@@ -144,7 +160,10 @@ export default function MigrateToKeycloak() {
               </h2>
             </div>
             <div className="mt-10 flex justify-center">
-              <div className={`${pageStyles.engLogoGrid} ${supportStyles.idpLogoGrid}`} role="list">
+              <div
+                className={`${pageStyles.engLogoGrid} ${supportStyles.idpLogoGrid}`}
+                role="list"
+              >
                 {IDP_LOGOS.map((logo) => (
                   <a
                     key={logo.alt}
@@ -183,7 +202,7 @@ export default function MigrateToKeycloak() {
             <div className="subpage-section-heading">
               <h2 className="text-white">Complete Migration Support</h2>
             </div>
-            <div className="mt-12 hosting-bento-grid">
+            <div className="hosting-bento-grid mt-12">
               {MIGRATION_SUPPORT_CARDS.map((card) => (
                 <CardWithImage
                   key={card.title}
@@ -202,8 +221,12 @@ export default function MigrateToKeycloak() {
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
-              <h3 className="mb-0 text-gray-300 font-normal text-balance">
-                Phase Two supports customers globally including Tier 1 CDNs, global transport companies, digital security providers, and digital signage platforms. Our customers have saved hundreds of thousands of dollars migrating to Keycloak while delivering better user experiences.
+              <h3 className="mb-0 text-balance font-normal text-gray-300">
+                Phase Two supports customers globally including Tier 1 CDNs,
+                global transport companies, digital security providers, and
+                digital signage platforms. Our customers have saved hundreds of
+                thousands of dollars migrating to Keycloak while delivering
+                better user experiences.
               </h3>
             </div>
           </div>

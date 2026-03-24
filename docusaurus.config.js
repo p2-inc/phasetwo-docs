@@ -124,16 +124,12 @@ module.exports = {
               label: "What are Keycloak and Phase Two",
             },
             {
-              to: "product/open-source-vs-commercial-offering",
-              label: "Open Source vs Commercial Offering",
-            },
-            {
-              to: "product/onprem",
-              label: "On-Premise Deployment",
-            },
-            {
               to: "product/sso",
               label: "SSO",
+            },
+            {
+              to: "product/sso#idp-wizard",
+              label: "IdP Wizard",
             },
             {
               to: "product/identity",
@@ -157,6 +153,14 @@ module.exports = {
             },
             // Hosting
             {
+              to: "product/open-source-vs-commercial-offering",
+              label: "Open Source vs Commercial Offering",
+            },
+            {
+              to: "product/onprem",
+              label: "On-Premise Deployment",
+            },
+            {
               to: "hosting/dedicated-clusters",
               label: "Dedicated Clusters",
             },
@@ -170,7 +174,11 @@ module.exports = {
             },
             {
               to: "hosting/configure",
-              label: "Configuration",
+              label: "Dashboard",
+            },
+            {
+              href: "https://trust.phasetwo.io",
+              label: "Security & Compliance",
             },
             {
               to: "pricing/hosting",
@@ -180,6 +188,10 @@ module.exports = {
             {
               to: "support",
               label: "Enterprise Support",
+            },
+            {
+              to: "pricing/support",
+              label: "Pricing",
             },
             {
               to: "support/migrate-to-keycloak",
@@ -201,20 +213,14 @@ module.exports = {
                     label: "What are Keycloak and Phase Two",
                   },
                   {
-                    to: "product/open-source-vs-commercial-offering",
-                    activeBasePath:
-                      "product/open-source-vs-commercial-offering",
-                    label: "Open Source vs Commercial Offering",
-                  },
-                  {
-                    to: "product/onprem",
-                    activeBasePath: "product/onprem",
-                    label: "On-Premise Deployment",
-                  },
-                  {
                     to: "product/sso",
                     activeBasePath: "product/sso",
                     label: "SSO",
+                  },
+                  {
+                    to: "product/sso#idp-wizard",
+                    activeBasePath: "product/sso",
+                    label: "IdP Wizard",
                   },
                   {
                     to: "product/identity",
@@ -247,6 +253,14 @@ module.exports = {
                 title: "Hosting",
                 links: [
                   {
+                    label: "Open Source vs Commercial Offering",
+                    to: "product/open-source-vs-commercial-offering",
+                  },
+                  {
+                    label: "On-Premise Deployment",
+                    to: "product/onprem",
+                  },
+                  {
                     label: "Dedicated Clusters",
                     to: "hosting/dedicated-clusters",
                   },
@@ -259,8 +273,12 @@ module.exports = {
                     to: "hosting/support",
                   },
                   {
-                    label: "Configuration",
+                    label: "Dashboard",
                     to: "hosting/configure",
+                  },
+                  {
+                    label: "Security & Compliance",
+                    href: "https://trust.phasetwo.io",
                   },
                   {
                     label: "Pricing",
@@ -283,6 +301,10 @@ module.exports = {
                   {
                     label: "Emergency Keycloak Assistance",
                     to: "support/emergency-support",
+                  },
+                  {
+                    label: "Pricing",
+                    to: "pricing/support",
                   },
                 ],
               },

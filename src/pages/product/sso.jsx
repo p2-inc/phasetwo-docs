@@ -309,7 +309,7 @@ export default function Sso() {
         </section>
 
         {/* Self service */}
-        <section className="subpage-section texture-plus">
+        <section id="idp-wizard" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={SELF_SERVICE.title} intro={SELF_SERVICE.intro} />
 
