@@ -9,8 +9,7 @@ description: A practical overview of our work to replace Keycloak distributed In
 
 At Keycloak DevDay 2026, we shared our work on replacing Keycloak's distributed [Infinispan](https://infinispan.org/) caches with [Redis](https://redis.io/)/[Valkey](https://valkey.io/).
 
-For the full technical deep dive, review the slides:
-[Keycloak DevDay 2026: Replacing Keycloak's Infinispan Caches with Redis/Valkey](/blog/redis/Keycloak%20DevDay%202026_%20Replacing%20Keycloak%27s%20Infinispan%20Caches%20with%20Redis_Valkey.pdf).
+For the full technical deep dive, we will release slides when the talk is published on Youtube.
 
 This post focuses on the core technical content from the presentation and summarizes what we built, what we learned, and what comes next.
 
@@ -32,7 +31,7 @@ We also set explicit **non-goals**, including replacing local Infinispan caches,
 
 ## What We Implemented (High Level)
 
-We implemented a new `DatastoreProvider`-based approach to replace distributed caches while leaving the rest of Keycloak behavior intact.
+We implemented a new [`DatastoreProvider`](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/storage/DatastoreProvider.html)-based approach to replace distributed caches while leaving the rest of Keycloak behavior intact.
 
 At a high level:
 
@@ -41,7 +40,7 @@ At a high level:
 3. Built a changelog-based transaction layer to batch and minimize writes.
 4. Used Redis `MULTI/EXEC` for batched commit behavior.
 5. Implemented Lua-based CAS behavior for single-round-trip atomic updates.
-6. Replaced replicated-work-style invalidation with a Redis PUBSUB-backed `ClusterProvider`.
+6. Replaced the use of the replicated work cache, used for local cache invalidation, with a Redis PUBSUB-backed `ClusterProvider`.
 7. Exposed Redis client and command metrics in Keycloak's Prometheus endpoint (`vendor_jedis_*`).
 
 For detailed APIs, object mapping rules, and transaction semantics, the slide deck has the full implementation flow and diagrams.
@@ -57,18 +56,80 @@ A few areas mattered most in practice:
 
 ## Benchmarks and Outcomes
 
-In our benchmark setup, the Redis implementation met and exceeded the original performance target. The result was parity or better across the tested flow, while also meeting the startup-speed and extension/no-fork constraints.
+In our benchmark setup, the Redis implementation met and exceeded the original performance target. The result was parity or better across the tested flow, while also meeting the startup-speed and extension/no-fork constraints. We used the Keycloak provided [keycloak-benchmark](https://github.com/keycloak/keycloak-benchmark) project to execute performance tests against a 3 node cluster using Redis caching, and compared the results to a standard Keycloak setup on the same number of nodes, using embedded Infinispan.
 
 This approach hit the proof-of-concept goals, with room for additional optimization and broader validation.
 
-| Benchmark                         | Infinispan (99th pct) | Redis (99th pct) |                                                       Delta |
-| --------------------------------- | --------------------: | ---------------: | ----------------------------------------------------------: |
-| All Requests                      |                    67 |               47 | <span className="text-green-400 font-semibold">29.9%</span> |
-| Browser to Log In Endpoint        |                    71 |               86 |  <span className="text-red-400 font-semibold">-21.1%</span> |
-| Browser posts correct credentials |                    83 |               57 | <span className="text-green-400 font-semibold">31.3%</span> |
-| Exchange Code                     |                    22 |               10 | <span className="text-green-400 font-semibold">54.5%</span> |
-| RefreshToken                      |                    36 |               12 | <span className="text-green-400 font-semibold">66.7%</span> |
-| Browser logout                    |                    43 |                9 | <span className="text-green-400 font-semibold">79.1%</span> |
+<div>
+  <table className="table w-full border-collapse bg-white/10 text-sm">
+    <thead className="bg-white/10">
+      <tr>
+        <th className="px-4 py-3 text-left font-semibold text-white">
+          Benchmark
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">
+          Infinispan (99th pct)
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">
+          Redis (99th pct)
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">Delta</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-white/15">
+      <tr>
+        <td className="px-4 py-3 text-white">All Requests</td>
+        <td className="px-4 py-3 text-right text-gray-200">67</td>
+        <td className="px-4 py-3 text-right text-gray-200">47</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">29.9%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Browser to Log In Endpoint</td>
+        <td className="px-4 py-3 text-right text-gray-200">71</td>
+        <td className="px-4 py-3 text-right text-gray-200">86</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-red-400">-21.1%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">
+          Browser posts correct credentials
+        </td>
+        <td className="px-4 py-3 text-right text-gray-200">83</td>
+        <td className="px-4 py-3 text-right text-gray-200">57</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">31.3%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Exchange Code</td>
+        <td className="px-4 py-3 text-right text-gray-200">22</td>
+        <td className="px-4 py-3 text-right text-gray-200">10</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">54.5%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">RefreshToken</td>
+        <td className="px-4 py-3 text-right text-gray-200">36</td>
+        <td className="px-4 py-3 text-right text-gray-200">12</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">66.7%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Browser logout</td>
+        <td className="px-4 py-3 text-right text-gray-200">43</td>
+        <td className="px-4 py-3 text-right text-gray-200">9</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">79.1%</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 _Note: lower 99th percentile values are better. The "Browser to Log In Endpoint" row is the one regression shown in the original chart._
 
@@ -94,7 +155,7 @@ Near-term next steps include broader performance validation across workloads, cl
 
 We also plan to release a full image soon at [quay.io/repository/phasetwo/keycloak-redis](https://quay.io/repository/phasetwo/keycloak-redis), so stay tuned for more.
 
-If you want all the implementation specifics, design tradeoffs, and diagrams, please use the slide deck linked above.
+If you want all the implementation specifics, design tradeoffs, and diagrams, please stay tuned for the release of the slides and videos of our Keycloak DevDay presentation.
 
 ---
 
