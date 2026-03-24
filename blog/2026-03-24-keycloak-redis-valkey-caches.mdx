@@ -1,0 +1,105 @@
+---
+title: Replacing Keycloak's Infinispan Caches with Redis/Valkey (Keycloak DevDay 2026)
+slug: keycloak-devday-2026-redis-valkey-caches
+date: 2026-03-24
+authors: phasetwo
+tags: [phase_two, keycloak, redis, valkey, caching, performance, extensions]
+description: A practical overview of our work to replace Keycloak distributed Infinispan caches with Redis/Valkey, including architecture, implementation patterns, and benchmark outcomes.
+---
+
+At Keycloak DevDay 2026, we shared our work on replacing Keycloak's distributed [Infinispan](https://infinispan.org/) caches with [Redis](https://redis.io/)/[Valkey](https://valkey.io/).
+
+For the full technical deep dive, review the slides:
+[Keycloak DevDay 2026: Replacing Keycloak's Infinispan Caches with Redis/Valkey](/blog/redis/Keycloak%20DevDay%202026_%20Replacing%20Keycloak%27s%20Infinispan%20Caches%20with%20Redis_Valkey.pdf).
+
+This post focuses on the core technical content from the presentation and summarizes what we built, what we learned, and what comes next.
+
+<!-- truncate -->
+
+## Why We Took This On
+
+The recurring operator pain points were clear: restart complexity, JGroups/Infinispan operational friction, and upgrade risk in high-availability environments.
+
+Our goals for the proof-of-concept were practical:
+
+1. Functional parity with Keycloak's distributed cache behavior.
+2. At least 50% of embedded Infinispan performance.
+3. Fast startup (sub-5s per pod) with reliable behavior.
+4. Seamless upgrades and horizontal scaling without rebalance pain.
+5. Extension-based implementation on current Keycloak, without forking.
+
+We also set explicit **non-goals**, including replacing local Infinispan caches, integrating/migrating persistent sessions, supporting every Redis topology, and solving multi-region concerns in v1.
+
+## What We Implemented (High Level)
+
+We implemented a new `DatastoreProvider`-based approach to replace distributed caches while leaving the rest of Keycloak behavior intact.
+
+At a high level:
+
+1. Stored entities as Redis hashes (session and related objects).
+2. Added secondary indexes with Redis sets for fast lookup paths (for example, user-to-sessions, client-to-sessions).
+3. Built a changelog-based transaction layer to batch and minimize writes.
+4. Used Redis `MULTI/EXEC` for batched commit behavior.
+5. Implemented Lua-based CAS behavior for single-round-trip atomic updates.
+6. Replaced replicated-work-style invalidation with a Redis PUBSUB-backed `ClusterProvider`.
+7. Exposed Redis client and command metrics in Keycloak's Prometheus endpoint (`vendor_jedis_*`).
+
+For detailed APIs, object mapping rules, and transaction semantics, the slide deck has the full implementation flow and diagrams.
+
+## Notable Engineering Details
+
+A few areas mattered most in practice:
+
+1. **Atomicity model:** Lua CAS operations reduced contention and retry complexity versus `WATCH`-based optimistic workflows.
+2. **Expiration correctness:** TTL handling required careful validation to avoid stale references (for example, refresh token edge cases).
+3. **Behavior parity:** Reproducing nuanced Infinispan behavior (especially around offline session flows and invalidation semantics) required close reading of existing Keycloak internals.
+4. **Index discipline:** Clean separation between hash storage and set-based secondary indexes kept lookups efficient and made invalidation predictable.
+
+## Benchmarks and Outcomes
+
+In our benchmark setup, the Redis implementation met and exceeded the original performance target. The result was parity or better across the tested flow, while also meeting the startup-speed and extension/no-fork constraints.
+
+This approach hit the proof-of-concept goals, with room for additional optimization and broader validation.
+
+| Benchmark                         | Infinispan (99th pct) | Redis (99th pct) |                                                       Delta |
+| --------------------------------- | --------------------: | ---------------: | ----------------------------------------------------------: |
+| All Requests                      |                    67 |               47 | <span className="text-green-400 font-semibold">29.9%</span> |
+| Browser to Log In Endpoint        |                    71 |               86 |  <span className="text-red-400 font-semibold">-21.1%</span> |
+| Browser posts correct credentials |                    83 |               57 | <span className="text-green-400 font-semibold">31.3%</span> |
+| Exchange Code                     |                    22 |               10 | <span className="text-green-400 font-semibold">54.5%</span> |
+| RefreshToken                      |                    36 |               12 | <span className="text-green-400 font-semibold">66.7%</span> |
+| Browser logout                    |                    43 |                9 | <span className="text-green-400 font-semibold">79.1%</span> |
+
+_Note: lower 99th percentile values are better. The "Browser to Log In Endpoint" row is the one regression shown in the original chart._
+
+### Benchmark screenshots
+
+Redis benchmark test results:
+
+![Redis benchmark test results](/blog/redis/redis-test-results.png)
+
+Infinispan benchmark test results:
+
+![Infinispan benchmark test results](/blog/redis/infinispan-test-results.png)
+
+## Timeline and Context
+
+This work started in **September 2025**.
+
+A successful implementation would not have been possible without years of prior work in Keycloak internals, extension development, and production operations. Existing knowledge around map-store patterns, DatastoreProvider internals, transaction behavior, and real-world customer requirements was the foundation that made this tractable.
+
+## What's Next
+
+Near-term next steps include broader performance validation across workloads, clearer packaging/licensing for source and images, and additional multi-region validation/documentation.
+
+We also plan to release a full image soon at [quay.io/repository/phasetwo/keycloak-redis](https://quay.io/repository/phasetwo/keycloak-redis), so stay tuned for more.
+
+If you want all the implementation specifics, design tradeoffs, and diagrams, please use the slide deck linked above.
+
+---
+
+Want to go deeper?
+
+1. Reach out to our team: [support@phasetwo.io](mailto:support@phasetwo.io)
+2. Try our hosting and extensions: [Phase Two Dash](https://dash.phasetwo.io/)
+3. Contact us for additional implementation details and architecture guidance: [https://phasetwo.io/contact](https://phasetwo.io/contact)
