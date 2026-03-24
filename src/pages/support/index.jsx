@@ -16,8 +16,8 @@ const HERO_BG_STYLE = {
 
 const TOP_METRICS = [
   { value: "< 30 days", label: "average implementation time" },
-  { value: "100+", label: "successful deployments" },
-  { value: "Awesome", label: "customer satisfaction" },
+  { value: "1,000's", label: "of successful deployments" },
+  { value: "110%", label: "customer satisfaction" },
 ];
 
 const TOP_BENEFIT_IMAGES = [
@@ -31,7 +31,10 @@ const TOP_BENEFITS = [
     title: "Structured Project Process",
     description: (
       <p>
-        After hundreds of successful projects, we have a proven process for executing Keycloak implementations. You'll receive an Onboarding Kit and Project Plan with clear deliverables, ownership, and regular cadence meetings.
+        After hundreds of successful projects, we have a proven process for
+        executing Keycloak implementations. You'll receive an Onboarding Kit and
+        Project Plan with clear deliverables, ownership, and regular cadence
+        meetings.
       </p>
     ),
     reverseHorizontal: false,
@@ -40,16 +43,20 @@ const TOP_BENEFITS = [
     title: "Architecture Review and Scaling",
     description: (
       <p>
-        Avoid outages, trim costs, and scale your infrastructure to meet demand. We've configured systems handling 100K+ active users globally, including Kubernetes configurations and deployment strategies.
+        Avoid outages, trim costs, and scale your infrastructure to meet demand.
+        We've configured systems handling 100K+ active users globally, including
+        Kubernetes configurations and deployment strategies.
       </p>
     ),
     reverseHorizontal: true,
   },
   {
-    title: "Migration from Any Provider",
+    title: "Migration from any Provider",
     description: (
       <p>
-        Migrate from Okta, Auth0, WorkOS, Cognito, or other providers with confidence. We support any Keycloak version, including RHBK, from initial testing through production launch.
+        Migrate from Okta, Auth0, WorkOS, Cognito, or other providers with
+        confidence. We support any Keycloak version, including RHBK, from
+        initial testing through production launch.
       </p>
     ),
     reverseHorizontal: false,
@@ -87,6 +94,12 @@ const SUPPORT_SERVICES = [
       "Upgrade support from legacy versions (even 10+ versions behind) to the latest release. Fast-follow upgrades with new major releases to keep you current.",
     icon: "lucide:graduation-cap",
   },
+  {
+    title: "Incident Management",
+    description:
+      "Emergency escalation to Phase Two when critical authentication incidents occur. Fast triage, coordinated response, and expert guidance to restore service quickly.",
+    icon: "lucide:triangle-alert",
+  },
 ];
 
 const FRAMEWORK_LINKS = [
@@ -100,7 +113,11 @@ const FRAMEWORK_LINKS = [
     href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs/",
     icon: "simple-icons:react",
   },
-  { label: "Django", href: "https://phasetwo.io/blog/secure-django/", icon: "devicon-plain:django" },
+  {
+    label: "Django",
+    href: "https://phasetwo.io/blog/secure-django/",
+    icon: "devicon-plain:django",
+  },
   {
     label: "Spring Boot + Angular",
     href: "https://phasetwo.io/blog/secure-spring-boot/",
@@ -111,7 +128,11 @@ const FRAMEWORK_LINKS = [
     href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-nuxt/",
     icon: "devicon-plain:nuxtjs",
   },
-  { label: "Vue", href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-vue/", icon: "ion:logo-vue" },
+  {
+    label: "Vue",
+    href: "https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-vue/",
+    icon: "ion:logo-vue",
+  },
   {
     label: "Svelte",
     href: "https://phasetwo.io/blog/instant-user-management-and-sso-for-sveltekit/",
@@ -133,14 +154,20 @@ export default function Support() {
       <main className="hosting-page">
         {/* Hero */}
         <section className="subpage-section subpage-hero-section">
-          <div className="relative isolate overflow-hidden" style={HERO_BG_STYLE}>
+          <div
+            className="relative isolate overflow-hidden"
+            style={HERO_BG_STYLE}
+          >
             <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
               <div className="mx-auto max-w-3xl text-center">
-                <h1 className="text-white text-balance">
+                <h1 className="text-balance text-white">
                   Enterprise Keycloak Support Without the Enterprise Price Tag
                 </h1>
-                <h4 className="mt-6 mb-0 text-gray-300 font-normal text-balance">
-                  Migration, scaling, custom development, and 24/7 support for any Keycloak deployment—including RHBK. Get teams productive faster with experts who've completed hundreds of successful projects.
+                <h4 className="mb-0 mt-6 text-balance font-normal text-gray-300">
+                  Migration, scaling, custom development, and 24/7 support for
+                  any Keycloak deployment—including RHBK. Get teams productive
+                  faster with experts who've completed hundreds of successful
+                  projects.
                 </h4>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4">
@@ -167,7 +194,9 @@ export default function Support() {
                   <div className="text-2xl font-semibold text-white md:text-3xl">
                     {metric.value}
                   </div>
-                  <p className="mt-2 mb-0 text-gray-300 text-sm">{metric.label}</p>
+                  <p className="mb-0 mt-2 text-sm text-gray-300">
+                    {metric.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -202,24 +231,29 @@ export default function Support() {
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
-              <h2 className="text-white">
-                Complete Keycloak Support Services
-              </h2>
+              <h2 className="text-white">Complete Keycloak Support Services</h2>
             </div>
-            <div className="mt-14 hosting-bento-grid">
+            <div className="hosting-bento-grid mt-14">
               {SUPPORT_SERVICES.map((service) => (
                 <CardWithIcon
                   key={service.title}
                   heading={service.title}
                   description={service.description}
-                  icon={<InlineIcon icon={service.icon} className="size-8" style={{ color: "var(--ifm-color-secondary)" }} aria-hidden="true" />}
+                  icon={
+                    <InlineIcon
+                      icon={service.icon}
+                      className="size-8"
+                      style={{ color: "var(--ifm-color-secondary)" }}
+                      aria-hidden="true"
+                    />
+                  }
                   layout="stacked"
                 />
               ))}
             </div>
 
             {/* SSO Connections and Identity Provider (IdP) Onboarding */}
-            <p className="mt-14 mb-6 text-center text-gray-300 text--body-large">
+            <p className="text--body-large mb-6 mt-14 text-center text-gray-300">
               SSO Connections and Identity Provider (IdP) Onboarding
             </p>
             <div className={supportStyles.frameworkGrid} role="list">
@@ -249,8 +283,12 @@ export default function Support() {
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
-              <h3 className="mb-0 text-gray-300 font-normal text-balance">
-                Phase Two supports customers globally including Tier 1 CDNs, global transport companies, digital security providers, and digital signage platforms. Our customers have saved hundreds of thousands of dollars migrating to Keycloak while delivering better user experiences.
+              <h3 className="mb-0 text-balance font-normal text-gray-300">
+                Phase Two supports customers globally including Tier 1 CDNs,
+                global transport companies, digital security providers, and
+                digital signage platforms. Our customers have saved hundreds of
+                thousands of dollars migrating to Keycloak while delivering
+                better user experiences.
               </h3>
             </div>
           </div>
