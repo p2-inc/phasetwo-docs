@@ -25,13 +25,11 @@ const HERO = {
 
 const BUILT_BY_EXPERTS = {
   title: "Built by Keycloak Experts",
-  intro:
-    "Authors of the most popular keycloak extensions",
+  intro: "Authors of the most popular keycloak extensions",
   cards: [
     {
       title: "",
-      description:
-        "Active community contributors",
+      description: "Active community contributors",
     },
     {
       title: "",
@@ -40,8 +38,7 @@ const BUILT_BY_EXPERTS = {
     },
     {
       title: "",
-      description:
-        "This knowledge flows into how we run our hosting.",
+      description: "This knowledge flows into how we run our hosting.",
     },
   ],
 };
@@ -64,9 +61,9 @@ const ENHANCED_FEATURES = {
       imageSrc: "/img/self-manage.svg",
     },
     {
-      title: "Something Else",
+      title: "Tenant Isolation & Access Boundaries",
       description:
-        "Put a description here",
+        "Keep customer organizations cleanly separated with dedicated realms, policies, and access controls built for multi-tenant SaaS.",
       imageSrc: PLACEHOLDER_IMG,
     },
   ],
@@ -103,33 +100,43 @@ const DRIVEN_BY_USAGE = {
 
 const DASH_MANAGEMENT = {
   title: "Dash-Based Cluster Management",
-  intro:
-    "Manage clusters, deployments, access, and operations from one place.",
+  intro: "Manage clusters, deployments, access, and operations from one place.",
   cards: [
     {
       title: "Access & roles",
-      description: "Invite teammates and control permissions with organization roles.",
+      description:
+        "Invite teammates and control permissions with organization roles.",
       icon: "lucide:users",
     },
     {
       title: "Custom domains",
-      description: "Add a custom domain for a consistent, production-ready login experience.",
+      description:
+        "Add a custom domain for a consistent, production-ready login experience.",
       icon: "lucide:globe",
     },
     {
       title: "Themes & extensions",
-      description: "Upload and roll out themes and extensions with safe, repeatable workflows.",
+      description:
+        "Upload and roll out themes and extensions with safe, repeatable workflows.",
       icon: "lucide:palette",
     },
     {
       title: "Configuration",
-      description: "Apply environment variables and deployment settings without manual drift.",
+      description:
+        "Apply environment variables and deployment settings without manual drift.",
       icon: "lucide:settings-2",
     },
     {
       title: "Billing & invoices",
-      description: "View invoices and manage payment methods in the billing portal.",
+      description:
+        "View invoices and manage payment methods in the billing portal.",
       icon: "lucide:credit-card",
+    },
+    {
+      title: "Observability",
+      description:
+        "Monitor performance and usage with built-in metrics and logging.",
+      icon: "lucide:bar-chart-2",
     },
   ],
 };
@@ -156,14 +163,14 @@ const NO_LIMITS = {
 
 const GLOBAL_DEPLOYMENT = {
   title: "Global Deployments",
-  intro:
-    "Deploy to any major region around the world.",
+  intro: "Deploy to any major region around the world.",
   headline:
     "Our clusters are set up to withstand failure and outage with multi-zone and multi-region configurations. Our approach with IaC means that even if something goes horribly wrong, we can get your system back within minutes.",
   imageSrc: "/img/global-deployments.svg",
 };
 
-const COMPLIANCE_HEADLINE = "SOC 2 Type 2 and ISO 27001 certified. GDPR compliant.";
+const COMPLIANCE_HEADLINE =
+  "SOC 2 Type 2 and ISO 27001 certified. GDPR compliant.";
 
 const PAGE_CTA = {
   primaryText: "Ready to Try Dedicated Clusters?",
@@ -174,7 +181,9 @@ const PAGE_CTA = {
 
 function SectionHeading({ title, intro, align = "left", introClassName }) {
   return (
-    <div className={align === "center" ? "text-center" : "subpage-section-heading"}>
+    <div
+      className={align === "center" ? "text-center" : "subpage-section-heading"}
+    >
       <h2 className="text-white">{title}</h2>
       {intro ? (
         <p
@@ -182,7 +191,9 @@ function SectionHeading({ title, intro, align = "left", introClassName }) {
             "mt-6",
             "text-gray-300",
             introClassName,
-            align === "center" ? "subpage-section-intro mx-auto" : "subpage-section-intro",
+            align === "center"
+              ? "subpage-section-intro mx-auto"
+              : "subpage-section-intro",
           ]
             .filter(Boolean)
             .join(" ")}
@@ -208,7 +219,13 @@ function FeatureCard({
       layout={layout}
       icon={
         iconNode ??
-        (icon ? <InlineIcon icon={icon} className="size-8 text-sky-300" aria-hidden="true" /> : null)
+        (icon ? (
+          <InlineIcon
+            icon={icon}
+            className="size-8 text-sky-300"
+            aria-hidden="true"
+          />
+        ) : null)
       }
       iconAlt=""
       heading={title}
@@ -246,11 +263,19 @@ export default function DedicatedClusters() {
                   />
                 </div>
                 <h1 className="text-white">{HERO.title}</h1>
-                <p className="mt-6 text-gray-300 text--body-large">{HERO.description}</p>
+                <p className="text--body-large mt-6 text-gray-300">
+                  {HERO.description}
+                </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4">
-                  <a href={HERO.primaryCtaHref} target="_blank" rel="noreferrer">
-                    <button className="btnPrimary min-w-[160px]">{HERO.primaryCtaLabel}</button>
+                  <a
+                    href={HERO.primaryCtaHref}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <button className="btnPrimary min-w-[160px]">
+                      {HERO.primaryCtaLabel}
+                    </button>
                   </a>
                   <Link href={HERO.secondaryCtaHref} className="link-primary">
                     {HERO.secondaryCtaLabel} <span aria-hidden="true">→</span>
@@ -264,7 +289,10 @@ export default function DedicatedClusters() {
         {/* Built by experts */}
         <section id="built-by-experts" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={BUILT_BY_EXPERTS.title} intro={BUILT_BY_EXPERTS.intro} />
+            <SectionHeading
+              title={BUILT_BY_EXPERTS.title}
+              intro={BUILT_BY_EXPERTS.intro}
+            />
 
             <div className="mx-auto mt-14 grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-6 md:grid-cols-3">
               {BUILT_BY_EXPERTS.cards.map((card, idx) => (
@@ -275,7 +303,7 @@ export default function DedicatedClusters() {
                   iconNode={
                     <IconCheckMarkCircle
                       aria-hidden="true"
-                      className="size-8 text-sky-300 [&_*]:stroke-current [&_*]:fill-none"
+                      className="size-8 text-sky-300 [&_*]:fill-none [&_*]:stroke-current"
                     />
                   }
                   layout="stacked"
@@ -288,7 +316,10 @@ export default function DedicatedClusters() {
         {/* Enhanced features */}
         <section className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={ENHANCED_FEATURES.title} intro={ENHANCED_FEATURES.intro} />
+            <SectionHeading
+              title={ENHANCED_FEATURES.title}
+              intro={ENHANCED_FEATURES.intro}
+            />
 
             <div
               className={[
@@ -311,7 +342,9 @@ export default function DedicatedClusters() {
 
             <div className="mt-8 flex justify-center">
               <Link to={ENHANCED_FEATURES.learnMoreHref}>
-                <button className="btnSecondary min-w-[160px]">{ENHANCED_FEATURES.learnMoreLabel}</button>
+                <button className="btnSecondary min-w-[160px]">
+                  {ENHANCED_FEATURES.learnMoreLabel}
+                </button>
               </Link>
             </div>
           </div>
@@ -320,11 +353,16 @@ export default function DedicatedClusters() {
         {/* Driven by usage */}
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={DRIVEN_BY_USAGE.title} intro={DRIVEN_BY_USAGE.intro} />
+            <SectionHeading
+              title={DRIVEN_BY_USAGE.title}
+              intro={DRIVEN_BY_USAGE.intro}
+            />
 
             <div className="mx-auto mt-14 grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-10 lg:grid-cols-10 lg:gap-14">
               <div className="text-gray-300 lg:col-span-4">
-                <p className="mb-6 text--body-large">{DRIVEN_BY_USAGE.leftLead}</p>
+                <p className="text--body-large mb-6">
+                  {DRIVEN_BY_USAGE.leftLead}
+                </p>
                 <p className="mb-0">{DRIVEN_BY_USAGE.leftBody}</p>
               </div>
 
@@ -346,7 +384,10 @@ export default function DedicatedClusters() {
         {/* Dash-based management */}
         <section className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={DASH_MANAGEMENT.title} intro={DASH_MANAGEMENT.intro} />
+            <SectionHeading
+              title={DASH_MANAGEMENT.title}
+              intro={DASH_MANAGEMENT.intro}
+            />
 
             <div className="mx-auto mt-14 grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {DASH_MANAGEMENT.cards.map((card, idx) => (
@@ -365,7 +406,11 @@ export default function DedicatedClusters() {
         {/* No limits */}
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={NO_LIMITS.title} intro={NO_LIMITS.intro} introClassName="text--body-large" />
+            <SectionHeading
+              title={NO_LIMITS.title}
+              intro={NO_LIMITS.intro}
+              introClassName="text--body-large"
+            />
 
             <div className="mx-auto mt-14 grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-6 lg:grid-cols-2">
               {NO_LIMITS.cards.map((card) => (
@@ -383,12 +428,17 @@ export default function DedicatedClusters() {
         </section>
 
         {/* Global deployment */}
-        <section className={`subpage-section texture-plus ${styles.noBottomPadding}`}>
+        <section
+          className={`subpage-section texture-plus ${styles.noBottomPadding}`}
+        >
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading title={GLOBAL_DEPLOYMENT.title} intro={GLOBAL_DEPLOYMENT.intro} />
+            <SectionHeading
+              title={GLOBAL_DEPLOYMENT.title}
+              intro={GLOBAL_DEPLOYMENT.intro}
+            />
 
             <div className="mx-auto max-w-[var(--content-width-narrow)]">
-              <h2 className="mt-16 mb-16 text-white text-center text-balance">
+              <h2 className="mb-16 mt-16 text-balance text-center text-white">
                 {GLOBAL_DEPLOYMENT.headline}
               </h2>
 
@@ -396,7 +446,7 @@ export default function DedicatedClusters() {
                 <img
                   src={GLOBAL_DEPLOYMENT.imageSrc}
                   alt=""
-                  className="w-full max-w-[920px] h-auto"
+                  className="h-auto w-full max-w-[920px]"
                   loading="lazy"
                   decoding="async"
                 />
@@ -408,7 +458,7 @@ export default function DedicatedClusters() {
         {/* Compliance */}
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <h2 className="mx-auto max-w-[640px] text-white text-center text-balance">
+            <h2 className="mx-auto max-w-[640px] text-balance text-center text-white">
               {COMPLIANCE_HEADLINE}
             </h2>
           </div>
@@ -428,4 +478,3 @@ export default function DedicatedClusters() {
     </Layout>
   );
 }
-
