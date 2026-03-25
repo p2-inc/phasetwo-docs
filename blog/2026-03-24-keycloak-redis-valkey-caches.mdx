@@ -37,7 +37,7 @@ At a high level:
 
 1. Stored entities as Redis hashes (session and related objects).
 2. Added secondary indexes with Redis sets for fast lookup paths (for example, user-to-sessions, client-to-sessions).
-3. Built a changelog-based transaction layer to batch and minimize writes.
+3. Built a changelog-based transaction implementation of [`KeycloakTransaction`](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/models/KeycloakTransaction.html) to batch and minimize writes at the appropriate stage of the Keycloak request lifecycle.
 4. Used Redis `MULTI/EXEC` for batched commit behavior.
 5. Implemented Lua-based CAS behavior for single-round-trip atomic updates.
 6. Replaced the use of the replicated work cache, used for local cache invalidation, with a Redis PUBSUB-backed `ClusterProvider`.
