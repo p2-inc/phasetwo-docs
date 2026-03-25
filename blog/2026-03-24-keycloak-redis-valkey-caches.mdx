@@ -1,0 +1,166 @@
+---
+title: Replacing Keycloak's Infinispan Caches with Redis/Valkey (Keycloak DevDay 2026)
+slug: keycloak-devday-2026-redis-valkey-caches
+date: 2026-03-24
+authors: phasetwo
+tags: [phase_two, keycloak, redis, valkey, caching, performance, extensions]
+description: A practical overview of our work to replace Keycloak distributed Infinispan caches with Redis/Valkey, including architecture, implementation patterns, and benchmark outcomes.
+---
+
+At Keycloak DevDay 2026, we shared our work on replacing Keycloak's distributed [Infinispan](https://infinispan.org/) caches with [Redis](https://redis.io/)/[Valkey](https://valkey.io/).
+
+For the full technical deep dive, we will release slides when the talk is published on Youtube.
+
+This post focuses on the core technical content from the presentation and summarizes what we built, what we learned, and what comes next.
+
+<!-- truncate -->
+
+## Why We Took This On
+
+The recurring operator pain points were clear: restart complexity, JGroups/Infinispan operational friction, and upgrade risk in high-availability environments.
+
+Our goals for the proof-of-concept were practical:
+
+1. Functional parity with Keycloak's distributed cache behavior.
+2. At least 50% of embedded Infinispan performance.
+3. Fast startup (sub-5s per pod) with reliable behavior.
+4. Seamless upgrades and horizontal scaling without rebalance pain.
+5. Extension-based implementation on current Keycloak, without forking.
+
+We also set explicit **non-goals**, including replacing local Infinispan caches, integrating/migrating persistent sessions, supporting every Redis topology, and solving multi-region concerns in v1.
+
+## What We Implemented (High Level)
+
+We implemented a new [`DatastoreProvider`](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/storage/DatastoreProvider.html)-based approach to replace distributed caches while leaving the rest of Keycloak behavior intact.
+
+At a high level:
+
+1. Stored entities as Redis hashes (session and related objects).
+2. Added secondary indexes with Redis sets for fast lookup paths (for example, user-to-sessions, client-to-sessions).
+3. Built a changelog-based transaction implementation of [`KeycloakTransaction`](https://www.keycloak.org/docs-api/latest/javadocs/org/keycloak/models/KeycloakTransaction.html) to batch and minimize writes at the appropriate stage of the Keycloak request lifecycle.
+4. Used Redis `MULTI/EXEC` for batched commit behavior.
+5. Implemented Lua-based CAS behavior for single-round-trip atomic updates.
+6. Replaced the use of the replicated work cache, used for local cache invalidation, with a Redis PUBSUB-backed `ClusterProvider`.
+7. Exposed Redis client and command metrics in Keycloak's Prometheus endpoint (`vendor_jedis_*`).
+
+For detailed APIs, object mapping rules, and transaction semantics, the slide deck has the full implementation flow and diagrams.
+
+## Notable Engineering Details
+
+A few areas mattered most in practice:
+
+1. **Atomicity model:** Lua CAS operations reduced contention and retry complexity versus `WATCH`-based optimistic workflows.
+2. **Expiration correctness:** TTL handling required careful validation to avoid stale references (for example, refresh token edge cases).
+3. **Behavior parity:** Reproducing nuanced Infinispan behavior (especially around offline session flows and invalidation semantics) required close reading of existing Keycloak internals.
+4. **Index discipline:** Clean separation between hash storage and set-based secondary indexes kept lookups efficient and made invalidation predictable.
+
+## Benchmarks and Outcomes
+
+In our benchmark setup, the Redis implementation met and exceeded the original performance target. The result was parity or better across the tested flow, while also meeting the startup-speed and extension/no-fork constraints. We used the Keycloak provided [keycloak-benchmark](https://github.com/keycloak/keycloak-benchmark) project to execute performance tests against a 3 node cluster using Redis caching, and compared the results to a standard Keycloak setup on the same number of nodes, using embedded Infinispan.
+
+This approach hit the proof-of-concept goals, with room for additional optimization and broader validation.
+
+<div>
+  <table className="table w-full border-collapse bg-white/10 text-sm">
+    <thead className="bg-white/10">
+      <tr>
+        <th className="px-4 py-3 text-left font-semibold text-white">
+          Benchmark
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">
+          Infinispan (99th pct)
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">
+          Redis (99th pct)
+        </th>
+        <th className="px-4 py-3 text-right font-semibold text-white">Delta</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-white/15">
+      <tr>
+        <td className="px-4 py-3 text-white">All Requests</td>
+        <td className="px-4 py-3 text-right text-gray-200">67</td>
+        <td className="px-4 py-3 text-right text-gray-200">47</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">29.9%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Browser to Log In Endpoint</td>
+        <td className="px-4 py-3 text-right text-gray-200">71</td>
+        <td className="px-4 py-3 text-right text-gray-200">86</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-red-400">-21.1%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">
+          Browser posts correct credentials
+        </td>
+        <td className="px-4 py-3 text-right text-gray-200">83</td>
+        <td className="px-4 py-3 text-right text-gray-200">57</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">31.3%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Exchange Code</td>
+        <td className="px-4 py-3 text-right text-gray-200">22</td>
+        <td className="px-4 py-3 text-right text-gray-200">10</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">54.5%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">RefreshToken</td>
+        <td className="px-4 py-3 text-right text-gray-200">36</td>
+        <td className="px-4 py-3 text-right text-gray-200">12</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">66.7%</span>
+        </td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-white">Browser logout</td>
+        <td className="px-4 py-3 text-right text-gray-200">43</td>
+        <td className="px-4 py-3 text-right text-gray-200">9</td>
+        <td className="px-4 py-3 text-right">
+          <span className="font-semibold text-green-400">79.1%</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+_Note: lower 99th percentile values are better. The "Browser to Log In Endpoint" row is the one regression shown in the original chart._
+
+### Benchmark screenshots
+
+Redis benchmark test results:
+
+![Redis benchmark test results](/blog/redis/redis-test-results.png)
+
+Infinispan benchmark test results:
+
+![Infinispan benchmark test results](/blog/redis/infinispan-test-results.png)
+
+## Timeline and Context
+
+This work started in **September 2025**.
+
+A successful implementation would not have been possible without years of prior work in Keycloak internals, extension development, and production operations. Existing knowledge around map-store patterns, DatastoreProvider internals, transaction behavior, and real-world customer requirements was the foundation that made this tractable.
+
+## What's Next
+
+Near-term next steps include broader performance validation across workloads, clearer packaging/licensing for source and images, and additional multi-region validation/documentation.
+
+We also plan to release a full image soon at [quay.io/repository/phasetwo/keycloak-redis](https://quay.io/repository/phasetwo/keycloak-redis), so stay tuned for more.
+
+If you want all the implementation specifics, design tradeoffs, and diagrams, please stay tuned for the release of the slides and videos of our Keycloak DevDay presentation.
+
+---
+
+Want to go deeper?
+
+1. Reach out to our team: [support@phasetwo.io](mailto:support@phasetwo.io)
+2. Try our hosting and extensions: [Phase Two Dash](https://dash.phasetwo.io/)
+3. Contact us for additional implementation details and architecture guidance: [https://phasetwo.io/contact](https://phasetwo.io/contact)
