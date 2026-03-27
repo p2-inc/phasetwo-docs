@@ -44,6 +44,14 @@ const CASE_STUDIES = [
     description:
       "Explore how Plotly delivered self-service enterprise SSO, audit-ready identity events, and upgradeable Keycloak in customer-managed environments.",
   },
+  {
+    assetId: "nevada-dept-of-education",
+    company: "Nevada Department of Education",
+    pictogram: "/customer-logos/ndoe.svg",
+    title: "Replacing RapidIdentity With 95% Lower IAM Costs",
+    description:
+      "See how the Nevada Department of Education moved to Keycloak, improved user experience, and built a standards-based identity hub for broader statewide adoption.",
+  },
 ];
 
 const HERO = {
@@ -284,7 +292,7 @@ export default function CaseStudies() {
         </section>
         <section className="texture-plus subpage-section py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="mx-auto grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-5 lg:grid-cols-2">
               {CASE_STUDIES.map((study) => (
                 <CardDocument
                   key={study.assetId}
