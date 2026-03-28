@@ -632,7 +632,6 @@ components:
         response_mode:
           type: string
       required:
-        - email
         - client_id
         - redirect_uri
     MagicLinkResponse:
