@@ -603,6 +603,8 @@ components:
           type: string
         redirect_uri:
           type: string
+        username:
+          type: string
         expiration_seconds:
           type: integer
         force_create:
@@ -617,6 +619,8 @@ components:
           type: string
         nonce:
           type: string
+        state:
+          type: string
         code_challenge:
           type: string
         code_challenge_method:
@@ -625,10 +629,21 @@ components:
           type: boolean
         reusable:
           type: boolean
+        response_mode:
+          type: string
       required:
         - email
         - client_id
         - redirect_uri
+    MagicLinkResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        link:
+          type: string
+        sent:
+          type: boolean
 security:
   - access_token: []
 externalDocs:
@@ -2762,6 +2777,10 @@ paths:
       responses:
         200:
           description: Magic Link created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MagicLinkResponse"
         400:
           description: Malformed request
         404:
