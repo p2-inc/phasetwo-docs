@@ -11,6 +11,7 @@ const PAGE_META = {
     "Discover how leading organizations leverage Phase Two's Keycloak expertise for secure, scalable, and cost-effective identity management. Explore our case studies to see real-world results and learn how we can help you achieve your IAM goals.",
 };
 
+// When adding an asset here, make sure to also include it in the worker
 const CASE_STUDIES = [
   {
     assetId: "dexcom",
