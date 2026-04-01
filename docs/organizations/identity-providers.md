@@ -10,9 +10,13 @@ Identity providers (IdPs) can be associated with an organization for the purpose
 
 There are two ways that an IdP can be associated with an organization.
 
+:::info
+In order to have users automatically redirected to the correct IdP based on their email domain, you will need to set up an authentication flow that performs this logic. Phase Two provides the necessary plumbing to quickly customize a flow for this use case. For more information, read the [Automatic IdP redirection documentation](./automatic-idp-redirection.md).
+:::
+
 #### Admin portal
 
-If you have activated the organizations and SSO portions of the admin portal, members of the organization with the appropriate roles can set up their IdPs on their own. When they create and manage IdPs this way, they will be automatcially associated with the user's organization.
+If you have activated the organizations and SSO portions of the admin portal, members of the organization with the appropriate roles can set up their IdPs on their own. When they create and manage IdPs this way, they will be automatically associated with the user's organization.
 
 #### Admin UI
 
