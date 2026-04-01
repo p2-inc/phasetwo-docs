@@ -27,6 +27,60 @@ For most deployments, the setup looks like this:
 - Use the [Enterprise SSO](../authentication/sso.md) flow if Keycloak is handling the primary login experience
 - Use [SSO Without Auth](../sso/sso-without-auth.md) if your application controls login and only needs Phase Two for SSO redirection and token handling
 
+## About the Home IdP Discovery extension
+
+Phase Two's automatic organization redirection is based on the same pattern popularized by the open-source [Home IdP Discovery](https://github.com/sventorben/keycloak-home-idp-discovery) extension for Keycloak.
+
+At a high level, that extension adds a new authenticator to a browser-based login flow. Instead of showing users a password form and a long list of available identity providers up front, it can present an email-first login step, extract the domain portion of the email address, and use that domain to choose the correct upstream identity provider automatically.
+
+This is especially useful in B2B or multi-tenant SaaS environments where:
+
+- each customer organization has its own SAML or OIDC provider
+- end users know their email address but should not need to know an internal IdP alias
+- you want to avoid a confusing "choose your provider" screen
+
+The upstream extension also supports a few useful discovery behaviors:
+
+- matching domains stored on the identity provider itself
+- optional subdomain matching
+- optional forwarding to an already linked identity provider
+- either redirecting to the first match or prompting the user to choose when multiple providers match
+
+In its default form, the upstream extension stores discovery domains on each identity provider under the config key `home.idp.discovery.domains`.
+
+## How Phase Two uses it for organization redirection
+
+Phase Two uses a **forked, organization-aware version** of this discovery approach inside our Organizations extension.
+
+Conceptually, the flow is the same:
+
+1. the user enters an email address
+2. the login flow extracts the domain
+3. the domain is matched to an organization
+4. the organization's associated identity provider is selected
+5. the user is redirected to that identity provider
+
+The important difference is that Phase Two ties discovery to **organization data**, not just raw IdP configuration.
+
+When you manage organization SSO with Phase Two:
+
+- the organization owns the verified email domains
+- the identity provider is associated with that organization
+- the discovery metadata is written in a way that is compatible with Home IdP Discovery style lookup
+- the redirect behavior is resolved in the context of organizations rather than as a generic Keycloak-only domain lookup
+
+This is why the Organizations feature feels more natural for customer-managed SSO. Your customer admins work in terms of:
+
+- "our organization"
+- "our verified domains"
+- "our identity provider"
+
+rather than needing to hand-edit IdP config for domain routing themselves.
+
+Phase Two also stores organization metadata alongside the identity provider, including keys such as `home.idp.discovery.domains` and `home.idp.discovery.org`, so the redirect logic can resolve the correct organization-specific IdP relationship during login.
+
+In practice, this means Phase Two uses Home IdP Discovery as the login-flow mechanism, but layers organization ownership, verified domains, and organization-aware broker login behavior on top of it.
+
 ## Setting up an authentication flow for automatic IdP redirection
 
 In order to have users automatically redirected to the correct IdP based on their email domain, you will need to set up an authentication flow that performs this logic. Phase Two provides the necessary plumbing to quickly customize a flow for this use case. It leverages an extension called [Home IdP Discovery](https://github.com/sventorben/keycloak-home-idp-discovery) that adds a new authenticator step to perform this function.
