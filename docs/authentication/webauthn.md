@@ -7,6 +7,8 @@ WebAuthn is a web standard for password-free login. At it's core, it is a browse
 
 Most modern browsers support WebAuthn, and there are currently many technologies that can be used. External devices such as Yubikeys, integrated software and hardware such Apple and Google Passkeys, and even all-software implementations are all examples.
 
+If you are specifically looking for how to use **passkeys** for either passwordless login or as a second factor, see [Passkeys](./passkeys.md).
+
 ## Configuring WebAuthn
 
 It is possible to use WebAuthn both as a second factor (2FA), in addition to username-password, or as a replacement for the password (so-called "passwordless"). We'll describe configuration for both here.
