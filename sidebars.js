@@ -97,8 +97,9 @@ module.exports = {
       label: "Organizations",
       link: { type: "doc", id: "organizations/index" },
       items: [
-        "organizations/attributes",
         "organizations/membership",
+        "organizations/attributes",
+        "organizations/configuration",
         "organizations/invitations",
         "organizations/roles",
         "organizations/idp-wizard",

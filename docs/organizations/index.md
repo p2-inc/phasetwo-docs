@@ -26,6 +26,12 @@ Organizations can be managed in the Admin UI in the **Organizations** section. I
 
 ![Keycloak Phase Two Organization Settings](/docs/organizations-index-details.png)
 
+## Global organization settings
+
+In addition to organization-level data, the extension also includes realm-level settings that control behaviors such as default organization admin creation, shared IdPs, multiple IdPs per organization, portal link expiration, and related organization flows.
+
+See [Organization Configuration](./configuration.md).
+
 ## Feature guides
 
 ```mdx-code-block

@@ -37,3 +37,16 @@ It is possible to map organization roles into the access token, ID token or user
 ### API access
 
 It is possible to [create](/api/create-organization-role), [update](/api/update-organization-role), [delete](/api/delete-organization-role) and [fetch all](/api/get-organization-roles) organization roles, as well as [grant](/api/grant-user-organization-role), [revoke](/api/revoke-user-organization-role), [verify](/api/check-user-organization-role) and [fetch all](/api/get-user-organization-roles) user assignments using the API.
+
+### Bulk role operations
+
+If you need to create, delete, grant, or revoke many organization roles at once, the Organizations API also supports bulk role operations.
+
+These bulk endpoints process each submitted item independently and return a `207 Multi-Status` response so you can see which records succeeded and which failed without losing the whole batch.
+
+Related API docs:
+
+- [Create organization roles](/api/create-organization-roles)
+- [Delete organization roles](/api/delete-organization-roles)
+- [Grant a user organization roles](/api/grant-a-user-organization-roles)
+- [Revoke organization roles from a user](/api/revoke-organization-roles-from-a-user)
