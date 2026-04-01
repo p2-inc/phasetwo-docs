@@ -190,6 +190,10 @@ module.exports = {
               label: "Enterprise Support",
             },
             {
+              to: "contact#rfps",
+              label: "RFPs",
+            },
+            {
               to: "pricing/support",
               label: "Pricing",
             },
@@ -293,6 +297,10 @@ module.exports = {
                     label: "Enterprise Support",
                     to: "support",
                     activeBaseRegex: "^/support/$",
+                  },
+                  {
+                    label: "RFPs",
+                    to: "contact#rfps",
                   },
                   {
                     label: "Migration to Keycloak",
