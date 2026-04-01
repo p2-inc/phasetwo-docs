@@ -63,6 +63,8 @@ A web-based admin UI provides full control over users, clients, realms, roles, p
 
 A web-based user account management console allows users to manage their own accounts, including profile information, password changes, and MFA settings. This self-service capability reduces administrative overhead and improves user satisfaction. The theme for this can also be customized to match your brand.
 
+If your product should not expose direct Keycloak self-service to end users, see [Keycloak Account Console](./account-console.md) for how to disable the UI and restrict account-management permissions.
+
 ### Theme & Page Customization
 
 Customize Keycloak’s login, registration, and account pages to match your brand. Use FreeMarker templates with HTML, CSS, and JavaScript support to tailor the user experience. Or use [Keycloakify](https://keycloakify.dev) to easily customize your app with CSS or fully custom React or Angular components. Keycloakify also provides backwards compatibility between Keycloak versions, so you can upgrade Keycloak without worrying about breaking your customizations.

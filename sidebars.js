@@ -171,6 +171,7 @@ module.exports = {
         "keycloak/ciam",
         "keycloak/iam",
         "keycloak/idp",
+        "keycloak/account-console",
       ],
     },
   ],
