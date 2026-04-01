@@ -48,22 +48,19 @@ Create a new identity provider for this organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./create-idp.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"addReadTokenRoleOnCreate":{"type":"boolean"},"alias":{"type":"string"},"config":{"type":"object","additionalProperties":true},"displayName":{"type":"string"},"enabled":{"type":"boolean"},"firstBrokerLoginFlowAlias":{"type":"string"},"internalId":{"type":"string"},"linkOnly":{"type":"boolean"},"postBrokerLoginFlowAlias":{"type":"string"},"providerId":{"type":"string"},"storeToken":{"type":"boolean"},"trustEmail":{"type":"boolean"}},"title":"IdentityProviderRepresentation"}}},"required":true}}
+  {...require("./create-idp.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"201":{"description":"success"}}}
+  {...require("./create-idp.StatusCodes.json")}
 >
   
 </StatusCodes>

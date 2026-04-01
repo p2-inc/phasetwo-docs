@@ -48,22 +48,19 @@ Get a list of all invitations for the user.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./invitations.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./invitations.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"createdAt":{"type":"string"},"email":{"type":"string"},"inviterId":{"type":"string"},"invitationUrl":{"type":"string"},"organizationId":{"type":"string"},"roles":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"InvitationRepresentation"}}}}}}
+  {...require("./invitations.StatusCodes.json")}
 >
   
 </StatusCodes>

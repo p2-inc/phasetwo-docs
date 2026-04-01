@@ -48,22 +48,19 @@ Link an existing identity provider to this organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./link-idp.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"alias":{"type":"string"},"post_broker_flow":{"type":"string"},"sync_mode":{"type":"string"}},"title":"LinkIdentityProviderRepresentation"}}},"required":true}}
+  {...require("./link-idp.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"201":{"description":"success"}}}
+  {...require("./link-idp.StatusCodes.json")}
 >
   
 </StatusCodes>

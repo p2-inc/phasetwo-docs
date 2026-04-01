@@ -48,22 +48,19 @@ Import identity provider from uploaded JSON file
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./import-idp-json.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./import-idp-json.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","additionalProperties":true}}}}}}
+  {...require("./import-idp-json.StatusCodes.json")}
 >
   
 </StatusCodes>

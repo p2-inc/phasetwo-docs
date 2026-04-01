@@ -48,22 +48,19 @@ Create a new webhook
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./create-webhook.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"attributes":{"type":"object"},"id":{"type":"string"},"enabled":{"type":"boolean"},"url":{"type":"string"},"secret":{"type":"string"},"createdBy":{"type":"string"},"createdAt":{"type":"integer","format":"int64"},"realm":{"type":"string"},"eventTypes":{"type":"array","items":{"type":"string"}}},"title":"WebhookRepresentation"}}},"required":true}}
+  {...require("./create-webhook.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"201":{"description":"Webhook created"},"400":{"description":"Malformed webhook"}}}
+  {...require("./create-webhook.StatusCodes.json")}
 >
   
 </StatusCodes>

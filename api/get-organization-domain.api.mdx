@@ -48,22 +48,19 @@ Get details for a domain owned by an organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"domainName","description":"domain name","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-domain.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-domain.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"domain_name":{"type":"string"},"verified":{"type":"boolean"},"record_key":{"type":"string"},"record_value":{"type":"string"},"type":{"type":"string"}},"required":["domain_name","verified","record_key","record_value","type"],"title":"OrganizationDomainRepresentation"}}}}}}
+  {...require("./get-organization-domain.StatusCodes.json")}
 >
   
 </StatusCodes>

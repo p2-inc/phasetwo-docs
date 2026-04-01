@@ -48,22 +48,19 @@ Get a payload by Keycloak type and id
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"type","description":"keycloak event type","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"kid","description":"keycloak event id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-payload-by-keycloak-type-and-id.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-payload-by-keycloak-type-and-id.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"uid":{"type":"string"},"time":{"type":"integer"},"realmId":{"type":"string"},"realmName":{"type":"string"},"organizationId":{"type":"string"},"type":{"type":"string"},"representation":{"type":"string"},"operationType":{"type":"string"},"resourcePath":{"type":"string"},"resourceType":{"type":"string"},"error":{"type":"string"},"authDetails":{"type":"object","properties":{"realmId":{"type":"string"},"clientId":{"type":"string"},"userId":{"type":"string"},"ipAddress":{"type":"string"},"username":{"type":"string"},"sessionId":{"type":"string"}},"title":"AuthDetailsRepresentation"},"details":{"type":"object","additionalProperties":true}},"title":"EventRepresentation"}}}}}}
+  {...require("./get-payload-by-keycloak-type-and-id.StatusCodes.json")}
 >
   
 </StatusCodes>

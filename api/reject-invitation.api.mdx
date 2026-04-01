@@ -48,22 +48,19 @@ Reject invitation for authenticated user.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"invitationId","description":"invitation UUID","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./reject-invitation.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./reject-invitation.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"success"}}}
+  {...require("./reject-invitation.StatusCodes.json")}
 >
   
 </StatusCodes>

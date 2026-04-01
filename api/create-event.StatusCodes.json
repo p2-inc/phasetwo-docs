@@ -1,0 +1,1 @@
+{"responses":{"202":{"description":"Event received"},"400":{"description":"Malformed event"},"403":{"description":"Rate limit exceeded"},"409":{"description":"Reserved event type"}}}

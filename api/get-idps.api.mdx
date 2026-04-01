@@ -48,22 +48,19 @@ Get identity providers for this organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-idps.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-idps.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"addReadTokenRoleOnCreate":{"type":"boolean"},"alias":{"type":"string"},"config":{"type":"object","additionalProperties":true},"displayName":{"type":"string"},"enabled":{"type":"boolean"},"firstBrokerLoginFlowAlias":{"type":"string"},"internalId":{"type":"string"},"linkOnly":{"type":"boolean"},"postBrokerLoginFlowAlias":{"type":"string"},"providerId":{"type":"string"},"storeToken":{"type":"boolean"},"trustEmail":{"type":"boolean"}},"title":"IdentityProviderRepresentation"}}}}}}}
+  {...require("./get-idps.StatusCodes.json")}
 >
   
 </StatusCodes>

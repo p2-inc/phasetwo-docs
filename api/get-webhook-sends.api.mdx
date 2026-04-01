@@ -48,22 +48,19 @@ Get webhook sends
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-webhook-sends.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-webhook-sends.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"type":{"type":"string"},"status":{"type":"integer"},"status_message":{"type":"string"},"retried":{"type":"integer"},"sent_at":{"type":"string"},"event_id":{"type":"string"},"keycloak_event_type":{"type":"string"},"keycloak_event_id":{"type":"string"},"webhook":{"type":"object","properties":{"attributes":{"type":"object"},"id":{"type":"string"},"enabled":{"type":"boolean"},"url":{"type":"string"},"secret":{"type":"string"},"createdBy":{"type":"string"},"createdAt":{"type":"integer","format":"int64"},"realm":{"type":"string"},"eventTypes":{"type":"array","items":{"type":"string"}}},"title":"WebhookRepresentation"},"payload":{"type":"string"}},"title":"WebhookSendRepresentation"}}}}},"404":{"description":"Webhook doesn't exist"}}}
+  {...require("./get-webhook-sends.StatusCodes.json")}
 >
   
 </StatusCodes>

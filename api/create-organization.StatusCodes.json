@@ -1,0 +1,1 @@
+{"responses":{"201":{"description":"success","headers":{"Location":{"schema":{"type":"string"},"description":"URI indicating the ID of the new resource."}}}}}

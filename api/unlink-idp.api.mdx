@@ -48,22 +48,19 @@ Unlink an existing and linked identity provider from this organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"alias","description":"idp alias","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./unlink-idp.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./unlink-idp.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"success"}}}
+  {...require("./unlink-idp.StatusCodes.json")}
 >
   
 </StatusCodes>

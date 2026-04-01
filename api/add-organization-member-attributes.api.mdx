@@ -48,22 +48,19 @@ Add or update attributes for a specific member of an organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./add-organization-member-attributes.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"content":{"application/json":{"schema":{"type":"object","properties":{"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"OrganizationMemberAttributeRepresentation"}}},"required":true}}
+  {...require("./add-organization-member-attributes.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}}}},"400":{"description":"User is not a member of the organization"},"404":{"description":"User doesn't exist"}}}
+  {...require("./add-organization-member-attributes.StatusCodes.json")}
 >
   
 </StatusCodes>

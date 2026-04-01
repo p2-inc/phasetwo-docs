@@ -48,22 +48,19 @@ Resend a webhook by send ID
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"sendId","description":"send id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./resend-webhook-by-id.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./resend-webhook-by-id.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"202":{"description":"success"}}}
+  {...require("./resend-webhook-by-id.StatusCodes.json")}
 >
   
 </StatusCodes>

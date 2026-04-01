@@ -48,22 +48,19 @@ Get a count of webhooks.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-webhooks-count.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-webhooks-count.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"integer","format":"int32"}}}}}}
+  {...require("./get-webhooks-count.StatusCodes.json")}
 >
   
 </StatusCodes>

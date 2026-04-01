@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Magic Link created","content":{"application/json":{"schema":{"type":"object","properties":{"user_id":{"type":"string"},"link":{"type":"string"},"sent":{"type":"boolean"}},"title":"MagicLinkResponse"}}}},"400":{"description":"Malformed request"},"404":{"description":"User or Client not found"}}}

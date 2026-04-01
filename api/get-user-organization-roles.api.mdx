@@ -48,22 +48,19 @@ Get users with this organization role
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"name","description":"organization role name","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-user-organization-roles.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-user-organization-roles.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"attributes":{"type":"object","additionalProperties":true},"createdTimestamp":{"type":"integer","format":"int64"},"email":{"type":"string"},"emailVerified":{"type":"boolean"},"enabled":{"type":"boolean"},"firstName":{"type":"string"},"groups":{"type":"array","items":{"type":"string"}},"id":{"type":"string"},"lastName":{"type":"string"},"username":{"type":"string"}},"title":"UserRepresentation"}}}}}}}
+  {...require("./get-user-organization-roles.StatusCodes.json")}
 >
   
 </StatusCodes>

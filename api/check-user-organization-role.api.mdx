@@ -48,22 +48,19 @@ Check if a user has an organization role
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"name","description":"organization role name","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"userId","description":"user id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./check-user-organization-role.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./check-user-organization-role.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"success"}}}
+  {...require("./check-user-organization-role.StatusCodes.json")}
 >
   
 </StatusCodes>

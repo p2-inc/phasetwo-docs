@@ -48,22 +48,19 @@ Get a paginated list of invitations to an organization, using an optional search
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"search","schema":{"type":"string"},"style":"form"},{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-invitations.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-invitations.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"createdAt":{"type":"string"},"email":{"type":"string"},"inviterId":{"type":"string"},"invitationUrl":{"type":"string"},"organizationId":{"type":"string"},"roles":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"InvitationRepresentation"}}}}}}}
+  {...require("./get-organization-invitations.StatusCodes.json")}
 >
   
 </StatusCodes>

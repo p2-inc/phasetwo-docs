@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"alias":{"type":"string"},"post_broker_flow":{"type":"string"},"sync_mode":{"type":"string"}},"title":"LinkIdentityProviderRepresentation"}}},"required":true}}

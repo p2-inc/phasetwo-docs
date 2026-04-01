@@ -1,0 +1,1 @@
+{"parameters":[{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}

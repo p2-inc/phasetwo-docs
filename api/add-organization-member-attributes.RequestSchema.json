@@ -1,0 +1,1 @@
+{"title":"Body","body":{"content":{"application/json":{"schema":{"type":"object","properties":{"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"OrganizationMemberAttributeRepresentation"}}},"required":true}}

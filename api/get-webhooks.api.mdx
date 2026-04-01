@@ -48,22 +48,19 @@ Get a list of webhooks for this realm
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-webhooks.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-webhooks.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"attributes":{"type":"object"},"id":{"type":"string"},"enabled":{"type":"boolean"},"url":{"type":"string"},"secret":{"type":"string"},"createdBy":{"type":"string"},"createdAt":{"type":"integer","format":"int64"},"realm":{"type":"string"},"eventTypes":{"type":"array","items":{"type":"string"}}},"title":"WebhookRepresentation"}}}}}}}
+  {...require("./get-webhooks.StatusCodes.json")}
 >
   
 </StatusCodes>

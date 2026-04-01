@@ -48,22 +48,19 @@ Get total number of members of a given organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"excludeAdminAccounts","schema":{"type":"boolean"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-memberships-count.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-memberships-count.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"integer","format":"int32"}}}}}}
+  {...require("./get-organization-memberships-count.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -48,22 +48,19 @@ Get a list of all organizations that the user is a member and their roles in tho
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-me.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-me.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","additionalProperties":{"type":"object","properties":{"name":{"type":"string"},"displayName":{"type":"string"},"url":{"type":"string"},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"roles":{"type":"array","items":{"type":"string"}}},"title":"MyOrganizationRepresentation"},"title":"MyOrganizationsRepresentation"}}}}}}
+  {...require("./get-me.StatusCodes.json")}
 >
   
 </StatusCodes>

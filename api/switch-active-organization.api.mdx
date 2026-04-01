@@ -48,22 +48,19 @@ Switch the active organization context for the authenticated user
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./switch-active-organization.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string","description":"The ID of the organization to switch to"}},"required":["organizationId"],"title":"SwitchOrganizationRepresentation"}}},"required":true}}
+  {...require("./switch-active-organization.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"Active organization switched successfully"},"400":{"description":"Invalid organization or user is not a member"},"403":{"description":"User does not have access to the organization"},"404":{"description":"Organization not found"}}}
+  {...require("./switch-active-organization.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"user":{"type":"string"},"link":{"type":"string"},"redirect":{"type":"string"}},"title":"PortalLinkRepresentation"}}}}}}

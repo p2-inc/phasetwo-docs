@@ -48,22 +48,19 @@ Get the global organization configuration for this realm
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-config.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-config.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"createAdminUser":{"type":"boolean","description":"Whether to create a default admin user for new organizations"},"sharedIdps":{"type":"boolean","description":"Whether identity providers can be shared across organizations"},"adminEventsEnabled":{"type":"boolean","description":"Whether admin events are enabled for organization operations"},"eventsEnabled":{"type":"boolean","description":"Whether user events are enabled for organization operations"},"defaultPostBrokerFlow":{"type":"string","description":"Default post broker login flow for organization identity providers"},"defaultSyncMode":{"type":"string","description":"Default sync mode for organization identity providers"},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}},"description":"Additional configuration attributes"}},"title":"OrganizationConfigRepresentation"}}}}}}
+  {...require("./get-organization-config.StatusCodes.json")}
 >
   
 </StatusCodes>
