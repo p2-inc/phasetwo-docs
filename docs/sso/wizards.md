@@ -3,14 +3,72 @@ id: wizards
 title: Wizards
 ---
 
-In order to facilitate easy setup of identity providers for single sign-on, it is possible for you to use the identity provider setup wizards that are used in the Admin Portal and the Phase Two Connect onboarding tool. This may be useful when you are meeting with a customer IT admin, in order to show them how to set up their identity provider, or to help familiarize you with interfaces for third-party identity providers.
+The identity provider setup wizards give you a guided way to configure SSO and directory sync without working directly in the full Keycloak UI. They are the same flows used in the Admin Portal and in the Phase Two Connect onboarding experience.
 
-### Launching the wizards as an administrator
+These wizards are useful when you are onboarding a customer alongside their IT administrator, when you want a more repeatable setup path for common providers, or when you need to hand off setup to organization administrators without exposing the full admin console.
 
-From the Admin UI, go to the **Clients** section of the Realm you are trying to add an identity provider. In the `idp-wizard` client, click on the link in the **Home URL** column. This will open a separate browser window and launch the wizard as your admin user.
+## What the wizards cover
 
-Once you have configured and completed a wizard, you can close the window. Back in the Admin UI, you can select the **Identity providers** section in order to check that it was setup properly and view the data.
+- Guided setup for SAML and OpenID Connect identity providers
+- Optional directory sync setup using LDAP
+- Vendor-specific setup guides for common enterprise identity platforms
+- Generic SAML, OpenID Connect, and LDAP fallback wizards when a vendor-specific flow is not available
+- A final validation step so you can test the connection before rolling it out to end users
 
-### Launching the wizards for an Organization
+:::info
+The exact set of available wizards depends on your distribution. The base/open distribution includes the generic SAML, OpenID Connect, and LDAP flows. Licensed Phase Two Connect distributions may also include vendor-specific wizards.
+:::
 
-For information on how to launch the wizards for an organization, please see the [IdP Wizard documentation](/docs/organizations/idp-wizard).
+## Supported vendors
+
+Based on the current `idp-wizard` implementation, vendor-specific guides are available for:
+
+- ADFS
+- AWS
+- Auth0
+- Cloudflare
+- CyberArk
+- Duo
+- Entra ID
+- Google
+- JumpCloud
+- LastPass
+- Okta
+- OneLogin
+- Oracle
+- PingOne
+- Salesforce
+
+Some providers expose more than one protocol in the wizard:
+
+- Auth0: SAML and OpenID Connect
+- Okta: SAML and LDAP
+- Salesforce: SAML and OpenID Connect
+
+If your provider is not listed, use one of the generic protocols instead.
+
+## Launching the wizards as an administrator
+
+From the Admin UI, go to the **Clients** section of the realm where you want to add the identity provider. In the `idp-wizard` client, click the link in the **Home URL** column. This opens the wizard in a separate browser window as your current administrator.
+
+In this mode, the wizard is typically running in `_providerConfig.wizard.apiMode=onprem`, which means it uses the Keycloak Admin API to create or update the identity provider. The user launching it should have the required `realm-management` permissions.
+
+After the wizard completes:
+
+1. Create the identity provider on the final confirmation step.
+2. Return to the Admin UI and review it under **Identity providers**.
+3. If you are using Organizations, associate that identity provider with the correct organization in the **Organizations** section.
+
+## Testing a new SSO connection
+
+Many SAML and OIDC flows now include a test sign-in link on the final confirmation step. Use that link to verify the configuration before you consider setup complete.
+
+- Copy the link and open it in a different browser profile or an incognito/private window.
+- Do not open the test link in the same browser session you are using for the wizard, or you may sign yourself out mid-setup.
+- If the test succeeds, return to the wizard or admin console and finish rollout.
+
+This test flow is especially useful for catching certificate, ACS URL, issuer, redirect URI, or mapper mistakes before end users see the new SSO option.
+
+## Launching the wizards for an organization
+
+For self-service organization setup, including portal links, existing configuration status, and organization-specific validation, see the [IdP Wizard documentation](../organizations/idp-wizard.md).
