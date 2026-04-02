@@ -1,4 +1,4 @@
-const webpack = require('webpack');
+ const webpack = require('webpack');
 // eslint-disable-next-line
 module.exports = function (context, options) {
   return {
@@ -8,7 +8,8 @@ module.exports = function (context, options) {
       return {
         resolve: {
           fallback: {
-	    url: false,
+            path: require.resolve("path-browserify"),
+      	    url: false,
             fs: false,
           },
         },

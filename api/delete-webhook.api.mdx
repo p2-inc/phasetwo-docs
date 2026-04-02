@@ -48,22 +48,19 @@ Delete the webhook
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./delete-webhook.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./delete-webhook.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"success"},"404":{"description":"Webhook doesn't exist"}}}
+  {...require("./delete-webhook.StatusCodes.json")}
 >
   
 </StatusCodes>

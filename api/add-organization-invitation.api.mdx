@@ -48,22 +48,19 @@ Create an invitation to join the specified organization. Requires a user to regi
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./add-organization-invitation.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"content":{"application/json":{"schema":{"type":"object","properties":{"email":{"type":"string"},"send":{"type":"boolean"},"inviterId":{"type":"string"},"redirectUri":{"type":"string"},"roles":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"InvitationRequestRepresentation"}}},"required":true}}
+  {...require("./add-organization-invitation.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"201":{"description":"success"},"409":{"description":"invitation already exists"}}}
+  {...require("./add-organization-invitation.StatusCodes.json")}
 >
   
 </StatusCodes>

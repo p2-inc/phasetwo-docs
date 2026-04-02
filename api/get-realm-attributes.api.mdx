@@ -48,22 +48,19 @@ Get a list of attributes for this realm
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-realm-attributes.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-realm-attributes.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","additionalProperties":{"type":"object","properties":{"name":{"type":"string"},"value":{"type":"string"},"realm":{"type":"string"}},"title":"RealmAttributeRepresentation"},"title":"KeyedRealmAttributeRepresentation"}}}}}}}
+  {...require("./get-realm-attributes.StatusCodes.json")}
 >
   
 </StatusCodes>

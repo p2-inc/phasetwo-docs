@@ -48,22 +48,19 @@ Create a new audit log event
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./create-event.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"description":"JSON body","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"uid":{"type":"string"},"time":{"type":"integer"},"realmId":{"type":"string"},"realmName":{"type":"string"},"organizationId":{"type":"string"},"type":{"type":"string"},"representation":{"type":"string"},"operationType":{"type":"string"},"resourcePath":{"type":"string"},"resourceType":{"type":"string"},"error":{"type":"string"},"authDetails":{"type":"object","properties":{"realmId":{"type":"string"},"clientId":{"type":"string"},"userId":{"type":"string"},"ipAddress":{"type":"string"},"username":{"type":"string"},"sessionId":{"type":"string"}},"title":"AuthDetailsRepresentation"},"details":{"type":"object","additionalProperties":true}},"title":"EventRepresentation"}}},"required":true}}
+  {...require("./create-event.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"202":{"description":"Event received"},"400":{"description":"Malformed event"},"403":{"description":"Rate limit exceeded"},"409":{"description":"Reserved event type"}}}
+  {...require("./create-event.StatusCodes.json")}
 >
   
 </StatusCodes>

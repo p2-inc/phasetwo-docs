@@ -1,0 +1,1 @@
+{"responses":{"204":{"description":"Active organization switched successfully"},"400":{"description":"Invalid organization or user is not a member"},"403":{"description":"User does not have access to the organization"},"404":{"description":"Organization not found"}}}

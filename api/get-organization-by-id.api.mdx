@@ -48,22 +48,19 @@ Get organization by id
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-by-id.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-by-id.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"displayName":{"type":"string"},"url":{"type":"string"},"realm":{"type":"string"},"domains":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"OrganizationRepresentation"}}}}}}
+  {...require("./get-organization-by-id.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -48,22 +48,19 @@ Get details for all domains owned by an organization
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-domains.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-domains.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"domain_name":{"type":"string"},"verified":{"type":"boolean"},"record_key":{"type":"string"},"record_value":{"type":"string"},"type":{"type":"string"}},"required":["domain_name","verified","record_key","record_value","type"],"title":"OrganizationDomainRepresentation"}}}}}}}
+  {...require("./get-organization-domains.StatusCodes.json")}
 >
   
 </StatusCodes>

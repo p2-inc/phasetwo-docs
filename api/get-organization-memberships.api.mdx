@@ -48,22 +48,19 @@ Get a paginated list of users who are a member of the specified organization.
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"search","schema":{"type":"string"},"style":"form"},{"in":"query","name":"first","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"max","schema":{"type":"integer","format":"int32"},"style":"form"},{"in":"query","name":"excludeAdminAccounts","schema":{"type":"boolean"},"style":"form"},{"in":"query","name":"includeOrgs","schema":{"type":"boolean"},"style":"form"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./get-organization-memberships.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./get-organization-memberships.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"array","items":{"allOf":[{"type":"object","properties":{"createdTimestamp":{"type":"integer","format":"int64"},"email":{"type":"string"},"emailVerified":{"type":"boolean"},"enabled":{"type":"boolean"},"firstName":{"type":"string"},"groups":{"type":"array","items":{"type":"string"}},"id":{"type":"string"},"lastName":{"type":"string"},"username":{"type":"string"}},"title":"UserBriefRepresentation"},{"type":"object","properties":{"organizations":{"type":"object","additionalProperties":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"description":{"type":"string"}},"title":"OrganizationRoleRepresentation"}},"title":"OrganizationRoleMapRepresentation"}}}],"title":"UserWithOrgsBriefRepresentation"}}}}}}}
+  {...require("./get-organization-memberships.StatusCodes.json")}
 >
   
 </StatusCodes>

@@ -48,22 +48,19 @@ Delete the realm attribute
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"attributeKey","description":"attribute key","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./delete-realm-attribute.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={undefined}
+  {...require("./delete-realm-attribute.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"204":{"description":"success"},"404":{"description":"Realm attribute doesn't exist"}}}
+  {...require("./delete-realm-attribute.StatusCodes.json")}
 >
   
 </StatusCodes>

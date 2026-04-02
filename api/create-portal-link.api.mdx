@@ -48,22 +48,19 @@ Create a link for this organization's IdP Wizard. This link encodes an action to
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"orgId","description":"organization id","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./create-portal-link.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"content":{"application/x-www-form-urlencoded":{"schema":{"type":"object","properties":{"userId":{"type":"string"}}}}}}}
+  {...require("./create-portal-link.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"user":{"type":"string"},"link":{"type":"string"},"redirect":{"type":"string"}},"title":"PortalLinkRepresentation"}}}}}}
+  {...require("./create-portal-link.StatusCodes.json")}
 >
   
 </StatusCodes>

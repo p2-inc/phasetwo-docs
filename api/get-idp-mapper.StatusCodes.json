@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"config":{"type":"object","additionalProperties":true},"id":{"type":"string"},"identityProviderAlias":{"type":"string"},"identityProviderMapper":{"type":"string"},"name":{"type":"string"}},"title":"IdentityProviderMapperRepresentation"}}}}}}

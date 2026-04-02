@@ -1,0 +1,1 @@
+{"parameters":[{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"webhookId","description":"webhook id","required":true,"schema":{"type":"string"},"style":"simple"},{"in":"path","name":"sendId","description":"send id","required":true,"schema":{"type":"string"},"style":"simple"}]}

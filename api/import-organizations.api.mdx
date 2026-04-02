@@ -48,22 +48,19 @@ Import organizations and their configurations into this realm
 </Heading>
 
 <ParamsDetails
-  parameters={[{"in":"query","name":"skipExisting","schema":{"type":"boolean","default":false},"style":"form","description":"Skip organizations that already exist instead of updating them"},{"in":"query","name":"importMembers","schema":{"type":"boolean","default":false},"style":"form","description":"Import organization members (requires existing users in realm)"},{"in":"path","name":"realm","description":"realm name (not id!)","required":true,"schema":{"type":"string"},"style":"simple"}]}
+  {...require("./import-organizations.ParamsDetails.json")}
 >
   
 </ParamsDetails>
 
 <RequestSchema
-  title={"Body"}
-  body={{"content":{"application/json":{"schema":{"type":"object","properties":{"version":{"type":"string","description":"Import format version"},"organizations":{"type":"array","items":{"allOf":[{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"displayName":{"type":"string"},"url":{"type":"string"},"realm":{"type":"string"},"domains":{"type":"array","items":{"type":"string"}},"attributes":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}}},"title":"OrganizationRepresentation"},{"type":"object","properties":{"roles":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"description":{"type":"string"}},"title":"OrganizationRoleRepresentation"}},"identityProviders":{"type":"array","items":{"type":"object","properties":{"addReadTokenRoleOnCreate":{"type":"boolean"},"alias":{"type":"string"},"config":{"type":"object","additionalProperties":true},"displayName":{"type":"string"},"enabled":{"type":"boolean"},"firstBrokerLoginFlowAlias":{"type":"string"},"internalId":{"type":"string"},"linkOnly":{"type":"boolean"},"postBrokerLoginFlowAlias":{"type":"string"},"providerId":{"type":"string"},"storeToken":{"type":"boolean"},"trustEmail":{"type":"boolean"}},"title":"IdentityProviderRepresentation"}},"members":{"type":"array","items":{"type":"object","properties":{"userId":{"type":"string"},"email":{"type":"string"},"roles":{"type":"array","items":{"type":"string"}}}}}}}],"title":"OrganizationExportRepresentation"}},"config":{"type":"object","properties":{"createAdminUserEnabled":{"type":"boolean","description":"Whether to create a default admin user for new organizations"},"sharedIdpsEnabled":{"type":"boolean","description":"Whether identity providers can be shared across organizations"}},"title":"OrganizationsConfigRepresentation"}},"title":"OrganizationsImportRepresentation"}},"multipart/form-data":{"schema":{"type":"object","properties":{"file":{"type":"string","format":"binary","description":"JSON file containing organizations export"}}}}},"required":true}}
+  {...require("./import-organizations.RequestSchema.json")}
 >
   
 </RequestSchema>
 
 <StatusCodes
-  id={undefined}
-  label={undefined}
-  responses={{"200":{"description":"success","content":{"application/json":{"schema":{"type":"object","properties":{"imported":{"type":"integer","description":"Number of organizations successfully imported"},"updated":{"type":"integer","description":"Number of organizations updated"},"skipped":{"type":"integer","description":"Number of organizations skipped"},"errors":{"type":"array","items":{"type":"object","properties":{"organizationName":{"type":"string"},"error":{"type":"string"}}}}},"title":"OrganizationsImportResultRepresentation"}}}},"400":{"description":"Invalid import data or format"},"409":{"description":"Conflicts with existing organizations"}}}
+  {...require("./import-organizations.StatusCodes.json")}
 >
   
 </StatusCodes>
