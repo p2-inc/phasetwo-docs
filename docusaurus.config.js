@@ -19,6 +19,9 @@ module.exports = {
     caseStudyRequestEndpoint:
       process.env.CASE_STUDY_REQUEST_ENDPOINT ||
       "https://marketing-dl.phasetwo-iam.io/api/case-studies/request",
+    demoRequestEndpoint:
+      process.env.DEMO_REQUEST_ENDPOINT ||
+      "https://marketing-dl.phasetwo-iam.io/api/demo-request",
     turnstileSiteKey:
       process.env.TURNSTILE_SITE_KEY || "0x4AAAAAACjXlnccRgW3nXgA",
   },

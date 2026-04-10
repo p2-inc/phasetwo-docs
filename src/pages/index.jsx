@@ -5,6 +5,7 @@ import Layout from "@theme/Layout";
 import { useEffect, useRef, useState } from "react";
 import StartYourJourney from "../components/ctas/start-your-journey";
 import Cta from "../components/ctas/homepage-dual-line-cta";
+import DemoModal from "../components/DemoModal";
 import FrameworkTabs from "../components/FrameworkTabs";
 import styles from "./styles.module.css";
 import integrationsStyles from "./product/integrations.module.css";
@@ -298,7 +299,18 @@ const customerLogos = [
 function Home() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
+  const customFields = siteConfig?.customFields || {};
+  const demoRequestEndpoint =
+    typeof customFields.demoRequestEndpoint === "string"
+      ? customFields.demoRequestEndpoint
+      : "";
+  const turnstileSiteKey =
+    typeof customFields.turnstileSiteKey === "string"
+      ? customFields.turnstileSiteKey
+      : "";
+
   const [activeTab, setActiveTab] = useState(0);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
   const mainRef = useRef(null);
   const gsapApiRef = useRef(null);
   const gsapCtxRef = useRef(null);
@@ -472,12 +484,22 @@ function Home() {
                     </p>
                     
                     <div className="mt-auto flex flex-col items-center justify-center gap-4">
-                      <a href="https://dash.phasetwo.io/" target="_blank">
+                      {/* Mobile only: Get a Demo (primary) + Try for Free (secondary) */}
+                      <button
+                        className="btnPrimary min-w-[160px] md:hidden"
+                        onClick={() => setDemoModalOpen(true)}
+                      >
+                        Get a Demo
+                      </button>
+                      <a href="https://dash.phasetwo.io/" target="_blank" className="hidden md:block">
                         <button className="btnPrimary min-w-[160px]">Try for Free</button>
+                      </a>
+                      <a href="https://dash.phasetwo.io/" target="_blank" className="md:hidden">
+                        <button className="btnSecondary min-w-[160px]">Try for Free</button>
                       </a>
                       <Link
                         href={"/hosting"}
-                        className="link-primary"
+                        className="link-primary text-sm"
                       >
                         Learn more <span aria-hidden="true">→</span>
                       </Link>
@@ -528,11 +550,15 @@ function Home() {
 
         <section className="onprem-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 flex justify-center">
-            <div>
-              <span className="text-white">On-prem and Managed Infrastructure? </span>
-              <Link to="/product/onprem">
-                Read more <span aria-hidden="true">&rarr;</span>
-              </Link>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <span className="text-white">See Phase Two in action.</span>
+              <button
+                className="btnPrimary btnSupport"
+                style={{ height: "56px", padding: "0 32px", fontSize: "1rem" }}
+                onClick={() => setDemoModalOpen(true)}
+              >
+                Get a Demo
+              </button>
             </div>
           </div>
         </section>
@@ -1155,6 +1181,13 @@ function Home() {
         </div>
 
         <StartYourJourney />
+
+        <DemoModal
+          isOpen={demoModalOpen}
+          onClose={() => setDemoModalOpen(false)}
+          demoRequestEndpoint={demoRequestEndpoint}
+          turnstileSiteKey={turnstileSiteKey}
+        />
       </main>
     </Layout>
   );
