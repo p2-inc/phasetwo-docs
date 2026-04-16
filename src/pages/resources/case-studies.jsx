@@ -103,6 +103,7 @@ export default function CaseStudies() {
   const [requestSuccess, setRequestSuccess] = React.useState("");
   const [turnstileToken, setTurnstileToken] = React.useState("");
   const [isTurnstileReady, setIsTurnstileReady] = React.useState(false);
+  const [turnstileFailed, setTurnstileFailed] = React.useState(false);
   const autoDismissTimerRef = React.useRef(null);
   const turnstileContainerRef = React.useRef(null);
   const turnstileWidgetIdRef = React.useRef(null);
@@ -147,17 +148,18 @@ export default function CaseStudies() {
           size: "flexible",
           callback: (token) => {
             setTurnstileToken(token);
+            setTurnstileFailed(false);
             setRequestError("");
           },
           "error-callback": () => {
             setTurnstileToken("");
-            setRequestError("Verification failed. Please try again.");
+            setTurnstileFailed(true);
+            // Don't set an error — widget may still show an interactive
+            // challenge and recover. Surface the fallback softly instead.
           },
           "expired-callback": () => {
             setTurnstileToken("");
-            setRequestError(
-              "Verification expired. Please complete Turnstile again.",
-            );
+            setRequestError("Verification expired. Please complete it again.");
           },
         },
       );
@@ -196,6 +198,7 @@ export default function CaseStudies() {
     setRequestError("");
     setRequestSuccess("");
     setTurnstileToken("");
+    setTurnstileFailed(false);
   };
 
   const closeRequestModal = () => {
@@ -205,6 +208,7 @@ export default function CaseStudies() {
     setRequestError("");
     setRequestSuccess("");
     setTurnstileToken("");
+    setTurnstileFailed(false);
   };
 
   const handleRequestFieldChange = (event) => {
@@ -250,7 +254,14 @@ export default function CaseStudies() {
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(data?.error || "Request failed");
+        const rawError = data?.error || "Request failed";
+        const isTurnstileError = rawError === "turnstile failed";
+        if (isTurnstileError) setTurnstileFailed(true);
+        throw new Error(
+          isTurnstileError
+            ? "Verification could not be completed. Please try again."
+            : rawError,
+        );
       }
 
       setRequestSuccess(
@@ -392,11 +403,23 @@ export default function CaseStudies() {
                 </label>
 
                 {isTurnstileEnabled ? (
-                  <div className="">
+                  <div>
                     <div ref={turnstileContainerRef} />
                     {!isTurnstileReady ? (
                       <p className="mb-0 mt-2 text-xs text-gray-400">
                         Loading verification...
+                      </p>
+                    ) : null}
+                    {turnstileFailed ? (
+                      <p className="mb-0 mt-2 text-xs text-gray-400">
+                        Having trouble?{" "}
+                        <a
+                          href="mailto:sales@phasetwo.io"
+                          className="text-p2blue-400 underline-offset-2 hover:underline"
+                        >
+                          Email us at sales@phasetwo.io
+                        </a>{" "}
+                        and we'll get you set up.
                       </p>
                     ) : null}
                   </div>
