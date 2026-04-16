@@ -105,7 +105,8 @@ export default function DemoModal({
           "error-callback": () => {
             setTurnstileToken("");
             setTurnstileFailed(true);
-            setError("Verification failed. Please refresh and try again.");
+            // Don't set error here — the widget may still show an interactive
+            // challenge and recover. We surface the fallback softly instead.
           },
           "expired-callback": () => {
             setTurnstileToken("");
@@ -475,14 +476,8 @@ export default function DemoModal({
                         Loading verification...
                       </p>
                     ) : null}
-                  </div>
-                ) : null}
-
-                {error ? (
-                  <div className="flex flex-col gap-1">
-                    <p className="mb-0 text-sm text-red-300">{error}</p>
                     {turnstileFailed ? (
-                      <p className="mb-0 text-xs text-gray-400">
+                      <p className="mb-0 mt-2 text-xs text-gray-400">
                         Having trouble?{" "}
                         <a
                           href="mailto:sales@phasetwo.io"
@@ -494,6 +489,10 @@ export default function DemoModal({
                       </p>
                     ) : null}
                   </div>
+                ) : null}
+
+                {error ? (
+                  <p className="mb-0 text-sm text-red-300">{error}</p>
                 ) : null}
                 {success ? (
                   <p className="mb-0 text-sm text-emerald-300">{success}</p>
