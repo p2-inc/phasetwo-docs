@@ -10,7 +10,7 @@ module.exports = {
     "Fully managed, multi-region, high-availability, Keycloak deployments with top extensions to run for any enterprise. 99.95% uptime SLA. 24/7 support. Built by top Keycloak experts and contributors.",
   url: "https://phasetwo.io",
   baseUrl: "/",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.svg",
   organizationName: "p2-inc",
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
