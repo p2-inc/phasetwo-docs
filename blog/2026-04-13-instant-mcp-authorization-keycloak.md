@@ -45,6 +45,14 @@ VS Code will connect to that URL, discover the MCP server's protected-resource m
 
 That is the key mental model: the MCP server is the protected resource, and Keycloak is the authorization server.
 
+A high-level diagram of the topology looks like this:
+
+![MCP Keycloak Topology](/blog/mcp_authorization_keycloak/dataflow-topology.png)
+
+with data flowing through it like this:
+
+![MCP Keycloak Dataflow Sequence](/blog/mcp_authorization_keycloak/dataflow-sequence.png)
+
 ## What you need installed
 
 Install these first:
@@ -397,6 +405,8 @@ Before you call this done, make sure all of these match:
 - Anonymous Trusted Hosts policy is removed
 
 If those are true, you have a clean local setup for a Keycloak-protected MCP server that VS Code can discover, register against, and use.
+
+![MCP Keycloak Dataflow](/blog/mcp_authorization_keycloak/dataflow.png)
 
 ## Why Phase Two is the easiest way to run this for real
 
