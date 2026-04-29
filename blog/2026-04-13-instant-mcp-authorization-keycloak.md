@@ -91,7 +91,7 @@ For this to work, two endpoints have to behave correctly:
 
 Download the complete example server here:
 
-- [server.py](/blog/mcp_authorization_keycloak/keycloak-mcp-server.py)
+- <a href="/blog/mcp_authorization_keycloak/keycloak-mcp-server.py">server.py</a>
 
 This server:
 
@@ -188,7 +188,7 @@ That exact URL must match the issuer your Python server validates.
 
 If you want a faster setup than clicking through each screen manually, you can also import the example realm configuration:
 
-- [realm-export.json](/blog/mcp_authorization_keycloak/keycloak-realm-export.json)
+- <a href="/blog/mcp_authorization_keycloak/keycloak-realm-export.json">realm-export.json</a>
 
 If you are using a hosted realm from Phase Two instead of local Keycloak, use the hosted realm's issuer URL everywhere the tutorial currently shows `http://localhost:8080/realms/mcp-demo`.
 
@@ -270,7 +270,7 @@ But Trusted Hosts needs to go for this workflow.
 
 Create `.vscode/mcp.json`, or download the example file:
 
-- [mcp.json](/blog/mcp_authorization_keycloak/keycloak-mcp.json)
+- <a href="/blog/mcp_authorization_keycloak/keycloak-mcp.json">mcp.json</a>
 
 The contents should look like:
 
