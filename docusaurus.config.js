@@ -91,9 +91,9 @@ module.exports = {
   ],
   themeConfig: {
     announcementBar: {
-      id: "dedicated_clusters",
+      id: "mcp_authorization",
       content:
-        '<a href="/blog/cockroach-labs-features-phasetwo-managed-keycloak-hosting/">Cockroach Labs features Phase Two!</a> - Get fully managed, multi-region, high-availability Keycloak hosting with top extensions and 24/7 support.',
+        'New: <a href="/blog/instant-mcp-authorization-keycloak/">Instant MCP authorization using Keycloak</a> - Protect your MCP server with real login flows, scoped tokens, and zero custom auth code.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
