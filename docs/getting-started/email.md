@@ -46,8 +46,6 @@ Email branding is configured in **Extensions > Styles > Email**. These settings 
 The `phasetwo-ui` email theme must be active for branding to take effect. If your realm is using a different email theme, a warning banner will appear with an **Activate** button that switches it automatically. If you are on the older `attributes` or `attributes-v2` themes you will see an **Upgrade to phasetwo-ui** prompt instead.
 :::
 
-![Email theme warning banner with Activate button](/docs/getting-started-email-theme-warning.png)
-
 ### Logo
 
 Upload a PNG or SVG file (max 1 MB). The image is base64-encoded and embedded directly in each email — no external hosting required. It renders at up to 160 × 60 px in the email body. If no logo is uploaded the Phase Two default logo is shown.
@@ -61,11 +59,11 @@ Upload a PNG or SVG file (max 1 MB). The image is base64-encoded and embedded di
 
 A live preview renders below the form showing exactly how the logo and footer will appear before any email is sent. To send an actual test message, use the **Test connection** button in **Realm Settings > Email**.
 
-![Email branding form with logo, footer fields, and live preview](/docs/getting-started-email-branding.png)
+![Email branding form with logo, footer fields, and live preview](/docs/getting-started/email-theme-configuration.png)
 
 ## Content templates
 
-Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify. 
+Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify.
 
 - Execute Required Actions
 - Link to Identity Provider
