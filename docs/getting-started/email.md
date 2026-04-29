@@ -38,9 +38,32 @@ In the **Connection & Authentication** section, you will provide details of your
 
 Finally, before you click **Save**, click the **Test connection** button to send a test email to the email address of the currently logged in user. If you don't have that set, you might have click **Save** and edit your user before you come back. You'll receive a success message, or information that will help you resolve problems.
 
+## Email Branding
+
+Email branding is configured in **Extensions > Styles > Email**. These settings control the logo and footer that appear in every outgoing system email.
+
+:::note
+The `phasetwo-ui` email theme must be active for branding to take effect. If your realm is using a different email theme, a warning banner will appear with an **Activate** button that switches it automatically. If you are on the older `attributes` or `attributes-v2` themes you will see an **Upgrade to phasetwo-ui** prompt instead.
+:::
+
+### Logo
+
+Upload a PNG or SVG file (max 1 MB). The image is base64-encoded and embedded directly in each email — no external hosting required. It renders at up to 160 × 60 px in the email body. If no logo is uploaded the Phase Two default logo is shown.
+
+### Footer
+
+- **Footer line 1** — first line of the email footer. Defaults to the realm's display name when left blank.
+- **Footer line 2** — optional second line for a tagline, support address, or legal text.
+
+### Preview
+
+A live preview renders below the form showing exactly how the logo and footer will appear before any email is sent. To send an actual test message, use the **Test connection** button in **Realm Settings > Email**.
+
+![Email branding form with logo, footer fields, and live preview](/docs/getting-started/email-theme-configuration.png)
+
 ## Content templates
 
-Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify. 
+Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify.
 
 - Execute Required Actions
 - Link to Identity Provider

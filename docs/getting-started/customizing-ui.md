@@ -5,6 +5,10 @@ title: Customizing UI / Theming
 
 It is possible to customize styles for login screens to match your branding. This can be achieved by simple colors and logo override of the default them, or by full CSS replacement.
 
+:::tip Email theme
+For email branding (logo, footer), set your realm's email theme to `phasetwo-ui`. This unlocks the **Email Branding** settings described in the [Emails](/docs/getting-started/email#email-branding) guide.
+:::
+
 If you are looking to do a full custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/) to build it. This allows you to use React components to build your theme and provides backwards compatibility.
 
 Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we are deeply convinced by this project's value.
@@ -88,9 +92,17 @@ The above methods for updating the style store the values as Realm attributes. I
 
 **General**
 
+These attributes apply to login and account pages. Email messages use a separate logo — see [Email Branding](/docs/getting-started/email#email-branding).
+
 - `_providerConfig.assets.logo.url`
 - `_providerConfig.assets.favicon.url`
 - `_providerConfig.assets.appicon.url`
+
+**Email**
+
+- `_providerConfig.assets.logo.base64` — base64-encoded data URI of your email logo (e.g. `data:image/png;base64,...`). Embedded directly in email bodies; requires the `phasetwo-ui` email theme.
+- `_providerConfig.assets.email.footer.line1` — first footer line; defaults to realm display name when absent
+- `_providerConfig.assets.email.footer.line2` — optional second footer line
 
 **Admin Portal**
 
