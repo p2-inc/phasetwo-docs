@@ -7,8 +7,12 @@ import StartYourJourney from "../components/ctas/start-your-journey";
 import Cta from "../components/ctas/homepage-dual-line-cta";
 import DemoModal from "../components/DemoModal";
 import FrameworkTabs from "../components/FrameworkTabs";
+import ValueHero from "../components/homepage/ValueHero";
+import WhyTeamsSwitch from "../components/homepage/WhyTeamsSwitch";
+import ComparisonSection from "../components/homepage/ComparisonSection";
 import styles from "./styles.module.css";
 import integrationsStyles from "./product/integrations.module.css";
+import ServiceHero from "../components/homepage/ServiceHero";
 
 const INTEGRATIONS_ICON_COLOR = "#A0A9DB";
 function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
@@ -20,7 +24,9 @@ const HostingItems = [
     name: "Multi-Region, High-Availability Clusters",
     desc: (
       <p>
-        Hosted in multiple regions for high availability and low latency. Ensure uptime and performance. Choose to deploy in areas to comply with data residency requirements or specific applications needs.
+        Hosted in multiple regions for high availability and low latency. Ensure
+        uptime and performance. Choose to deploy in areas to comply with data
+        residency requirements or specific applications needs.
       </p>
     ),
     icon: "tabler:pig-money",
@@ -31,7 +37,8 @@ const HostingItems = [
     name: "Unlimited Users & SSO Connections",
     desc: (
       <p>
-        Unlimited users and SSO connections for a single, flat price. Fees don't explode as your app grows and scales.
+        Unlimited users and SSO connections for a single, flat price. Fees don't
+        explode as your app grows and scales.
       </p>
     ),
     icon: "carbon:ibm-dynamic-route-server",
@@ -42,7 +49,9 @@ const HostingItems = [
     name: "24/7 Monitor, Alert, Backup",
     desc: (
       <p>
-        24/7/365 support. We aggressively monitor your clusters and can connect to your existing systems to integrate with existing SRE practices. Routine DB backups are included.
+        24/7/365 support. We aggressively monitor your clusters and can connect
+        to your existing systems to integrate with existing SRE practices.
+        Routine DB backups are included.
       </p>
     ),
     icon: "gis:globe-alt",
@@ -53,7 +62,9 @@ const HostingItems = [
     name: "Version Upgrades",
     desc: (
       <p>
-        We keep your instance(s) up to date with the latest Keycloak releases ensuring CVE's and other security issues are patched. Teams that self-host cite this as a major pain point.
+        We keep your instance(s) up to date with the latest Keycloak releases
+        ensuring CVE's and other security issues are patched. Teams that
+        self-host cite this as a major pain point.
       </p>
     ),
     icon: "ix:project-server",
@@ -64,7 +75,8 @@ const HostingItems = [
     name: "Load-based Pricing, Not User Count",
     desc: (
       <p>
-        Clusters are priced by active session count, not total users in the database.
+        Clusters are priced by active session count, not total users in the
+        database.
       </p>
     ),
   },
@@ -72,7 +84,8 @@ const HostingItems = [
     name: "Extend and Customize",
     desc: (
       <p>
-        Our included extensions make it easy to run Keycloak. Customize your Keycloak instance further with your own extensions and themes.
+        Our included extensions make it easy to run Keycloak. Customize your
+        Keycloak instance further with your own extensions and themes.
       </p>
     ),
   },
@@ -80,7 +93,8 @@ const HostingItems = [
     name: "Access Control",
     desc: (
       <p>
-        Control access to your cluster and deployments to ensure secure settings and access to Admin endpoints and public access.
+        Control access to your cluster and deployments to ensure secure settings
+        and access to Admin endpoints and public access.
       </p>
     ),
   },
@@ -89,12 +103,14 @@ const HostingItems = [
 const EnhancedFeatures = [
   {
     title: "Organizations",
-    description: "Multi-tenancy for applications coupled with Enterprise SSO. Enable customer domain based SSO for one or many domains.",
+    description:
+      "Multi-tenancy for applications coupled with Enterprise SSO. Enable customer domain based SSO for one or many domains.",
     icon: "lucide:building-2",
   },
   {
     title: "IdP Wizard",
-    description: "Enable customers to automatically configure identity providers and SSO saving your team time.",
+    description:
+      "Enable customers to automatically configure identity providers and SSO saving your team time.",
     icon: "lucide:wand-2",
   },
   {
@@ -104,17 +120,20 @@ const EnhancedFeatures = [
   },
   {
     title: "Admin Portal",
-    description: "User self-management for their account (mfa methods and more) along with organizations.",
+    description:
+      "User self-management for their account (mfa methods and more) along with organizations.",
     icon: "lucide:layout-dashboard",
   },
   {
     title: "Events",
-    description: "Audit logging for compliance and webhooks for user and system activity notifications.",
+    description:
+      "Audit logging for compliance and webhooks for user and system activity notifications.",
     icon: "lucide:calendar-clock",
   },
   {
     title: "Themes",
-    description: "Admin UI theme customization to avoid building a custom theme.",
+    description:
+      "Admin UI theme customization to avoid building a custom theme.",
     icon: "lucide:palette",
   },
 ];
@@ -132,17 +151,20 @@ const ScaleFeatures = [
   },
   {
     title: "Smart App Integration",
-    description: "Lean on our expertise to integrate with Keycloak for multiple use-cases",
+    description:
+      "Lean on our expertise to integrate with Keycloak for multiple use-cases",
     icon: "lucide:puzzle",
   },
   {
     title: "Export Logs",
-    description: "Integrate logs to your own SIEM/SOAR for additional monitoring",
+    description:
+      "Integrate logs to your own SIEM/SOAR for additional monitoring",
     icon: "lucide:file-output",
   },
   {
     title: "Zero-Downtime Upgrades",
-    description: "Stay on the most recent Keycloak version with zero effort or downtime",
+    description:
+      "Stay on the most recent Keycloak version with zero effort or downtime",
     icon: "lucide:circle-arrow-up",
   },
   {
@@ -318,7 +340,9 @@ function Home() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const reduceMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    )?.matches;
     if (reduceMotion) return;
 
     let cancelled = false;
@@ -352,8 +376,12 @@ function Home() {
       }
 
       // Capture candidates (only those not registered yet).
-      const candidates = Array.from(scopeEl.querySelectorAll("[data-scroll-slide-in]")).filter(
-        (el) => el instanceof HTMLElement && el.dataset.gsapScrollSlideInRegistered !== "true"
+      const candidates = Array.from(
+        scopeEl.querySelectorAll("[data-scroll-slide-in]"),
+      ).filter(
+        (el) =>
+          el instanceof HTMLElement &&
+          el.dataset.gsapScrollSlideInRegistered !== "true",
       );
       if (!candidates.length) return;
 
@@ -364,7 +392,9 @@ function Home() {
       }));
 
       const parseDelayMs = (el) => {
-        const raw = el.style.getPropertyValue("--scroll-slide-in-delay")?.trim();
+        const raw = el.style
+          .getPropertyValue("--scroll-slide-in-delay")
+          ?.trim();
         if (!raw) return null;
         const ms = Number.parseFloat(raw);
         return Number.isFinite(ms) ? ms : null;
@@ -383,7 +413,9 @@ function Home() {
         const prev = groupCounters.get(groupEl) ?? 0;
         groupCounters.set(groupEl, prev + 1);
         const baseDelayMs =
-          Number(groupEl.getAttribute("data-scroll-slide-group-base-delay") ?? 0) || 0;
+          Number(
+            groupEl.getAttribute("data-scroll-slide-group-base-delay") ?? 0,
+          ) || 0;
         return baseDelayMs + Math.min(prev * 80, 560);
       };
 
@@ -397,7 +429,11 @@ function Home() {
           // If element is already within the trigger zone, keep it visible (no flash/hide).
           const alreadyInZone = rect.top < startThreshold && rect.bottom > 0;
           if (alreadyInZone) {
-            gsap.set(el, { autoAlpha: 1, y: 0, clearProps: "transform,opacity" });
+            gsap.set(el, {
+              autoAlpha: 1,
+              y: 0,
+              clearProps: "transform,opacity",
+            });
             continue;
           }
 
@@ -458,128 +494,219 @@ function Home() {
     <Layout description={`${siteConfig.tagline}`}>
       {/* Main Content */}
       <main ref={mainRef}>
-        {/* Hero Section */}
-        <section className="homepage-section homepage-hero-section">
-          <div className="relative isolate">
+        <ValueHero onDemoClick={() => setDemoModalOpen(true)} />
+
+        <section className="homepage-section logos-section hosting-block">
+          <div>
             <div>
-              <div className="hero-boxes-container flex flex-col md:flex-row gap-0">
-                {/* Managed Keycloak Hosting Box */}
-                <div className="hero-box hero-box-primary">
-                  <div className="hero-box-image mb-6">
-                    <img 
-                      src="/img/hero-managed-keycloak-hosting.svg" 
-                      alt="Managed Keycloak Hosting"
-                      className="hero-box-image-img"
+              <p
+                className="text-center font-normal text-white"
+                data-scroll-slide-in
+              >
+                Working with customers from startups to Fortune 500 companies.
+              </p>
+              <div
+                className="p2-marquee mt-6 overflow-hidden"
+                aria-label="Customer logos"
+              >
+                <div className="p2-marquee-track flex">
+                  {[...customerLogos, ...customerLogos].map((logo, index) => (
+                    <img
+                      key={`${logo.file}-${index}`}
+                      src={`/customer-logos/${logo.file}`}
+                      className={logo.classes}
+                      alt={`${logo.name} logo`}
+                      loading="lazy"
+                      decoding="async"
+                      {...(index >= customerLogos.length
+                        ? { "aria-hidden": true }
+                        : undefined)}
                     />
-                  </div>
-                  
-                  <div className="hero-box-content">
-                    <h1 className="text-balance text-white mb-6">
-                      Managed Keycloak Hosting
-                    </h1>
-                    
-                    <p className="text-pretty text-gray-300 mb-6">
-                      Simple, Cost-Conscious, Customizable, Enhanced Keycloak
-                      Hosting for 99% of Use-Cases.
-                    </p>
-                    
-                    <div className="mt-auto flex flex-col items-center justify-center gap-4">
-                      {/* Mobile only: Get a Demo (primary) + Try for Free (secondary) */}
-                      <button
-                        className="btnPrimary min-w-[160px] md:hidden"
-                        onClick={() => setDemoModalOpen(true)}
-                      >
-                        Get a Demo
-                      </button>
-                      <a href="https://dash.phasetwo.io/" target="_blank" className="hidden md:block">
-                        <button className="btnPrimary min-w-[160px]">Try for Free</button>
-                      </a>
-                      <a href="https://dash.phasetwo.io/" target="_blank" className="md:hidden">
-                        <button className="btnSecondary min-w-[160px]">Try for Free</button>
-                      </a>
-                      <Link
-                        href={"/hosting"}
-                        className="link-primary text-sm"
-                      >
-                        Learn more <span aria-hidden="true">→</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enterprise Keycloak Support Box */}
-                <div className="hero-box hero-box-secondary">
-                  <div className="hero-box-image mb-6">
-                    <img 
-                      src="/img/hero-enterprise-keycloak-support.svg" 
-                      alt="Enterprise Keycloak Support"
-                      className="hero-box-image-img"
-                    />
-                  </div>
-                  
-                  <div className="hero-box-content">
-                    <h1 className="text-balance text-white mb-6">
-                      Enterprise Keycloak Support
-                    </h1>
-                    
-                    <p className="text-pretty text-gray-300 mb-6">
-                      Expert Keycloak Support for Enterprises Coming to or
-                      Using Keycloak at any Level of Complexity.
-                    </p>
-                    
-                    <div className="mt-auto flex flex-col items-center justify-center gap-4">
-                      <Link to="/contact">
-                        <button className="btnPrimary btnSupport min-w-[160px]">
-                          Contact
-                        </button>
-                      </Link>
-                      <Link
-                        to="/support"
-                        className="link-secondary"
-                      >
-                        Learn more <span aria-hidden="true">→</span>
-                      </Link>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-              
             </div>
           </div>
         </section>
 
-        <section className="onprem-section">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8 flex justify-center">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <span className="text-white">See Phase Two in action.</span>
-              <button
-                className="btnPrimary btnSupport"
-                style={{ height: "56px", padding: "0 32px", fontSize: "1rem" }}
-                onClick={() => setDemoModalOpen(true)}
+        <WhyTeamsSwitch />
+
+        <ComparisonSection onDemoClick={() => setDemoModalOpen(true)} />
+
+        {/* Hero Section */}
+        <ServiceHero />
+
+        {/* Hosting */}
+        <section className="homepage-section hosting-block px-6 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            {/* Section title */}
+            <div className="mb-12 flex justify-center" data-scroll-slide-group>
+              <h2 className="section-title-primary" data-scroll-slide-in>
+                Managed Keycloak Hosting
+              </h2>
+            </div>
+
+            {/* Header with h2 on left and intro text on right */}
+            <div
+              className="mx-auto mb-16 grid grid-cols-1 gap-8 lg:grid-cols-2"
+              style={{ maxWidth: "880px" }}
+              data-scroll-slide-group
+            >
+              <div>
+                <h2 className="text-white" data-scroll-slide-in>
+                  Extended with Everything You Need To Run Keycloak
+                </h2>
+              </div>
+              <div className="flex items-center">
+                <p className="text-gray-300" data-scroll-slide-in>
+                  Every deployment is packed with our{" "}
+                  <a
+                    href="https://github.com/p2-inc#our-extensions-"
+                    target="_blank"
+                    className="font-medium text-p2blue-400 hover:text-p2blue-300"
+                  >
+                    popular extensions
+                  </a>{" "}
+                  to make Keycloak easier to use and more powerful. Provided at
+                  a{" "}
+                  <span className="font-medium">
+                    consistent, predictable price
+                  </span>{" "}
+                  that doesn't balloon based on users or IdP connections.
+                </p>
+              </div>
+            </div>
+
+            {/* Bento Layout */}
+            <div className="hosting-bento-grid" data-scroll-slide-group>
+              {/* Row 1: Full width box */}
+              <div
+                className="hosting-bento-box hosting-bento-box-full"
+                data-scroll-slide-in
               >
-                Get a Demo
-              </button>
+                <div className="hosting-bento-image">
+                  <img
+                    src="/img/managed-keycloak-hosting-top.svg"
+                    alt={HostingItems[0].name}
+                    className="h-auto w-full"
+                  />
+                </div>
+                <div className="hosting-bento-content hosting-bento-content-first">
+                  <h3 className="mb-4 text-white">{HostingItems[0].name}</h3>
+                  <div className="hosting-bento-text text-gray-300">
+                    {HostingItems[0].desc}
+                  </div>
+                  {HostingItems[0].cta && HostingItems[0].href && (
+                    <Link
+                      to={HostingItems[0].href}
+                      className="hosting-bento-link"
+                    >
+                      {HostingItems[0].cta}{" "}
+                      <span
+                        className="hosting-bento-link-arrow"
+                        aria-hidden="true"
+                      >
+                        →
+                      </span>
+                    </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 2: 3 boxes with images */}
+              {HostingItems.slice(1, 4).map((item, index) => {
+                const imageMap = [
+                  "/img/managed-keycloak-hosting-unlimited-users.svg",
+                  "/img/managed-keycloak-hosting-monitor-backup.svg",
+                  "/img/managed-keycloak-hosting-version-upgrades.svg",
+                ];
+                return (
+                  <div
+                    key={item.name}
+                    className="hosting-bento-box hosting-bento-box-image-bottom"
+                    data-scroll-slide-in
+                  >
+                    <div className="hosting-bento-content">
+                      <h4 className="mb-4 text-white">{item.name}</h4>
+                      <div className="hosting-bento-text text-gray-300">
+                        {item.desc}
+                      </div>
+                      {item.cta && item.href && (
+                        <Link to={item.href} className="hosting-bento-link">
+                          {item.cta}{" "}
+                          <span
+                            className="hosting-bento-link-arrow"
+                            aria-hidden="true"
+                          >
+                            →
+                          </span>
+                        </Link>
+                      )}
+                    </div>
+                    <div className="hosting-bento-image hosting-bento-image-bottom">
+                      <img
+                        src={imageMap[index]}
+                        alt={item.name}
+                        className="h-auto w-full"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Row 3: 3 boxes (last 3 items) */}
+              {HostingItems.slice(4, 7).map((item) => (
+                <div
+                  key={item.name}
+                  className="hosting-bento-box"
+                  data-scroll-slide-in
+                >
+                  <div className="hosting-bento-content">
+                    <h4 className="mb-4 text-white">{item.name}</h4>
+                    <div className="hosting-bento-text text-gray-300">
+                      {item.desc}
+                    </div>
+                    {item.cta && item.href && (
+                      <Link to={item.href} className="hosting-bento-link">
+                        {item.cta}{" "}
+                        <span
+                          className="hosting-bento-link-arrow"
+                          aria-hidden="true"
+                        >
+                          →
+                        </span>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Top level explanation */}
-        <section className="homepage-section">
+        <section className="homepage-section hosting-block">
           <div className="px-6 sm:px-6 lg:px-8">
             {/* Top image */}
             <div className="mb-12 flex justify-center">
-              <img 
-                src="/img/keycloak-general.svg" 
-                alt="Keycloak" 
+              <img
+                src="/img/keycloak-general.svg"
+                alt="Keycloak"
                 className="w-full max-w-4xl"
               />
             </div>
-            
-            <div className="mx-auto text-center max-w-[var(--content-width-narrow)]" data-scroll-slide-group>
+
+            <div
+              className="mx-auto max-w-[var(--content-width-narrow)] text-center"
+              data-scroll-slide-group
+            >
               <h2 className="text-balance" data-scroll-slide-in>
                 Enterprise-Grade, Open-Source Identity and Access Management
               </h2>
-              <p className="mx-auto mt-6 max-w-xl text-pretty text-gray-600" data-scroll-slide-in>
+              <p
+                className="mx-auto mt-6 max-w-xl text-pretty text-gray-600"
+                data-scroll-slide-in
+              >
                 Keycloak is a powerful open-source identity and access
                 management system capable of replacing any IAM with capabilities
                 for{" "}
@@ -611,143 +738,6 @@ function Home() {
           </div>
         </section>
 
-        <section className="homepage-section logos-section">
-          <div>
-            <div>
-              <p className="text-center font-normal text-white" data-scroll-slide-in>
-                Working with customers from startups to Fortune 500 companies.
-              </p>
-              <div className="p2-marquee mt-6 overflow-hidden" aria-label="Customer logos">
-                <div className="p2-marquee-track flex">
-                  {[...customerLogos, ...customerLogos].map((logo, index) => (
-                    <img
-                      key={`${logo.file}-${index}`}
-                      src={`/customer-logos/${logo.file}`}
-                      className={logo.classes}
-                      alt={`${logo.name} logo`}
-                      loading="lazy"
-                      decoding="async"
-                      {...(index >= customerLogos.length
-                        ? { "aria-hidden": true }
-                        : undefined)}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Hosting */}
-        <section className="homepage-section hosting-block px-6 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            {/* Section title */}
-            <div className="mb-12 flex justify-center" data-scroll-slide-group>
-              <h2 className="section-title-primary" data-scroll-slide-in>Managed Keycloak Hosting</h2>
-            </div>
-            
-            {/* Header with h2 on left and intro text on right */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16 mx-auto" style={{maxWidth: '880px'}} data-scroll-slide-group>
-              <div>
-                <h2 className="text-white" data-scroll-slide-in>
-                  Extended with Everything You Need To Run Keycloak
-                </h2>
-              </div>
-              <div className="flex items-center">
-                <p className="text-gray-300" data-scroll-slide-in>
-                  Every deployment is packed with our{" "}
-                  <a
-                    href="https://github.com/p2-inc#our-extensions-"
-                    target="_blank"
-                    className="font-medium text-p2blue-400 hover:text-p2blue-300"
-                  >
-                    popular extensions
-                  </a>{" "}
-                  to make Keycloak easier to use and more powerful. Provided at a{" "}
-                  <span className="font-medium">consistent, predictable price</span> that doesn't balloon based
-                  on users or IdP connections.
-                </p>
-              </div>
-            </div>
-
-            {/* Bento Layout */}
-            <div className="hosting-bento-grid" data-scroll-slide-group>
-              {/* Row 1: Full width box */}
-              <div className="hosting-bento-box hosting-bento-box-full" data-scroll-slide-in>
-                <div className="hosting-bento-image">
-                  <img 
-                    src="/img/managed-keycloak-hosting-top.svg" 
-                    alt={HostingItems[0].name}
-                    className="w-full h-auto"
-                  />
-                </div>
-                <div className="hosting-bento-content hosting-bento-content-first">
-                  <h3 className="text-white mb-4">{HostingItems[0].name}</h3>
-                  <div className="text-gray-300 hosting-bento-text">{HostingItems[0].desc}</div>
-                  {HostingItems[0].cta && HostingItems[0].href && (
-                    <Link
-                      to={HostingItems[0].href}
-                      className="hosting-bento-link"
-                    >
-                      {HostingItems[0].cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 2: 3 boxes with images */}
-              {HostingItems.slice(1, 4).map((item, index) => {
-                const imageMap = [
-                  "/img/managed-keycloak-hosting-unlimited-users.svg",
-                  "/img/managed-keycloak-hosting-monitor-backup.svg",
-                  "/img/managed-keycloak-hosting-version-upgrades.svg"
-                ];
-                return (
-                  <div key={item.name} className="hosting-bento-box hosting-bento-box-image-bottom" data-scroll-slide-in>
-                    <div className="hosting-bento-content">
-                      <h4 className="text-white mb-4">{item.name}</h4>
-                      <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
-                      {item.cta && item.href && (
-                        <Link
-                          to={item.href}
-                          className="hosting-bento-link"
-                        >
-                          {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
-                        </Link>
-                      )}
-                    </div>
-                    <div className="hosting-bento-image hosting-bento-image-bottom">
-                      <img 
-                        src={imageMap[index]} 
-                        alt={item.name}
-                        className="w-full h-auto"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Row 3: 3 boxes (last 3 items) */}
-              {HostingItems.slice(4, 7).map((item) => (
-                <div key={item.name} className="hosting-bento-box" data-scroll-slide-in>
-                  <div className="hosting-bento-content">
-                    <h4 className="text-white mb-4">{item.name}</h4>
-                    <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
-                    {item.cta && item.href && (
-                      <Link
-                        to={item.href}
-                        className="hosting-bento-link"
-                      >
-                        {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <Cta
           background="primary"
           primaryText="Ready to try Keycloak?"
@@ -763,11 +753,17 @@ function Home() {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             {/* Section title */}
             <div className="mb-12 flex justify-center" data-scroll-slide-group>
-              <h2 className="section-title-primary" data-scroll-slide-in>Enterprise Keycloak Support</h2>
+              <h2 className="section-title-primary" data-scroll-slide-in>
+                Enterprise Keycloak Support
+              </h2>
             </div>
-            
+
             {/* Header with h2 on left and intro text on right */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16 mx-auto" style={{maxWidth: '880px'}} data-scroll-slide-group>
+            <div
+              className="mx-auto mb-16 grid grid-cols-1 gap-8 lg:grid-cols-2"
+              style={{ maxWidth: "880px" }}
+              data-scroll-slide-group
+            >
               <div>
                 <h2 className="text-white" data-scroll-slide-in>
                   Expertise to Help Adopt or Extend Keycloak
@@ -775,7 +771,10 @@ function Home() {
               </div>
               <div className="flex items-center">
                 <p className="text-gray-300" data-scroll-slide-in>
-                  Every deployment is packed with our popular extensions to make Keycloak easier to use and more powerful. Provided at a consistent, predictable price that doesn't balloon based on users or IdP connections.
+                  Every deployment is packed with our popular extensions to make
+                  Keycloak easier to use and more powerful. Provided at a
+                  consistent, predictable price that doesn't balloon based on
+                  users or IdP connections.
                 </p>
               </div>
             </div>
@@ -783,23 +782,34 @@ function Home() {
             {/* Bento Layout */}
             <div className="hosting-bento-grid" data-scroll-slide-group>
               {/* Row 1: Full width box */}
-              <div className="hosting-bento-box hosting-bento-box-full" data-scroll-slide-in>
+              <div
+                className="hosting-bento-box hosting-bento-box-full"
+                data-scroll-slide-in
+              >
                 <div className="hosting-bento-image">
-                  <img 
-                    src="/img/enterprise-keycloak-support-top.svg" 
+                  <img
+                    src="/img/enterprise-keycloak-support-top.svg"
                     alt={SupportItems[0].name}
-                    className="w-full h-auto"
+                    className="h-auto w-full"
                   />
                 </div>
                 <div className="hosting-bento-content hosting-bento-content-first">
-                  <h3 className="text-white mb-4">{SupportItems[0].name}</h3>
-                  <div className="text-gray-300 hosting-bento-text">{SupportItems[0].desc}</div>
+                  <h3 className="mb-4 text-white">{SupportItems[0].name}</h3>
+                  <div className="hosting-bento-text text-gray-300">
+                    {SupportItems[0].desc}
+                  </div>
                   {SupportItems[0].cta && SupportItems[0].href && (
                     <Link
                       to={SupportItems[0].href}
                       className="hosting-bento-link"
                     >
-                      {SupportItems[0].cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                      {SupportItems[0].cta}{" "}
+                      <span
+                        className="hosting-bento-link-arrow"
+                        aria-hidden="true"
+                      >
+                        →
+                      </span>
                     </Link>
                   )}
                 </div>
@@ -810,27 +820,36 @@ function Home() {
                 const imageMap = [
                   "/img/enterprise-keycloak-support-scale.svg",
                   "/img/enterprise-keycloak-support-infra.svg",
-                  "/img/enterprise-keycloak-support-migration.svg"
+                  "/img/enterprise-keycloak-support-migration.svg",
                 ];
                 return (
-                  <div key={item.name} className="hosting-bento-box hosting-bento-box-image-bottom" data-scroll-slide-in>
+                  <div
+                    key={item.name}
+                    className="hosting-bento-box hosting-bento-box-image-bottom"
+                    data-scroll-slide-in
+                  >
                     <div className="hosting-bento-content">
-                      <h4 className="text-white mb-4">{item.name}</h4>
-                      <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                      <h4 className="mb-4 text-white">{item.name}</h4>
+                      <div className="hosting-bento-text text-gray-300">
+                        {item.desc}
+                      </div>
                       {item.cta && item.href && (
-                        <Link
-                          to={item.href}
-                          className="hosting-bento-link"
-                        >
-                          {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                        <Link to={item.href} className="hosting-bento-link">
+                          {item.cta}{" "}
+                          <span
+                            className="hosting-bento-link-arrow"
+                            aria-hidden="true"
+                          >
+                            →
+                          </span>
                         </Link>
                       )}
                     </div>
                     <div className="hosting-bento-image hosting-bento-image-bottom">
-                      <img 
-                        src={imageMap[index]} 
+                      <img
+                        src={imageMap[index]}
                         alt={item.name}
-                        className="w-full h-auto"
+                        className="h-auto w-full"
                       />
                     </div>
                   </div>
@@ -839,16 +858,25 @@ function Home() {
 
               {/* Row 3: 3 boxes (items 5-7) */}
               {SupportItems.slice(4, 7).map((item) => (
-                <div key={item.name} className="hosting-bento-box" data-scroll-slide-in>
+                <div
+                  key={item.name}
+                  className="hosting-bento-box"
+                  data-scroll-slide-in
+                >
                   <div className="hosting-bento-content">
-                    <h4 className="text-white mb-4">{item.name}</h4>
-                    <div className="text-gray-300 hosting-bento-text">{item.desc}</div>
+                    <h4 className="mb-4 text-white">{item.name}</h4>
+                    <div className="hosting-bento-text text-gray-300">
+                      {item.desc}
+                    </div>
                     {item.cta && item.href && (
-                      <Link
-                        to={item.href}
-                        className="hosting-bento-link"
-                      >
-                        {item.cta} <span className="hosting-bento-link-arrow" aria-hidden="true">→</span>
+                      <Link to={item.href} className="hosting-bento-link">
+                        {item.cta}{" "}
+                        <span
+                          className="hosting-bento-link-arrow"
+                          aria-hidden="true"
+                        >
+                          →
+                        </span>
                       </Link>
                     )}
                   </div>
@@ -870,24 +898,25 @@ function Home() {
         {/* Migrate to Phase Two */}
         <section className="homepage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-[560px] text-center mb-12">
-              <h2 id="replaceIAMs" className="text-white mb-4">
-                Migrate to Phase Two and Keycloak from Any Existing Identity Provider
+            <div className="mx-auto mb-12 max-w-[560px] text-center">
+              <h2 id="replaceIAMs" className="mb-4 text-white">
+                Migrate to Phase Two and Keycloak from Any Existing Identity
+                Provider
               </h2>
               <p className="text-gray-300">
                 Connect to any framework in any developer stack.
               </p>
             </div>
-            
+
             {/* Top Image */}
             <div className="mb-12 flex justify-center">
-              <img 
-                src="/img/migrate-to-keycloak.svg" 
-                alt="Migrate to Keycloak" 
+              <img
+                src="/img/migrate-to-keycloak.svg"
+                alt="Migrate to Keycloak"
                 className="w-full max-w-4xl"
               />
             </div>
-            
+
             {/* Tabbed Structure */}
             <FrameworkTabs
               tabs={[
@@ -900,8 +929,10 @@ function Home() {
               panels={[
                 <div key="frameworks" className="framework-tab-panel">
                   <p className="framework-tab-text">
-                    Phase Two can secure <span className="underline">web frameworks</span> or native applications
-                    to provide authentication and authorization services.
+                    Phase Two can secure{" "}
+                    <span className="underline">web frameworks</span> or native
+                    applications to provide authentication and authorization
+                    services.
                   </p>
                   <div className="framework-tab-image">
                     <div
@@ -911,30 +942,118 @@ function Home() {
                       data-scroll-slide-group-base-delay="80"
                     >
                       {[
-                        { href: "https://phasetwo.io/docs/securing-applications/django", title: "Django", src: "/customer-logos/django.svg", alt: "Django" },
-                        { href: "https://phasetwo.io/docs/securing-applications/springboot", title: "Spring Boot", src: "/customer-logos/spring.svg", alt: "Spring" },
-                        { href: "https://phasetwo.io/docs/securing-applications/javascript", title: "Javascript", src: "/customer-logos/js.svg", alt: "JavaScript" },
-                        { title: "nodejs", src: "/customer-logos/nodejs.svg", alt: "Node.js" },
-                        { href: "https://phasetwo.io/docs/securing-applications/react", title: "React", src: "/customer-logos/react.svg", alt: "React" },
-                        { href: "https://phasetwo.io/docs/securing-applications/next", title: "Next.js", src: "/customer-logos/nextjs.svg", alt: "Next.js" },
-                        { href: "https://phasetwo.io/docs/securing-applications/vue", title: "Vue", src: "/customer-logos/vue.svg", alt: "Vue" },
-                        { href: "https://phasetwo.io/docs/securing-applications/nuxt", title: "Nuxt", src: "/customer-logos/nuxtjs.svg", alt: "Nuxt" },
-                        { href: "https://phasetwo.io/docs/securing-applications/remix", title: "Remix", src: "/customer-logos/remix.svg", alt: "Remix" },
-                        { href: "https://phasetwo.io/docs/securing-applications/sveltekit", title: "Sveltekit", src: "/customer-logos/svelte.svg", alt: "Svelte" },
-                        { href: "https://phasetwo.io/docs/securing-applications/angular", title: "Angular", src: "/customer-logos/angular.svg", alt: "Angular" },
-                        { title: "GoLang", src: "/customer-logos/go.svg", alt: "Go" },
-                        { title: "Android", src: "/customer-logos/android.svg", alt: "Android" },
-                        { title: "Apple", src: "/customer-logos/apple.svg", alt: "Apple" },
-                        { title: "php", src: "/customer-logos/php.svg", alt: "PHP" },
-                        { title: "c#", src: "/customer-logos/csharp.svg", alt: "C#" },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/django",
+                          title: "Django",
+                          src: "/customer-logos/django.svg",
+                          alt: "Django",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/springboot",
+                          title: "Spring Boot",
+                          src: "/customer-logos/spring.svg",
+                          alt: "Spring",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/javascript",
+                          title: "Javascript",
+                          src: "/customer-logos/js.svg",
+                          alt: "JavaScript",
+                        },
+                        {
+                          title: "nodejs",
+                          src: "/customer-logos/nodejs.svg",
+                          alt: "Node.js",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/react",
+                          title: "React",
+                          src: "/customer-logos/react.svg",
+                          alt: "React",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/next",
+                          title: "Next.js",
+                          src: "/customer-logos/nextjs.svg",
+                          alt: "Next.js",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/vue",
+                          title: "Vue",
+                          src: "/customer-logos/vue.svg",
+                          alt: "Vue",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/nuxt",
+                          title: "Nuxt",
+                          src: "/customer-logos/nuxtjs.svg",
+                          alt: "Nuxt",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/remix",
+                          title: "Remix",
+                          src: "/customer-logos/remix.svg",
+                          alt: "Remix",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/sveltekit",
+                          title: "Sveltekit",
+                          src: "/customer-logos/svelte.svg",
+                          alt: "Svelte",
+                        },
+                        {
+                          href: "https://phasetwo.io/docs/securing-applications/angular",
+                          title: "Angular",
+                          src: "/customer-logos/angular.svg",
+                          alt: "Angular",
+                        },
+                        {
+                          title: "GoLang",
+                          src: "/customer-logos/go.svg",
+                          alt: "Go",
+                        },
+                        {
+                          title: "Android",
+                          src: "/customer-logos/android.svg",
+                          alt: "Android",
+                        },
+                        {
+                          title: "Apple",
+                          src: "/customer-logos/apple.svg",
+                          alt: "Apple",
+                        },
+                        {
+                          title: "php",
+                          src: "/customer-logos/php.svg",
+                          alt: "PHP",
+                        },
+                        {
+                          title: "c#",
+                          src: "/customer-logos/csharp.svg",
+                          alt: "C#",
+                        },
                       ].map((logo) => {
                         const tile = (
-                          <div className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
-                            <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                          <div
+                            className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`}
+                            role="listitem"
+                            data-scroll-slide-in
+                          >
+                            <img
+                              src={logo.src}
+                              alt={logo.alt}
+                              className={integrationsStyles.idpLogoImg}
+                              loading="lazy"
+                              decoding="async"
+                            />
                           </div>
                         );
                         return logo.href ? (
-                          <a key={logo.title || logo.alt} href={logo.href} title={logo.title}>
+                          <a
+                            key={logo.title || logo.alt}
+                            href={logo.href}
+                            title={logo.title}
+                          >
                             {tile}
                           </a>
                         ) : (
@@ -948,17 +1067,34 @@ function Home() {
                 </div>,
                 <div key="protocols" className="framework-tab-panel">
                   <p className="framework-tab-text">
-                    Support for industry-standard protocols including OAuth 2.0, OpenID Connect, SAML 2.0, and
-                    more. Seamlessly integrate with existing authentication systems.
+                    Support for industry-standard protocols including OAuth 2.0,
+                    OpenID Connect, SAML 2.0, and more. Seamlessly integrate
+                    with existing authentication systems.
                   </p>
                   <div className="framework-tab-image">
-                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                    <div
+                      className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`}
+                      role="list"
+                      data-scroll-slide-group
+                      data-scroll-slide-group-base-delay="80"
+                    >
                       {[
                         { src: "/customer-logos/saml.svg", alt: "SAML" },
                         { src: "/customer-logos/openid.svg", alt: "OpenID" },
                       ].map((logo) => (
-                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
-                          <img src={logo.src} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        <div
+                          key={logo.alt}
+                          className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`}
+                          role="listitem"
+                          data-scroll-slide-in
+                        >
+                          <img
+                            src={logo.src}
+                            alt={logo.alt}
+                            className={integrationsStyles.idpLogoImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
                         </div>
                       ))}
                     </div>
@@ -966,33 +1102,111 @@ function Home() {
                 </div>,
                 <div key="idps" className="framework-tab-panel">
                   <p className="framework-tab-text">
-                    Connect with major identity providers including Okta, Auth0, Azure AD, Google Workspace,
-                    Active Directory, and many others. Migrate or broker identities seamlessly.
+                    Connect with major identity providers including Okta, Auth0,
+                    Azure AD, Google Workspace, Active Directory, and many
+                    others. Migrate or broker identities seamlessly.
                   </p>
                   <div className="framework-tab-image">
-                    <div className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`} role="list" data-scroll-slide-group data-scroll-slide-group-base-delay="80">
+                    <div
+                      className={`${styles.engLogoGrid} ${integrationsStyles.integrationsGrid}`}
+                      role="list"
+                      data-scroll-slide-group
+                      data-scroll-slide-group-base-delay="80"
+                    >
                       {[
-                        { src: "/customer-logos/bitbucket.svg", alt: "Bitbucket", icon: "fa-brands:bitbucket" },
-                        { src: "/customer-logos/facebook.svg", alt: "Facebook", icon: "fa-brands:facebook" },
-                        { src: "/customer-logos/github.svg", alt: "Github", icon: "fa-brands:github" },
-                        { src: "/customer-logos/gitlab.svg", alt: "Gitlab", icon: "fa-brands:gitlab" },
-                        { src: "/customer-logos/google.svg", alt: "Google", icon: "fa-brands:google" },
-                        { src: "/customer-logos/instagram.svg", alt: "Instagram", icon: "fa-brands:instagram" },
-                        { src: "/customer-logos/linkedin.svg", alt: "LinkedIn", icon: "fa-brands:linkedin" },
-                        { src: "/customer-logos/microsoft.svg", alt: "Microsoft", icon: "fa-brands:microsoft" },
-                        { src: "/customer-logos/azure.svg", alt: "Azure", icon: "carbon:logo-azure" },
-                        { src: "/customer-logos/openshift.svg", alt: "Openshift", icon: "carbon:logo-openshift" },
-                        { src: "/customer-logos/paypal.svg", alt: "Paypal", icon: "fa-brands:paypal" },
-                        { src: "/customer-logos/stack-overflow.svg", alt: "StackOverflow", icon: "fa-brands:stack-overflow" },
-                        { src: "/customer-logos/x.svg", alt: "X", icon: "fa6-brands:x-twitter" },
-                        { src: "/customer-logos/onelogin.svg", alt: "Onelogin" },
+                        {
+                          src: "/customer-logos/bitbucket.svg",
+                          alt: "Bitbucket",
+                          icon: "fa-brands:bitbucket",
+                        },
+                        {
+                          src: "/customer-logos/facebook.svg",
+                          alt: "Facebook",
+                          icon: "fa-brands:facebook",
+                        },
+                        {
+                          src: "/customer-logos/github.svg",
+                          alt: "Github",
+                          icon: "fa-brands:github",
+                        },
+                        {
+                          src: "/customer-logos/gitlab.svg",
+                          alt: "Gitlab",
+                          icon: "fa-brands:gitlab",
+                        },
+                        {
+                          src: "/customer-logos/google.svg",
+                          alt: "Google",
+                          icon: "fa-brands:google",
+                        },
+                        {
+                          src: "/customer-logos/instagram.svg",
+                          alt: "Instagram",
+                          icon: "fa-brands:instagram",
+                        },
+                        {
+                          src: "/customer-logos/linkedin.svg",
+                          alt: "LinkedIn",
+                          icon: "fa-brands:linkedin",
+                        },
+                        {
+                          src: "/customer-logos/microsoft.svg",
+                          alt: "Microsoft",
+                          icon: "fa-brands:microsoft",
+                        },
+                        {
+                          src: "/customer-logos/azure.svg",
+                          alt: "Azure",
+                          icon: "carbon:logo-azure",
+                        },
+                        {
+                          src: "/customer-logos/openshift.svg",
+                          alt: "Openshift",
+                          icon: "carbon:logo-openshift",
+                        },
+                        {
+                          src: "/customer-logos/paypal.svg",
+                          alt: "Paypal",
+                          icon: "fa-brands:paypal",
+                        },
+                        {
+                          src: "/customer-logos/stack-overflow.svg",
+                          alt: "StackOverflow",
+                          icon: "fa-brands:stack-overflow",
+                        },
+                        {
+                          src: "/customer-logos/x.svg",
+                          alt: "X",
+                          icon: "fa6-brands:x-twitter",
+                        },
+                        {
+                          src: "/customer-logos/onelogin.svg",
+                          alt: "Onelogin",
+                        },
                         { src: "/customer-logos/adsf.svg", alt: "ADFS" },
-                        { src: "/customer-logos/ping-identity.svg", alt: "PingIdentity" },
+                        {
+                          src: "/customer-logos/ping-identity.svg",
+                          alt: "PingIdentity",
+                        },
                         { src: "/customer-logos/duo.svg", alt: "DUO" },
-                        { src: "/customer-logos/jumpcloud.svg", alt: "JumpCloud" },
+                        {
+                          src: "/customer-logos/jumpcloud.svg",
+                          alt: "JumpCloud",
+                        },
                       ].map((logo) => (
-                        <div key={logo.alt} className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`} role="listitem" data-scroll-slide-in>
-                          <img src={logo.src ?? iconifyImgSrc(logo.icon)} alt={logo.alt} className={integrationsStyles.idpLogoImg} loading="lazy" decoding="async" />
+                        <div
+                          key={logo.alt}
+                          className={`${styles.engLogoTile} ${integrationsStyles.integrationsTile} ${integrationsStyles.integrationsTileIdp}`}
+                          role="listitem"
+                          data-scroll-slide-in
+                        >
+                          <img
+                            src={logo.src ?? iconifyImgSrc(logo.icon)}
+                            alt={logo.alt}
+                            className={integrationsStyles.idpLogoImg}
+                            loading="lazy"
+                            decoding="async"
+                          />
                         </div>
                       ))}
                     </div>
@@ -1000,47 +1214,62 @@ function Home() {
                 </div>,
               ]}
             />
-            
           </div>
         </section>
         {/* Keycloak Enhanced */}
         <section className="homepage-section cta-section-radial-pattern">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-[560px] text-center mb-12" data-scroll-slide-group>
-              <h2 id="openSourceSSO" className="text-white mb-4" data-scroll-slide-in>
+            <div
+              className="mx-auto mb-12 max-w-[560px] text-center"
+              data-scroll-slide-group
+            >
+              <h2
+                id="openSourceSSO"
+                className="mb-4 text-white"
+                data-scroll-slide-in
+              >
                 Keycloak Enhanced to Fully Solve Modern Application Requirements
               </h2>
               <p className="text-gray-300" data-scroll-slide-in>
-                Phase Two's extensions to core Keycloak solve for the needs that Applications need, and core Keycloak is missing. All deployments on Phase Two come automatically ready with all features ready.
+                Phase Two's extensions to core Keycloak solve for the needs that
+                Applications need, and core Keycloak is missing. All deployments
+                on Phase Two come automatically ready with all features ready.
               </p>
             </div>
-            
+
             {/* Features Grid */}
-            <div className="grid grid-cols-12 gap-6 mt-16 items-center">
+            <div className="mt-16 grid grid-cols-12 items-center gap-6">
               {/* Features Grid - 8 columns */}
               <div className="col-span-12 lg:col-span-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-scroll-slide-group>
+                <div
+                  className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  data-scroll-slide-group
+                >
                   {EnhancedFeatures.map((feature, index) => (
-                    <div key={index} className="flex flex-col items-center text-center p-6" data-scroll-slide-in>
-                      <div className="mb-4 w-16 h-16 rounded-2xl flex items-center justify-center bg-[#0f0f0f]">
+                    <div
+                      key={index}
+                      className="flex flex-col items-center p-6 text-center"
+                      data-scroll-slide-in
+                    >
+                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0f0f0f]">
                         <InlineIcon
                           icon={feature.icon}
-                          className="w-8 h-8 text-p2blue-500"
+                          className="h-8 w-8 text-p2blue-500"
                         />
                       </div>
-                      <h4 className="text-white mb-3">{feature.title}</h4>
+                      <h4 className="mb-3 text-white">{feature.title}</h4>
                       <p className="text-gray-300">{feature.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               {/* Empty space for graphic - 4 columns */}
-              <div className="hidden lg:grid col-span-4 place-items-center">
+              <div className="col-span-4 hidden place-items-center lg:grid">
                 <img
                   src="/img/keycloak-modern-app-reqs.svg"
                   alt="Modern application requirements illustration"
-                  className="w-full max-w-[380px] h-auto"
+                  className="h-auto w-full max-w-[380px]"
                   loading="lazy"
                   decoding="async"
                 />
@@ -1048,45 +1277,61 @@ function Home() {
             </div>
           </div>
         </section>
-        
 
         {/* Operate at Scale */}
         <section className="homepage-section cta-section-radial-pattern">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-[560px] text-center mb-12" data-scroll-slide-group>
-              <h2 id="adminPortal" className="text-white mb-4" data-scroll-slide-in>
+            <div
+              className="mx-auto mb-12 max-w-[560px] text-center"
+              data-scroll-slide-group
+            >
+              <h2
+                id="adminPortal"
+                className="mb-4 text-white"
+                data-scroll-slide-in
+              >
                 Operate at Scale with Ease
               </h2>
               <p className="text-gray-300" data-scroll-slide-in>
-                Open-source means you can deploy it yourself, but does not mean you necessarily should. Our deployments stay up and perform well, with no concern by your team members about performance or uptime.
+                Open-source means you can deploy it yourself, but does not mean
+                you necessarily should. Our deployments stay up and perform
+                well, with no concern by your team members about performance or
+                uptime.
               </p>
             </div>
-            
+
             {/* Features Grid */}
-            <div className="grid grid-cols-12 gap-6 mt-16 items-center">
+            <div className="mt-16 grid grid-cols-12 items-center gap-6">
               {/* Empty space for graphic - 4 columns (left side) */}
-              <div className="hidden lg:grid col-span-4 place-items-center">
+              <div className="col-span-4 hidden place-items-center lg:grid">
                 <img
                   src="/img/keycloak-operate-at-scale.svg"
                   alt="Operate at scale illustration"
-                  className="w-full max-w-[380px] h-auto"
+                  className="h-auto w-full max-w-[380px]"
                   loading="lazy"
                   decoding="async"
                 />
               </div>
-              
+
               {/* Features Grid - 8 columns (right side) */}
               <div className="col-span-12 lg:col-span-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-scroll-slide-group>
+                <div
+                  className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  data-scroll-slide-group
+                >
                   {ScaleFeatures.map((feature, index) => (
-                    <div key={index} className="flex flex-col items-center text-center p-6" data-scroll-slide-in>
-                      <div className="mb-4 w-16 h-16 rounded-2xl flex items-center justify-center bg-[#0f0f0f]">
+                    <div
+                      key={index}
+                      className="flex flex-col items-center p-6 text-center"
+                      data-scroll-slide-in
+                    >
+                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0f0f0f]">
                         <InlineIcon
                           icon={feature.icon}
-                          className="w-8 h-8 text-p2blue-500"
+                          className="h-8 w-8 text-p2blue-500"
                         />
                       </div>
-                      <h4 className="text-white mb-3">{feature.title}</h4>
+                      <h4 className="mb-3 text-white">{feature.title}</h4>
                       <p className="text-gray-300">{feature.description}</p>
                     </div>
                   ))}
@@ -1110,7 +1355,11 @@ function Home() {
                 Keycloak
               </h2>
               <p data-scroll-slide-in>
-                Phase Two is built and run by active Keycloak community contributors and authors of the most popular Keycloak extensions. We sponsor the Keycloak projects we believe in. We believe in Keycloak as a viable alternative to any existing commercial offering. 
+                Phase Two is built and run by active Keycloak community
+                contributors and authors of the most popular Keycloak
+                extensions. We sponsor the Keycloak projects we believe in. We
+                believe in Keycloak as a viable alternative to any existing
+                commercial offering.
               </p>
             </div>
           </div>
@@ -1134,8 +1383,8 @@ function Home() {
                     <h4>Always Open Source</h4>
                     <p>
                       Phase Two is built as a collection of open source Keycloak
-                      extensions. While we endeavor to make Keycloak simple to use,
-                      operate and scale, in the cloud or on prem.
+                      extensions. While we endeavor to make Keycloak simple to
+                      use, operate and scale, in the cloud or on prem.
                     </p>
                   </div>
                 </div>
@@ -1151,9 +1400,10 @@ function Home() {
                   <div className={styles.featCardContent}>
                     <h4>Battle-tested and hardened</h4>
                     <p>
-                      Keycloak has been battle-tested and hardened for over 7 years.
-                      Its security and reliability is depended on by organizations
-                      from small startups to governments and Fortune 500 companies.
+                      Keycloak has been battle-tested and hardened for over 7
+                      years. Its security and reliability is depended on by
+                      organizations from small startups to governments and
+                      Fortune 500 companies.
                     </p>
                   </div>
                 </div>
@@ -1170,8 +1420,8 @@ function Home() {
                     <h4>Community Superpower</h4>
                     <p>
                       We believe that community participation in building our
-                      software is a superpower, and can't wait to see what you will
-                      help us build.
+                      software is a superpower, and can't wait to see what you
+                      will help us build.
                     </p>
                   </div>
                 </div>
