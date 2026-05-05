@@ -1,99 +1,5 @@
 import { InlineIcon } from "@iconify/react";
-
-const SAVINGS_ROWS = [
-  { name: "Auth0", pct: 100, cost: "$130K", color: "#E8763C" },
-  { name: "Okta", pct: 91, cost: "$118K", color: "#0F8A4D" },
-  { name: "Ping", pct: 83, cost: "$108K", color: "#D81F4A" },
-  { name: "WorkOS", pct: 65, cost: "$84K", color: "#6E63FF" },
-  { name: "FrontEgg", pct: 58, cost: "$75K", color: "#A855F7" },
-  {
-    name: "Phase Two",
-    pct: 20,
-    cost: "$21K",
-    color: "#3FA1E3",
-    highlight: true,
-  },
-];
-
-function SavingsBars() {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#1a1a1a]">
-      <div className="flex items-center justify-between border-b border-white/[0.08] px-6 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[rgba(63,161,227,0.18)] text-[#3FA1E3]">
-            <InlineIcon icon="lucide:bar-chart-3" className="h-3.5 w-3.5" />
-          </div>
-          <div className="text-[13px] font-semibold text-white">
-            Annual identity spend
-          </div>
-        </div>
-        <div className="text-[11px] uppercase tracking-wider text-gray-500">
-          ~150K MAU · 25K concurrent
-        </div>
-      </div>
-
-      <div className="space-y-3 p-6">
-        {SAVINGS_ROWS.map((r) => (
-          <div key={r.name} className="grid grid-cols-12 items-center gap-3">
-            <div
-              className={`col-span-3 text-[13px] ${r.highlight ? "font-semibold text-white" : "text-gray-400"}`}
-            >
-              {r.name}
-            </div>
-            <div className="col-span-7">
-              <div className="relative h-7 overflow-hidden rounded-md border border-white/[0.08] bg-white/[0.04]">
-                <div
-                  className="h-full rounded-md"
-                  style={{
-                    width: `${r.pct}%`,
-                    background: r.highlight
-                      ? "linear-gradient(90deg, #3FA1E3 0%, #7FC4F0 100%)"
-                      : `linear-gradient(90deg, ${r.color}AA 0%, ${r.color}55 100%)`,
-                    boxShadow: r.highlight
-                      ? "0 0 24px rgba(63,161,227,0.45)"
-                      : "none",
-                  }}
-                />
-                {r.highlight && (
-                  <div className="absolute inset-y-0 right-2 flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">
-                      You
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div
-              className={`col-span-2 text-right text-[14px] tabular-nums ${r.highlight ? "font-bold text-white" : "text-gray-500"}`}
-            >
-              {r.cost}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between border-t border-white/[0.08] bg-[rgba(63,161,227,0.06)] px-6 py-4">
-        <div className="flex items-center gap-2 text-[12px] text-gray-300">
-          <InlineIcon
-            icon="lucide:trending-down"
-            className="h-3.5 w-3.5 text-green-400"
-          />
-          <span className="font-semibold tabular-nums text-white">
-            $109K saved
-          </span>
-          <span className="text-gray-500">vs. Auth0 list</span>
-        </div>
-        <a
-          href="/product/open-source-vs-commercial-offering/"
-          className="flex items-center gap-1 text-[12px] font-semibold text-[#3FA1E3] hover:underline"
-        >
-          See methodology{" "}
-          <InlineIcon icon="lucide:arrow-up-right" className="h-3 w-3" />
-        </a>
-      </div>
-    </div>
-  );
-}
+import AnnualSpendChart from "./AnnualSpendChart";
 
 export default function ValueHero({ onDemoClick }) {
   return (
@@ -138,7 +44,8 @@ export default function ValueHero({ onDemoClick }) {
             </p>
 
             <div className="mb-10 flex flex-wrap items-center gap-3">
-              <button className="btnPrimary btnSupport" onClick={onDemoClick}>
+              <button className="btnPrimary btnSupport gap-2" onClick={onDemoClick}>
+                <InlineIcon icon="lucide:calendar" className="h-4 w-4" />
                 Get a Demo
               </button>
               <a
@@ -146,7 +53,10 @@ export default function ValueHero({ onDemoClick }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <button className="btnPrimary">Try for Free</button>
+                <button className="btnPrimary gap-2">
+                  <InlineIcon icon="lucide:play" className="h-4 w-4" />
+                  Try for Free
+                </button>
               </a>
             </div>
 
@@ -175,16 +85,8 @@ export default function ValueHero({ onDemoClick }) {
               <div className="h-3 w-px bg-white/10" />
               <div className="flex items-center gap-1.5">
                 <InlineIcon
-                  icon="lucide:users"
-                  className="h-4 w-4 text-[#E14CC2]"
-                />
-                1,000,000+ users
-              </div>
-              <div className="h-3 w-px bg-white/10" />
-              <div className="flex items-center gap-1.5">
-                <InlineIcon
                   icon="lucide:activity"
-                  className="h-4 w-4 text-[#3FA1E3]"
+                  className="h-4 w-4 text-[#E14CC2]"
                 />
                 Billed by{" "}
                 <span className="group relative cursor-help underline decoration-gray-600 decoration-dotted underline-offset-2">
@@ -200,7 +102,9 @@ export default function ValueHero({ onDemoClick }) {
 
           {/* RIGHT: cost comparison chart */}
           <div className="lg:col-span-5">
-            <SavingsBars />
+            <AnnualSpendChart
+              methodologyHref="/product/open-source-vs-commercial-offering/"
+            />
           </div>
         </div>
       </div>
