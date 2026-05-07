@@ -53,6 +53,14 @@ const CASE_STUDIES = [
     description:
       "See how the Nevada Department of Education moved to Keycloak, improved user experience, and built a standards-based identity hub for broader statewide adoption.",
   },
+  {
+    assetId: "toppan-merrill",
+    company: "Toppan Merrill",
+    pictogram: "/customer-logos/toppan-merrill.svg",
+    title: "Modernizing Identity for a Global Financial Services Leader",
+    description:
+      "Discover how Toppan Merrill unified their identity management with Keycloak, replacing Ping Identity and Okta, aggressively saving on budget, achieving enhanced security, scalability, and user experience across their global operations.",
+  },
 ];
 
 const HERO = {
