@@ -640,6 +640,91 @@ components:
           type: string
         sent:
           type: boolean
+    OrganizationScimRepresentation:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        email_as_username:
+          type: boolean
+        link_idp:
+          type: boolean
+        auth:
+          $ref: "#/components/schemas/OrganizationScimAuth"
+    OrganizationScimAuth:
+      type: object
+      description: Polymorphic SCIM authentication configuration. The `type` discriminator selects the concrete subtype.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - KEYCLOAK
+            - EXTERNAL_JWT
+            - EXTERNAL_SECRET
+            - EXTERNAL_BASIC
+      discriminator:
+        propertyName: type
+        mapping:
+          KEYCLOAK: "#/components/schemas/KeycloakScimAuth"
+          EXTERNAL_JWT: "#/components/schemas/JwtScimAuth"
+          EXTERNAL_SECRET: "#/components/schemas/SharedSecretScimAuth"
+          EXTERNAL_BASIC: "#/components/schemas/BasicAuthScimAuth"
+      oneOf:
+        - $ref: "#/components/schemas/KeycloakScimAuth"
+        - $ref: "#/components/schemas/JwtScimAuth"
+        - $ref: "#/components/schemas/SharedSecretScimAuth"
+        - $ref: "#/components/schemas/BasicAuthScimAuth"
+    KeycloakScimAuth:
+      type: object
+      description: Use Keycloak's built-in service account authentication.
+      properties:
+        type:
+          type: string
+          enum:
+            - KEYCLOAK
+    JwtScimAuth:
+      type: object
+      description: Validate JWT bearer tokens against an external JWKS endpoint.
+      properties:
+        type:
+          type: string
+          enum:
+            - EXTERNAL_JWT
+        issuer:
+          type: string
+          description: Expected `iss` claim
+        audience:
+          type: string
+          description: Expected `aud` claim
+        jwks_uri:
+          type: string
+          description: URL to the JWKS endpoint
+    SharedSecretScimAuth:
+      type: object
+      description: Validate a static bearer token against a stored hash.
+      properties:
+        type:
+          type: string
+          enum:
+            - EXTERNAL_SECRET
+        shared_secret:
+          type: string
+          description: Hashed token in PHC String Format
+    BasicAuthScimAuth:
+      type: object
+      description: HTTP Basic authentication with a username and hashed password.
+      properties:
+        type:
+          type: string
+          enum:
+            - EXTERNAL_BASIC
+        username:
+          type: string
+        password:
+          type: string
+          description: Password hash in PHC String Format
 security:
   - access_token: []
 externalDocs:
@@ -2109,6 +2194,89 @@ paths:
       responses:
         204:
           description: success
+  # SCIM provider configuration
+  /{realm}/orgs/{orgId}/scim:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - SCIM
+      summary: Get the SCIM configuration for this organization
+      operationId: getScimConfig
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        404:
+          description: No SCIM configuration found for organization
+    post:
+      tags:
+        - SCIM
+      summary: Create a new SCIM configuration for this organization
+      operationId: createScimConfig
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationScimRepresentation"
+        required: true
+      responses:
+        201:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        409:
+          description: SCIM configuration already exists for this organization
+    put:
+      tags:
+        - SCIM
+      summary: Update the SCIM configuration for this organization
+      operationId: updateScimConfig
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationScimRepresentation"
+        required: true
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        404:
+          description: No SCIM configuration found for organization
+    delete:
+      tags:
+        - SCIM
+      summary: Delete the SCIM configuration for this organization
+      operationId: deleteScimConfig
+      responses:
+        204:
+          description: success
+        404:
+          description: No SCIM configuration found for organization
   /{realm}/users/{userId}/orgs:
     parameters:
       - in: path
