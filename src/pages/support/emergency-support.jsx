@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import CardWithImage from "../../components/CardWithImage";
 import CardWithIcon from "../../components/CardWithIcon";
-import Cta from "../../components/ctas/homepage-dual-line-cta";
+import SupportCta from "../../components/ctas/support-cta";
 import { InlineIcon } from "@iconify/react/dist/iconify.js";
 
 const HERO_BG_STYLE = {
@@ -179,14 +179,10 @@ export default function EmergencySupport() {
         </section>
 
         {/* CTA */}
-        <Cta
+        <SupportCta
           sectionClassName="subpage-section cta-section-gradient-secondary"
-          background="secondary"
           primaryText={PAGE_CTA.primaryText}
           secondaryText={PAGE_CTA.secondaryText}
-          showCta
-          ctaLabel={PAGE_CTA.ctaLabel}
-          ctaHref={PAGE_CTA.ctaHref}
         />
       </main>
     </Layout>

@@ -321,7 +321,7 @@ export default function DemoModal({
             }}
           >
             <Icon icon="lucide:mail" width="15" height="15" />
-            Request a Callback
+            Send a Message
           </button>
         </div>
 

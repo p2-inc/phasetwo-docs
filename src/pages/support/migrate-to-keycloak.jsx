@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 import { InlineIcon } from "@iconify/react";
 import Link from "@docusaurus/Link";
 import CardWithImage from "../../components/CardWithImage";
-import Cta from "../../components/ctas/homepage-dual-line-cta";
+import SupportCta from "../../components/ctas/support-cta";
 import pageStyles from "../styles.module.css";
 import supportStyles from "./styles.module.css";
 
@@ -233,14 +233,10 @@ export default function MigrateToKeycloak() {
         </section>
 
         {/* CTA */}
-        <Cta
+        <SupportCta
           sectionClassName="subpage-section cta-section-gradient-secondary"
-          background="secondary"
           primaryText="Working With Your Team is Easy."
           secondaryText="Let Us Show You How."
-          showCta
-          ctaLabel="Get in Touch"
-          ctaHref="mailto:support@phasetwo.io"
         />
       </main>
     </Layout>

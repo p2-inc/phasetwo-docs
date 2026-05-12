@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import CardWithImage from "../../components/CardWithImage";
-import Cta from "../../components/ctas/homepage-dual-line-cta";
+import SupportCta from "../../components/ctas/support-cta";
 
 const HERO_BG_STYLE = {
   backgroundImage:
@@ -14,9 +14,12 @@ const COMMUNITY_CARDS = [
     title: "Extension Authors",
     description: (
       <p className="mb-0">
-        We&apos;ve built some of the most widely used Keycloak extensions in
-        existence—Organizations, CockroachDB support, Redis caching, and more.
-        Our code is running in thousands of production deployments.
+        We&apos;ve built some of the most widely used{" "}
+        <a href="https://github.com/p2-inc" target="_blank">
+          Keycloak extensions
+        </a>{" "}
+        in existence—Organizations, CockroachDB support, Redis caching, and
+        more. Our code is running in thousands of production deployments.
       </p>
     ),
     imageSrc: "/img/extension-authors.svg",
@@ -59,8 +62,8 @@ const ENGAGE_CARDS = [
     body: (
       <p className="mb-0">
         Keycloak is powerful and complex, with many valid implementation paths.
-        We help teams choose and execute the right one for their architecture and
-        requirements.
+        We help teams choose and execute the right one for their architecture
+        and requirements.
       </p>
     ),
   },
@@ -71,8 +74,8 @@ const ENGAGE_CARDS = [
     body: (
       <p className="mb-0">
         Grown into multiple identity solutions? Keycloak consolidates them well.
-        We handle user migration, authentication flow mapping, theme development,
-        and everything in between.
+        We handle user migration, authentication flow mapping, theme
+        development, and everything in between.
       </p>
     ),
   },
@@ -82,9 +85,9 @@ const ENGAGE_CARDS = [
     imageAlt: "",
     body: (
       <p className="mb-0">
-        Custom identity systems are tightly coupled to their original application.
-        Adapting them to Keycloak often requires custom extensions—we know how to
-        build those and where the edge cases hide.
+        Custom identity systems are tightly coupled to their original
+        application. Adapting them to Keycloak often requires custom
+        extensions—we know how to build those and where the edge cases hide.
       </p>
     ),
   },
@@ -167,7 +170,7 @@ export default function EnterpriseSupport() {
                 <h1 className="text-balance text-white">
                   Expert Keycloak Support, Built by the People Who Know It Best
                 </h1>
-                <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
+                <p className="text--body-large mb-0 mt-6 text-balance font-normal text-gray-300">
                   Phase Two&apos;s engineers are among the world&apos;s leading
                   Keycloak experts—contributors, extension authors, and the team
                   behind some of the largest Keycloak deployments in production.
@@ -241,14 +244,10 @@ export default function EnterpriseSupport() {
           </div>
         </section>
 
-        <Cta
+        <SupportCta
           sectionClassName="subpage-section cta-section-gradient-secondary"
-          background="secondary"
           primaryText={PAGE_CTA.primaryText}
           secondaryText={PAGE_CTA.secondaryText}
-          showCta
-          ctaLabel={PAGE_CTA.ctaLabel}
-          ctaHref={PAGE_CTA.ctaHref}
         />
       </main>
     </Layout>

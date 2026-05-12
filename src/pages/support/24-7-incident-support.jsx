@@ -1,7 +1,7 @@
 import React from "react";
 import Layout from "@theme/Layout";
 import CardWithImage from "../../components/CardWithImage";
-import Cta from "../../components/ctas/homepage-dual-line-cta";
+import SupportCta from "../../components/ctas/support-cta";
 
 const HERO_BG_STYLE = {
   backgroundImage:
@@ -130,14 +130,10 @@ export default function IncidentSupport247() {
           </div>
         </section>
 
-        <Cta
+        <SupportCta
           sectionClassName="subpage-section cta-section-gradient-secondary"
-          background="secondary"
           primaryText={PAGE_CTA.primaryText}
           secondaryText={PAGE_CTA.secondaryText}
-          showCta
-          ctaLabel={PAGE_CTA.ctaLabel}
-          ctaHref={PAGE_CTA.ctaHref}
         />
       </main>
     </Layout>

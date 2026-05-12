@@ -892,7 +892,7 @@ function Home() {
           secondaryText="Let us show you how."
           showCta
           ctaLabel="Get in touch"
-          ctaHref="/contact"
+          onCtaClick={() => setDemoModalOpen(true)}
         />
 
         {/* Migrate to Phase Two */}
