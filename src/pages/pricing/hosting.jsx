@@ -59,7 +59,8 @@ function Pricing() {
             <DetailedPriceComparison />
             <p className="mt-8 text-center text-gray-300 text--body-large">
               Starter tier subject to availability. (1) Additional fees based on
-              extension complexity.
+              extension complexity. (2) Available as an add-on; contact sales for
+              pricing.
             </p>
           </div>
         </section>

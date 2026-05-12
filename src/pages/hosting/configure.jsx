@@ -28,6 +28,12 @@ const securityControls = [
       "Security-focused defaults and clear controls help you meet internal and external compliance expectations.",
     icon: "lucide:file-check-2",
   },
+  {
+    title: "Private backend connectivity",
+    description:
+      "Connect your backend infrastructure to your Keycloak cluster over a private network connection, so authentication traffic never traverses the public internet.",
+    icon: "lucide:network",
+  },
 ];
 
 const themingOptions = [
