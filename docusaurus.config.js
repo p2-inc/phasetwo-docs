@@ -399,6 +399,37 @@ module.exports = {
             },
           ],
         },
+        {
+          type: "dropdown",
+          label: "Support",
+          position: "left",
+          items: [
+            {
+              to: "support/enterprise-support",
+              label: "Enterprise Support",
+            },
+            {
+              to: "support/24-7-incident-support",
+              label: "24/7 Incident Support",
+            },
+            {
+              to: "support/on-prem-deployment",
+              label: "On-Prem Deployment",
+            },
+            {
+              to: "support/zero-downtime-upgrades",
+              label: "Zero-Downtime Upgrades",
+            },
+            {
+              to: "support/architecture-review-and-scaling",
+              label: "Architecture Review and Scaling",
+            },
+            {
+              to: "support/community",
+              label: "Community",
+            },
+          ],
+        },
         // Right side items: Log in
         {
           href: "https://dash.phasetwo.io/",

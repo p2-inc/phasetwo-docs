@@ -327,6 +327,18 @@ body::after {
   right: var(--margin-right);
 }
 
+/*
+  Stacking: navbar (998) < viewport edge lines (1000) < announcement bar (1001).
+  Edge lines sit over the header as requested; announcement bar still masks them.
+  Mobile drawer raises .navbar so lines do not cut through the open menu.
+*/
+div[class*="announcementBar"]:not([class*="announcementBarClose"]):not(
+    [class*="announcementBarContent"]
+  ):not([class*="announcementBarPlaceholder"]) {
+  position: relative;
+  z-index: 1001;
+}
+
 /* Main content wrapper */
 main {
   position: relative;
@@ -1118,13 +1130,17 @@ a.support:hover {
   backdrop-filter: blur(3px);
   position: sticky;
   top: 0;
-  z-index: 2000;
+  z-index: 998;
   padding-top: 12px;
   padding-bottom: 12px;
   min-height: 68px;
   height: 68px;
   display: flex;
   align-items: center;
+}
+
+.navbar.navbar-sidebar--show {
+  z-index: 1002;
 }
 
 .navbar::after {
@@ -1135,7 +1151,7 @@ a.support:hover {
   right: calc(-1 * var(--margin-right));
   height: 1px;
   background-color: var(--line-color);
-  z-index: 2001;
+  z-index: 2;
 }
 .navbar .navbar__inner {
   max-width: calc(100% - var(--margin-left) - var(--margin-right));
@@ -1477,7 +1493,7 @@ a.support:hover {
   padding: 8px;
   background-color: var(--ifm-background-surface-color);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 2002;
+  z-index: 10;
 }
 .dropdown__link {
   border-radius: 8px;
@@ -1818,9 +1834,23 @@ a.menu__link.menu__link--sublist {
   padding-bottom: 24px;
 }
 
+/* CardWithImage horizontal: no vertical padding on card; copy column keeps inset */
+.hosting-bento-box.card-with-image--horizontal {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.hosting-bento-box.card-with-image--horizontal .hosting-bento-content {
+  padding-top: 24px;
+  padding-bottom: 0;
+}
+
 .hosting-bento-box-image-bottom {
   padding-top: 24px;
   padding-bottom: 0;
+  /* Breathing room between copy and artwork (margin-top: auto alone is 0 when the
+     card height is content-sized, e.g. single-column grid). */
+  gap: 24px;
 }
 
 .hosting-bento-box-empty {
@@ -1916,7 +1946,7 @@ a.menu__link.menu__link--sublist {
 
 .hosting-bento-box-image-bottom .hosting-bento-image-bottom {
   margin-bottom: 0;
-  margin-top: auto;
+  margin-top: 0;
   order: 2;
 }
 

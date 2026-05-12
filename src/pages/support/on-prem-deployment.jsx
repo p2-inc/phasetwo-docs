@@ -9,33 +9,37 @@ const HERO_BG_STYLE = {
   backgroundRepeat: "no-repeat",
 };
 
-const IMG_OUR_CONTRIBUTORS = "/img/our-contributors.svg";
-const IMG_STAY_AT_FOREFRONT = "/img/stay-at-forefront.svg";
+const INTRO =
+  "Phase Two supports Keycloak running in customer-managed environments across bare-metal, private cloud, public cloud (AWS, GCP, Azure), and hybrid setups.";
 
-const COMMUNITY_CARDS = [
+const IMG_DESIGN_AND_IMPLEMENTATION = "/img/design-and-implementation.svg";
+const IMG_FULL_MANAGEMENT = "/img/full-management-available.svg";
+
+const DEPLOYMENT_CARDS = [
   {
-    title: "Our Contributions",
+    title: "Design and Implementation",
     description: (
       <p className="mb-0">
-        Merged pull requests in Keycloak core, moderation and active participation
-        in Keycloak Discourse, widely used open-source extensions, conference
-        presentations, and collaboration with related projects like Keycloakify.
+        Design and implement new deployments, modernize legacy installations,
+        introduce infrastructure-as-code practices, improve observability and
+        alerting, and harden environments to meet security requirements.
       </p>
     ),
-    imageSrc: IMG_OUR_CONTRIBUTORS,
-    imageAlt: "Illustration representing Phase Two contributions to the Keycloak community",
+    imageSrc: IMG_DESIGN_AND_IMPLEMENTATION,
+    imageAlt: "Illustration for design and implementation of on-prem Keycloak",
     reverseHorizontal: false,
   },
   {
-    title: "Stay at Keycloak Forefront with Us",
+    title: "Full Management Available",
     description: (
       <p className="mb-0">
-        Early awareness of changes and regressions, direct insight into roadmap
-        direction, and faster resolution of upstream issues.
+        For teams that no longer want to operate Keycloak themselves, we can
+        assume day-to-day responsibility while aligning with your internal
+        processes and compliance constraints.
       </p>
     ),
-    imageSrc: IMG_STAY_AT_FOREFRONT,
-    imageAlt: "Illustration representing staying at the forefront of Keycloak",
+    imageSrc: IMG_FULL_MANAGEMENT,
+    imageAlt: "Illustration for fully managed on-prem Keycloak",
     reverseHorizontal: true,
   },
 ];
@@ -47,11 +51,11 @@ const PAGE_CTA = {
   ctaHref: "/contact",
 };
 
-export default function Community() {
+export default function OnPremDeployment() {
   return (
     <Layout
-      title="Community"
-      description="Phase Two contributes to the Keycloak community—core code, extensions, discourse, events, and governance—so customers benefit from upstream leadership."
+      title="On-Prem Deployment"
+      description="On-premise Keycloak deployments and infrastructure design from Phase Two—bare metal, private cloud, hybrid, and optional full management."
     >
       <main className="hosting-page">
         <section className="subpage-section subpage-hero-section">
@@ -62,12 +66,10 @@ export default function Community() {
             <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
               <div className="mx-auto max-w-3xl text-center">
                 <h1 className="text-balance text-white">
-                  Built by Keycloak Community Leaders
+                  On-Premise Deployments and Infrastructure Design
                 </h1>
                 <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
-                  Phase Two actively contributes code, documentation, extensions,
-                  and support across the Keycloak ecosystem—and participates in its
-                  governance and events.
+                  {INTRO}
                 </p>
               </div>
             </div>
@@ -77,7 +79,7 @@ export default function Community() {
         <section className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="flex flex-col gap-6">
-              {COMMUNITY_CARDS.map((card) => (
+              {DEPLOYMENT_CARDS.map((card) => (
                 <CardWithImage
                   key={card.title}
                   title={card.title}

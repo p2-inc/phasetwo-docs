@@ -16,6 +16,7 @@ export default function Cta({
   ctaHref,
   animateHeading = false,
   sectionClassName,
+  primaryTextClassName = "font-medium",
 }) {
   const computedSectionClassName =
     background === "secondary"
@@ -33,7 +34,7 @@ export default function Cta({
           className="cta-section-heading flex-1"
           {...headingProps}
         >
-          <span className="font-medium">{primaryText}</span>{" "}
+          <span className={primaryTextClassName}>{primaryText}</span>{" "}
           <br />
           <span className="font-light">{secondaryText}</span>
         </h2>
