@@ -1,5 +1,7 @@
 import React from "react";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
+import CardLinks from "../../components/CardLinks";
 import CardWithImage from "../../components/CardWithImage";
 import SupportCta from "../../components/ctas/support-cta";
 
@@ -39,6 +41,10 @@ const FEATURE_CARDS = [
         configuration recommendations and long-term stability improvements.
       </p>
     ),
+    learnMore: {
+      label: "Architecture Review and Scaling",
+      url: "/support/architecture-review-and-scaling",
+    },
   },
   {
     title: "Custom SLAs",
@@ -74,10 +80,15 @@ export default function IncidentSupport247() {
                 <h1 className="text-balance text-white">
                   24/7 On-Call Incident Response
                 </h1>
-                <p className="mb-0 mt-6 max-w-[600px] mx-auto text-balance font-normal text-gray-300 text--body-large">
+                <p className="text--body-large mx-auto mb-0 mt-6 max-w-[600px] text-balance font-normal text-gray-300">
                   Production doesn&apos;t keep business hours, and neither do
-                  we. Phase Two responds fast—typically within minutes—and brings
-                  deep Keycloak pattern recognition to every incident.
+                  we. Phase Two responds fast—typically within minutes—and
+                  brings deep Keycloak pattern recognition to every incident.
+                  Need help without a contract?{" "}
+                  <Link to="/support/emergency-support" className="link-accent">
+                    See emergency support
+                  </Link>
+                  .
                 </p>
               </div>
             </div>
@@ -113,6 +124,10 @@ export default function IncidentSupport247() {
                       <div className="hosting-bento-text text-gray-300">
                         {card.body}
                       </div>
+                      <CardLinks
+                        learnMore={card.learnMore}
+                        badges={card.badges}
+                      />
                     </div>
                     <div className="hosting-bento-image hosting-bento-image-bottom">
                       <img

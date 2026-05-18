@@ -31,12 +31,8 @@ export default function Cta({
   return (
     <section className={finalSectionClassName}>
       <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:justify-between lg:px-8">
-        <h2
-          className="cta-section-heading flex-1"
-          {...headingProps}
-        >
-          <span className={primaryTextClassName}>{primaryText}</span>{" "}
-          <br />
+        <h2 className="cta-section-heading flex-1" {...headingProps}>
+          <span className={primaryTextClassName}>{primaryText}</span> <br />
           <span className="font-light">{secondaryText}</span>
         </h2>
 
@@ -66,4 +62,3 @@ export default function Cta({
     </section>
   );
 }
-

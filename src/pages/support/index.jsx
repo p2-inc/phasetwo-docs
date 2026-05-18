@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@theme/Layout";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Link from "@docusaurus/Link";
 import { InlineIcon } from "@iconify/react";
 import CardWithIcon from "../../components/CardWithIcon";
 import CardWithImage from "../../components/CardWithImage";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
+import DemoModal from "../../components/DemoModal";
 import { KeycloakSupportPackages } from "../../components/keycloak-support-packages";
 import supportStyles from "./styles.module.css";
 
@@ -45,7 +47,14 @@ const TOP_BENEFITS = [
       <p>
         Avoid outages, trim costs, and scale your infrastructure to meet demand.
         We've configured systems handling 100K+ active users globally, including
-        Kubernetes configurations and deployment strategies.
+        Kubernetes configurations and{" "}
+        <Link
+          to="/support/architecture-review-and-scaling"
+          className="link-accent"
+        >
+          deployment strategies
+        </Link>
+        .
       </p>
     ),
     reverseHorizontal: true,
@@ -54,9 +63,11 @@ const TOP_BENEFITS = [
     title: "Migration from any Provider",
     description: (
       <p>
-        Migrate from Okta, Auth0, WorkOS, Cognito, or other providers with
-        confidence. We support any Keycloak version, including RHBK, from
-        initial testing through production launch.
+        <Link to="/support/migrate-to-keycloak" className="link-accent">
+          Migrate from Okta, Auth0, WorkOS, Cognito
+        </Link>
+        , or other providers with confidence. We support any Keycloak version,
+        including RHBK, from initial testing through production launch.
       </p>
     ),
     reverseHorizontal: false,
@@ -66,8 +77,16 @@ const TOP_BENEFITS = [
 const SUPPORT_SERVICES = [
   {
     title: "Installation & Configuration",
-    description:
-      "Tailored setup to meet your specific needs, including managed testing clusters with Phase Two extensions and sample applications for rapid integration testing.",
+    description: (
+      <>
+        Tailored setup to meet your specific needs, including managed testing
+        clusters with{" "}
+        <Link to="/product/keycloak-and-phase-two" className="link-accent">
+          Phase Two extensions
+        </Link>{" "}
+        and sample applications for rapid integration testing.
+      </>
+    ),
     icon: "lucide:settings",
   },
   {
@@ -78,8 +97,18 @@ const SUPPORT_SERVICES = [
   },
   {
     title: "Custom Development",
-    description:
-      "Custom login flows, authenticators, and full Keycloak extension development. Brand customization including styles, colors, logos, and CSS.",
+    description: (
+      <>
+        <Link to="/blog/customizing-login-pages" className="link-accent">
+          Custom login flows
+        </Link>
+        , authenticators, and full Keycloak extension development.{" "}
+        <Link to="/blog/shadcn-keycloak-theme" className="link-accent">
+          Brand customization
+        </Link>{" "}
+        including styles, colors, logos, and CSS.
+      </>
+    ),
     icon: "lucide:code-2",
   },
   {
@@ -90,14 +119,29 @@ const SUPPORT_SERVICES = [
   },
   {
     title: "Version Upgrades",
-    description:
-      "Upgrade support from legacy versions (even 10+ versions behind) to the latest release. Fast-follow upgrades with new major releases to keep you current.",
+    description: (
+      <>
+        Upgrade support from legacy versions (even{" "}
+        <Link to="/support/zero-downtime-upgrades" className="link-accent">
+          10+ versions behind
+        </Link>
+        ) to the latest release. Fast-follow upgrades with new major releases to
+        keep you current.
+      </>
+    ),
     icon: "lucide:graduation-cap",
   },
   {
     title: "Incident Management",
-    description:
-      "Emergency escalation to Phase Two when critical authentication incidents occur. Fast triage, coordinated response, and expert guidance to restore service quickly.",
+    description: (
+      <>
+        <Link to="/support/emergency-support" className="link-accent">
+          Emergency escalation
+        </Link>{" "}
+        to Phase Two when critical authentication incidents occur. Fast triage,
+        coordinated response, and expert guidance to restore service quickly.
+      </>
+    ),
     icon: "lucide:triangle-alert",
   },
 ];
@@ -146,6 +190,17 @@ const FRAMEWORK_LINKS = [
 ];
 
 export default function Support() {
+  const { siteConfig: { customFields = {} } = {} } = useDocusaurusContext();
+  const demoRequestEndpoint =
+    typeof customFields.demoRequestEndpoint === "string"
+      ? customFields.demoRequestEndpoint
+      : undefined;
+  const turnstileSiteKey =
+    typeof customFields.turnstileSiteKey === "string"
+      ? customFields.turnstileSiteKey
+      : undefined;
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+
   return (
     <Layout
       title="Enterprise Support for Keycloak"
@@ -171,11 +226,13 @@ export default function Support() {
                 </h4>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4">
-                  <a href="mailto:sales@phasetwo.io">
-                    <button className="btnPrimary btnSupport min-w-[160px]">
-                      Let&apos;s talk
-                    </button>
-                  </a>
+                  <button
+                    type="button"
+                    className="btnPrimary btnSupport min-w-[160px]"
+                    onClick={() => setDemoModalOpen(true)}
+                  >
+                    Let&apos;s talk
+                  </button>
                   <Link to="/support/#experts" className="link-primary">
                     Show me pricing <span aria-hidden="true">→</span>
                   </Link>
@@ -315,6 +372,13 @@ export default function Support() {
           showCta
           ctaLabel="See How"
           ctaHref="https://scheduler.zoom.us/phasetwo"
+        />
+
+        <DemoModal
+          isOpen={demoModalOpen}
+          onClose={() => setDemoModalOpen(false)}
+          demoRequestEndpoint={demoRequestEndpoint}
+          turnstileSiteKey={turnstileSiteKey}
         />
       </main>
     </Layout>

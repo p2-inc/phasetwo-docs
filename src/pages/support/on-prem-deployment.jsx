@@ -28,6 +28,10 @@ const DEPLOYMENT_CARDS = [
     imageSrc: IMG_DESIGN_AND_IMPLEMENTATION,
     imageAlt: "Illustration for design and implementation of on-prem Keycloak",
     reverseHorizontal: false,
+    learnMore: {
+      label: "Infrastructure Implementation",
+      url: "/support/infrastructure-implementation",
+    },
   },
   {
     title: "Full Management Available",
@@ -41,6 +45,10 @@ const DEPLOYMENT_CARDS = [
     imageSrc: IMG_FULL_MANAGEMENT,
     imageAlt: "Illustration for fully managed on-prem Keycloak",
     reverseHorizontal: true,
+    learnMore: {
+      label: "Dedicated Clusters",
+      url: "/hosting/dedicated-clusters",
+    },
   },
 ];
 
@@ -68,7 +76,7 @@ export default function OnPremDeployment() {
                 <h1 className="text-balance text-white">
                   On-Premise Deployments and Infrastructure Design
                 </h1>
-                <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
+                <p className="text--body-large mb-0 mt-6 text-balance font-normal text-gray-300">
                   {INTRO}
                 </p>
               </div>
@@ -88,6 +96,7 @@ export default function OnPremDeployment() {
                   imageAlt={card.imageAlt}
                   layout="horizontal"
                   reverseHorizontal={card.reverseHorizontal}
+                  learnMore={card.learnMore}
                 />
               ))}
             </div>

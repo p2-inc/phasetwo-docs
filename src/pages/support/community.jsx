@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import CardWithImage from "../../components/CardWithImage";
 import SupportCta from "../../components/ctas/support-cta";
@@ -17,14 +18,23 @@ const COMMUNITY_CARDS = [
     title: "Our Contributions",
     description: (
       <p className="mb-0">
-        Merged pull requests in Keycloak core, moderation and active participation
-        in Keycloak Discourse, widely used open-source extensions, conference
-        presentations, and collaboration with related projects like Keycloakify.
+        Merged pull requests in Keycloak core, moderation and active
+        participation in Keycloak Discourse, widely used open-source extensions,
+        conference presentations, and collaboration with related projects like{" "}
+        <Link
+          to="/blog/phasetwo-keycloakify-partnership"
+          className="link-accent"
+        >
+          Keycloakify
+        </Link>
+        .
       </p>
     ),
     imageSrc: IMG_OUR_CONTRIBUTORS,
-    imageAlt: "Illustration representing Phase Two contributions to the Keycloak community",
+    imageAlt:
+      "Illustration representing Phase Two contributions to the Keycloak community",
     reverseHorizontal: false,
+    badges: [{ label: "Open Source IAM Guide", url: "/blog/open-source-iam" }],
   },
   {
     title: "Stay at Keycloak Forefront with Us",
@@ -64,10 +74,10 @@ export default function Community() {
                 <h1 className="text-balance text-white">
                   Built by Keycloak Community Leaders
                 </h1>
-                <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
-                  Phase Two actively contributes code, documentation, extensions,
-                  and support across the Keycloak ecosystem—and participates in its
-                  governance and events.
+                <p className="text--body-large mb-0 mt-6 text-balance font-normal text-gray-300">
+                  Phase Two actively contributes code, documentation,
+                  extensions, and support across the Keycloak ecosystem—and
+                  participates in its governance and events.
                 </p>
               </div>
             </div>
@@ -86,6 +96,7 @@ export default function Community() {
                   imageAlt={card.imageAlt}
                   layout="horizontal"
                   reverseHorizontal={card.reverseHorizontal}
+                  badges={card.badges}
                 />
               ))}
             </div>

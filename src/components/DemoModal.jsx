@@ -409,7 +409,15 @@ export default function DemoModal({
           ) : (
             <div className="px-8 py-8">
               <p className="mb-6 text-sm text-gray-300">
-                Leave your name and email and our team will reach out.
+                Leave your name and email and our team will reach out, or email
+                us directly at{" "}
+                <a
+                  href="mailto:sales@phasetwo.io"
+                  className="text-p2blue-400 underline-offset-2 hover:underline"
+                >
+                  sales@phasetwo.io
+                </a>
+                .
               </p>
               <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <label className="flex flex-col gap-1 text-sm text-gray-200">

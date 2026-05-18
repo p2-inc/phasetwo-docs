@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import CardWithImage from "../../components/CardWithImage";
 import SupportCta from "../../components/ctas/support-cta";
@@ -35,12 +36,18 @@ export default function ArchitectureReviewAndScaling() {
                 <h1 className="text-balance text-white">
                   Architecture Review and Scaling
                 </h1>
-                <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
+                <p className="text--body-large mb-0 mt-6 text-balance font-normal text-gray-300">
                   For teams designing or operating Keycloak at scale, we offer
                   structured reviews covering cluster topology, database
                   configuration, caching and session management, authentication
-                  flow design, extension usage, and upgrade and rollback
-                  strategies.
+                  flow design, extension usage, and{" "}
+                  <Link
+                    to="/support/zero-downtime-upgrades"
+                    className="link-accent"
+                  >
+                    upgrade and rollback strategies
+                  </Link>
+                  .
                 </p>
               </div>
             </div>
@@ -54,9 +61,9 @@ export default function ArchitectureReviewAndScaling() {
                 title="Clear, Actionable Recommendations"
                 description={
                   <p className="mb-0">
-                    The output is a prioritized set of recommendations focused on
-                    reliability, performance, cost efficiency, and operational
-                    simplicity.
+                    The output is a prioritized set of recommendations focused
+                    on reliability, performance, cost efficiency, and
+                    operational simplicity.
                   </p>
                 }
                 imageSrc={IMG_CLEAR_ACTIONABLE}

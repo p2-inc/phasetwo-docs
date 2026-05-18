@@ -1,5 +1,7 @@
 import React from "react";
+import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
+import CardLinks from "../../components/CardLinks";
 import SupportCta from "../../components/ctas/support-cta";
 
 const HERO_BG_STYLE = {
@@ -20,11 +22,15 @@ const FEATURE_CARDS = [
     body: (
       <p className="mb-0">
         We review your current installation, map a path through major versions,
-        and handle testing, rollback preparation, and execution with minimal to no
-        downtime—including for customers running heavy production loads who are
-        multiple major versions behind.
+        and handle testing, rollback preparation, and execution with minimal to
+        no downtime—including for customers running heavy production loads who
+        are multiple major versions behind.
       </p>
     ),
+    learnMore: {
+      label: "Architecture Review and Scaling",
+      url: "/support/architecture-review-and-scaling",
+    },
   },
   {
     title: "Maintain Your SLAs Throughout",
@@ -43,8 +49,12 @@ const FEATURE_CARDS = [
     imageAlt: "",
     body: (
       <p className="mb-0">
-        Staying current with Keycloak releases and closing security vulnerabilities
-        as they appear is included as standard for managed customers.
+        Staying current with Keycloak releases and closing security
+        vulnerabilities as they appear is included as standard for{" "}
+        <Link to="/pricing/support" className="link-accent">
+          managed customers
+        </Link>
+        .
       </p>
     ),
   },
@@ -74,11 +84,15 @@ export default function ZeroDowntimeUpgrades() {
                 <h1 className="text-balance text-white">
                   Zero-Downtime Version Upgrades
                 </h1>
-                <p className="mb-0 mt-6 text-balance font-normal text-gray-300 text--body-large">
-                  Keeping Keycloak current is one of the most cited pain points for
-                  self-hosting teams. Schema changes, downtime risk, and rollback
-                  complexity make upgrades easy to defer—until they become a
-                  security or compliance problem.
+                <p className="text--body-large mb-0 mt-6 text-balance font-normal text-gray-300">
+                  Keeping Keycloak current is one of the most cited pain points
+                  for self-hosting teams. Schema changes, downtime risk, and
+                  rollback complexity make upgrades easy to defer—until they
+                  become a{" "}
+                  <Link to="/support/emergency-support" className="link-accent">
+                    security or compliance problem
+                  </Link>
+                  .
                 </p>
               </div>
             </div>
@@ -98,6 +112,10 @@ export default function ZeroDowntimeUpgrades() {
                     <div className="hosting-bento-text text-gray-300">
                       {card.body}
                     </div>
+                    <CardLinks
+                      learnMore={card.learnMore}
+                      badges={card.badges}
+                    />
                   </div>
                   <div className="hosting-bento-image hosting-bento-image-bottom">
                     <img

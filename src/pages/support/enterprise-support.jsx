@@ -1,5 +1,6 @@
 import React from "react";
 import Layout from "@theme/Layout";
+import CardLinks from "../../components/CardLinks";
 import CardWithImage from "../../components/CardWithImage";
 import SupportCta from "../../components/ctas/support-cta";
 
@@ -15,7 +16,11 @@ const COMMUNITY_CARDS = [
     description: (
       <p className="mb-0">
         We&apos;ve built some of the most widely used{" "}
-        <a href="https://github.com/p2-inc" target="_blank">
+        <a
+          href="https://github.com/p2-inc"
+          target="_blank"
+          className="link-accent"
+        >
           Keycloak extensions
         </a>{" "}
         in existence—Organizations, CockroachDB support, Redis caching, and
@@ -54,6 +59,10 @@ const ENGAGE_CARDS = [
         configuration improvements that reduce cost and prevent recurrence.
       </p>
     ),
+    badges: [
+      { label: "24/7 Incident Support", url: "/support/24-7-incident-support" },
+      { label: "Emergency Support", url: "/support/emergency-support" },
+    ],
   },
   {
     title: "Adopting Keycloak as Your Identity Solution",
@@ -66,6 +75,7 @@ const ENGAGE_CARDS = [
         and requirements.
       </p>
     ),
+    badges: [{ label: "Open Source IAM Guide", url: "/blog/open-source-iam" }],
   },
   {
     title: "Consolidating Multiple Identity Systems",
@@ -78,6 +88,10 @@ const ENGAGE_CARDS = [
         development, and everything in between.
       </p>
     ),
+    learnMore: {
+      label: "Migrate to Keycloak",
+      url: "/support/migrate-to-keycloak",
+    },
   },
   {
     title: "Migrating Off a Home-Grown Solution",
@@ -86,10 +100,17 @@ const ENGAGE_CARDS = [
     body: (
       <p className="mb-0">
         Custom identity systems are tightly coupled to their original
-        application. Adapting them to Keycloak often requires custom
-        extensions—we know how to build those and where the edge cases hide.
+        application. Adapting them to Keycloak often requires{" "}
+        <a href="/support/custom-extensions" className="link-accent">
+          custom extensions
+        </a>
+        —we know how to build those and where the edge cases hide.
       </p>
     ),
+    learnMore: {
+      label: "Migrate to Keycloak",
+      url: "/support/migrate-to-keycloak",
+    },
   },
   {
     title: "Migrating Off a Commercial Provider",
@@ -102,6 +123,36 @@ const ENGAGE_CARDS = [
         de-risk yours.
       </p>
     ),
+    badges: [
+      {
+        label: "vs Auth0",
+        url: "/blog/keycloak-vs-auth0-open-source-alternative",
+      },
+      {
+        label: "vs Okta",
+        url: "/blog/keycloak-vs-okta-open-source-alternative",
+      },
+      {
+        label: "vs WorkOS",
+        url: "/blog/keycloak-vs-workos-open-source-alternative",
+      },
+      {
+        label: "vs Ping",
+        url: "/blog/keycloak-vs-PingIdentity-open-source-alternative",
+      },
+      {
+        label: "vs OneLogin",
+        url: "/blog/keycloak-vs-onelogin-open-source-alternative",
+      },
+      {
+        label: "vs FrontEgg",
+        url: "/blog/keycloak-vs-frontegg-open-source-alternative",
+      },
+    ],
+    learnMore: {
+      label: "Migrate to Keycloak",
+      url: "/support/migrate-to-keycloak",
+    },
   },
   {
     title: "Extending an Existing Keycloak Deployment",
@@ -111,7 +162,11 @@ const ENGAGE_CARDS = [
       <p className="mb-0">
         Keycloak functions as an Identity Operating System—it can do a lot.
         We&apos;ll tell you honestly what&apos;s possible and how to get there,
-        from custom auth flows to replacing the user storage provider entirely.
+        from{" "}
+        <a href="/support/custom-extensions" className="link-accent">
+          custom auth flows
+        </a>{" "}
+        to replacing the user storage provider entirely.
       </p>
     ),
   },
@@ -123,6 +178,10 @@ const ENGAGE_CARDS = [
         between—we know exactly what each path requires and how to build it.
       </p>
     ),
+    badges: [
+      { label: "Custom Extensions", url: "/support/custom-extensions" },
+      { label: "Theming", url: "/support/theming" },
+    ],
   },
   {
     title: "Version Upgrades",
@@ -133,6 +192,10 @@ const ENGAGE_CARDS = [
         rollback planning. This is work we do well and often.
       </p>
     ),
+    learnMore: {
+      label: "Zero Downtime Upgrades",
+      url: "/support/zero-downtime-upgrades",
+    },
   },
   {
     title: "Fully Managed On-Premise Deployment",
@@ -143,6 +206,10 @@ const ENGAGE_CARDS = [
         remediation, and version upgrades included.
       </p>
     ),
+    learnMore: {
+      label: "On-Prem Deployment",
+      url: "/support/on-prem-deployment",
+    },
   },
 ];
 
@@ -218,6 +285,10 @@ export default function EnterpriseSupport() {
                       <div className="hosting-bento-text text-gray-300">
                         {card.body}
                       </div>
+                      <CardLinks
+                        learnMore={card.learnMore}
+                        badges={card.badges}
+                      />
                     </div>
                     <div className="hosting-bento-image hosting-bento-image-bottom">
                       <img
@@ -236,6 +307,10 @@ export default function EnterpriseSupport() {
                       <div className="hosting-bento-text text-gray-300">
                         {card.body}
                       </div>
+                      <CardLinks
+                        learnMore={card.learnMore}
+                        badges={card.badges}
+                      />
                     </div>
                   </div>
                 ),
