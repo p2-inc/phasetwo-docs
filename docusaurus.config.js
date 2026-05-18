@@ -15,6 +15,7 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
+  onBrokenAnchors: 'log',
   customFields: {
     caseStudyRequestEndpoint:
       process.env.CASE_STUDY_REQUEST_ENDPOINT ||

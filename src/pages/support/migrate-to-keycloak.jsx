@@ -74,7 +74,7 @@ const MIGRATION_SUPPORT_CARDS = [
     badges: [
       {
         label: "Multi-Tenancy Deep Dive",
-        url: "/blog/multi-tenancy-with-organizations",
+        url: "/blog/multi-tenancy-options-keycloak",
       },
     ],
   },
