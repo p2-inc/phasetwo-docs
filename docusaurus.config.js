@@ -115,10 +115,10 @@ module.exports = {
         src: "img/logo_phase_slash.svg",
       },
       items: [
-        // Left side items: Product (mega-menu), Developers, Pricing, Resources, Blog
+        // Left side items: Solutions (mega-menu), Developers, Pricing, Resources, Blog
         {
           type: "dropdown",
-          label: "Product",
+          label: "Solutions",
           position: "left",
           items: [
             // Platform
@@ -257,7 +257,7 @@ module.exports = {
                 ],
               },
               {
-                title: "Hosting",
+                title: "Managed Hosting",
                 links: [
                   {
                     label: "Open Source vs Commercial Offering",
@@ -294,25 +294,45 @@ module.exports = {
                 ],
               },
               {
-                title: "Support",
+                title: "Enterprise Support",
                 links: [
                   {
+                    to: "support/enterprise-support",
                     label: "Enterprise Support",
-                    to: "support",
-                    activeBaseRegex: "^/support/$",
                   },
                   {
-                    label: "RFPs",
-                    to: "contact#rfps",
+                    to: "support/24-7-incident-support",
+                    label: "24/7 Incident Support",
+                  },
+                  {
+                    label: "Emergency Keycloak Assistance",
+                    to: "support/emergency-support",
+                  },
+                  {
+                    to: "support/on-prem-deployment",
+                    label: "On-Prem Deployment",
                   },
                   {
                     label: "Migration to Keycloak",
                     to: "support/migrate-to-keycloak",
                   },
                   {
-                    label: "Emergency Keycloak Assistance",
-                    to: "support/emergency-support",
+                    to: "support/zero-downtime-upgrades",
+                    label: "Zero-Downtime Upgrades",
                   },
+                  {
+                    to: "support/architecture-review-and-scaling",
+                    label: "Architecture Review and Scaling",
+                  },
+                  {
+                    to: "support/community",
+                    label: "Community",
+                  },
+                  {
+                    label: "RFPs",
+                    to: "contact#rfps",
+                  },
+
                   {
                     label: "Pricing",
                     to: "pricing/support",

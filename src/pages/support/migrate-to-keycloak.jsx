@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@theme/Layout";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import { InlineIcon } from "@iconify/react";
 import Link from "@docusaurus/Link";
 import CardWithImage from "../../components/CardWithImage";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
+import DemoModal from "../../components/DemoModal";
 import pageStyles from "../styles.module.css";
 import supportStyles from "./styles.module.css";
 
@@ -30,8 +32,17 @@ const MIGRATION_SUPPORT_CARDS = [
   },
   {
     title: "Authentication Flow Recreation",
-    description:
-      "Recreate any login flow with Keycloak's built-in support for MFA, OTP, Magic Link, WebAuthn, username/password, and custom authenticators. Phase Two's popular authentication extensions are included by default.",
+    description: (
+      <>
+        Recreate any login flow with Keycloak&apos;s built-in support for MFA,
+        OTP, Magic Link,{" "}
+        <Link to="/blog/webauthn-keycloak" className="link-accent">
+          WebAuthn
+        </Link>
+        , username/password, and custom authenticators. Phase Two&apos;s popular
+        authentication extensions are included by default.
+      </>
+    ),
     imageSrc: "/img/auth-flow-recreation.svg",
     imageAlt: "Authentication flow diagram",
   },
@@ -44,10 +55,28 @@ const MIGRATION_SUPPORT_CARDS = [
   },
   {
     title: "Organizations, Roles, and Permissions",
-    description:
-      "Maintain your existing role hierarchy with Phase Two's Organizations extension. Map users to IDPs and organization-specific roles without service disruption. Organization admins can self-manage through the bundled Admin Portal.",
+    description: (
+      <>
+        Maintain your existing role hierarchy with Phase Two&apos;s{" "}
+        <Link to="/product/organizations" className="link-accent">
+          Organizations extension
+        </Link>
+        . Map users to IDPs and organization-specific roles without service
+        disruption. Organization admins can self-manage through the bundled{" "}
+        <Link to="/product/adminportal" className="link-accent">
+          Admin Portal
+        </Link>
+        .
+      </>
+    ),
     imageSrc: "/img/org-roles-permissions.svg",
     imageAlt: "Organizations and roles diagram",
+    badges: [
+      {
+        label: "Multi-Tenancy Deep Dive",
+        url: "/blog/multi-tenancy-with-organizations",
+      },
+    ],
   },
   {
     title: "Cutover Planning & Rollback Safety",
@@ -98,6 +127,17 @@ const IDP_LOGOS = [
 ];
 
 export default function MigrateToKeycloak() {
+  const { siteConfig: { customFields = {} } = {} } = useDocusaurusContext();
+  const demoRequestEndpoint =
+    typeof customFields.demoRequestEndpoint === "string"
+      ? customFields.demoRequestEndpoint
+      : undefined;
+  const turnstileSiteKey =
+    typeof customFields.turnstileSiteKey === "string"
+      ? customFields.turnstileSiteKey
+      : undefined;
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+
   return (
     <Layout
       title="Migrate to Phase Two + Keycloak"
@@ -122,11 +162,13 @@ export default function MigrateToKeycloak() {
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4">
-                  <a href="mailto:sales@phasetwo.io">
-                    <button className="btnPrimary btnSupport min-w-[160px]">
-                      Get in Touch
-                    </button>
-                  </a>
+                  <button
+                    type="button"
+                    className="btnPrimary btnSupport min-w-[160px]"
+                    onClick={() => setDemoModalOpen(true)}
+                  >
+                    Get in Touch
+                  </button>
                   <Link to="/support/#experts" className="link-primary">
                     Show me pricing <span aria-hidden="true">→</span>
                   </Link>
@@ -211,6 +253,7 @@ export default function MigrateToKeycloak() {
                   imageSrc={card.imageSrc}
                   imageAlt={card.imageAlt}
                   layout="imageBottom"
+                  badges={card.badges}
                 />
               ))}
             </div>
@@ -240,7 +283,14 @@ export default function MigrateToKeycloak() {
           secondaryText="Let Us Show You How."
           showCta
           ctaLabel="Get in Touch"
-          ctaHref="mailto:support@phasetwo.io"
+          onCtaClick={() => setDemoModalOpen(true)}
+        />
+
+        <DemoModal
+          isOpen={demoModalOpen}
+          onClose={() => setDemoModalOpen(false)}
+          demoRequestEndpoint={demoRequestEndpoint}
+          turnstileSiteKey={turnstileSiteKey}
         />
       </main>
     </Layout>
