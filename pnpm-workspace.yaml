@@ -5,6 +5,6 @@ allowBuilds:
   '@tree-sitter-grammars/tree-sitter-yaml': true
   core-js: false
   core-js-pure: false
-  postman-code-generators: true
+  postman-code-generators: false
   tree-sitter: true
   tree-sitter-json: true
