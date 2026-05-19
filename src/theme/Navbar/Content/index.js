@@ -95,7 +95,10 @@ function MegaMenuNavbarItem({
       >
         {children ?? label}
       </NavbarNavLink>
-      <ul className={clsx("dropdown__menu", styles.megaMenu)}>
+      <ul
+        className={clsx("dropdown__menu", styles.megaMenu)}
+        style={{ "--mega-menu-cols": megaMenu.sections.length }}
+      >
         {megaMenu.sections.map((section) => (
           <li className={styles.megaMenuSection} key={section.title}>
             <p className={styles.megaMenuSectionTitle}>{section.title}</p>

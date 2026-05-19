@@ -359,11 +359,8 @@ module.exports = {
               label: "API",
             },
             {
-              href: "https://github.com/p2-inc/",
-              label: "GitHub",
-            },
-            {
-              href: "https://github.com/p2-inc#our-extensions-",
+              to: "extensions",
+              activeBasePath: "extensions",
               label: "Keycloak Extensions",
             },
             {
@@ -371,7 +368,89 @@ module.exports = {
               activeBasePath: "articles",
               label: "Articles",
             },
+            {
+              href: "https://github.com/p2-inc/",
+              label: "GitHub",
+            },
           ],
+          megaMenu: {
+            sections: [
+              {
+                title: "Build",
+                links: [
+                  {
+                    to: "docs/introduction",
+                    activeBasePath: "docs",
+                    label: "Docs",
+                  },
+                  {
+                    to: "api/phase-two-admin-rest-api",
+                    activeBasePath: "api",
+                    label: "API",
+                  },
+                  {
+                    to: "articles/introduction",
+                    activeBasePath: "articles",
+                    label: "Articles",
+                  },
+                  {
+                    href: "https://github.com/p2-inc/",
+                    label: "GitHub",
+                  },
+                ],
+              },
+              {
+                title: "Extensions",
+                links: [
+                  {
+                    to: "extensions",
+                    activeBasePath: "extensions",
+                    label: "Overview",
+                  },
+                  {
+                    to: "extensions/organizations",
+                    activeBasePath: "extensions/organizations",
+                    label: "Organizations",
+                  },
+                  {
+                    to: "extensions/idp-wizard",
+                    activeBasePath: "extensions/idp-wizard",
+                    label: "IdP Wizard",
+                  },
+                  {
+                    to: "extensions/admin-portal",
+                    activeBasePath: "extensions/admin-portal",
+                    label: "Admin Portal",
+                  },
+                  {
+                    to: "extensions/magic-link",
+                    activeBasePath: "extensions/magic-link",
+                    label: "Magic Link",
+                  },
+                  {
+                    to: "extensions/events",
+                    activeBasePath: "extensions/events",
+                    label: "Events & Webhooks",
+                  },
+                  {
+                    to: "extensions/themes",
+                    activeBasePath: "extensions/themes",
+                    label: "Themes",
+                  },
+                  {
+                    to: "extensions/user-migration",
+                    activeBasePath: "extensions/user-migration",
+                    label: "User Migration",
+                  },
+                  {
+                    to: "extensions/containers",
+                    activeBasePath: "extensions/containers",
+                    label: "Containers",
+                  },
+                ],
+              },
+            ],
+          },
         },
         {
           type: "dropdown",
