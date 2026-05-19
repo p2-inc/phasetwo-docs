@@ -38,9 +38,48 @@ In the **Connection & Authentication** section, you will provide details of your
 
 Finally, before you click **Save**, click the **Test connection** button to send a test email to the email address of the currently logged in user. If you don't have that set, you might have click **Save** and edit your user before you come back. You'll receive a success message, or information that will help you resolve problems.
 
+## Email branding
+
+The `phasetwo-ui` email theme supports logo and footer customization directly from the admin UI. Go to **Extensions > Styles > Email** to configure it.
+
+:::info Theme requirement
+The email theme must be set to `phasetwo-ui` in **Realm Settings > Themes** for branding changes to take effect. The Styles panel will show a prompt to activate it if needed.
+:::
+
+### Logo
+
+Upload your logo as an image file (PNG or SVG recommended, max 1MB). It is base64-encoded and embedded directly in outgoing emails so it appears reliably across email clients — no external image hosting required. If no logo is uploaded, the Phase Two logo is used as the default.
+
+This is separate from the login page logo. To set the logo for login and account pages, use the **General** tab.
+
+### Footer
+
+Two optional footer lines appear at the bottom of every email, separated by a line break:
+
+- **Footer line 1** — defaults to the realm's display name if left blank.
+- **Footer line 2** — optional tagline, contact address, or any secondary text.
+
+Both lines appear above a "Powered by Phase Two" attribution.
+
+### Preview
+
+A live preview renders below the branding fields so you can see how your logo and footer will look before sending. To send a real test email, go to **Realm Settings > Email** and use the **Test connection** button.
+
+![Email Branding panel with logo upload, footer fields, and preview](/docs/getting-started/email-preview.png)
+
+### Realm attributes
+
+These values can also be set programmatically via the Keycloak Admin REST API:
+
+| Attribute                                   | Description                                    |
+| ------------------------------------------- | ---------------------------------------------- |
+| `_providerConfig.assets.logo.base64`        | Logo as a base64 data URI                      |
+| `_providerConfig.assets.email.footer.line1` | Footer line 1 (defaults to realm display name) |
+| `_providerConfig.assets.email.footer.line2` | Footer line 2                                  |
+
 ## Content templates
 
-Email content can be modified in the **Styles** part of the **Extensions** section, in the _Emails_ tab (ensure the `phasetwo.v2` theme for the Admin theme is applied). There are several default email types that you can modify. 
+Email content can be modified in the **Styles** part of the **Extensions** section, in the **Email** tab (ensure the `phasetwo-ui` theme for both Admin and Email is applied). There are several default email types that you can modify.
 
 - Execute Required Actions
 - Link to Identity Provider
@@ -55,9 +94,13 @@ Email content can be modified in the **Styles** part of the **Extensions** secti
 - Verification
 - Verification with code
 
-The templates are made in both text and HTML, as emails are assembled as multi-part messages that can display either type depending on the User's email client and accessibility settings. You must edit content for both types if you are making changes.
+The templates are made in both text and HTML, as emails are assembled as multi-part messages that can display either type depending on the user's email client and accessibility settings. You must edit content for both types if you are making changes.
+
+Select a template from the dropdown to load its current HTML and plain-text versions into the editors, make your changes, and click **Save**. Selecting a different template or clicking **Revert** will discard unsaved changes.
 
 We have created an example [Email Template](https://github.com/p2-inc/keycloak-theme-template/tree/master/examples/email) which we encourage use of.
+
+<img src="/docs/getting-started/template-overrides.png" alt="Email template override UI showing template selector and HTML/text editors" style={{ height: 500}} />
 
 ### Templating syntax
 
