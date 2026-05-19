@@ -7,6 +7,10 @@ Phase Two ships a unified theme called **phasetwo-ui** that covers all four Keyc
 
 Branding is applied at runtime through realm attributes, so changes take effect immediately without rebuilding or redeploying the theme JAR. The **Styles** panel in the admin console (under **Extensions**) provides a UI for all of these settings. To access it, ensure the `phasetwo-ui` theme is selected for the **Admin** theme in **Realm Settings > Themes**.
 
+:::tip Email theme
+For email branding (logo, footer), set your realm's email theme to `phasetwo-ui`. This unlocks the **Email Branding** settings described in the [Emails](/docs/getting-started/email#email-branding) guide.
+:::
+
 If you are looking to build a fully custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/). Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of the project.
 
 :::info Theme selection prerequisite
@@ -121,6 +125,12 @@ See the [Emails](./email.md) page for details on email template customization.
 | `_providerConfig.assets.logo.base64`        | Email logo as a base64 data URI (max 1MB, PNG or SVG recommended) |
 | `_providerConfig.assets.email.footer.line1` | First footer line (defaults to realm display name)                |
 | `_providerConfig.assets.email.footer.line2` | Second footer line (optional tagline or contact info)             |
+
+**Email**
+
+- `_providerConfig.assets.logo.base64` — base64-encoded data URI of your email logo (e.g. `data:image/png;base64,...`). Embedded directly in email bodies; requires the `phasetwo-ui` email theme.
+- `_providerConfig.assets.email.footer.line1` — first footer line; defaults to realm display name when absent
+- `_providerConfig.assets.email.footer.line2` — optional second footer line
 
 **Admin Portal**
 

@@ -15,6 +15,7 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
+  onBrokenAnchors: 'log',
   customFields: {
     caseStudyRequestEndpoint:
       process.env.CASE_STUDY_REQUEST_ENDPOINT ||
@@ -91,9 +92,9 @@ module.exports = {
   ],
   themeConfig: {
     announcementBar: {
-      id: "dedicated_clusters",
+      id: "mcp_authorization",
       content:
-        '<a href="/blog/cockroach-labs-features-phasetwo-managed-keycloak-hosting/">Cockroach Labs features Phase Two!</a> - Get fully managed, multi-region, high-availability Keycloak hosting with top extensions and 24/7 support.',
+        'New: <a href="/blog/instant-mcp-authorization-keycloak/">Instant MCP authorization using Keycloak</a> - Protect your MCP server with real login flows, scoped tokens, and zero custom auth code.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
@@ -103,7 +104,7 @@ module.exports = {
       { property: "og:logo", content: "/img/appstore.png", size: "1024x1024" },
       {
         property: "og:image",
-        content: "/img/og_image_app.png",
+        content: "/img/og_image.jpg",
         size: "1200x630",
       },
       { property: "og:logo", content: "/img/playstore.png", size: "512x512" },
@@ -115,10 +116,10 @@ module.exports = {
         src: "img/logo_phase_slash.svg",
       },
       items: [
-        // Left side items: Product (mega-menu), Developers, Pricing, Resources, Blog
+        // Left side items: Solutions (mega-menu), Developers, Pricing, Resources, Blog
         {
           type: "dropdown",
-          label: "Product",
+          label: "Solutions",
           position: "left",
           items: [
             // Platform
@@ -257,7 +258,7 @@ module.exports = {
                 ],
               },
               {
-                title: "Hosting",
+                title: "Managed Hosting",
                 links: [
                   {
                     label: "Open Source vs Commercial Offering",
@@ -294,25 +295,45 @@ module.exports = {
                 ],
               },
               {
-                title: "Support",
+                title: "Enterprise Support",
                 links: [
                   {
+                    to: "support/enterprise-support",
                     label: "Enterprise Support",
-                    to: "support",
-                    activeBaseRegex: "^/support/$",
                   },
                   {
-                    label: "RFPs",
-                    to: "contact#rfps",
+                    to: "support/24-7-incident-support",
+                    label: "24/7 Incident Support",
+                  },
+                  {
+                    label: "Emergency Keycloak Assistance",
+                    to: "support/emergency-support",
+                  },
+                  {
+                    to: "support/on-prem-deployment",
+                    label: "On-Prem Deployment",
                   },
                   {
                     label: "Migration to Keycloak",
                     to: "support/migrate-to-keycloak",
                   },
                   {
-                    label: "Emergency Keycloak Assistance",
-                    to: "support/emergency-support",
+                    to: "support/zero-downtime-upgrades",
+                    label: "Zero-Downtime Upgrades",
                   },
+                  {
+                    to: "support/architecture-review-and-scaling",
+                    label: "Architecture Review and Scaling",
+                  },
+                  {
+                    to: "support/community",
+                    label: "Community",
+                  },
+                  {
+                    label: "RFPs",
+                    to: "contact#rfps",
+                  },
+
                   {
                     label: "Pricing",
                     to: "pricing/support",

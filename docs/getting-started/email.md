@@ -38,17 +38,17 @@ In the **Connection & Authentication** section, you will provide details of your
 
 Finally, before you click **Save**, click the **Test connection** button to send a test email to the email address of the currently logged in user. If you don't have that set, you might have click **Save** and edit your user before you come back. You'll receive a success message, or information that will help you resolve problems.
 
-## Email branding
+## Email Branding
 
-The `phasetwo-ui` email theme supports logo and footer customization directly from the admin UI. Go to **Extensions > Styles > Email** to configure it.
+Email branding is configured in **Extensions > Styles > Email**. These settings control the logo and footer that appear in every outgoing system email.
 
-:::info Theme requirement
-The email theme must be set to `phasetwo-ui` in **Realm Settings > Themes** for branding changes to take effect. The Styles panel will show a prompt to activate it if needed.
+:::note
+The `phasetwo-ui` email theme must be active for branding to take effect. If your realm is using a different email theme, a warning banner will appear with an **Activate** button that switches it automatically. If you are on the older `attributes` or `attributes-v2` themes you will see an **Upgrade to phasetwo-ui** prompt instead.
 :::
 
 ### Logo
 
-Upload your logo as an image file (PNG or SVG recommended, max 1MB). It is base64-encoded and embedded directly in outgoing emails so it appears reliably across email clients — no external image hosting required. If no logo is uploaded, the Phase Two logo is used as the default.
+Upload your logo as an image file (PNG or SVG recommended, max 1 MB). It is base64-encoded and embedded directly in outgoing emails so it appears reliably across email clients — no external image hosting required. It renders at up to 160 × 60 px in the email body. If no logo is uploaded, the Phase Two logo is used as the default.
 
 This is separate from the login page logo. To set the logo for login and account pages, use the **General** tab.
 

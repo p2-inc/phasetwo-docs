@@ -133,6 +133,17 @@ const Sections: {
         },
       },
       {
+        name: "Private network connectivity (2)",
+        description:
+          "Connect your backend infrastructure to your Keycloak cluster over a private network connection, keeping authentication traffic off the public internet entirely.",
+        tiers: {
+          starter: false,
+          premium: false,
+          enterprise: "Add-on",
+          custom: true,
+        },
+      },
+      {
         name: "Environment variables",
         description: "Add Keycloak configuration via environment variables.",
         tiers: {
