@@ -3,100 +3,128 @@ id: customizing-ui
 title: Customizing UI / Theming
 ---
 
-It is possible to customize styles for login screens to match your branding. This can be achieved by simple colors and logo override of the default them, or by full CSS replacement.
+Phase Two ships a unified theme called **phasetwo-ui** that covers all four Keycloak theme types — login, account, admin, and email — in a single package. It is built with [Keycloakify](https://www.keycloakify.dev/) and [shadcn/ui](https://ui.shadcn.com/) and is the default theme on Phase Two hosted instances.
+
+Branding is applied at runtime through realm attributes, so changes take effect immediately without rebuilding or redeploying the theme JAR. The **Styles** panel in the admin console (under **Extensions**) provides a UI for all of these settings. To access it, ensure the `phasetwo-ui` theme is selected for the **Admin** theme in **Realm Settings > Themes**.
 
 :::tip Email theme
 For email branding (logo, footer), set your realm's email theme to `phasetwo-ui`. This unlocks the **Email Branding** settings described in the [Emails](/docs/getting-started/email#email-branding) guide.
 :::
 
-If you are looking to do a full custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/) to build it. This allows you to use React components to build your theme and provides backwards compatibility.
+If you are looking to build a fully custom theme, we recommend using [Keycloakify](https://www.keycloakify.dev/). Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of the project.
 
-Phase Two are [sponsors](/blog/phasetwo-keycloakify-partnership/) of [Keycloakify](https://www.keycloakify.dev) as we are deeply convinced by this project's value.
+:::info Theme selection prerequisite
+The **Styles** panel and all branding features described on this page require the `phasetwo-ui` theme to be active. Go to **Realm Settings > Themes** and set:
+
+- **Login theme**: `phasetwo-ui`
+- **Admin theme**: `phasetwo-ui`
+- **Account theme**: `phasetwo-ui`
+- **Email theme**: `phasetwo-ui`
+  :::
 
 ## Simple
 
-The simple override of colors and logo can be access in the admin UI in the **Styles** section. The available override values are
+The simple override of colors and logo can be accessed in the admin UI under **Extensions > Styles**. The available override values are organized across four tabs.
 
-- **General** tab
-  - Logo: URL of your logo image. This will be constrained to 150x150. You should use an SVG or PNG with alpha channel to make sure this renders properly on your background color and in the Admin Portal, if you are using it.
-  - Favicon: URL of your favicon.
-  - App Icon Url: Url of the App Icon used within the [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal)
+### General tab
 
-![Keycloak Phase Two General Style Customization](/docs/getting-started-customizing-ui-logos.png)
+- **Logo URL**: URL of your logo image. This logo appears on login and account pages. It will be constrained to 150×150px. Use an SVG or PNG with an alpha channel so it renders correctly on any background and inside the Admin Portal. To set a separate logo for emails, use the **Email** tab.
+- **Favicon URL**: URL of your browser tab favicon.
+- **App Icon URL**: URL of the app icon used within the [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal).
 
-- **Login** tab
-  - Background color: Hex color for background.
-  - Primary color: Hex color for primary.
-  - Secondary color: Hex color for secondary.
+The form includes a live image preview so you can confirm your URLs are resolving correctly before saving.
 
-![Keycloak Phase Two Login Style Customization](/docs/getting-started-customizing-ui-colors.png)
+![Keycloak Phase Two General Style Customization](/docs/getting-started/general-logos.png)
+
+### Login tab
+
+Colors control the look of the login, registration, and related authentication pages. All values are hex color codes (e.g. `#3b82f6`).
+
+**Light mode**
+
+- **Primary color**: Used for buttons, links, and the sidebar panel. Default: `#3b82f6`.
+- **Secondary color**: Used for secondary accents. Default: `#60a5fa`.
+- **Background color**: Page background color. Default: `#ffffff`.
+
+**Dark mode**
+
+The theme automatically follows the user's operating system dark mode preference. You can supply separate overrides for dark mode; if omitted, the light-mode values are used as fallbacks.
+
+- **Primary color (dark)**
+- **Secondary color (dark)**
+- **Background color (dark)**
+
+A **CSS** field is also available on this tab for arbitrary stylesheet overrides, loaded after the theme styles.
+
+![Keycloak Phase Two Login Style Customization](/docs/getting-started/login-css.png)
 
 ## Full CSS
 
-Full CSS can be added on the same page in the Admin UI. This stylesheet will be loaded last. Note that the use of a full CSS file will override the values from above. For more information on the styles used in the login pages, see [Patternfly v5](https://www.patternfly.org/), and the Keycloak [base](https://github.com/keycloak/keycloak/tree/main/themes/src/main/resources/theme/base/login) and [keycloak](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak/login/resources/css/login.css) themes.
+The **CSS** field in the **Login** tab accepts arbitrary CSS that is loaded after the theme styles. You can use it for targeted overrides without replacing the entire theme.
 
-Phase Two has assembled a few custom themes that can also be used. View them in our [Keycloak Themes Repository](https://github.com/p2-inc/keycloak-theme-template).
-
-If you need a lightweight customization to the variables that Phase Two exposes but want to use custom CSS, try this
+The `phasetwo-ui` login theme is built with [shadcn/ui](https://ui.shadcn.com/) and [Tailwind CSS v4](https://tailwindcss.com/). The color system uses a set of `--p2-login-*` CSS variables that the theme bridges to shadcn's semantic tokens. Overriding these variables in your custom CSS is the lightest-weight way to change colors without touching the color picker fields:
 
 ```css
-/* This will override built-in PatternFly Color Scheme */
 :root {
-  /* Primary Colors */
-  --pf-v5-global--primary-color--100: #5b9fdd;
-  --pf-v5-global--active-color--100: #5b9fdd;
-  --pf-v5-global--primary-color--dark-100: #5b9fdd;
-  /* Primary Link Colors */
-  --pf-v5-global--link--Color: #5b9fdd;
-  --pf-v5-global--link--Color--dark: #5b9fdd;
-
-  /* Primary Colors - 20% darker */
-  --pf-v5-global--primary-color--200: ##1570c2;
-  /* Link Hover Colors */
-  --pf-v5-global--link--Color--hover: ##1570c2;
-  --pf-v5-global--link--Color--dark--hover: ##1570c2;
-
-  /* Secondary Colors */
-  --pf-v5-global--secondary-color--100: #edf5fb;
+  --p2-login-primary-color: #5b9fdd;
+  --p2-login-secondary-color: #edf5fb;
+  --p2-login-background-color: #ffffff;
+  /* Text color rendered on top of the primary color (e.g. button labels) */
+  --p2-login-primary-foreground-color: #ffffff;
 }
 
-/* Adjust the colors for links specifically */
-a {
-  color: var(--pf-v5-global--link--Color);
-}
-.login-pf a:hover {
-  color: var(--pf-v5-global--link--Color--hover);
-}
-
-/* Adjust outline or focus colors for inputs */
-input[type="text"]:focus,
-input[type="text"]:focus-within,
-input[type="text"]:focus-visible,
-input[type="password"]:focus,
-input[type="password"]:focus-within,
-input[type="password"]:focus-visible {
-  outline: var(--pf-v5-global--active-color--100) auto 1px;
+/* Optional: separate dark mode overrides */
+.dark {
+  --p2-login-primary-color-dark: #3b82f6;
+  --p2-login-secondary-color-dark: #1e3a5f;
+  --p2-login-background-color-dark: #0f0f0f;
 }
 ```
 
+Phase Two has assembled a few complete custom themes. View them in our [Keycloak Themes Repository](https://github.com/p2-inc/keycloak-theme-template).
+
 ## Manually by Realm attributes
 
-The above methods for updating the style store the values as Realm attributes. If you prefer to programmatically set these, use the following Realm attribute keys:
-
-**Login**
-
-- `_providerConfig.assets.login.css`
-- `_providerConfig.assets.login.primaryColor`
-- `_providerConfig.assets.login.secondaryColor`
-- `_providerConfig.assets.login.backgroundColor`
+All values set through the Styles panel are stored as Realm attributes. You can set them programmatically via the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON. Use the following attribute keys:
 
 **General**
 
-These attributes apply to login and account pages. Email messages use a separate logo — see [Email Branding](/docs/getting-started/email#email-branding).
+| Attribute                            | Description                          |
+| ------------------------------------ | ------------------------------------ |
+| `_providerConfig.assets.logo.url`    | Logo URL for login and account pages |
+| `_providerConfig.assets.favicon.url` | Browser tab favicon URL              |
+| `_providerConfig.assets.appicon.url` | App icon URL for the Admin Portal    |
 
-- `_providerConfig.assets.logo.url`
-- `_providerConfig.assets.favicon.url`
-- `_providerConfig.assets.appicon.url`
+**Login (light mode)**
+
+| Attribute                                             | Default   | Description                               |
+| ----------------------------------------------------- | --------- | ----------------------------------------- |
+| `_providerConfig.assets.login.primaryColor`           | `#3b82f6` | Buttons, links, sidebar                   |
+| `_providerConfig.assets.login.secondaryColor`         | `#60a5fa` | Secondary accents                         |
+| `_providerConfig.assets.login.backgroundColor`        | `#ffffff` | Page background                           |
+| `_providerConfig.assets.login.primaryForegroundColor` | `#ffffff` | Text on primary color                     |
+| `_providerConfig.assets.login.css`                    | —         | Arbitrary CSS appended after theme styles |
+
+**Login (dark mode overrides)**
+
+If omitted, the light-mode values are used as fallbacks.
+
+| Attribute                                                  | Description                   |
+| ---------------------------------------------------------- | ----------------------------- |
+| `_providerConfig.assets.login.primaryColor-dark`           | Primary color in dark mode    |
+| `_providerConfig.assets.login.secondaryColor-dark`         | Secondary color in dark mode  |
+| `_providerConfig.assets.login.backgroundColor-dark`        | Background color in dark mode |
+| `_providerConfig.assets.login.primaryForegroundColor-dark` | Foreground text in dark mode  |
+
+**Email branding**
+
+See the [Emails](./email.md) page for details on email template customization.
+
+| Attribute                                   | Description                                                       |
+| ------------------------------------------- | ----------------------------------------------------------------- |
+| `_providerConfig.assets.logo.base64`        | Email logo as a base64 data URI (max 1MB, PNG or SVG recommended) |
+| `_providerConfig.assets.email.footer.line1` | First footer line (defaults to realm display name)                |
+| `_providerConfig.assets.email.footer.line2` | Second footer line (optional tagline or contact info)             |
 
 **Email**
 
@@ -106,18 +134,20 @@ These attributes apply to login and account pages. Email messages use a separate
 
 **Admin Portal**
 
-Full customization details can be viewed in the Phase Two [Admin Portal Repo](https://github.com/p2-inc/phasetwo-admin-portal)
+Full customization details can be viewed in the Phase Two [Admin Portal Repo](https://github.com/p2-inc/phasetwo-admin-portal).
 
-- `_providerConfig.assets.portal.primary100`
-- `_providerConfig.assets.portal.primary200`
-- `_providerConfig.assets.portal.primary400`
-- `_providerConfig.assets.portal.primary500`
-- `_providerConfig.assets.portal.primary600`
-- `_providerConfig.assets.portal.primary700`
-- `_providerConfig.assets.portal.primary900`
-- `_providerConfig.assets.portal.secondary800`
-- `_providerConfig.assets.portal.secondary900`
-- `_providerConfig.assets.portal.css`
+| Attribute                                    | Description                        |
+| -------------------------------------------- | ---------------------------------- |
+| `_providerConfig.assets.portal.primary100`   |                                    |
+| `_providerConfig.assets.portal.primary200`   |                                    |
+| `_providerConfig.assets.portal.primary400`   |                                    |
+| `_providerConfig.assets.portal.primary500`   |                                    |
+| `_providerConfig.assets.portal.primary600`   |                                    |
+| `_providerConfig.assets.portal.primary700`   |                                    |
+| `_providerConfig.assets.portal.primary900`   |                                    |
+| `_providerConfig.assets.portal.secondary800` |                                    |
+| `_providerConfig.assets.portal.secondary900` |                                    |
+| `_providerConfig.assets.portal.css`          | Arbitrary CSS for the Admin Portal |
 
 ## Custom Themes
 
