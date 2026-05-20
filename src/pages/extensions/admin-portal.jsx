@@ -1,162 +1,64 @@
 import React from "react";
-import ExtensionPageLayout from "../../components/ExtensionPageLayout";
+import ExtensionSubpage from "../../components/extensions/ExtensionSubpage";
 
-const meta = {
-  title: "Keycloak Admin Portal — Self-Service UI for End Customers",
-  description:
-    "Open source Keycloak extension providing a scoped, embeddable admin UI safe to expose to customer organization admins. Manage users, SSO, roles, and invitations without the Keycloak console.",
-};
-
-const hero = {
-  title: "Admin Portal for Keycloak",
-  description:
-    "An embeddable, scoped admin UI safe to expose to your customers. Their organization admins manage users, SSO, roles, and invitations — without ever touching the Keycloak console.",
-  imageSrc: "/img/hero-service-portal.svg",
-  primaryCtaLabel: "View on GitHub",
-  primaryCtaHref: "https://github.com/p2-inc/phasetwo-admin-portal",
-  secondaryCtaLabel: "Read the docs",
-  secondaryCtaHref: "/docs/admin-portal",
-};
-
-const problem = {
-  title: "The Keycloak admin console is not safe for customers",
-  intro:
-    "It's powerful and dangerous — fine for the engineer who owns the deployment, catastrophic for a customer org admin who just needs to invite their team.",
-  points: [
-    {
-      title: "Exposes everything",
-      description:
-        "Every realm, every user, every client, every flow. There's no way to scope a session to a single organization.",
-    },
-    {
-      title: "Wrong audience, wrong UX",
-      description:
-        "The admin console is built for IT, not for end customers. Even with scoping it would feel like exposing your control plane.",
-    },
-    {
-      title: "Roll your own is a maintenance trap",
-      description:
-        "Building a custom customer admin on top of the Keycloak REST API works — until Keycloak ships breaking API changes and your UI rots.",
-    },
-  ],
-};
-
-const whyBuilt = {
-  title: "A reference customer-admin UI, maintained for you",
-  intro:
-    "Every B2B Keycloak team eventually builds a customer-facing admin. We built it once, properly, and open sourced it.",
-  points: [
-    {
-      title: "Scoped by construction",
-      description:
-        "Org admins see only their org's users, roles, and IdPs. Cross-tenant access is structurally impossible — not just hidden in the UI.",
-    },
-    {
-      title: "Brandable from configuration",
-      description:
-        "Logo, colors, and copy via the standard Keycloak theme properties. Make it feel like part of your product without forking the code.",
-    },
-    {
-      title: "Portal links, like Stripe",
-      description:
-        "Issue short-lived portal links from your backend so users launch into the portal already authenticated, deep-linked to the right view.",
-    },
-    {
-      title: "Tracks Keycloak releases",
-      description:
-        "It's the same portal we ship in our managed product. Maintained against the latest Keycloak so self-hosted teams don't have to reinvent it every quarter.",
-    },
-  ],
-};
-
-const useCases = {
-  title: "What teams use it for",
-  cards: [
-    {
-      heading: "Customer self-service",
-      description:
-        "Org admins invite users, manage SSO, and assign roles inside their organization — without filing tickets or waiting on your support team.",
-    },
-    {
-      heading: "Embedded inside your app",
-      description:
-        "Drop the portal into your product via a generated portal link. Users launch in already authenticated, in your brand.",
-    },
-    {
-      heading: "Profile and credential self-management",
-      description:
-        "End users update their profile, change their password, set up MFA, and manage their login methods themselves.",
-    },
-    {
-      heading: "Audit-safe admin surface",
-      description:
-        "Every admin action flows through the Keycloak admin API with proper auditability — not direct database writes or bespoke endpoints.",
-    },
-  ],
-};
-
-const capabilities = {
-  cards: [
-    {
-      title: "Scoped to one organization",
-      description:
-        "Org admins see only their org's users, roles, and IdPs. Cross-tenant access is structurally impossible — not just hidden in the UI.",
-      imageSrc: "/img/standards-based-security.svg",
-      imageAlt: "",
-    },
-    {
-      title: "Brandable to match your product",
-      description:
-        "Configure logo, colors, and content from the Keycloak admin to make the portal feel like part of your application.",
-      imageSrc: "/img/customizable-branding.svg",
-      imageAlt: "",
-    },
-    {
-      title: "Portal link generation",
-      description:
-        "Issue short-lived portal links from your backend so users launch into the portal already authenticated — like a Stripe customer portal, for identity.",
-      imageSrc: "/img/portal-link-generation.svg",
-      imageAlt: "",
-    },
-  ],
-};
-
-const getStarted = {
-  cards: [
-    {
-      heading: "Install from GitHub",
-      description:
-        "React app + Keycloak theme. Build from source or pull the prebuilt release artifact.",
-      linkLabel: "p2-inc/phasetwo-admin-portal",
-      linkUrl: "https://github.com/p2-inc/phasetwo-admin-portal",
-    },
-    {
-      heading: "Read the docs",
-      description:
-        "Install, configure, brand, and generate portal links.",
-      linkLabel: "Admin Portal docs",
-      linkUrl: "/docs/admin-portal",
-    },
-    {
-      heading: "Skip the install",
-      description:
-        "Phase Two managed Keycloak ships with the Admin Portal pre-configured and brandable from the dashboard.",
-      linkLabel: "Try the hosted version",
-      linkUrl: "https://dash.phasetwo.io/",
-    },
-  ],
+const CONTENT = {
+  slug: "admin-portal",
+  name: "Admin Portal",
+  category: "B2B & Multi-tenant",
+  iconKey: "admin-portal",
+  diagramKey: "admin-portal",
+  repo: "p2-inc/keycloak-admin-ui",
+  docsHref: "/docs/admin-portal/",
+  meta: {
+    title: "Keycloak Admin Portal — Customer-Safe Admin UI",
+    description:
+      "Embeddable, scoped Keycloak admin UI that lets customer admins manage their own users, roles, and SSO without exposing the Keycloak console.",
+  },
+  hero: {
+    h1: "An admin UI that's safe to put in your customer's hands.",
+    lead: "Customer admins shouldn't see your Keycloak console. The Admin Portal is a scoped, embeddable UI that lets them manage their own users, roles, and SSO — and nothing more.",
+    badges: ["Scoped By Org", "Embeddable", "Brandable", "No Keycloak Console Exposure"],
+  },
+  problem: {
+    heading: "Exposing the Keycloak console to customers is a non-starter.",
+    cards: [
+      { title: "Too much surface area", body: "The Keycloak admin console shows realm-wide settings. One misclick and a customer changes your global config." },
+      { title: "Wrong language for customers", body: "Realms, clients, identity providers — Keycloak's terminology doesn't match what your customer thinks about." },
+      { title: "Brand mismatch", body: "Keycloak's default UI looks like Keycloak. Your customers expect your brand inside their settings." },
+    ],
+  },
+  approach: {
+    heading: "A portal scoped to the customer, not the realm",
+    cards: [
+      { title: "Per-Organization scope", body: "Every action is scoped to one organization. No cross-tenant leakage by construction." },
+      { title: "Customer-shaped vocabulary", body: "'Members', 'Teams', 'SSO' — not 'Users', 'Roles', 'Identity providers'." },
+      { title: "Embeddable in your app", body: "Drop the portal into your existing admin UI, theme it, and it inherits your brand." },
+      { title: "Reuses Organizations + IdP Wizard", body: "Built on the rest of the suite — every org capability surfaces in the portal automatically." },
+    ],
+  },
+  useCases: {
+    heading: "Where the Admin Portal goes",
+    intro: "Anywhere customer admins need to manage their own identity surface without bothering your support team.",
+    items: [
+      { title: "Customer settings page", sub: "Embedded in yourapp.com/admin." },
+      { title: "Trial / onboarding flow", sub: "Invite the team, set up SSO, ship." },
+      { title: "Self-serve enterprise UI", sub: "Compliance, audit, role assignments." },
+      { title: "Partner admin surface", sub: "Limited-scope identity admin for partners." },
+    ],
+  },
+  capabilities: {
+    heading: "Customer-safe identity management",
+    items: [
+      { title: "Member management", body: "Invite, remove, suspend, change role — all via the portal." },
+      { title: "SSO setup (with IdP Wizard)", body: "Customers configure their own IdP. No tickets." },
+      { title: "Role assignment", body: "Per-Org roles, no cross-tenant leakage." },
+      { title: "Audit log view", body: "Customer admins see what happened in their org." },
+      { title: "Brandable", body: "Logo, colors, copy. Fits inside your app." },
+      { title: "iFrame or React SDK", body: "Embed the portal with one tag or one component." },
+    ],
+  },
 };
 
 export default function AdminPortalExtension() {
-  return (
-    <ExtensionPageLayout
-      meta={meta}
-      hero={hero}
-      problem={problem}
-      whyBuilt={whyBuilt}
-      useCases={useCases}
-      capabilities={capabilities}
-      getStarted={getStarted}
-    />
-  );
+  return <ExtensionSubpage content={CONTENT} />;
 }

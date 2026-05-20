@@ -1,155 +1,63 @@
 import React from "react";
-import ExtensionPageLayout from "../../components/ExtensionPageLayout";
+import ExtensionSubpage from "../../components/extensions/ExtensionSubpage";
 
-const meta = {
-  title: "Keycloak Webhooks & Events Extension — Audit Export and Event-Driven Workflows",
-  description:
-    "Open source Keycloak extension that adds webhooks, event scripts, and an audit log REST API on top of the Keycloak event SPI. Export events to your stack and trigger workflows on identity changes.",
-};
-
-const hero = {
-  title: "Events for Keycloak",
-  description:
-    "Webhooks, scriptable event handlers, and an audit-log REST API for Keycloak. Export identity events to your observability stack, trigger workflows, and stop being blind to what's happening in your realm.",
-  primaryCtaLabel: "View on GitHub",
-  primaryCtaHref: "https://github.com/p2-inc/keycloak-events",
-  secondaryCtaLabel: "Audit log docs",
-  secondaryCtaHref: "/docs/audit-logs",
-};
-
-const problem = {
-  title: "Keycloak events live in a black box",
-  intro:
-    "The upstream event SPI runs entirely in-process. It writes to the database and to stdout — and that's the whole story.",
-  points: [
-    {
-      title: "No webhooks",
-      description:
-        "There's no built-in way to deliver events to an HTTP endpoint, fan them out to a queue, or stream them to your data pipeline.",
-    },
-    {
-      title: "No usable audit API",
-      description:
-        "Applications that want to show identity history end up reading the Keycloak database directly — fragile, unscoped, and a security smell.",
-    },
-    {
-      title: "Glue code, rebuilt every upgrade",
-      description:
-        "Every team running Keycloak in production writes a custom event listener provider, and rewrites it every time the SPI changes.",
-    },
-  ],
-};
-
-const whyBuilt = {
-  title: "Make Keycloak observable and event-driven",
-  intro:
-    "We built Events to turn Keycloak from a black box into a normal participant in your platform — observable, scriptable, and integrated.",
-  points: [
-    {
-      title: "Reliable webhooks",
-      description:
-        "Configurable destinations with HMAC signing, event-type filtering, and built-in retry/backoff. Delivery you can trust as audit evidence.",
-    },
-    {
-      title: "Audit log REST API",
-      description:
-        "Query identity history through a proper authenticated API, not by going around Keycloak to its database.",
-    },
-    {
-      title: "Scriptable handlers",
-      description:
-        "JavaScript event handlers run in-process when you need transformation or filtering before events leave the system — no separate service required.",
-    },
-    {
-      title: "Built once, maintained against Keycloak",
-      description:
-        "Skip rebuilding the same listener provider every upgrade. The extension tracks Keycloak releases.",
-    },
-  ],
-};
-
-const useCases = {
-  title: "What teams use it for",
-  cards: [
-    {
-      heading: "Audit log export",
-      description:
-        "Stream every login, registration, and admin action to your SIEM or data warehouse via webhook. SOC 2 audit evidence without scraping the Keycloak database.",
-    },
-    {
-      heading: "Sync to your product",
-      description:
-        "When a user is created, deleted, or updated in Keycloak, fire a webhook to your application so your product database stays in sync.",
-    },
-    {
-      heading: "Slack/PagerDuty alerts",
-      description:
-        "Alert on suspicious patterns — failed admin logins, brute force, mass user deletion — by piping events to a workflow tool.",
-    },
-    {
-      heading: "Event-driven authorization changes",
-      description:
-        "When a user joins an organization or gets a role, trigger downstream provisioning workflows automatically.",
-    },
-  ],
-};
-
-const capabilities = {
-  cards: [
-    {
-      title: "Webhooks with retry and signing",
-      description:
-        "Configure webhook destinations with HMAC signing, filter by event type, and rely on built-in retry/backoff for reliable delivery.",
-    },
-    {
-      title: "Scriptable event handlers",
-      description:
-        "Write JavaScript event handlers that run in-process when you need transformation or filtering before sending events out — without a separate service.",
-    },
-    {
-      title: "Audit log REST API",
-      description:
-        "Query the audit log from your application via a REST API instead of going around Keycloak to the database. Properly scoped, properly authenticated.",
-    },
-  ],
-};
-
-const getStarted = {
-  cards: [
-    {
-      heading: "Install from GitHub",
-      description:
-        "Drop the JAR into your Keycloak providers directory, or build from source.",
-      linkLabel: "p2-inc/keycloak-events",
-      linkUrl: "https://github.com/p2-inc/keycloak-events",
-    },
-    {
-      heading: "Audit log docs",
-      description:
-        "Audit log section covers the event types and webhook payload shape.",
-      linkLabel: "Audit log docs",
-      linkUrl: "/docs/audit-logs",
-    },
-    {
-      heading: "Skip the install",
-      description:
-        "Phase Two managed Keycloak ships with the Events extension and a dashboard for configuring webhooks.",
-      linkLabel: "Try the hosted version",
-      linkUrl: "https://dash.phasetwo.io/",
-    },
-  ],
+const CONTENT = {
+  slug: "events",
+  name: "Events & Webhooks",
+  category: "Operations",
+  iconKey: "events",
+  diagramKey: "events",
+  repo: "p2-inc/keycloak-events",
+  meta: {
+    title: "Keycloak Events & Webhooks — Export Identity Events",
+    description:
+      "Webhooks and scriptable event handlers for Keycloak. Subscribe to logins, registrations, role changes — anything Keycloak emits — and route them to your stack.",
+  },
+  hero: {
+    h1: "Webhooks and scriptable handlers for every identity event.",
+    lead: "Export audit events, post to webhooks, trigger workflows. Subscribe to logins, registrations, role changes — anything Keycloak emits — and route them to your stack.",
+    badges: ["Webhooks", "Script Handlers", "Filtering", "Retry + DLQ", "Signed Payloads"],
+  },
+  problem: {
+    heading: "Identity events shouldn't be trapped inside Keycloak.",
+    cards: [
+      { title: "Audit logs need to leave", body: "Compliance, observability, fraud detection — all want events out of Keycloak and into your platform." },
+      { title: "Workflows want a trigger", body: "When a user joins an org, you want to create rows in your DB, post to Slack, kick off provisioning. Polling isn't the answer." },
+      { title: "Keycloak's built-in SPI is too low-level", body: "Implementing event listeners as Java SPI works, but it's painful to iterate on and not portable across clusters." },
+    ],
+  },
+  approach: {
+    heading: "Identity events as a normal eventing system",
+    cards: [
+      { title: "Webhooks first", body: "POST signed JSON to any URL. Standard HTTP. No glue code." },
+      { title: "Scriptable handlers", body: "Or write a script (JS) that runs on each event — filter, map, transform." },
+      { title: "Retry, DLQ, idempotency", body: "Treat it like any other webhook system. Failures don't lose events." },
+      { title: "Realm-scoped or global", body: "Subscribe to a tenant's events or all of them." },
+    ],
+  },
+  useCases: {
+    heading: "Where event routing pays off",
+    intro: "Anywhere identity changes need to be visible somewhere else.",
+    items: [
+      { title: "Audit log export", sub: "All identity events into S3, Datadog, or SIEM." },
+      { title: "CRM sync", sub: "New signups → Salesforce / HubSpot contact." },
+      { title: "Slack notifications", sub: "Alert on suspicious logins or role changes." },
+      { title: "Workflow triggers", sub: "Provisioning, billing, onboarding kicks." },
+    ],
+  },
+  capabilities: {
+    heading: "Everything you'd want from a webhook system",
+    items: [
+      { title: "Subscribe per event type", body: "USER_LOGIN, ROLE_CHANGE, PASSWORD_RESET — opt in to what you need." },
+      { title: "Webhook destinations", body: "Any HTTPS URL. Standard JSON payload." },
+      { title: "JS script handlers", body: "Run small scripts inside Keycloak for filter / map / fanout." },
+      { title: "Retry with backoff", body: "Failed deliveries retry with exponential backoff." },
+      { title: "DLQ", body: "Events that fail repeatedly land in a dead-letter queue you can replay." },
+      { title: "Signed payloads", body: "HMAC-signed so the receiver can verify origin." },
+    ],
+  },
 };
 
 export default function EventsExtension() {
-  return (
-    <ExtensionPageLayout
-      meta={meta}
-      hero={hero}
-      problem={problem}
-      whyBuilt={whyBuilt}
-      useCases={useCases}
-      capabilities={capabilities}
-      getStarted={getStarted}
-    />
-  );
+  return <ExtensionSubpage content={CONTENT} />;
 }

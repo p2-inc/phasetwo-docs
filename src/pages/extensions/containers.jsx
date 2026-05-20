@@ -1,156 +1,63 @@
 import React from "react";
-import ExtensionPageLayout from "../../components/ExtensionPageLayout";
+import ExtensionSubpage from "../../components/extensions/ExtensionSubpage";
 
-const meta = {
-  title: "Phase Two Keycloak Container Images — Production-Ready Keycloak with Extensions",
-  description:
-    "Open source Keycloak container images bundled with the Phase Two extensions, opinionated defaults, and production-ready build wiring. The fastest way to run Keycloak with batteries included.",
-};
-
-const hero = {
-  title: "Containers for Keycloak",
-  description:
-    "Production-ready Keycloak container images, bundled with the full Phase Two extension suite and opinionated defaults. The fastest way to a Keycloak deployment that does what your team actually expects.",
-  imageSrc: "/img/extension-authors.svg",
-  primaryCtaLabel: "View on GitHub",
-  primaryCtaHref: "https://github.com/p2-inc/phasetwo-containers",
-  secondaryCtaLabel: "Pull from Quay",
-  secondaryCtaHref: "https://quay.io/repository/phasetwo/phasetwo-keycloak",
-};
-
-const problem = {
-  title: "The upstream Keycloak image is a starting point, not a finish line",
-  intro:
-    "The official image is intentionally minimal — no extensions, no opinions, build-time configuration required to do anything non-default.",
-  points: [
-    {
-      title: "No extensions included",
-      description:
-        "Want Organizations, webhooks, magic links, or themes? You have to assemble them yourself and rebuild the image.",
-    },
-    {
-      title: "Build wiring is fiddly",
-      description:
-        "Getting `kc.sh build` to run at image build time — not container start time — takes care most teams skip, costing startup performance and reliability.",
-    },
-    {
-      title: "Everyone redoes the same work",
-      description:
-        "Every team running Keycloak in production rebuilds this layer. Most do it slightly differently and slightly wrong.",
-    },
-  ],
-};
-
-const whyBuilt = {
-  title: "An image we could ship to production on day one",
-  intro:
-    "We maintain the Phase Two containers because we needed Keycloak that does what we expect out of the box — and so do our self-hosted users.",
-  points: [
-    {
-      title: "All extensions bundled",
-      description:
-        "Organizations, Admin Portal, IdP Wizard, Magic Link, Events, Themes, and User Migration — version-aligned and tested together.",
-    },
-    {
-      title: "Production defaults",
-      description:
-        "Sane defaults for caching, HTTP, and providers. The build optimizations Keycloak's own docs recommend, applied for you.",
-    },
-    {
-      title: "Fast, identical startup",
-      description:
-        "`kc.sh build` runs at image build time. Containers start fast and start the same way every time.",
-    },
-    {
-      title: "Tracks upstream releases",
-      description:
-        "New images cut for every Keycloak release we support, with the extension suite re-pinned to compatible versions.",
-    },
-  ],
-};
-
-const useCases = {
-  title: "What teams use them for",
-  cards: [
-    {
-      heading: "Drop-in upstream replacement",
-      description:
-        "Swap the official Keycloak image for the Phase Two image and immediately have Organizations, Admin Portal, webhooks, magic links, and themes — without assembling a custom build.",
-    },
-    {
-      heading: "Self-hosting at production scale",
-      description:
-        "Sane defaults for caching, HTTP, and provider configuration so you can focus on running Keycloak instead of compiling it.",
-    },
-    {
-      heading: "Local dev that matches production",
-      description:
-        "Use the same image in development that runs in production. Catch extension and config issues before they ship.",
-    },
-    {
-      heading: "Base for further customization",
-      description:
-        "Use as a base image and layer your own extensions or themes on top. Inherit the Phase Two build wiring, override only what you need.",
-    },
-  ],
-};
-
-const capabilities = {
-  cards: [
-    {
-      title: "All extensions, one image",
-      description:
-        "Organizations, Admin Portal, IdP Wizard, Magic Link, Events, Themes, and User Migration — bundled, version-aligned, and tested against the included Keycloak version.",
-    },
-    {
-      title: "Optimized build phase",
-      description:
-        "The `kc.sh build` step runs at image build time, not container start time. Containers start fast and start the same way every time.",
-    },
-    {
-      title: "Tracks upstream Keycloak releases",
-      description:
-        "New images cut for every Keycloak release we support, with the extension suite re-pinned to compatible versions.",
-    },
-  ],
-};
-
-const getStarted = {
-  cards: [
-    {
-      heading: "Pull from Quay",
-      description:
-        "Images published to Quay.io. Use a release tag matching your target Keycloak version.",
-      linkLabel: "quay.io/phasetwo/phasetwo-keycloak",
-      linkUrl: "https://quay.io/repository/phasetwo/phasetwo-keycloak",
-    },
-    {
-      heading: "Read the Dockerfile",
-      description:
-        "Source Dockerfiles, build scripts, and version matrix on GitHub.",
-      linkLabel: "p2-inc/phasetwo-containers",
-      linkUrl: "https://github.com/p2-inc/phasetwo-containers",
-    },
-    {
-      heading: "Skip the install",
-      description:
-        "Phase Two managed Keycloak runs on these same images, configured and operated for you.",
-      linkLabel: "Try the hosted version",
-      linkUrl: "https://dash.phasetwo.io/",
-    },
-  ],
+const CONTENT = {
+  slug: "containers",
+  name: "Containers",
+  category: "Operations",
+  iconKey: "containers",
+  diagramKey: "containers",
+  repo: "p2-inc/keycloak-containers",
+  meta: {
+    title: "Phase Two Keycloak Containers — Production-ready Images",
+    description:
+      "Pre-built Keycloak container images with the Phase Two extension suite, opinionated production defaults, Helm chart, and run-anywhere deployment.",
+  },
+  hero: {
+    h1: "Production-ready Keycloak images, with our extensions baked in.",
+    lead: "Pre-built container images for Kubernetes, Helm, Docker Compose, ECS, and more — Keycloak plus the Phase Two extension suite plus the operational defaults you'd otherwise wire up yourself.",
+    badges: ["GHCR", "Helm Chart", "K8s · ECS · Compose", "Pinned Upstream Keycloak", "Health + Metrics"],
+  },
+  problem: {
+    heading: "Running Keycloak in production is a lot more than 'docker run keycloak'.",
+    cards: [
+      { title: "Defaults are dev-mode", body: "Stock Keycloak's defaults assume dev. Production needs JVM tuning, health checks, metrics, TLS, and clustering — none of it on by default." },
+      { title: "Extensions live in your build", body: "Want orgs + webhooks + magic link? You build them into a custom image. We've already done that build." },
+      { title: "Helm charts are bring-your-own", body: "There's no single official Helm chart that bundles Keycloak with the extensions teams actually want." },
+    ],
+  },
+  approach: {
+    heading: "An image that's ready for prod the moment you pull it",
+    cards: [
+      { title: "Phase Two extensions baked in", body: "Orgs, webhooks, magic link, IdP wizard, admin portal, themes — all installed and configured." },
+      { title: "Opinionated production defaults", body: "JVM flags, health endpoints, metrics scrape, TLS-ready, clustering hints." },
+      { title: "Pinned upstream Keycloak", body: "Locked to a known-good Keycloak version. You can override." },
+      { title: "Helm + K8s + Compose + ECS", body: "Same image, runs anywhere. Helm chart covers the common K8s setup." },
+    ],
+  },
+  useCases: {
+    heading: "Where the images fit",
+    intro: "Anywhere you'd otherwise be assembling your own Keycloak Dockerfile.",
+    items: [
+      { title: "Kubernetes via Helm", sub: "Drop-in Helm chart with sensible defaults." },
+      { title: "ECS / Fargate", sub: "Production image, no DIY build pipeline." },
+      { title: "Docker Compose dev", sub: "Local dev that matches prod." },
+      { title: "Bare-metal / VM", sub: "Same image, run it however you run things." },
+    ],
+  },
+  capabilities: {
+    heading: "What you get when you pull the image",
+    items: [
+      { title: "Extensions installed", body: "Orgs · IdP Wizard · Magic Link · Webhooks · Themes · Admin Portal." },
+      { title: "Health + metrics", body: "/health/live, /health/ready, /metrics for Prometheus scraping." },
+      { title: "JVM tuned for containers", body: "GC, memory, file descriptors — sized for the container, not the host." },
+      { title: "Pinned Keycloak", body: "Locked to a tested upstream version. Override with a build arg." },
+      { title: "Helm chart", body: "K8s with sane defaults — replicas, PDBs, ingress, secrets." },
+      { title: "TLS-ready", body: "Mount certs, terminate at the pod. Or terminate upstream." },
+    ],
+  },
 };
 
 export default function ContainersExtension() {
-  return (
-    <ExtensionPageLayout
-      meta={meta}
-      hero={hero}
-      problem={problem}
-      whyBuilt={whyBuilt}
-      useCases={useCases}
-      capabilities={capabilities}
-      getStarted={getStarted}
-    />
-  );
+  return <ExtensionSubpage content={CONTENT} />;
 }
