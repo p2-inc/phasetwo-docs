@@ -13,6 +13,12 @@ import ComparisonSection from "../components/homepage/ComparisonSection";
 import styles from "./styles.module.css";
 import integrationsStyles from "./product/integrations.module.css";
 import ServiceHero from "../components/homepage/ServiceHero";
+import OrgIcon from "../components/extensions/icons/OrgIcon";
+import IdpWizardIcon from "../components/extensions/icons/IdpWizardIcon";
+import MagicLinkIcon from "../components/extensions/icons/MagicLinkIcon";
+import AdminPortalIcon from "../components/extensions/icons/AdminPortalIcon";
+import EventsIcon from "../components/extensions/icons/EventsIcon";
+import ThemesIcon from "../components/extensions/icons/ThemesIcon";
 
 const INTEGRATIONS_ICON_COLOR = "#A0A9DB";
 function iconifyImgSrc(icon, { color = INTEGRATIONS_ICON_COLOR } = {}) {
@@ -105,36 +111,42 @@ const EnhancedFeatures = [
     title: "Organizations",
     description:
       "Multi-tenancy for applications coupled with Enterprise SSO. Enable customer domain based SSO for one or many domains.",
-    icon: "lucide:building-2",
+    Icon: OrgIcon,
+    href: "/extensions/organizations",
   },
   {
     title: "IdP Wizard",
     description:
       "Enable customers to automatically configure identity providers and SSO saving your team time.",
-    icon: "lucide:wand-2",
+    Icon: IdpWizardIcon,
+    href: "/extensions/idp-wizard",
   },
   {
     title: "Magic Link",
     description: "Add passwordless authentication via links sent to emails.",
-    icon: "lucide:link",
+    Icon: MagicLinkIcon,
+    href: "/extensions/magic-link",
   },
   {
     title: "Admin Portal",
     description:
       "User self-management for their account (mfa methods and more) along with organizations.",
-    icon: "lucide:layout-dashboard",
+    Icon: AdminPortalIcon,
+    href: "/extensions/admin-portal",
   },
   {
     title: "Events",
     description:
       "Audit logging for compliance and webhooks for user and system activity notifications.",
-    icon: "lucide:calendar-clock",
+    Icon: EventsIcon,
+    href: "/extensions/events",
   },
   {
     title: "Themes",
     description:
       "Admin UI theme customization to avoid building a custom theme.",
-    icon: "lucide:palette",
+    Icon: ThemesIcon,
+    href: "/extensions/themes",
   },
 ];
 
@@ -1245,22 +1257,23 @@ function Home() {
                   className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                   data-scroll-slide-group
                 >
-                  {EnhancedFeatures.map((feature, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center p-6 text-center"
-                      data-scroll-slide-in
-                    >
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0f0f0f]">
-                        <InlineIcon
-                          icon={feature.icon}
-                          className="h-8 w-8 text-p2blue-500"
-                        />
-                      </div>
-                      <h4 className="mb-3 text-white">{feature.title}</h4>
-                      <p className="text-gray-300">{feature.description}</p>
-                    </div>
-                  ))}
+                  {EnhancedFeatures.map((feature, index) => {
+                    const FeatureIcon = feature.Icon;
+                    return (
+                      <Link
+                        key={index}
+                        to={feature.href}
+                        className="flex flex-col items-center p-6 text-center no-underline hover:no-underline group"
+                        data-scroll-slide-in
+                      >
+                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0f0f0f] transition-colors group-hover:bg-[#141414]">
+                          <FeatureIcon size={36} />
+                        </div>
+                        <h4 className="mb-3 text-white">{feature.title}</h4>
+                        <p className="text-gray-300">{feature.description}</p>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 

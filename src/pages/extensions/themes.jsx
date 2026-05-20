@@ -1,168 +1,63 @@
 import React from "react";
-import ExtensionPageLayout from "../../components/ExtensionPageLayout";
+import ExtensionSubpage from "../../components/extensions/ExtensionSubpage";
 
-const meta = {
-  title: "Keycloak Themes — Modern, Accessible, Brandable Login UI",
-  description:
-    "Open source Keycloak themes from Phase Two. Production-ready login, registration, and account themes built for branding, accessibility, and modern web standards.",
-};
-
-const hero = {
-  title: "Themes for Keycloak",
-  description:
-    "Modern, accessible, brandable login and account themes for Keycloak — production-ready out of the box, no FreeMarker archaeology required.",
-  primaryCtaLabel: "View on GitHub",
-  primaryCtaHref: "https://github.com/p2-inc/keycloak-themes",
-};
-
-const problem = {
-  title: "Keycloak's default theme is showing its age",
-  intro:
-    "Functional, dated, and quietly inaccessible. The login page is the first surface every user sees — and the upstream default doesn't match the bar modern SaaS sets.",
-  points: [
-    {
-      title: "Branding is an afterthought",
-      description:
-        "Login is one of the most-seen surfaces of your product and a primary brand touchpoint — yet Keycloak treats it as a server admin concern, not a customer-facing experience.",
-    },
-    {
-      title: "No modern dev tooling",
-      description:
-        "FreeMarker templates live outside the modern frontend ecosystem. No React, no component libraries, no design tokens, no Storybook — and no hot reload while you iterate.",
-    },
-    {
-      title: "Testing is painful",
-      description:
-        "There's no straightforward way to visually test theme changes in isolation. You build, deploy, click through every flow by hand, and hope you didn't break a screen you forgot existed.",
-    },
-    {
-      title: "Themes rot on upgrade",
-      description:
-        "Every Keycloak release can move templates underneath you. Custom themes built in haste become a release blocker.",
-    },
-    {
-      title: "Accessibility is an afterthought",
-      description:
-        "Semantic markup, focus management, and color contrast in the default theme don't pass current accessibility standards without rework.",
-    },
-  ],
-};
-
-const whyBuilt = {
-  title: "The starting line we wanted for our own product",
-  intro:
-    "We built and open sourced our theme suite as the baseline we wanted in our managed product — and that the wider Keycloak community deserves.",
-  points: [
-    {
-      title: "Modern visual defaults",
-      description:
-        "Clean, contemporary login and account screens that don't need redesign before they can ship.",
-    },
-    {
-      title: "Accessibility-first",
-      description:
-        "Semantic markup, proper focus management, and contrast that actually passes — not bolted on after the fact.",
-    },
-    {
-      title: "Configuration over customization",
-      description:
-        "Logos, colors, and copy through standard Keycloak theme properties. Reach for FreeMarker only when you really need to.",
-    },
-    {
-      title: "Built on Keycloakify",
-      description: (
-        <>
-          We leverage{" "}
-          <a
-            href="https://www.keycloakify.dev/"
-            target="_blank"
-            rel="noreferrer"
-            className="link-primary"
-          >
-            Keycloakify
-          </a>{" "}
-          so themes can be written in React with modern tooling, hot reload, and Storybook — and stay version-compatible across Keycloak releases instead of breaking on every upgrade.
-        </>
-      ),
-    },
-    {
-      title: "Maintained against Keycloak",
-      description:
-        "New theme releases tracking upstream Keycloak versions, so login doesn't break on the next upgrade.",
-    },
-  ],
-};
-
-const useCases = {
-  title: "What teams use it for",
-  cards: [
-    {
-      heading: "White-label SaaS login",
-      description:
-        "Match your product's brand without writing FreeMarker. Override colors and logos from configuration; deeper customization through the standard theme inheritance chain.",
-    },
-    {
-      heading: "Accessibility-first surfaces",
-      description:
-        "Semantic markup, proper focus management, and contrast that actually passes — without bolting it on after the fact.",
-    },
-    {
-      heading: "Consistent across login and account",
-      description:
-        "Themes cover the login flow, account console, and admin surfaces in one bundle. Users get one branded experience end-to-end.",
-    },
-    {
-      heading: "Up-to-date with Keycloak releases",
-      description:
-        "Maintained against current Keycloak versions, so upgrades don't break your login page.",
-    },
-  ],
-};
-
-const capabilities = {
-  cards: [
-    {
-      title: "Drop-in installation",
-      description:
-        "Install as a Keycloak theme bundle and select it per realm. Override branding from the admin console without rebuilding.",
-    },
-    {
-      title: "Configuration over customization",
-      description:
-        "Logos, colors, and copy via standard Keycloak theme properties. Reach for FreeMarker only when you need to.",
-    },
-  ],
-};
-
-const getStarted = {
-  cards: [
-    {
-      heading: "Install from GitHub",
-      description:
-        "Theme bundle JAR. Drop into your Keycloak providers directory and select the theme per realm.",
-      linkLabel: "p2-inc/keycloak-themes",
-      linkUrl: "https://github.com/p2-inc/keycloak-themes",
-    },
-    {
-      heading: "Skip the install",
-      description:
-        "Phase Two managed Keycloak ships with the themes preinstalled and brandable from the dashboard.",
-      linkLabel: "Try the hosted version",
-      linkUrl: "https://dash.phasetwo.io/",
-    },
-  ],
+const CONTENT = {
+  slug: "themes",
+  name: "Themes",
+  category: "Authentication",
+  iconKey: "themes",
+  diagramKey: "themes",
+  repo: "p2-inc/keycloak-themes",
+  meta: {
+    title: "Keycloak Themes — Modern, Accessible, Brandable UI",
+    description:
+      "Modern login, account, and admin themes for Keycloak. Easy per-tenant branding, accessible by default, production-ready out of the box.",
+  },
+  hero: {
+    h1: "Modern, accessible, brandable Keycloak themes.",
+    lead: "Login, account, and admin themes that look like 2026 instead of 2010 — and that are easy to customize per-tenant.",
+    badges: ["Login UI", "Account UI", "Admin UI", "Per-Tenant Branding", "Accessible"],
+  },
+  problem: {
+    heading: "The default Keycloak UI ages your product.",
+    cards: [
+      { title: "It looks like a 2010 enterprise tool", body: "Customers see your login first. Stock Keycloak doesn't match the polish of the rest of your app." },
+      { title: "Customization means forking FreeMarker", body: "Real branding work in stock Keycloak means writing FreeMarker templates — not a UI designer's day job." },
+      { title: "Per-tenant branding is bespoke", body: "Different logos and palettes per customer means juggling theme overlays manually." },
+    ],
+  },
+  approach: {
+    heading: "Themes built like a product UI",
+    cards: [
+      { title: "Modern visual baseline", body: "Type, spacing, color, density — calibrated to feel like a modern app." },
+      { title: "Brandable in minutes", body: "Logo, palette, copy — change them per realm, per organization." },
+      { title: "Accessible by default", body: "WCAG AA contrast, keyboard nav, screen-reader friendly." },
+      { title: "Covers login, account, admin", body: "All three surfaces themed consistently. No mixed visual language." },
+    ],
+  },
+  useCases: {
+    heading: "Where the themes go",
+    intro: "Anywhere your customer sees a Keycloak surface — and anywhere your team didn't want to spend a sprint fighting FreeMarker.",
+    items: [
+      { title: "Branded login screens", sub: "Logo + palette per realm or org." },
+      { title: "White-label SaaS", sub: "Customer's brand on their own login." },
+      { title: "Self-service account pages", sub: "Modern UX for password, MFA, sessions." },
+      { title: "Internal admin", sub: "A console your ops team likes to use." },
+    ],
+  },
+  capabilities: {
+    heading: "Polish, out of the box",
+    items: [
+      { title: "Modern login theme", body: "Drop-in replacement for the default login UI." },
+      { title: "Modern account theme", body: "Cleaner self-service account page." },
+      { title: "Modern admin theme", body: "A console your operators won't dread." },
+      { title: "Per-realm branding", body: "Logos, colors, copy — different per realm." },
+      { title: "Per-Organization branding", body: "When paired with Organizations, brand per tenant." },
+      { title: "Accessible defaults", body: "Contrast ratios, keyboard nav, ARIA labels in place." },
+    ],
+  },
 };
 
 export default function ThemesExtension() {
-  return (
-    <ExtensionPageLayout
-      meta={meta}
-      hero={hero}
-      problem={problem}
-      whyBuilt={whyBuilt}
-      useCases={useCases}
-      capabilities={capabilities}
-      getStarted={getStarted}
-    />
-  );
+  return <ExtensionSubpage content={CONTENT} />;
 }
