@@ -21,9 +21,9 @@ A few quarters ago you got handed a single-line ask: **"we need enterprise SSO a
 
 Then the renewal came in. The seat-based pricing, that sounded harmless when you had two customers using SSO, looks different when you have forty. Suddenly there's a line item on a board slide that scales linearly with your enterprise revenue — a parasite that eats into the very margin that the enterprise tier was supposed to fund. The CFO walks over and asks you to "fix it."
 
-Here is the awkward truth nobody tells the engineer-on-the-spot: **the WorkOS feature set has had a fully open-source equivalent for years**. Keycloak handles SSO. Phase Two's [organizations](https://phasetwo.io/product/organizations/) extension handles multi-tenant orgs. The [identity provider wizard](https://phasetwo.io/product/idp-wizard/) handles the same admin-portal flow your customers see in WorkOS today. The catch is that nobody wanted to spend the runway to migrate.
+Here is the awkward truth nobody tells the engineer-on-the-spot: **the WorkOS feature set has had a fully open-source equivalent for years**. Keycloak handles SSO. Phase Two's [organizations](https://phasetwo.io/product/organizations/) extension handles multi-tenant orgs. The [identity provider wizard](https://phasetwo.io/product/sso/#idp-wizard) handles the same admin-portal flow your customers see in WorkOS today. The catch is that nobody wanted to spend the runway to migrate.
 
-We've now built the tool that turns that "we'll deal with it later" debt into an afternoon of work.
+We've now built the tool that turns that "we'll deal with it later" debt into an afternoon of work. Why? Because WorkOS customers are starting to wake up to Keycloak, and they're coming to us in droves.
 
 <!-- truncate -->
 
@@ -44,7 +44,7 @@ flowchart LR
 
     subgraph "Keycloak + Phase Two"
       KU[Users + attributes]
-      KO[PT Organizations]
+      KO[Phase Two Organizations]
       KR[Realm + Org Roles]
       KI[Identity Providers]
       KS[SCIM Providers]
@@ -106,8 +106,6 @@ If you already run Phase Two's [hosted offering](https://phasetwo.io/) or your o
 docker compose up -d
 ```
 
-If you also want the slow-migration flow, download `keycloak-rest-provider-6.2.1.jar` from the [keycloak-user-migration releases](https://github.com/daniel-frak/keycloak-user-migration/releases) and drop it into `extensions/lib/` before `docker compose up`. That jar is the upstream component our slow-migration extension talks to.
-
 ### 3. Bootstrap the realm
 
 ```bash
@@ -117,8 +115,6 @@ If you also want the slow-migration flow, download `keycloak-rest-provider-6.2.1
 This creates the `migrate-target` realm, flips a couple of Keycloak defaults that would otherwise eat our attributes (`unmanagedAttributePolicy=ENABLED` and `sslRequired=NONE` for local HTTP), and creates a `migrator-cli` service-account client with `realm-admin`. The script prints the client secret you need for step 4.
 
 **Why a service-account client?** The bulk migrator authenticates against Keycloak using OAuth client-credentials. Putting it in its own client (instead of, say, reusing the `admin` master user) keeps the credential surface area small and auditable.
-
-> **Note for blog editor:** a screenshot of the printed credentials block at the end of `bootstrap-realm.sh` would help illustrate this step.
 
 ### 4. Run the bulk migrator
 
@@ -147,8 +143,6 @@ Total failed: 0
 
 Re-running picks up where the last run left off (cursors are persisted on the realm), and reports `SKIPPED reason=unchanged` for anything that hasn't drifted since the last sync. This is what lets you keep both systems in parallel — run the migrator daily in a cron job and the WorkOS state shows up in Keycloak each morning.
 
-> **Note for blog editor:** a screenshot of Phase Two's admin console showing the imported organizations + members list under the Organizations tab would be a great visual here.
-
 ### 5. (Optional) Enable the extensions
 
 Both Keycloak extensions are **opt-in per realm** because we don't want a one-shot `docker compose up` to fan out across every realm in a shared cluster. Set:
@@ -170,11 +164,15 @@ The bulk migrator is idempotent and cheap to re-run. Many teams run it nightly d
 
 There are two pieces of WorkOS state that we cannot pull through the API:
 
-**SSO connection secrets and metadata.** The WorkOS `/connections` endpoint exposes the connection's _type_ (Okta SAML, Azure SAML, Google OIDC, etc.) and the organization it's attached to, but **not** the SAML metadata URL, the OIDC client_id/secret, or any of the SSO/SLO URLs. Those were entered into WorkOS through their admin portal by the customer's IT team and are not retrievable.
+### SSO connection secrets and metadata.
 
-The migrator handles this honestly: it creates a Keycloak identity provider for every connection with the right `providerId` (`saml`, `oidc`, `google`, `microsoft`, etc.), copies the SAML signing certificate when WorkOS happens to expose it, and tags every record with `workos.incomplete=true` and `workos.connection_id=<the original id>`. You end up with a placeholder you can finish in two clicks via Phase Two's [IdP Wizard](https://phasetwo.io/product/idp-wizard/) — or even better, by sending a [portal link](https://phasetwo.io/docs/orgs/portal) to the customer's IT contact and letting them re-walk the same setup flow they already know.
+The WorkOS `/connections` endpoint exposes the connection's _type_ (Okta SAML, Azure SAML, Google OIDC, etc.) and the organization it's attached to, but **not** the SAML metadata URL, the OIDC client_id/secret, or any of the SSO/SLO URLs. Those were entered into WorkOS through their admin portal by the customer's IT team and are not retrievable.
 
-**SCIM directory connection auth.** Same shape: `/directories` tells you the directory exists, what provider (Okta SCIM, generic SCIM 2.0, Azure SCIM, etc.) and which organization it belongs to — but the bearer token your customer's IdP uses to push users is opaque to the WorkOS API. The migrator creates a Phase Two SCIM provider on the right org with a placeholder secret and the same `workos.directory.incomplete=true` tag so it stands out in the admin UI.
+The migrator handles this honestly: it creates a Keycloak identity provider for every connection with the right `providerId` (`saml`, `oidc`, `google`, `microsoft`, etc.), copies the SAML signing certificate when WorkOS happens to expose it, and tags every record with `workos.incomplete=true` and `workos.connection_id=<the original id>`. You end up with a placeholder you can finish in two clicks via Phase Two's [IdP Wizard](https://phasetwo.io/extensions/idp-wizard/) — or even better, by sending a [portal link](https://phasetwo.io/extensions/admin-portal/) to the customer's IT contact and letting them re-walk the same setup flow they already know.
+
+### SCIM directory connection auth
+
+Same shape: `/directories` tells you the directory exists, what provider (Okta SCIM, generic SCIM 2.0, Azure SCIM, etc.) and which organization it belongs to — but the bearer token your customer's IdP uses to push users is opaque to the WorkOS API. The migrator creates a Phase Two SCIM provider on the right org with a placeholder secret and the same `workos.directory.incomplete=true` tag so it stands out in the admin UI.
 
 In both cases the customer's IT team has to re-establish the secret. The good news: they only have to do it once, and Phase Two's admin portal flow is the same one they already used for WorkOS, just with a different brand on it.
 
@@ -196,10 +194,10 @@ If you've made it this far you're probably nodding along — the technical migra
 
 WorkOS's pitch was always "we make enterprise auth easy for SaaS developers." The pitch worked because, until recently, the open-source alternative had no admin portal, no IdP wizard, no SCIM Box, no domain verification flow — only the raw Keycloak primitives. To replicate WorkOS's developer experience you had to build the whole admin surface yourself.
 
-[Phase Two has built that admin surface.](https://phasetwo.io/) The [organizations](https://phasetwo.io/product/organizations/) extension gives you multi-tenant orgs with role-based assignments. The [IdP Wizard](https://phasetwo.io/product/idp-wizard/) replaces the WorkOS connection setup flow. Phase Two SCIM gives you the same managed directory-sync experience. The [portal link](https://phasetwo.io/docs/orgs/portal) experience lets you delegate SSO/SCIM setup to your customer's IT team without giving them admin access to your Keycloak — exactly the same delegation model WorkOS uses, with the same UX, just running on Keycloak you control.
+[Phase Two has built that admin surface.](https://phasetwo.io/) The [organizations](https://phasetwo.io/extensions/organizations/) extension gives you multi-tenant orgs with role-based assignments. The [IdP Wizard](https://phasetwo.io/extensions//idp-wizard/) replaces the WorkOS connection setup flow. Phase Two SCIM gives you the same managed directory-sync experience. The [portal link](https://phasetwo.io/extensions/admin-portal) experience lets you delegate SSO/SCIM setup to your customer's IT team without giving them admin access to your Keycloak — exactly the same delegation model WorkOS uses, with the same UX, just running on Keycloak you control.
 
-The crucial difference, and the reason the migration is worth doing: **Phase Two's pricing doesn't grow with your enterprise revenue.** SSO, SCIM, organizations, branding, the wizard — they're all part of the platform, not metered features. Your cost stays a predictable budget line item whether you have ten enterprise customers or ten thousand.
+The crucial difference, and the reason the migration is worth doing: [**Phase Two's pricing doesn't grow with your enterprise revenue.**](https://phasetwo.io/pricing/hosting/) SSO, SCIM, organizations, branding, the wizard — they're all part of the platform, not metered features. Your cost stays a predictable budget line item whether you have ten enterprise customers or ten thousand.
 
 The migrator we just walked through is, in that sense, the smallest part of the story. It's the bridge that lets a team that originally chose WorkOS for time-to-market cross over to a platform that doesn't tax that decision forever.
 
-If you've got a WorkOS migration on your roadmap and would like a hand, [reach out](https://phasetwo.io/) — we've now done this end-to-end on a real WorkOS Sandbox tenant and the tooling is open source. We'd be happy to walk you through it.
+If you've got a WorkOS migration on your roadmap and would like a hand, [reach out](https://phasetwo.io/contact/) — we've now done this end-to-end on a real WorkOS Sandbox tenant and the tooling is open source. We'd be happy to walk you through it.
