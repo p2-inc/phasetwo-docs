@@ -3,7 +3,7 @@ import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
 import CardWithImage from "../../components/CardWithImage";
 import CardWithIcon from "../../components/CardWithIcon";
-import Cta from "../../components/ctas/homepage-dual-line-cta";
+import SupportCta from "../../components/ctas/support-cta";
 import { InlineIcon } from "@iconify/react/dist/iconify.js";
 
 const HERO_BG_STYLE = {
@@ -15,8 +15,16 @@ const HERO_BG_STYLE = {
 const VALUE_PROPS = [
   {
     title: "Immediate Assistance",
-    description:
-      "Purchase a small block of hours for emergency support. Ideal for urgent issues when you don't have a support contract.",
+    description: (
+      <>
+        Purchase a small block of hours for emergency support. Ideal for urgent
+        issues when you don&apos;t have a{" "}
+        <Link to="/pricing/support" className="link-accent">
+          support contract
+        </Link>
+        .
+      </>
+    ),
     imageSrc: "/img/immediate-assistance.svg",
   },
   {
@@ -30,14 +38,26 @@ const VALUE_PROPS = [
     description:
       "Infrastructure, configuration, or troubleshooting—our team has the expertise to resolve issues quickly across any Keycloak challenge.",
     imageSrc: "/img/deep-keycloak-expertise.svg",
+    learnMore: {
+      label: "24/7 Incident Support",
+      url: "/support/24-7-incident-support",
+    },
   },
 ];
 
 const EFFECTIVE_SUPPORT = [
   {
     title: "Flat Fee Structure",
-    description:
-      "Package starts with a 5-hour block for any Keycloak-related issue. Additional hours available if needed. Contact for pricing.",
+    description: (
+      <>
+        Package starts with a 5-hour block for any Keycloak-related issue.
+        Additional hours available if needed.{" "}
+        <Link to="/pricing/support" className="link-accent">
+          Contact for pricing
+        </Link>
+        .
+      </>
+    ),
     icon: "lucide:circle-dollar-sign",
   },
   {
@@ -70,11 +90,13 @@ export default function EmergencySupport() {
           >
             <div className="mx-auto max-w-7xl px-6 py-24 sm:py-28 lg:px-8">
               <div className="mx-auto max-w-3xl text-center">
-                <h1 className="text-white text-balance">
+                <h1 className="text-balance text-white">
                   Emergency Keycloak Support When Every Minute Counts
                 </h1>
-                <p className="mt-6 text-gray-300 text--body-large text-balance">
-                Urgent Keycloak issues resolved fast. Get expert help without a long-term contract—ideal when online searches and AI have failed you and you need immediate assistance.
+                <p className="text--body-large mt-6 text-balance text-gray-300">
+                  Urgent Keycloak issues resolved fast. Get expert help without
+                  a long-term contract—ideal when online searches and AI have
+                  failed you and you need immediate assistance.
                 </p>
 
                 <div className="mt-10">
@@ -93,8 +115,10 @@ export default function EmergencySupport() {
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-[var(--content-width-narrow)] text-center">
-              <h4 className="mb-0 text-gray-300 font-normal text-balance">
-                If you need emergency assistance with Keycloak, we're here to help. Our emergency support package provides immediate expert assistance for urgent issues—no long-term commitment required.
+              <h4 className="mb-0 text-balance font-normal text-gray-300">
+                If you need emergency assistance with Keycloak, we're here to
+                help. Our emergency support package provides immediate expert
+                assistance for urgent issues—no long-term commitment required.
               </h4>
             </div>
           </div>
@@ -103,7 +127,7 @@ export default function EmergencySupport() {
         {/* Top Three Value Props */}
         <section className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <h2 className="text-white text-center mb-12">
+            <h2 className="mb-12 text-center text-white">
               Fast, Flexible, Expert Support
             </h2>
 
@@ -115,6 +139,7 @@ export default function EmergencySupport() {
                   description={<p className="mb-0">{prop.description}</p>}
                   imageSrc={prop.imageSrc}
                   imageAlt=""
+                  learnMore={prop.learnMore}
                 />
               ))}
             </div>
@@ -124,11 +149,11 @@ export default function EmergencySupport() {
         {/* Effective Support */}
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <h2 className="text-white text-center mb-12">
+            <h2 className="mb-12 text-center text-white">
               Simple. Effective. Emergency Support.
             </h2>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+            <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
               {EFFECTIVE_SUPPORT.map((item) => (
                 <CardWithIcon
                   key={item.title}
@@ -152,16 +177,19 @@ export default function EmergencySupport() {
         {/* Customer Success */}
         <section className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <h2 className="text-white text-center mb-12">
+            <h2 className="mb-12 text-center text-white">
               Customer Success: Idemia
             </h2>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center max-w-[var(--content-width-narrow)] mx-auto">
+            <div className="mx-auto grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-8 lg:grid-cols-2 lg:items-center">
               <div className="flex flex-col justify-center">
-                <p className="text-gray-300 text--body-large">
-                  When faced with integrating Keycloak with a US State Government system, Idemia engaged Phase Two to resolve multiple system integration hurdles, meet a tight deadline, and keep their customers satisfied.
+                <p className="text--body-large text-gray-300">
+                  When faced with integrating Keycloak with a US State
+                  Government system, Idemia engaged Phase Two to resolve
+                  multiple system integration hurdles, meet a tight deadline,
+                  and keep their customers satisfied.
                 </p>
-                <p className="mt-6 text-gray-400 text--body-large">
+                <p className="text--body-large mt-6 text-gray-400">
                   &lt;24 hours — from first contact to resolution
                 </p>
               </div>
@@ -169,7 +197,7 @@ export default function EmergencySupport() {
                 <img
                   src="/img/us-gov-idemia.svg"
                   alt="Idemia US Government integration"
-                  className="w-full max-w-md h-auto"
+                  className="h-auto w-full max-w-md"
                   loading="lazy"
                   decoding="async"
                 />
@@ -179,14 +207,10 @@ export default function EmergencySupport() {
         </section>
 
         {/* CTA */}
-        <Cta
+        <SupportCta
           sectionClassName="subpage-section cta-section-gradient-secondary"
-          background="secondary"
           primaryText={PAGE_CTA.primaryText}
           secondaryText={PAGE_CTA.secondaryText}
-          showCta
-          ctaLabel={PAGE_CTA.ctaLabel}
-          ctaHref={PAGE_CTA.ctaHref}
         />
       </main>
     </Layout>

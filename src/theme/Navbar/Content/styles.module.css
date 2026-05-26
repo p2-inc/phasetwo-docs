@@ -14,9 +14,9 @@
 
 .megaMenu {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--mega-menu-cols, 3), 220px);
   gap: 12px;
-  min-width: 600px;
+  min-width: 0;
   padding: 8px;
   overflow: hidden;
 
@@ -32,8 +32,7 @@
 
 @media (max-width: 1200px) {
   .megaMenu {
-    grid-template-columns: repeat(2, 1fr);
-    min-width: 460px;
+    grid-template-columns: repeat(2, 200px);
   }
 }
 

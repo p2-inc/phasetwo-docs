@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import React from "react";
+import CardLinks from "./CardLinks";
 
 function isExternalUrl(url) {
   return typeof url === "string" && /^https?:\/\//i.test(url);
@@ -16,7 +17,7 @@ function isExternalUrl(url) {
  * - Optional link: label + URL
  * - Optional image: src + alt
  *
- * Designed to be placed in a grid/flex container where siblings should be equal height.
+ * Designed to be placed in a grid/flex container where siblings should share layout.
  */
 export default function CardWithImage({
   title,
@@ -24,6 +25,8 @@ export default function CardWithImage({
   description,
   linkLabel,
   linkUrl,
+  learnMore,
+  badges,
   imageSrc,
   imageAlt = "",
   layout = "imageBottom", // "imageBottom" | "horizontal"
@@ -35,9 +38,7 @@ export default function CardWithImage({
   const external = isExternalUrl(linkUrl);
   const isHorizontal = layout === "horizontal";
   const rootStyle = {
-    height: "100%",
-    // 400px content + existing top/bottom padding (24px + 24px)
-    ...(isHorizontal ? { minHeight: 448 } : {}),
+    ...(isHorizontal ? { height: "auto" } : { height: "100%" }),
     ...style,
   };
   const TitleTag = titleAs === "h3" ? "h3" : "h4";
@@ -61,9 +62,11 @@ export default function CardWithImage({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="w-full max-w-[460px] mx-auto">
-        <TitleTag className="text-white mb-4">{title}</TitleTag>
-        <div className="text-gray-300 hosting-bento-text">{description}</div>
+      <div className="mx-auto w-full max-w-[460px]">
+        <TitleTag className="mb-4 text-white">{title}</TitleTag>
+        <div className="hosting-bento-text text-gray-300">{description}</div>
+
+        <CardLinks learnMore={learnMore} badges={badges} />
 
         {linkLabel && linkUrl ? (
           external ? (
@@ -97,7 +100,7 @@ export default function CardWithImage({
         "hosting-bento-image",
         "flex",
         "justify-center",
-        isHorizontal ? "h-[400px] items-center" : "",
+        isHorizontal ? "h-auto w-full" : "",
         // Keep image second on mobile; swap on desktop when not reversed
         // Center image horizontally within its column on desktop.
         isReversed
@@ -111,7 +114,9 @@ export default function CardWithImage({
         src={imageSrc}
         alt={imageAlt}
         className={[
-          isHorizontal ? "h-full w-auto max-w-full object-contain" : "w-full h-auto",
+          isHorizontal
+            ? "mx-auto h-auto max-h-[400px] w-auto max-w-full object-contain"
+            : "h-auto w-full",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -123,7 +128,9 @@ export default function CardWithImage({
     <div
       className={[
         "hosting-bento-box",
-        isHorizontal ? "" : "hosting-bento-box-image-bottom",
+        isHorizontal
+          ? "card-with-image--horizontal min-h-0"
+          : "hosting-bento-box-image-bottom",
         className,
       ]
         .filter(Boolean)
@@ -139,7 +146,7 @@ export default function CardWithImage({
             horizontalColsClass,
             "gap-8",
             "items-center",
-            "h-full",
+            "h-auto",
           ].join(" ")}
         >
           {contentEl}
@@ -148,10 +155,12 @@ export default function CardWithImage({
       ) : (
         <>
           <div className="hosting-bento-content">
-            <TitleTag className="text-white mb-4">{title}</TitleTag>
-            <div className="text-gray-300 hosting-bento-text">
+            <TitleTag className="mb-4 text-white">{title}</TitleTag>
+            <div className="hosting-bento-text text-gray-300">
               {description}
             </div>
+
+            <CardLinks learnMore={learnMore} badges={badges} />
 
             {linkLabel && linkUrl ? (
               external ? (
@@ -182,7 +191,7 @@ export default function CardWithImage({
               <img
                 src={imageSrc}
                 alt={imageAlt}
-                className="w-full h-auto mt-6"
+                className="mt-6 h-auto w-full"
               />
             </div>
           ) : null}
@@ -191,4 +200,3 @@ export default function CardWithImage({
     </div>
   );
 }
-

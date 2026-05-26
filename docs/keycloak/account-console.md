@@ -32,6 +32,8 @@ This is an important distinction in Keycloak:
 
 Customizing one does not automatically customize the other.
 
+If you are using the Phase Two `phasetwo-ui` theme, selecting it as the **Account** theme in **Realm Settings > Themes** applies consistent branding (colors, logo, fonts) to the Account Console automatically. No additional configuration is required beyond the settings in **Extensions > Styles**.
+
 For teams using [Keycloakify](https://docs.keycloakify.dev/theme-types/account-theme), the Account Console can be customized with a dedicated **account theme**. Keycloakify supports two main account-theme models:
 
 - **Single-page account theme**: based on the newer Account Console experience, best when you want the latest account-console capabilities and are comfortable customizing React-based components

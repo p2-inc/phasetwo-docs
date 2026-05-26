@@ -14,8 +14,10 @@ export default function Cta({
   showCta = true,
   ctaLabel,
   ctaHref,
+  onCtaClick,
   animateHeading = false,
   sectionClassName,
+  primaryTextClassName = "font-medium",
 }) {
   const computedSectionClassName =
     background === "secondary"
@@ -29,30 +31,34 @@ export default function Cta({
   return (
     <section className={finalSectionClassName}>
       <div className="mx-auto max-w-7xl px-6 lg:flex lg:items-center lg:justify-between lg:px-8">
-        <h2
-          className="cta-section-heading flex-1"
-          {...headingProps}
-        >
-          <span className="font-medium">{primaryText}</span>{" "}
-          <br />
+        <h2 className="cta-section-heading flex-1" {...headingProps}>
+          <span className={primaryTextClassName}>{primaryText}</span> <br />
           <span className="font-light">{secondaryText}</span>
         </h2>
 
         {showCta && (
           <div className="mt-10 flex items-center gap-x-6 lg:mt-0 lg:shrink-0">
-            <a
-              href={ctaHref}
-              target={external ? "_blank" : undefined}
-              rel={external ? "noreferrer" : undefined}
-            >
-              <button className="btnPrimary btnUltraLarge btnInverted">
+            {onCtaClick ? (
+              <button
+                className="btnPrimary btnUltraLarge btnInverted"
+                onClick={onCtaClick}
+              >
                 {ctaLabel}
               </button>
-            </a>
+            ) : (
+              <a
+                href={ctaHref}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noreferrer" : undefined}
+              >
+                <button className="btnPrimary btnUltraLarge btnInverted">
+                  {ctaLabel}
+                </button>
+              </a>
+            )}
           </div>
         )}
       </div>
     </section>
   );
 }
-
