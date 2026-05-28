@@ -1,19 +1,9 @@
 ---
 title: "Migrating from WorkOS to Keycloak: A Practical Walkthrough"
 slug: workos-keycloak-migration
-date: 2026-05-21
+date: 2026-05-29
 authors: phasetwo
-tags:
-  [
-    phase_two,
-    keycloak,
-    workos,
-    migration,
-    sso,
-    scim,
-    open_source,
-    organizations,
-  ]
+tags: [phase_two, keycloak, workos, migration, sso, organizations, scim, open_source]
 description: An open-source tool that imports users, organizations, roles, SSO connections, and SCIM directories from WorkOS into Phase Two-enabled Keycloak — plus the why, the how, and what to do once it's done.
 ---
 
