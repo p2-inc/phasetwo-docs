@@ -26,6 +26,8 @@ Both are experimental. They're not in competition — they're solving different 
 
 ## What's in the release
 
+![Organization SCIM Admin UI](/blog/2026-05-27-orgs-scim-ui.png)
+
 The capability ships disabled by default and is gated by a realm-level flag. Once enabled, each organization gets:
 
 - A SCIM 2.0 endpoint at `/realms/{realm}/scim/v2/organizations/{orgId}/` exposing the standard SCIM resources (`/ServiceProviderConfig`, `/ResourceTypes`, `/Schemas`, `/Users`, `/Groups`).
