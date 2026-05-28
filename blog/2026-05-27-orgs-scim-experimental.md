@@ -3,7 +3,6 @@ title: Experimental SCIM 2.0 provisioning for Organizations
 slug: orgs-scim-experimental
 date: 2026-05-27
 authors: phasetwo
-draft: true
 tags: [phase_two, keycloak, organizations, scim, provisioning, open_source]
 description: Per-organization SCIM 2.0 endpoints for Keycloak, built on Metatavu's keycloak-scim-server. Experimental, but already in production use.
 ---
