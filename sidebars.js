@@ -105,6 +105,7 @@ module.exports = {
         "organizations/idp-wizard",
         "organizations/identity-providers",
         "organizations/automatic-idp-redirection",
+        "organizations/scim",
         { type: "doc", id: "admin-portal/index", label: "Admin Portal" },
         "organizations/token-mappers",
         "organizations/active-organization",
