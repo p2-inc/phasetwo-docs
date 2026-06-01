@@ -209,6 +209,13 @@ components:
             items:
               type: string
           description: Additional configuration attributes
+        scimEnabled:
+          type: boolean
+          description: |
+            Realm-level feature flag that turns on per-organization SCIM 2.0
+            provisioning. When false (the default) the organization SCIM
+            configuration endpoints under `/{realm}/orgs/{orgId}/scim`
+            return 404 and the SCIM tab is hidden in the Admin UI.
     OrganizationsExportRepresentation:
       type: object
       properties:
@@ -591,6 +598,132 @@ components:
           $ref: "#/components/schemas/WebhookRepresentation"
         payload:
           type: string
+    OrganizationScimRepresentation:
+      type: object
+      description: |
+        Per-organization SCIM 2.0 service-provider configuration. One of these
+        backs the SCIM endpoint at
+        `{authServerUrl}/realms/{realm}/scim/v2/organizations/{orgId}/`.
+      properties:
+        enabled:
+          type: boolean
+          description: |
+            Whether the organization's SCIM endpoint accepts inbound traffic.
+            Turn this off to pause provisioning without losing the
+            configuration.
+        email_as_username:
+          type: boolean
+          description: |
+            When true, the provisioned user's `username` mirrors their
+            `email`, and subsequent SCIM update operations do not change
+            the username.
+        link_idp:
+          type: boolean
+          description: |
+            When true, provisioned users are federated with the
+            organization's configured identity provider so they can sign in
+            via the org's SSO immediately after provisioning.
+        auth:
+          $ref: "#/components/schemas/OrganizationScimAuth"
+    OrganizationScimAuth:
+      type: object
+      description: |
+        Polymorphic authentication configuration for the inbound SCIM
+        endpoint. The `type` field discriminates the variant; the remaining
+        fields depend on the variant chosen.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - KEYCLOAK
+            - EXTERNAL_JWT
+            - EXTERNAL_SECRET
+            - EXTERNAL_BASIC
+          description: Authentication mode selector.
+      discriminator:
+        propertyName: type
+        mapping:
+          KEYCLOAK: "#/components/schemas/KeycloakScimAuth"
+          EXTERNAL_JWT: "#/components/schemas/ExternalJwtScimAuth"
+          EXTERNAL_SECRET: "#/components/schemas/ExternalSecretScimAuth"
+          EXTERNAL_BASIC: "#/components/schemas/ExternalBasicScimAuth"
+      oneOf:
+        - $ref: "#/components/schemas/KeycloakScimAuth"
+        - $ref: "#/components/schemas/ExternalJwtScimAuth"
+        - $ref: "#/components/schemas/ExternalSecretScimAuth"
+        - $ref: "#/components/schemas/ExternalBasicScimAuth"
+    KeycloakScimAuth:
+      type: object
+      description: |
+        Authenticates inbound SCIM calls with a Keycloak-issued access
+        token (Bearer). The caller must hold the realm-management roles
+        required to manage members of the organization.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [KEYCLOAK]
+    ExternalJwtScimAuth:
+      type: object
+      description: |
+        Validates an inbound JWT issued by an external IdP. The token's
+        issuer and audience must match the configured values, and the
+        signature is verified against keys fetched from the configured
+        JWKS URI.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [EXTERNAL_JWT]
+        issuer:
+          type: string
+          description: Expected `iss` claim. Must exactly match the upstream IdP's issuer URL.
+        audience:
+          type: string
+          description: Expected `aud` claim.
+        jwks_uri:
+          type: string
+          description: URL the server fetches to validate the JWT signature.
+    ExternalSecretScimAuth:
+      type: object
+      description: |
+        Bearer-style shared secret. The client sends
+        `Authorization: Bearer <secret>`; the server compares the value
+        against a stored Argon2id hash.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [EXTERNAL_SECRET]
+        shared_secret:
+          type: string
+          description: |
+            Random opaque value. Cleartext on submit; hashed at rest. Omit
+            on update to keep the existing secret.
+    ExternalBasicScimAuth:
+      type: object
+      description: |
+        HTTP Basic auth. The password is hashed with Argon2id before
+        storage.
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [EXTERNAL_BASIC]
+        username:
+          type: string
+          description: Username for HTTP Basic auth. Stored in cleartext.
+        password:
+          type: string
+          description: |
+            Password for HTTP Basic auth. Cleartext on submit; hashed at
+            rest. Omit on update to keep the existing password.
     MagicLinkRequest:
       type: object
       properties:
@@ -2109,6 +2242,121 @@ paths:
       responses:
         204:
           description: success
+  # organization SCIM provisioning resources (experimental)
+  /{realm}/orgs/{orgId}/scim:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    get:
+      tags:
+        - Organization SCIM
+      summary: Get the SCIM configuration for an organization
+      operationId: getOrganizationScimConfig
+      description: |
+        Returns the SCIM 2.0 service-provider configuration for the
+        organization. Requires `view-organizations` or
+        `view-identity-providers` on the organization. Returns 404 if
+        the realm-level SCIM flag (`scimEnabled` in the orgs config) is
+        off, or if no configuration exists for the organization yet.
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        401:
+          description: Insufficient permission
+        404:
+          description: SCIM disabled at realm level, or no configuration exists for this organization
+    post:
+      tags:
+        - Organization SCIM
+      summary: Create the SCIM configuration for an organization
+      operationId: createOrganizationScimConfig
+      description: |
+        Creates the SCIM 2.0 service-provider configuration for the
+        organization. Requires `manage-organizations` or
+        `manage-identity-providers` on the organization. Returns 404 if
+        the realm-level SCIM flag is off, and 409 if a configuration
+        already exists for the organization. Cleartext secrets and basic
+        passwords submitted here are hashed with Argon2id before
+        persistence.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationScimRepresentation"
+        required: true
+      responses:
+        201:
+          description: SCIM configuration created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        401:
+          description: Insufficient permission
+        404:
+          description: SCIM disabled at realm level
+        409:
+          description: SCIM configuration already exists for this organization
+    put:
+      tags:
+        - Organization SCIM
+      summary: Update the SCIM configuration for an organization
+      operationId: updateOrganizationScimConfig
+      description: |
+        Updates the SCIM 2.0 service-provider configuration for the
+        organization. Requires `manage-organizations` or
+        `manage-identity-providers` on the organization. Omit
+        secret/password fields on `auth` to preserve the existing stored
+        credential; supply a new value to rotate.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationScimRepresentation"
+        required: true
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationScimRepresentation"
+        401:
+          description: Insufficient permission
+        404:
+          description: SCIM disabled at realm level, or no configuration exists for this organization
+    delete:
+      tags:
+        - Organization SCIM
+      summary: Delete the SCIM configuration for an organization
+      operationId: deleteOrganizationScimConfig
+      description: |
+        Removes the SCIM 2.0 service-provider configuration for the
+        organization. Requires `manage-organizations` or
+        `manage-identity-providers` on the organization.
+      responses:
+        204:
+          description: SCIM configuration deleted
+        401:
+          description: Insufficient permission
+        404:
+          description: SCIM disabled at realm level, or no configuration exists for this organization
   /{realm}/users/{userId}/orgs:
     parameters:
       - in: path

@@ -1,0 +1,1 @@
+{"responses":{"204":{"description":"SCIM configuration deleted"},"401":{"description":"Insufficient permission"},"404":{"description":"SCIM disabled at realm level, or no configuration exists for this organization"}}}
