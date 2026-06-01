@@ -441,6 +441,41 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Organization SCIM",
+      link: {
+        type: "generated-index",
+        title: "Organization SCIM",
+        slug: "/category/organization-scim",
+      },
+      items: [
+        {
+          type: "doc",
+          id: "get-organization-scim-config",
+          label: "Get the SCIM configuration for an organization",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "create-organization-scim-config",
+          label: "Create the SCIM configuration for an organization",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "update-organization-scim-config",
+          label: "Update the SCIM configuration for an organization",
+          className: "api-method put",
+        },
+        {
+          type: "doc",
+          id: "delete-organization-scim-config",
+          label: "Delete the SCIM configuration for an organization",
+          className: "api-method delete",
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "Users",
       link: {
         type: "generated-index",
