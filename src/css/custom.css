@@ -331,12 +331,18 @@ body::after {
   Stacking: navbar (998) < viewport edge lines (1000) < announcement bar (1001).
   Edge lines sit over the header as requested; announcement bar still masks them.
   Mobile drawer raises .navbar so lines do not cut through the open menu.
+  An open mega menu also raises the navbar above the edge lines so the menu
+  surface fully covers the decorative lines underneath it.
 */
 div[class*="announcementBar"]:not([class*="announcementBarClose"]):not(
     [class*="announcementBarContent"]
   ):not([class*="announcementBarPlaceholder"]) {
   position: relative;
   z-index: 1001;
+}
+
+.navbar:has(.dropdown--show) {
+  z-index: 10002;
 }
 
 /* Main content wrapper */
@@ -2653,4 +2659,3 @@ table.tw-table-pricing th {
   margin-top: 0;
   font-size: 13px;
 }
-

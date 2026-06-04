@@ -8,79 +8,335 @@
   padding-right: 0;
 }
 
+/* =====================================================
+   Nav Rev mega menu — dark, opaque, with featured cards
+   ===================================================== */
+
 .megaMenuDropdown {
   position: relative;
 }
 
-.megaMenu {
+/* Position is set inline via JS (left/top) based on the trigger's viewport
+   position, clamped to viewport edges. Using position: fixed avoids being
+   trapped inside an overflow:hidden ancestor and lets the menu visually
+   connect to its own trigger regardless of where in the navbar it sits. */
+.navRevMenu {
   display: grid;
-  grid-template-columns: repeat(var(--mega-menu-cols, 3), 220px);
-  gap: 12px;
+  grid-template-columns: var(--nav-rev-cols, repeat(3, 220px) 260px);
+  gap: 24px;
+
+  position: fixed;
+  /* Size to natural grid content: each link section is 220px, the featured
+     column is a fixed 260px pinned at the right. The menu's overall width
+     thus reflects how many sections it contains. */
+  width: max-content;
+  max-width: calc(100vw - 32px);
   min-width: 0;
-  padding: 8px;
-  overflow: hidden;
+  /* Above the decorative vertical lines (z-index 1000/1001 in custom.css) */
+  z-index: 1002 !important;
 
-  .megaMenuSection {
-    padding: 0;
-  }
+  padding: 24px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #131313 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 80px -20px rgba(0, 0, 0, 0.6),
+    inset 0 2px 0 rgba(255, 255, 255, 0.04);
+  color: rgb(229, 231, 235);
 }
 
-.megaMenu :global(.dropdown__link) {
-  white-space: normal;
-  word-break: break-word;
+/* Hover bridge — a transparent strip above the menu that closes the visual
+   gap between trigger and menu so the cursor can travel between them without
+   leaving the dropdown wrapper. */
+.navRevMenu::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  left: 0;
+  right: 0;
+  height: 16px;
 }
 
-@media (max-width: 1200px) {
-  .megaMenu {
-    grid-template-columns: repeat(2, 200px);
-  }
+/* When the menu has a footer, span all columns under the grid */
+.navRevFooter {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  margin-top: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
-.megaMenuSection {
+.navRevFooterLeft {
+  color: rgb(156, 163, 175);
+  font-size: 12.5px;
+}
+
+.navRevFooterRight {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.navRevFooterRight a,
+.navRevFooterRight button {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgb(229, 231, 235);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+.navRevFooterRight a:hover,
+.navRevFooterRight button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.navRevFooterCtaTry {
+  background: #3fa1e3 !important;
+  color: #fff !important;
+}
+.navRevFooterCtaTry:hover {
+  background: #58ade7 !important;
+}
+
+.navRevFooterCtaSales {
+  background: #e14cc2 !important;
+  color: #fff !important;
+}
+.navRevFooterCtaSales:hover {
+  background: #ed66cd !important;
+}
+
+/* ===== Section ===== */
+.navRevSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.navRevChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, #3fa1e3 14%, transparent);
+  border: 1px solid color-mix(in srgb, #3fa1e3 22%, transparent);
+  color: color-mix(in srgb, #3fa1e3 70%, #fff 30%);
+}
+
+.navRevChip::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #3fa1e3;
+  box-shadow: 0 0 6px #3fa1e3;
+}
+
+.navRevChipMagenta {
+  background: color-mix(in srgb, #e14cc2 14%, transparent);
+  border-color: color-mix(in srgb, #e14cc2 22%, transparent);
+  color: color-mix(in srgb, #e14cc2 70%, #fff 30%);
+}
+.navRevChipMagenta::before {
+  background: #e14cc2;
+  box-shadow: 0 0 6px #e14cc2;
+}
+
+.navRevSectionDesc {
+  color: rgb(156, 163, 175);
+  font-size: 12.5px;
+  line-height: 1.45;
+  margin: -4px 0 4px;
+}
+
+.navRevList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.megaMenuSectionTitle {
-  margin: 0 0 12px;
-  padding: 4px 8px;
-  font-size: 12px;
+.navRevList > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== Link row ===== */
+.navRevLink {
+  display: grid !important;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 8px !important;
+  border-radius: 10px;
+  color: rgb(229, 231, 235) !important;
+  font-size: 14.5px;
   font-weight: 500;
-  line-height: 1em;
-  letter-spacing: 0.04em;
+  text-decoration: none !important;
+  white-space: normal;
+  transition: background 0.12s, color 0.12s;
+}
+
+.navRevLink:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #fff !important;
+}
+
+.navRevIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #58ade7;
+}
+
+.navRevLink:hover .navRevIcon {
+  background: color-mix(in srgb, #3fa1e3 14%, transparent);
+  border-color: color-mix(in srgb, #3fa1e3 30%, transparent);
+  color: #3fa1e3;
+}
+
+.navRevLinkTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.navRevLinkTitle strong {
+  font-weight: 600;
+  line-height: 1.25;
+  color: inherit;
+}
+
+.navRevLinkTitle small {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: rgb(156, 163, 175);
+  line-height: 1.3;
+}
+
+.navRevExt {
+  opacity: 0.55;
+  color: rgb(156, 163, 175);
+  display: inline-flex;
+}
+
+/* ===== Featured stack ===== */
+.navRevFeatured {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: start;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navRevFeatured > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navRevFeaturedCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #3fa1e3 14%, #0f0f0f) 0%,
+    #0f0f0f 100%
+  );
+  border: 1px solid color-mix(in srgb, #3fa1e3 24%, rgba(255, 255, 255, 0.1));
+  text-decoration: none !important;
+  color: inherit;
+  transition: border-color 0.12s, transform 0.12s;
+}
+
+.navRevFeaturedCard:hover {
+  border-color: color-mix(in srgb, #3fa1e3 45%, rgba(255, 255, 255, 0.1));
+}
+
+.navRevFeaturedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-size: 10px;
+  color: #3fa1e3;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  border-radius: 20px;
+  font-weight: 700;
+}
+
+.navRevFeaturedTag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #3fa1e3;
   display: inline-block;
 }
 
-@media (min-width: 997px) {
-  .megaMenuSectionTitle {
-    margin-left: 12px;
-  }
-}
-
-.megaMenuSection:nth-child(1) .megaMenuSectionTitle {
-  background-color: color-mix(in srgb, var(--ifm-color-primary) 20%, transparent);
-  color: var(--ifm-color-primary-light);
-}
-
-.megaMenuSection:nth-child(2) .megaMenuSectionTitle {
-  background-color: color-mix(in srgb, var(--ifm-color-primary) 20%, transparent);
-  color: var(--ifm-color-primary-light);
-}
-
-.megaMenuSection:nth-child(3) .megaMenuSectionTitle {
-  background-color: color-mix(in srgb, var(--ifm-color-secondary) 20%, transparent);
-  color: var(--ifm-color-secondary-light);
-}
-
-.megaMenuSectionLinks {
-  list-style: none;
+.navRevFeaturedCard h4 {
   margin: 0;
-  padding: 0;
-  padding-inline-start: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  font-size: 13.5px;
+  line-height: 1.3;
+  color: #fff;
+  font-weight: 600;
+}
+
+.navRevFeaturedCard p {
+  margin: 0;
+  color: rgb(156, 163, 175);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.navRevFeaturedCta {
+  margin-top: 4px;
+  color: #3fa1e3;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+/* The Docusaurus dropdown__menu has opacity transitions; ensure full opacity
+   when the menu is open or visible (override theme defaults). */
+:global(.dropdown--show) .navRevMenu,
+:global(.dropdown--hoverable):hover .navRevMenu {
+  opacity: 1;
 }

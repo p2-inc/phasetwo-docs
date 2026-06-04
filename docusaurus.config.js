@@ -214,133 +214,221 @@ module.exports = {
             sections: [
               {
                 title: "Platform",
+                description: "What we ship, end-to-end.",
+                accent: "blue",
                 links: [
                   {
                     to: "product/keycloak-and-phase-two",
                     activeBasePath: "product/keycloak-and-phase-two",
                     label: "What are Keycloak and Phase Two",
+                    sub: "The platform, in one paragraph",
+                    icon: "shield",
                   },
                   {
                     to: "product/sso",
                     activeBasePath: "product/sso",
                     label: "SSO",
+                    sub: "Standards-based SSO out of the box",
+                    icon: "key",
                   },
                   {
                     to: "product/sso#idp-wizard",
                     activeBasePath: "product/sso",
                     label: "IdP Wizard",
+                    sub: "Customer self-serve SSO setup",
+                    icon: "wand",
                   },
                   {
                     to: "product/identity",
                     activeBasePath: "product/identity",
                     label: "Identity",
+                    sub: "Users, groups, federation",
+                    icon: "users",
                   },
                   {
                     to: "product/organizations",
                     activeBasePath: "product/organizations",
                     label: "Organizations",
+                    sub: "Multi-tenant by design",
+                    icon: "org",
                   },
                   {
                     to: "product/adminportal",
                     activeBasePath: "product/adminportal",
                     label: "Admin Portal",
+                    sub: "Customer-safe admin UI",
+                    icon: "panel",
                   },
                   {
                     to: "product/integrations",
                     activeBasePath: "product/integrations",
                     label: "Integrations",
+                    sub: "OIDC, SAML, SCIM",
+                    icon: "plug",
                   },
                   {
                     to: "product/cockroachdb",
                     activeBasePath: "product/cockroachdb",
                     label: "CockroachDB",
+                    sub: "Distributed storage option",
+                    icon: "db",
                   },
                 ],
               },
               {
                 title: "Managed Hosting",
+                description: "How we run it for you.",
+                accent: "blue",
                 links: [
                   {
                     label: "Open Source vs Commercial Offering",
                     to: "product/open-source-vs-commercial-offering",
+                    sub: "What you get with each",
+                    icon: "scale",
                   },
                   {
                     label: "On-Premise Deployment",
                     to: "product/onprem",
+                    sub: "Run it inside your perimeter",
+                    icon: "servers",
                   },
                   {
                     label: "Dedicated Clusters",
                     to: "hosting/dedicated-clusters",
+                    sub: "Isolated infra, audited SLA",
+                    icon: "cloud",
                   },
                   {
                     label: "Self Host vs Managed",
                     to: "hosting/self-host-vs-managed",
+                    sub: "Choosing your operating model",
+                    icon: "globe",
                   },
                   {
                     label: "Support",
                     to: "hosting/support",
+                    sub: "What's included with hosting",
+                    icon: "life",
                   },
                   {
                     label: "Dashboard",
                     to: "hosting/configure",
+                    sub: "Operate clusters and realms",
+                    icon: "layout",
                   },
                   {
                     label: "Security & Compliance",
                     href: "https://trust.phasetwo.io",
+                    sub: "trust.phasetwo.io",
+                    icon: "lock",
+                    ext: true,
                   },
                   {
                     label: "Pricing",
                     to: "pricing/hosting",
+                    sub: "Plans, terms, contact",
+                    icon: "bolt",
                   },
                 ],
               },
               {
                 title: "Enterprise Support",
+                description: "When you run it yourself.",
+                accent: "magenta",
                 links: [
                   {
                     to: "support/enterprise-support",
                     label: "Enterprise Support",
+                    sub: "24/7 production SLA",
+                    icon: "shield",
                   },
                   {
                     to: "support/24-7-incident-support",
                     label: "24/7 Incident Support",
+                    sub: "Named engineers, paged response",
+                    icon: "alert",
                   },
                   {
                     label: "Emergency Keycloak Assistance",
                     to: "support/emergency-support",
+                    sub: "One-off rescue engagements",
+                    icon: "bolt",
                   },
                   {
                     to: "support/on-prem-deployment",
                     label: "On-Prem Deployment",
+                    sub: "We deploy, you operate",
+                    icon: "servers",
                   },
                   {
                     label: "Migration to Keycloak",
                     to: "support/migrate-to-keycloak",
+                    sub: "Move off Auth0, Okta, Cognito",
+                    icon: "migrate",
                   },
                   {
                     to: "support/zero-downtime-upgrades",
                     label: "Zero-Downtime Upgrades",
+                    sub: "Stay current, stay live",
+                    icon: "refresh",
                   },
                   {
                     to: "support/architecture-review-and-scaling",
                     label: "Architecture Review and Scaling",
+                    sub: "Plan for the next 10×",
+                    icon: "scale",
                   },
                   {
                     to: "support/community",
                     label: "Community",
-                  },
-                  {
-                    label: "RFPs",
-                    to: "contact#rfps",
-                  },
-
-                  {
-                    label: "Pricing",
-                    to: "pricing/support",
+                    sub: "Free help, forums, Discord",
+                    icon: "community",
                   },
                 ],
               },
             ],
+            featured: [
+              {
+                tag: "What's new",
+                title: "Instant MCP authorization using Keycloak.",
+                desc: "Protect your MCP server with real OAuth flows — no custom auth code.",
+                cta: "Read post",
+                to: "blog/instant-mcp-authorization-keycloak",
+              },
+              {
+                tag: "Latest post",
+                title: "Experimental SCIM 2.0 for Organizations.",
+                desc: "Per-org SCIM endpoints, already in production use.",
+                cta: "Read post",
+                to: "blog/orgs-scim-experimental",
+              },
+              {
+                tag: "Blog",
+                title: "Migrating from WorkOS to Keycloak.",
+                desc: "Open-source tool that imports users, orgs, roles, SSO, and SCIM.",
+                cta: "Read post",
+                to: "blog/workos-keycloak-migration",
+              },
+            ],
+            footer: {
+              left: "SOC 2 Type 2 · ISO 27001",
+              links: [
+                {
+                  label: "Try it out",
+                  href: "https://dash.phasetwo.io/",
+                  variant: "try",
+                },
+                {
+                  label: "Talk to sales",
+                  to: "contact",
+                  variant: "sales",
+                },
+                {
+                  label: "Pricing",
+                  to: "pricing/hosting",
+                },
+              ],
+            },
           },
         },
         {
@@ -377,79 +465,151 @@ module.exports = {
             sections: [
               {
                 title: "Build",
+                description: "Reference and resources.",
+                accent: "blue",
                 links: [
                   {
                     to: "docs/introduction",
                     activeBasePath: "docs",
                     label: "Docs",
+                    sub: "Guides, recipes, reference",
+                    icon: "doc",
                   },
                   {
                     to: "api/phase-two-admin-rest-api",
                     activeBasePath: "api",
                     label: "API",
+                    sub: "Phase Two Admin REST API",
+                    icon: "api",
                   },
                   {
                     to: "articles/introduction",
                     activeBasePath: "articles",
                     label: "Articles",
+                    sub: "Deep dives & how-tos",
+                    icon: "article",
                   },
                   {
                     href: "https://github.com/p2-inc/",
                     label: "GitHub",
+                    sub: "github.com/p2-inc",
+                    icon: "github",
+                    ext: true,
                   },
                 ],
               },
               {
                 title: "Extensions",
+                description: "Open source pieces of the suite.",
+                accent: "blue",
                 links: [
                   {
                     to: "extensions",
                     activeBasePath: "extensions",
                     label: "Overview",
+                    sub: "All Phase Two extensions",
+                    icon: "grid",
                   },
                   {
                     to: "extensions/organizations",
                     activeBasePath: "extensions/organizations",
                     label: "Organizations",
+                    sub: "Multi-tenant identity",
+                    icon: "org",
                   },
                   {
                     to: "extensions/idp-wizard",
                     activeBasePath: "extensions/idp-wizard",
                     label: "IdP Wizard",
+                    sub: "Customer-managed SSO",
+                    icon: "wand",
                   },
                   {
                     to: "extensions/admin-portal",
                     activeBasePath: "extensions/admin-portal",
                     label: "Admin Portal",
+                    sub: "Customer-safe UI",
+                    icon: "panel",
                   },
                   {
                     to: "extensions/magic-link",
                     activeBasePath: "extensions/magic-link",
                     label: "Magic Link",
+                    sub: "Passwordless email login",
+                    icon: "mail",
                   },
                   {
                     to: "extensions/events",
                     activeBasePath: "extensions/events",
                     label: "Events & Webhooks",
+                    sub: "Identity event routing",
+                    icon: "webhook",
                   },
                   {
                     to: "extensions/themes",
                     activeBasePath: "extensions/themes",
                     label: "Themes",
+                    sub: "Login + account UI",
+                    icon: "brush",
                   },
                   {
                     to: "extensions/user-migration",
                     activeBasePath: "extensions/user-migration",
                     label: "User Migration",
+                    sub: "Zero-reset cutover",
+                    icon: "migrate",
                   },
                   {
                     to: "extensions/containers",
                     activeBasePath: "extensions/containers",
                     label: "Containers",
+                    sub: "Production K8s images",
+                    icon: "box",
                   },
                 ],
               },
             ],
+            featured: [
+              {
+                tag: "DevDay 2026",
+                title: "Redis/Valkey instead of Infinispan.",
+                desc: "Architecture, patterns, and benchmarks for Keycloak distributed caches.",
+                cta: "Read post",
+                to: "blog/keycloak-devday-2026-redis-valkey-caches",
+              },
+              {
+                tag: "What's new",
+                title: "A new Keycloak theme experience.",
+                desc: "Rebuilt login, admin, account, and email themes — runtime-configurable, no redeploys.",
+                cta: "Read post",
+                to: "blog/new-keycloak-themes",
+              },
+              {
+                tag: "Featured guide",
+                title: "Run the Keycloak Admin UI locally.",
+                desc: "With Phase Two extensions loaded — for plugin development.",
+                cta: "Open the guide",
+                to: "blog/run-admin-ui",
+              },
+            ],
+            footer: {
+              left: "Open source, built in public.",
+              links: [
+                {
+                  label: "Try it out",
+                  href: "https://dash.phasetwo.io/",
+                  variant: "try",
+                },
+                {
+                  label: "View on GitHub",
+                  href: "https://github.com/p2-inc/",
+                },
+                {
+                  label: "Read changelog",
+                  to: "blog",
+                },
+              ],
+            },
           },
         },
         {
@@ -468,6 +628,60 @@ module.exports = {
               to: "pricing/support",
             },
           ],
+          megaMenu: {
+            sections: [
+              {
+                title: "Plans",
+                description: "Choose what you're buying.",
+                accent: "blue",
+                links: [
+                  {
+                    to: "pricing/hosting",
+                    label: "Hosting",
+                    sub: "Managed Keycloak plans",
+                    icon: "cloud",
+                  },
+                  {
+                    to: "pricing/support",
+                    label: "Support",
+                    sub: "Enterprise support tiers",
+                    icon: "life",
+                  },
+                ],
+              },
+            ],
+            featured: [
+              {
+                tag: "Estimate",
+                title: "What you'd pay vs Auth0.",
+                desc: "Most teams save 80%+ moving to managed Keycloak.",
+                cta: "See pricing",
+                to: "pricing/hosting",
+              },
+              {
+                tag: "Switching?",
+                title: "Migrating from WorkOS to Keycloak.",
+                desc: "Zero-reset cutover with our open-source migration tool.",
+                cta: "Read post",
+                to: "blog/workos-keycloak-migration",
+              },
+            ],
+            footer: {
+              left: "SOC 2 Type 2 · ISO 27001",
+              links: [
+                {
+                  label: "Try it out",
+                  href: "https://dash.phasetwo.io/",
+                  variant: "try",
+                },
+                {
+                  label: "Talk to sales",
+                  to: "contact",
+                  variant: "sales",
+                },
+              ],
+            },
+          },
         },
         {
           type: "dropdown",
@@ -498,6 +712,93 @@ module.exports = {
               href: "https://trust.phasetwo.io",
             },
           ],
+          megaMenu: {
+            sections: [
+              {
+                title: "Resources",
+                description: "Learn, evaluate, get in touch.",
+                accent: "blue",
+                links: [
+                  {
+                    to: "blog",
+                    activeBasePath: "blog",
+                    label: "Blog",
+                    sub: "Product news & deep dives",
+                    icon: "article",
+                  },
+                  {
+                    to: "resources/case-studies",
+                    activeBasePath: "case-studies",
+                    label: "Case Studies",
+                    sub: "How teams ship with Phase Two",
+                    icon: "doc",
+                  },
+                  {
+                    to: "contact",
+                    activeBasePath: "contact",
+                    label: "Contact",
+                    sub: "Talk to the team",
+                    icon: "mail",
+                  },
+                  {
+                    to: "company/about",
+                    label: "About",
+                    sub: "Who we are",
+                    icon: "community",
+                  },
+                  {
+                    href: "https://trust.phasetwo.io",
+                    label: "Trust Center",
+                    sub: "trust.phasetwo.io",
+                    icon: "lock",
+                    ext: true,
+                  },
+                ],
+              },
+            ],
+            featured: [
+              {
+                tag: "Customer",
+                title: "Modernizing Keycloak at healthcare scale.",
+                desc: "Dexcom upgraded 22→26 with zero customer impact and lower infra cost.",
+                cta: "Read case studies",
+                to: "resources/case-studies",
+              },
+              {
+                tag: "Case study",
+                title: "Modernizing identity at Toppan Merrill.",
+                desc: "Replaced Ping + Okta, big budget savings, global rollout.",
+                cta: "Read case studies",
+                to: "resources/case-studies",
+              },
+              {
+                tag: "Trust",
+                title: "ISO 27001 + SOC 2 Type II.",
+                desc: "Information security management, audited and certified.",
+                cta: "Visit Trust Center",
+                href: "https://trust.phasetwo.io",
+              },
+            ],
+            footer: {
+              left: "SOC 2 Type 2 · ISO 27001",
+              links: [
+                {
+                  label: "Try it out",
+                  href: "https://dash.phasetwo.io/",
+                  variant: "try",
+                },
+                {
+                  label: "Talk to sales",
+                  to: "contact",
+                  variant: "sales",
+                },
+                {
+                  label: "Pricing",
+                  to: "pricing/hosting",
+                },
+              ],
+            },
+          },
         },
         // Right side items: Log in
         {
