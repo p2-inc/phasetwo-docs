@@ -21,12 +21,6 @@ const CONTACT_ITEMS = [
       "Issues or problems with hosting or support? If you have a service portal, please use that for fastest escalation.",
     actions: [
       {
-        href: "https://help.phasetwo.io",
-        label: "help.phasetwo.io",
-        external: true,
-        showExternalIcon: true,
-      },
-      {
         href: "mailto:support@phasetwo.io",
         label: "support@phasetwo.io",
       },
