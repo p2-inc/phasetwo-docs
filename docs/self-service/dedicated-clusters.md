@@ -3,7 +3,19 @@ id: dedicated-clusters
 title: Dedicated Clusters
 ---
 
-Dedicated clusters are available with paid plans. These Clusters use isolated compute, network and storage resources. Customers using dedicated clusters can create up to 20 Realms per cluster. If you need more, please contact your account representative or email [support@phasetwo.io](mailto:support@phasetwo.io).
+Dedicated clusters are available with paid plans. These Clusters use isolated compute, network, and storage resources. Dedicated clusters come in three tiers — **Starter**, **Premium**, and **Enterprise** — which differ in capacity and limits. See [Create a Cluster](./create-a-cluster.md) for how to choose a tier.
+
+### Realm limits by tier
+
+The number of Realms you can create depends on the cluster tier:
+
+| Tier       | Realms per cluster |
+| ---------- | ------------------ |
+| Starter    | Up to 5            |
+| Premium    | Up to 20           |
+| Enterprise | Up to 100          |
+
+If you need more, please contact your account representative or email [support@phasetwo.io](mailto:support@phasetwo.io).
 
 For more information view the [Hosting](/hosting) and [Pricing](/pricing) pages.
 
@@ -13,7 +25,7 @@ If you currently have a free, shared deployment, and you would like to migrate t
 
 ## Using a Cluster
 
-Clusters are used much the same as our shared deployments. You can create up to 20 Realms per cluster.
+Clusters are used much the same as our shared deployments. The number of Realms you can create depends on your cluster tier (see the table above).
 
 ## Creating Deployments in your Cluster
 
