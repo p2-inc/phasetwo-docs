@@ -36,7 +36,12 @@ module.exports = {
         "self-service/create-a-cluster",
         "self-service/regions",
         "self-service/custom-domains",
-        "self-service/observability",
+        {
+          type: "category",
+          label: "Observability",
+          link: { type: "doc", id: "self-service/observability" },
+          items: ["self-service/metrics", "self-service/logs"],
+        },
         "self-service/resources",
         "self-service/restrictions",
         "self-service/environment-variables",

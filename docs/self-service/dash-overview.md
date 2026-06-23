@@ -16,12 +16,12 @@ Learn more about the [Login process](./access.md)
 
 ## Overview
 
-A general view of the current infrastructure that your team has. This includes number of realms or dedicated clusters you have access to.
+A general view of the current infrastructure that your team has, including the number of realms and dedicated clusters you have access to. New users see quick-start cards to create their first cluster; once you have infrastructure, the page summarizes it with at-a-glance stats and per-section detail.
 
-<figure>
+<!-- <figure>
   <img src="/docs/dashboard/overview.png" className="max-w-3xl"  alt="Phase Two Dash Overview" />
   <figcaption>Overview</figcaption>
-</figure>
+</figure> -->
 
 ## Clusters
 
@@ -34,7 +34,9 @@ Dedicated infrastructure from Phase Two is known as a Cluster. This is a highly-
 
 ## Realms
 
-Single realms, often used for testing or trailing Phase Two. For a specific realm, launch the Keycloak Admin UI by clicking "console". For more information, view our [Realms](./deployments.md) page.
+Single realms have historically been used for testing or trialing Phase Two. For a specific realm, launch the Keycloak Admin UI by clicking "console". For more information, view our [Realms](./deployments.md) page.
+
+Single realms are being replaced by the [Starter](./create-a-cluster.md) dedicated cluster tier; new projects should start with a Starter cluster, while existing single realms remain accessible.
 
 <figure>
   <img src="/docs/dashboard/realms.png" className="max-w-3xl"  alt="Phase Two Dash Realms" />

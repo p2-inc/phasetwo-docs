@@ -3,7 +3,11 @@ id: deployments
 title: Realms (Deployments)
 ---
 
-A Deployment is a Phase Two hosted instance of a Keycloak Realm in a Phase Two enhanced Keycloak cluster. These clusters can be shared with other customers, or dedicated for customers in paid plans. Free, shared plans are allowed one Deployment per customer, and dedicated plans can create up to 20 Realms per cluster.
+A Deployment is a Phase Two hosted instance of a Keycloak Realm in a Phase Two enhanced Keycloak cluster. These clusters can be shared with other customers, or dedicated for customers in paid plans. The number of Realms you can create on a dedicated cluster depends on its [tier](./dedicated-clusters.md#realm-limits-by-tier).
+
+:::info Single realms are being replaced by Starter clusters
+Single realms (on shared infrastructure) are being phased out in favor of the new **Starter** dedicated cluster tier, which includes a 30-day free trial. New projects should [create a Starter cluster](./create-a-cluster.md) instead. Existing single realms remain accessible, and you can [migrate a shared deployment](./dedicated-clusters.md#migrating-from-a-shared-deployment) into a dedicated cluster.
+:::
 
 ## Regions
 

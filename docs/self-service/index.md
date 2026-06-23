@@ -7,9 +7,11 @@ The Phase Two Self-service deployment tool is an application that allows you to 
 
 The tool is available at https://dash.phasetwo.io/.
 
+{/* Demonstration video temporarily hidden — existing recording is outdated.
 ### Demonstration video
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/zzJPmwrEHmU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+*/}
 
 ### Section guides
 

@@ -1847,6 +1847,17 @@ a.menu__link.menu__link--sublist {
   padding-bottom: 24px;
 }
 
+/* Doc sidebar: second-level sub-category items (e.g. Observability → Metrics/Logs) */
+.menu__list .menu__list .menu__list {
+  padding-left: 12px;
+  padding-bottom: 0;
+  margin-left: 6px;
+  border-left: 1px solid var(--line-color);
+}
+.menu__list .menu__list .menu__list .menu__link {
+  font-size: 90%;
+}
+
 .markdown h1:first-child {
   --ifm-h1-font-size: var(--p2-markdown-h1-first-font-size);
 }
