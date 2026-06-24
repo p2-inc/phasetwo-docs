@@ -384,7 +384,7 @@ const Sections: {
       {
         name: "Regions",
         tiers: {
-          starter: "AMER, EU",
+          starter: "AMER, EU, APAC",
           premium: "AMER, EU, APAC",
           enterprise: "AMER, EU, APAC",
           custom: "Custom",
