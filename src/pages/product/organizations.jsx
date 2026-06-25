@@ -16,7 +16,7 @@ const HERO = {
   description:
     "Organizations is a SaaS identity solution that delivers self-management for your customers and APIs for your developers.",
   imageSrc: "/img/hero-organizations.svg",
-  primaryCtaLabel: "Get Started",
+  primaryCtaLabel: "Try for Free",
   primaryCtaHref: "https://dash.phasetwo.io/",
   secondaryCtaLabel: "Learn more",
   secondaryCtaHref: "#top-features",

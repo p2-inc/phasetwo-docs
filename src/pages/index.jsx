@@ -737,7 +737,7 @@ function Home() {
                   target="_blank"
                   className="btnPrimary"
                 >
-                  Get started
+                  Try for Free
                 </a>
                 <Link
                   href="/product/sso"

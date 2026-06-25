@@ -11,9 +11,9 @@ const Sections: {
       {
         name: "Dedicated cluster (HA)",
         description:
-          "An isolated, high-availability Keycloak environment running in a dedicated cloud instance.",
+          "An isolated, high-availability Keycloak environment running in a dedicated cloud instance. Every tier — including Starter — runs in its own independently provisioned cluster.",
         tiers: {
-          starter: false,
+          starter: true,
           premium: true,
           enterprise: true,
           custom: true,
@@ -24,7 +24,7 @@ const Sections: {
         description:
           "No artificial limits on the number of users in your realms.",
         tiers: {
-          starter: "100",
+          starter: "Unlimited",
           premium: "Unlimited",
           enterprise: "Unlimited",
           custom: "Unlimited",
@@ -34,7 +34,7 @@ const Sections: {
         name: "Concurrent user sessions (max)",
         description: "Number of active user sessions supported.",
         tiers: {
-          starter: false,
+          starter: "1K",
           premium: "10K",
           enterprise: "50K",
           custom: "Custom",
@@ -45,7 +45,7 @@ const Sections: {
         description:
           "Additional concurrent user sessions beyond the max limit. Premium limits are 25K total sessions, Enterprise limits are 100K total sessions. Outside of these limits, Premium must move to Enterprise, and Enterprise must move to Custom.",
         tiers: {
-          starter: false,
+          starter: "Contact us",
           premium: "$399 per 5K",
           enterprise: "$499 per 10K",
           custom: "Custom",
@@ -78,7 +78,7 @@ const Sections: {
         name: "SSO connections",
         description: "Number of supported identity provider (SSO) connections.",
         tiers: {
-          starter: false,
+          starter: "3",
           premium: "10",
           enterprise: "Unlimited",
           custom: true,
@@ -87,7 +87,7 @@ const Sections: {
       {
         name: "Custom domain(s)",
         description: "Use your own domain(s) for login and account pages.",
-        tiers: { starter: false, premium: "5", enterprise: "15", custom: true },
+        tiers: { starter: "1", premium: "5", enterprise: "15", custom: true },
       },
       {
         name: "Default theme CSS customization",
@@ -103,20 +103,21 @@ const Sections: {
       {
         name: "Custom themes",
         description:
-          "Support for fully custom Keycloak themes with HTML, CSS, and JS.",
+          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but voids the SLA.",
         tiers: {
-          starter: false,
-          premium: "1",
-          enterprise: "Unlimited",
+          starter: true,
+          premium: true,
+          enterprise: true,
           custom: true,
         },
       },
       {
         name: "Custom extensions (1)",
-        description: "Support for deploying custom Keycloak server extensions.",
+        description:
+          "Support for deploying custom Keycloak server extensions. Allowed on Starter, but voids the SLA.",
         tiers: {
-          starter: false,
-          premium: false,
+          starter: true,
+          premium: true,
           enterprise: true,
           custom: true,
         },
@@ -168,8 +169,8 @@ const Sections: {
         description:
           "Deploy in the geographic region of your choice for compliance and performance with global routing.",
         tiers: {
-          starter: false,
-          premium: false,
+          starter: true,
+          premium: true,
           enterprise: true,
           custom: true,
         },
@@ -332,7 +333,7 @@ const Sections: {
         name: "Infrastructure logs",
         description: "Keycloak logs",
         tiers: {
-          starter: "false",
+          starter: false,
           premium: "Coming soon",
           enterprise: "Coming soon",
           custom: "Coming soon",
@@ -384,7 +385,7 @@ const Sections: {
       {
         name: "Regions",
         tiers: {
-          starter: "AMER, EU, APAC",
+          starter: "AMER, EU",
           premium: "AMER, EU, APAC",
           enterprise: "AMER, EU, APAC",
           custom: "Custom",
@@ -404,7 +405,7 @@ const Sections: {
       {
         name: "Uptime Guarantee",
         tiers: {
-          starter: false,
+          starter: "95%",
           premium: "99.5%",
           enterprise: "99.95%",
           custom: "99.95%",
@@ -413,8 +414,8 @@ const Sections: {
       {
         name: "SLA",
         tiers: {
-          starter: false,
-          premium: true,
+          starter: "99%",
+          premium: "Standard SLA",
           enterprise: "Enhanced SLA",
           custom: "Custom SLA",
         },

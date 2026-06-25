@@ -15,7 +15,7 @@ const HERO = {
   description:
     "Securely authenticate users across every application with flexible, branded login experiences—without building a maze of edge-case flows.",
   imageSrc: "/img/hero-identity.svg",
-  primaryCtaLabel: "Get Started",
+  primaryCtaLabel: "Try for Free",
   primaryCtaHref: "https://dash.phasetwo.io/",
   secondaryCtaLabel: "Learn more",
   secondaryCtaHref: "#features",
