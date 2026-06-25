@@ -31,28 +31,18 @@ const Sections: {
         },
       },
       {
-        name: "Concurrent user sessions (max)",
-        description: "Number of active user sessions supported.",
-        tiers: {
-          starter: "1K",
-          premium: "10K",
-          enterprise: "50K",
-          custom: "Custom",
-        },
-      },
-      {
-        name: "Additional concurrent user sessions",
+        name: "Monthly active users",
         description:
-          "Additional concurrent user sessions beyond the max limit. Premium limits are 25K total sessions, Enterprise limits are 100K total sessions. Outside of these limits, Premium must move to Enterprise, and Enterprise must move to Custom.",
+          "Each cluster is sized to perform well up to this many monthly active users (MAU). A MAU is a user making up to ~1,000 token requests per month — logins, token refreshes, OIDC grant types, client-credential grants, and similar. Exceeding it isn't blocked or penalized, but token-endpoint latency may increase; we monitor CPU and memory and proactively reach out as limits are approached.",
         tiers: {
-          starter: "Contact us",
-          premium: "$399 per 5K",
-          enterprise: "$499 per 10K",
-          custom: "Custom",
+          starter: "Up to 15K",
+          premium: "Up to 100K",
+          enterprise: "Up to 250K",
+          custom: "250K+",
         },
       },
       {
-        name: "Additional clusters",
+        name: "Additional clusters (discounted)",
         description:
           "Additional dedicated Keycloak clusters for redundancy or global presence, either at the same tier or different tiers. Different tiers can be mixed and are offered at a discount.",
         tiers: {
@@ -113,10 +103,9 @@ const Sections: {
       },
       {
         name: "Custom extensions (1)",
-        description:
-          "Support for deploying custom Keycloak server extensions. Allowed on Starter, but voids the SLA.",
+        description: "Support for deploying custom Keycloak server extensions.",
         tiers: {
-          starter: true,
+          starter: false,
           premium: true,
           enterprise: true,
           custom: true,
@@ -148,7 +137,7 @@ const Sections: {
         name: "Environment variables",
         description: "Add Keycloak configuration via environment variables.",
         tiers: {
-          starter: false,
+          starter: true,
           premium: true,
           enterprise: true,
           custom: true,
@@ -333,17 +322,29 @@ const Sections: {
         name: "Infrastructure logs",
         description: "Keycloak logs",
         tiers: {
-          starter: false,
-          premium: "Coming soon",
-          enterprise: "Coming soon",
-          custom: "Coming soon",
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
         },
       },
       {
-        name: "Keycloak events",
-        description: "Keycloak events and audit logs",
+        name: "Event metrics",
+        description:
+          "User activity metrics from Keycloak events, surfaced as graphs and counts.",
         tiers: {
-          starter: false,
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "Request observability",
+        description:
+          "Request rate, latency, and error metrics for your cluster, surfaced as graphs and counts.",
+        tiers: {
+          starter: true,
           premium: true,
           enterprise: true,
           custom: true,
@@ -385,7 +386,7 @@ const Sections: {
       {
         name: "Regions",
         tiers: {
-          starter: "AMER, EU",
+          starter: "AMER, EU, APAC",
           premium: "AMER, EU, APAC",
           enterprise: "AMER, EU, APAC",
           custom: "Custom",
@@ -414,14 +415,23 @@ const Sections: {
       {
         name: "SLA",
         tiers: {
-          starter: "99%",
-          premium: "Standard SLA",
-          enterprise: "Enhanced SLA",
-          custom: "Custom SLA",
+          starter: "Standard",
+          premium: "Standard",
+          enterprise: "Enhanced",
+          custom: "Custom",
         },
       },
       {
         name: "SOC 2",
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "ISO 27001",
         tiers: {
           starter: true,
           premium: true,
@@ -532,13 +542,9 @@ const Sections: {
       },
       {
         name: "SMS OTP",
-        description: "One-time code sent via SMS. Requires extension.",
-        tiers: {
-          starter: "—",
-          premium: "With SPI extension",
-          enterprise: "With SPI extension",
-          custom: "With SPI extension",
-        },
+        description:
+          "One-time code sent via SMS for login or MFA. Requires an extension, and you are responsible for any SMS charges.",
+        tiers: { starter: true, premium: true, enterprise: true, custom: true },
       },
       {
         name: "Magic link",

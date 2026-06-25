@@ -64,7 +64,7 @@ const TIERS: Tier[] = [
     trial: true,
     desc: "For new projects and small teams getting auth into production.",
     features: [
-      "Up to 1,000 concurrent sessions",
+      "Up to 15K monthly active users",
       "Dedicated, independently provisioned cluster",
       "95% uptime guarantee",
       "3 SSO connections · 1 custom domain",
@@ -82,10 +82,9 @@ const TIERS: Tier[] = [
     badgeTone: "primary",
     desc: "For growing products with real traffic and uptime requirements.",
     features: [
-      "Up to 10,000 concurrent sessions",
+      "Up to 100K monthly active users",
       "99.5% uptime guarantee · Standard SLA",
       "10 SSO connections · 5 custom domains",
-      "Additional sessions at $399 per 5K",
       "Email support",
     ],
   },
@@ -99,7 +98,7 @@ const TIERS: Tier[] = [
     badgeTone: "warning",
     desc: "For high-scale products that need an uptime SLA and priority support.",
     features: [
-      "Up to 50,000 concurrent sessions",
+      "Up to 250K monthly active users",
       "99.95% uptime guarantee · Enhanced SLA",
       "Unlimited SSO connections · 15 custom domains",
       "Dedicated support engineer + Slack",

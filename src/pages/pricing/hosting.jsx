@@ -7,8 +7,12 @@ import PlanEstimator from "../../components/pricing/plan-estimator";
 
 const FAQ = [
   {
-    q: "What counts as a concurrent session?",
-    a: "A unique active user session at a point in time — not total registered users, which are always unlimited. We bill on concurrent sessions, so plan limits are about how many users are active at once.",
+    q: "What counts as a monthly active user?",
+    a: "A monthly active user (MAU) is a user making up to ~1,000 token requests a month — logins, token refreshes, OIDC grant types, client-credential grants, and similar. Registered users are always unlimited; each cluster is sized to perform well up to its MAU range.",
+  },
+  {
+    q: "What happens if I go over my plan's MAU?",
+    a: "Nothing punitive. We don't block or surcharge you for going over — but a cluster is sized for its range, so beyond it you may see higher latency on your token endpoints. We monitor CPU and memory and proactively reach out as limits are approached so you can move up a tier in time.",
   },
   {
     q: "Is there really a free trial?",
@@ -16,7 +20,7 @@ const FAQ = [
   },
   {
     q: "Can I switch plans later?",
-    a: "Yes, up or down at any time. Annual plans prorate the difference, and you can add session blocks as you grow.",
+    a: "Yes, up or down at any time. Annual plans prorate the difference, and you can move up a tier as you grow.",
   },
   {
     q: "What about on-premise or multi-region?",
@@ -52,11 +56,12 @@ function Pricing() {
                     <span className="text-p2blue-400">before</span> you sign up.
                   </h1>
                   <p className="text--body-large mt-6 text-gray-300">
-                    Phase Two hosting is priced per cluster on concurrent
-                    sessions — not per user (millions of users in system is not
-                    an issue). Estimate your usage, get a plan, and start free.
-                    No hidden fees and no sales call required (but happy to talk
-                    if you want to).
+                    Phase Two hosting is priced per cluster and sized for your
+                    monthly active users — total registered users are unlimited
+                    (millions of users in the system is not an issue). Estimate
+                    your plan, start free, and scale as you grow. No hidden fees
+                    and no sales call required (but happy to talk if you want
+                    to).
                   </p>
                   <div className="mt-10 flex flex-wrap items-center gap-4">
                     <a
@@ -100,9 +105,8 @@ function Pricing() {
             </div>
             <DetailedPriceComparison />
             <p className="text--body-large mt-8 text-center text-gray-300">
-              (1) Additional fees based on extension complexity; custom
-              extensions void the SLA on Starter. (2) Available as an add-on;
-              contact sales for pricing.
+              (1) Additional fees based on extension complexity. (2) Available
+              as an add-on; contact sales for pricing.
             </p>
           </div>
         </section>

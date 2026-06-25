@@ -20,20 +20,14 @@ export type Feature = {
 type Tier = {
   id: TierId;
   name: string;
-  priceLabel: string;
   popular: boolean;
 };
 
 const TIERS: Tier[] = [
-  { id: "starter", name: "Starter", priceLabel: "$149/mo", popular: false },
-  { id: "premium", name: "Premium", priceLabel: "$999/mo", popular: true },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    priceLabel: "$2,999/mo",
-    popular: false,
-  },
-  { id: "custom", name: "Custom", priceLabel: "Contact us", popular: false },
+  { id: "starter", name: "Starter", popular: false },
+  { id: "premium", name: "Premium", popular: true },
+  { id: "enterprise", name: "Enterprise", popular: false },
+  { id: "custom", name: "Custom", popular: false },
 ];
 
 const GreenCheck = () => (
@@ -139,9 +133,6 @@ export default function DetailedPriceComparison() {
                   <div className="text-[15px] font-bold text-white">
                     {tier.name}
                   </div>
-                  <div className="mt-0.5 text-xs font-medium text-gray-400">
-                    {tier.priceLabel}
-                  </div>
                 </th>
               ))}
             </tr>
@@ -205,9 +196,6 @@ export default function DetailedPriceComparison() {
                   <h3 className="mb-0 text-lg font-semibold text-white">
                     {tier.name}
                   </h3>
-                  <p className="mb-0 text-sm text-gray-400">
-                    {tier.priceLabel}
-                  </p>
                 </div>
                 <Icon
                   icon="mdi:chevron-down"
