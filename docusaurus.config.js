@@ -490,6 +490,13 @@ module.exports = {
                     icon: "article",
                   },
                   {
+                    to: "tools/jwt-decoder",
+                    activeBasePath: "tools",
+                    label: "JWT Decoder",
+                    sub: "Decode & inspect tokens",
+                    icon: "key",
+                  },
+                  {
                     href: "https://github.com/p2-inc/",
                     label: "GitHub",
                     sub: "github.com/p2-inc",
@@ -884,6 +891,10 @@ module.exports = {
             {
               label: "API",
               to: "api/phase-two-admin-rest-api",
+            },
+            {
+              label: "JWT Decoder",
+              to: "tools/jwt-decoder",
             },
             {
               label: "GitHub",

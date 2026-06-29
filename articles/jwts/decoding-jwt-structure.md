@@ -23,7 +23,11 @@ A signed JWT consists of three distinct segments separated by periods (`.`):
 2. **Payload/Body**: Contains the actual data/claims (starts with `eyJhdWQ`)
 3. **Signature**: Cryptographic proof of integrity (starts with `dee-K`)
 
-You can decode this JWT interactively at [jwt.io](https://jwt.io/#token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ.8DCV8fVizi3Z1EI7tTxp-kChCVhxEReraDIRSdtCMlg) using the secret: `b7e151628aed2a6abf7158809cf4f3c762e7160efc7e218d3f2c3b394d2d6b8f`.
+:::tip Try it yourself
+Paste this token (or one of your own) into our free [**JWT Decoder**](/tools/jwt-decoder) to see the header, payload, and decoded claims interactively. Everything runs in your browser — your token is never sent to a server.
+:::
+
+You can also decode this JWT interactively at [jwt.io](https://jwt.io/#token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiI4NWEwMzg2Ny1kY2NmLTQ4ODItYWRkZS0xYTc5YWVlYzUwZGYiLCJleHAiOjE2NDQ4ODQxODUsImlhdCI6MTY0NDg4MDU4NSwiaXNzIjoiYWNtZS5jb20iLCJzdWIiOiIwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEiLCJqdGkiOiIzZGQ2NDM0ZC03OWE5LTRkMTUtOThiNS03YjUxZGJiMmNkMzEiLCJhdXRoZW50aWNhdGlvblR5cGUiOiJQQVNTV09SRCIsImVtYWlsIjoiYWRtaW5AcGhhc2V0d28uaW8iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXBwbGljYXRpb25JZCI6Ijg1YTAzODY3LWRjY2YtNDg4Mi1hZGRlLTFhNzlhZWVjNTBkZiIsInJvbGVzIjpbImNlbyJdfQ.8DCV8fVizi3Z1EI7tTxp-kChCVhxEReraDIRSdtCMlg) using the secret: `b7e151628aed2a6abf7158809cf4f3c762e7160efc7e218d3f2c3b394d2d6b8f`.
 
 <!-- <insert-fig> -->
 
