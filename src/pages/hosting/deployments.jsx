@@ -281,10 +281,11 @@ const Deployments = () => {
                   Want to test it out? No problem.
                 </h2>
                 <p className="mt-6">
-                  Our free tier is configured the same way that our dedicated
-                  clusters are. You can test and play with the system without
-                  any commitment. When ready, we can easily convert your test
-                  deployment into a dedicated cluster.
+                  Your Starter cluster is provisioned independently and
+                  configured exactly like our larger dedicated clusters, and it
+                  starts with a 30-day free trial. Test and build with no
+                  commitment, then keep it running at $149/mo — or move up a
+                  tier — when you&apos;re ready.
                 </p>
               </div>
             </div>

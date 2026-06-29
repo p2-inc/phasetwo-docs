@@ -2158,6 +2158,33 @@ table.tw-table-pricing th {
   border: none;
 }
 
+/* Pricing / support comparison grids (hosting + support pricing pages).
+   Neutralizes infima table defaults — row striping and the full cell-border
+   grid — leaving only horizontal row separators, and uses border-separate so
+   the rounded, overflow-hidden wrapper actually clips the corners. */
+.p2-cmp {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 0;
+}
+.p2-cmp thead {
+  background-color: transparent;
+}
+.p2-cmp tr {
+  /* Override infima's nth-child(2n) stripe. */
+  background-color: transparent !important;
+  border: 0;
+}
+.p2-cmp th,
+.p2-cmp td {
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.p2-cmp tbody tr:last-child th,
+.p2-cmp tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 /* Radix UI Components */
 .TooltipContent {
   border-radius: 4px;
