@@ -1,98 +1,119 @@
 ---
-title: "Keycloak vs. Auth0, an Open-Source Alternative"
-description: An in-depth comparison of Keycloak versus Auth0 and why Keycloak is a strong alternative to a paid Authentication and Authorization service.
+title: "Keycloak vs. Auth0: The Open-Source Alternative (2026 Guide)"
+description: A 2026 comparison of Keycloak vs. Auth0 — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to Auth0.
 slug: keycloak-vs-auth0-open-source-alternative
 date: 2024-05-01
 authors: phasetwo
 tags: [phase_two, open_source, authentication, authorization, auth0, keycloak]
 ---
 
-## Exploring Keycloak as an Alternative to Auth0 for Authentication Solutions
+## Keycloak vs. Auth0: Choosing an Open-Source Alternative for Authentication
 
-When it comes to implementing authentication and authorization in web applications, Auth0 and Keycloak are two prominent solutions that offer robust security features. While Auth0 is a popular choice for many developers due to its comprehensive, cloud-based platform, Keycloak presents a compelling alternative, especially in terms of cost and flexibility. This blog post will delve into how Keycloak stacks up against Auth0, focusing on cost of ownership, architecture and deployment, maintenance, functionality, community and support.
+*Last updated: 2026 — pricing and feature comparisons reflect Auth0's current published plans.*
+
+When it comes to implementing authentication and authorization in web applications, Auth0 and Keycloak are two prominent solutions that offer robust security features. Auth0 is a popular, fully managed cloud platform; Keycloak is an open-source alternative that competes strongly on cost, control, and flexibility. This post compares the two across cost of ownership, architecture and deployment, maintenance, functionality, and support — and explains why pairing Keycloak with a managed host like Phase Two often gives you the best of both.
 
 <!--truncate-->
 
-In searching for information about Keycloak in relation to Auth0, many of the limitations brought up about Keycloak have been rapidly addressed over the last couple of years. Those articles will call out things brought up by G2 reviews that are over four years old. In terms of [Keycloak versions](https://github.com/keycloak/keycloak/releases), that is over 10 major versions behind. Be mindful when doing research about Keycloak and understanding what versions are being discussed. We do our best to make sure that information below reflects the most recent Keycloak versions.
+A quick note before we start: much of the older commentary about Keycloak's limitations is out of date. Many critiques still circulating online cite G2 reviews that are four-plus years old — more than ten major [Keycloak versions](https://github.com/keycloak/keycloak/releases) behind the current release. When researching Keycloak, check which version is being discussed. We keep the information below aligned with recent Keycloak versions.
 
-### Cost of Ownership
+If you're weighing other vendors too, we maintain open-source-alternative comparisons for [Okta](https://phasetwo.io/blog/keycloak-vs-okta-open-source-alternative/), [WorkOS](https://phasetwo.io/blog/keycloak-vs-workos-open-source-alternative/), [Ping Identity](https://phasetwo.io/blog/keycloak-vs-PingIdentity-open-source-alternative/), [FrontEgg](https://phasetwo.io/blog/keycloak-vs-frontegg-open-source-alternative/), and [OneLogin](https://phasetwo.io/blog/keycloak-vs-onelogin-open-source-alternative/) — and a broader overview of [Keycloak as an open-source alternative to Auth0, WorkOS, Okta, and Cognito](https://phasetwo.io/blog/open-source-iam/).
 
-There are many factors to think about with a total cost-of-ownership. We've written extensively about [choosing an Open-Source IAM](./2024-03-11-open-source-iam.md) over a managed service.
+## Keycloak vs. Auth0 at a Glance
 
-**Auth0:**
-Auth0 operates on a subscription model, which can be quite enticing for startups or small projects with minimal authentication needs. It offers a free tier limited by the number of authentications per month, active users, MFA setups, and more. As needs quickly increase for a business to setup a modest number of IDP connections, include minimal additional "users" (which could be people or devices), extract logs, customize deployments, and more, those bills can quickly spiral into $100K+. For SMB's to Enterprise, dedicating that amount of resources to your Auth solution can be untenable.
+| Dimension | Auth0 | Keycloak (with Phase Two) |
+|---|---|---|
+| **Licensing model** | Proprietary, subscription | Open source (Apache 2.0), no license fee |
+| **Pricing driver** | Per monthly active user (MAU) + features | Fixed infrastructure / hosting cost, not per-user |
+| **Cost predictability** | Scales with users and features | Predictable; decoupled from user growth |
+| **Deployment** | Cloud SaaS only | Self-hosted, your cloud, on-premise, or managed |
+| **Data residency / sovereignty** | Limited control | Full control over environment and data location |
+| **Maintenance** | Fully managed by Auth0 | Managed by you, or by Phase Two if hosted |
+| **Standards** | OAuth 2.0, OIDC, SAML | OAuth 2.0, OIDC, SAML |
+| **Extensibility** | Actions framework (bounded) | Full source access + SPIs/extensions |
+| **Vendor lock-in** | High | Low — portable, standards-based |
+| **Best fit** | Teams wanting zero-ops and paying per user | Teams wanting control, predictable cost, or on-prem |
 
-Additionally, as the need to add more connections and functionality grows, so will one's cost. Features like SAML, LDAP, AD, the ability for customers to manage their own employees through the Okta identity cloud, or even the simple use of [magic link](https://phasetwo.io/blog/set-up-magic-links/), all necessitate instant shift to the Enterprise plan. Introducing basic features like immediately shift Auth0 accounts into a much pricier band. When building an application, having to continuously reevaluate the pricing for your vendor is cumbersome from a financial and process standpoint.
+## Cost of Ownership
 
-Recently, price-per-user (MAU) of Auth0 went up by 300% from $0.023 to $0.07. The financial burden this is placing on existing customers and new customers is extremely high.
+Total cost of ownership has many factors. We've written extensively about [choosing an open-source IAM](https://phasetwo.io/blog/open-source-iam/) over a managed proprietary service.
 
-**Keycloak:**
-Keycloak, on the other hand, is an open-source solution developed by Red Hat. It is free to use, regardless of the number of users or the scale of the project. This makes Keycloak particularly attractive for businesses looking to cut costs or those who prefer not to be tied to vendor-specific pricing structures. The primary cost associated with Keycloak comes from the need to self-host and manage the software, which includes server costs and potential overhead for setup and maintenance. This can mean the ongoing cost is fixed since its not driven by features or users.
+**Auth0:** Auth0 operates on a subscription model that can be appealing for startups or small projects with minimal authentication needs. Its free tier is generous on paper — up to 25,000 monthly active users (MAU) — but it's bounded on connections, organizations, and features, and most production workloads quickly outgrow it.
 
-**Winner**
+Here's the catch: Auth0's list prices look modest until you map them to how a real application actually uses the platform. As of 2026, Auth0's published pricing (per month, billed monthly) scales like this:
 
-Keycloak
+| Monthly active users | B2C Essentials | B2C Professional | B2B Essentials |
+|---|---|---|---|
+| 1,000 | $70 | $240 | $300 |
+| 5,000 | $350 | $1,000 | $1,300 |
+| 10,000 | $700 | $1,600 | $2,100 |
+| 20,000 | $1,400 | $3,200 | $3,800 |
 
-Leveraging Phase Two's managed hosting provides a more capable free tier to test out and integrate Authorization and Authentication into an application(s). When that application's needs grow, Keycloak quickly becomes a far more cost-effective choice.
+*Figures reflect Auth0's published list pricing as of 2026 ([auth0.com/pricing](https://auth0.com/pricing)); Auth0 changes pricing periodically, so confirm current rates for your tier and region.*
 
-### Architecture and Deployment
+Two things push the real bill well beyond the headline numbers:
 
-**Auth0:**
+1. **The features you actually need live in higher tiers and add-ons.** SAML, LDAP/Active Directory federation, log streaming, and similar capabilities move you up a band — and several common needs are billed as separate line items on top of your subscription. Additional enterprise SSO connections run about $100/month *each* on B2B plans; MFA is a $100/month add-on on B2B Essentials; machine-to-machine (M2M) tokens are metered separately (up to roughly $1,200/month for 300,000 tokens); and the newer AI Agents add-on is priced at 50% of your base subscription. Every capability you switch on either bumps your tier or tacks on a charge.
 
-Auth0 primarily functions as a cloud-based service, providing a hassle-free setup without the need for managing infrastructure. This approach favors organizations looking for quick deployment and minimal maintenance efforts. However, enterprises often require on-premise solutions due to strict regulatory and data residency requirements.
+2. **"Users" and "organizations" aren't cheap.** If you sell to businesses, Auth0's B2B model is the one that fits — and it costs materially more than B2C at the same scale (for example, **$3,800/month for B2B Essentials vs. $1,400/month for B2C Essentials at 20,000 MAU**). Note also that "users" can mean people *or* devices, and organizations, enterprise connections, and per-customer SSO all push the number up.
 
-Auth0 is a cloud-based service, which can provide less initial setup and configuration of infrastructure. This helps with doing a quick deployment and relieving organizations of the DevOps burden of a system.
+For anything beyond mid-size, Auth0 routes you into a custom Enterprise contract. In practice those negotiations tend to land in the six figures annually — we routinely talk to teams whose Auth0 quotes target **$100K+ per year** once SSO, MFA, organizations, and log streaming are bundled in. The problem isn't that any single number is outrageous; it's that the total is hard to predict and climbs with every feature and every user you add.
 
-**Keycloak**
+**Keycloak:** Keycloak is an open-source solution originally developed and backed by Red Hat. It is free to use regardless of the number of users or scale of the project, which makes it attractive for teams looking to control costs or avoid vendor-specific pricing. The primary cost is hosting and operating the software — server costs plus setup and maintenance overhead — which means your spend tends to be **fixed**, driven by infrastructure rather than by user counts or feature gates.
 
-Keycloak can be deployed as an on-premise solution or via a [cloud service](https://phasetwo.io/hosting/). Because it provides full control over the deployment environment, it conforms to any compliance and data sovereignty needs. Enterprises needing to adapt the solution to their environments, can adopt Keycloak knowing it will work. From an infrastructure standpoint, Keycloak may initially take more time but it also provides a very straightforward way to integrate applications.
+**Winner: Keycloak.** Phase Two's [managed hosting](https://phasetwo.io/hosting/) offers a capable free tier to test and integrate authentication, and as your application's needs grow, Keycloak remains far more cost-effective. See a side-by-side [pricing estimate vs. Auth0](https://phasetwo.io/pricing/hosting/).
 
-**Winner**
+## Architecture and Deployment
 
-Depends. If you need on-premise, Keycloak is a better option. For a hosted option, either is a strong choice. Keycloak has some flexibility allowing you to host yourself or leverage a service like Phase Two's [hosting]((https://phasetwo.io/hosting/).
+**Auth0:** Auth0 is a cloud-based service, so there's little infrastructure to set up or configure. That enables quick deployment and removes much of the DevOps burden. The trade-off: enterprises with strict regulatory or data-residency requirements often need on-premise options that a SaaS-only model can't provide.
 
-### Maintenance
+**Keycloak:** Keycloak can be deployed on-premise, in your own cloud, or via a [managed cloud service](https://phasetwo.io/hosting/). Because you control the deployment environment, it conforms to compliance and data-sovereignty needs. Initial infrastructure setup can take more effort, but the result is a flexible, standards-based system that integrates cleanly with your applications.
 
-**Auth0:**
-One of the main advantages of Auth0 is that being a managed service, it requires minimal maintenance from the user's side. The Auth0 team handles updates, security patches, and infrastructure, ensuring that the system is kept up-to-date.
+**Winner: Depends.** If you need on-premise or strict data control, Keycloak wins clearly. For a purely hosted option, either can work — and Keycloak still gives you the flexibility to [self-host or use managed hosting](https://phasetwo.io/hosting/self-host-vs-managed/).
 
-**Keycloak:**
-Conversely, Keycloak requires more attention since it's self-hosted. Organizations must allocate resources for installing, configuring, and updating the software, as well as managing the underlying infrastructure. This can be a drawback for teams without the necessary technical expertise or resources. However, it also offers greater control over the deployment and security standards, which can be a significant advantage for certain regulatory environments.
+## Maintenance
 
-**Winner**
+**Auth0:** As a managed service, Auth0 requires minimal maintenance from your side. Auth0 handles updates, security patches, and infrastructure, keeping the system current.
 
-Auth0.
+**Keycloak:** Self-hosted Keycloak requires more attention — installation, configuration, upgrades, and the underlying infrastructure. For teams without that expertise or capacity, this is a real consideration. The upside is greater control over deployment and security posture, which matters in regulated environments. Phase Two removes this trade-off entirely: with [managed hosting](https://phasetwo.io/hosting/) and [zero-downtime upgrades](https://phasetwo.io/support/zero-downtime-upgrades/), you get Keycloak's control without the operational load.
 
-As a fully managed service, Auth0 abstracts away this work.
+**Winner: Auth0 (for self-hosted Keycloak); a tie when Keycloak is managed by Phase Two.**
 
-### Functionality and Flexibility
+## Functionality and Flexibility
 
-**Auth0:**
-Auth0 offers a wide range of authentication features out-of-the-box, including social logins, enterprise federation, database connections, and more. It supports a variety of standards like OAuth2, OpenID Connect, and SAML, making it highly versatile for modern web applications. The platform also provides robust analytics and real-time monitoring tools that can be crucial for understanding user behavior and mitigating potential security threats.
+**Auth0:** Auth0 offers a broad set of authentication features out of the box — social logins, enterprise federation, database connections, and more — and supports OAuth 2.0, OpenID Connect, and SAML. It also provides analytics and monitoring. Customization happens through its Actions framework, which can become difficult to manage as logic grows outside the main application.
 
-While Auth0 offer customization through its Actions framework, it can quickly become difficult to manage additional logic outside of the main application via API interaction.
+**Keycloak:** Keycloak matches Auth0 on core functionality, supporting the same protocols and user federation, with customizable login, registration, and account-management UIs. Being open source, it lets developers extend the codebase and integrate with other systems far more freely — a higher ceiling for customization in exchange for some additional developer effort. A standout capability is Keycloak's [on-premise deployment](https://phasetwo.io/product/onprem/) options; if your requirements include on-prem, learn how Keycloak handles [user management and identity brokering for on-premise apps](https://phasetwo.io/blog/identity-brokering-on-prem/).
 
-**Keycloak:**
-Keycloak matches Auth0 in terms of functionality, supporting similar authentication protocols and user federation. It also offers customizable user interfaces for login, registration, and account management, which can be tailored to match the specific needs of a business. Being open-source, Keycloak allows developers to modify the codebase and integrate with other systems more freely than Auth0, offering a higher degree of customization at the cost of additional developer effort.
+**Winner: Keycloak.** The two are comparable on features, but Keycloak is far more extensible and configurable, and can grow with your application.
 
-A key feature of keycloak is it's ability to be [hosted on-premise](/product/onprem) in a variety of ways. This means that as you choose to deploy something within your own systems, you'll be able to do this with Keycloak. If your requirements include an on-premise solution, [learn more](https://phasetwo.io/blog/identity-brokering-on-prem/) about this how Keycloak can help with user management and identity brokering for on-premise.
+## Migrating from Auth0 to Keycloak
 
-**Winner**
+Moving off Auth0 is more approachable than many teams expect. Keycloak imports users, supports gradual cutover, and brokers identities so you can transition without disrupting access. We've built tooling and a process specifically for this — see [Migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/) for how we move teams off Auth0, Okta, and Cognito.
 
-Keycloak
+You can also run Keycloak *alongside* Auth0 during a transition: Keycloak can act as a broker that delegates authentication to an external IdP such as Auth0. That lets you keep existing Auth0 connections while Keycloak handles internal permissions, roles, and a consistent login experience — a low-risk path to migrating one piece at a time.
 
-Auth0 and Keycloak offer much of the same functionality for Authentication and Authorization, however Keycloak is extremely flexible to extend and configure. It's a system that can adjust and grow with an application. Lastly, the ability to host Keycloak on-premise makes it a strong option for companies.
+## Which One Is Best for Me?
 
-### Integrating Keycloak with External Systems like Auth0
+Choosing between Auth0 and Keycloak depends on your organization's needs and capabilities. Auth0 is an excellent fit for teams that want a fully managed solution and are comfortable with costs tied to user counts and features. For teams that prioritize cost predictability, need infrastructure control or on-premise deployment, or want extensive customization, Keycloak is a powerful, budget-friendly alternative. Both offer strong documentation and community support.
 
-For organizations looking to transition from Auth0 to Keycloak or integrate Keycloak with systems that are already using Auth0, Keycloak's flexibility offers significant advantages. Keycloak can be configured to act as a broker that sits between Auth0 and your applications. This setup allows organizations to leverage the strengths of both platforms. For example, an organization can use Auth0 for external user management due to its robust third-party integrations while using Keycloak to handle more sensitive internal authentication needs.
+Ultimately, we believe the strongest setup marries the two ideas: **Keycloak's openness and flexibility with the convenience of a managed service.** Phase Two offers [hosting options](https://phasetwo.io/hosting/) that fit businesses of many sizes, so you get Keycloak's control and fixed, predictable costs without taking on the operational burden yourself.
 
-The identity brokering capability of Keycloak enables it to delegate authentication to external Identity Providers (IdPs), such as Auth0. This means that Keycloak can manage internal permissions and roles, provide additional security checks, and maintain a user-friendly, consistent login experience across different systems. The ability to integrate seamlessly with services like Auth0 simplifies the migration process for companies transitioning from one authentication system to another and provides a layer of flexibility for new authentication strategies without disrupting user access or security.
+Ready to compare for your own usage? [Estimate your cost vs. Auth0](https://phasetwo.io/pricing/hosting/) or [try a free deployment](https://dash.phasetwo.io/).
 
-### Which One Is Best for Me?
+## Frequently Asked Questions
 
-Choosing between Auth0 and Keycloak largely depends on your organization’s specific needs and capabilities. Auth0 is an excellent choice for those who need a fully managed solution with costs linked to user numbers and features. However, for organizations that prioritize cost savings and predictability, have the capability to manage their infrastructure, or require extensive customization, Keycloak emerges as a powerful, budget-friendly alternative.
+**Is Keycloak a good alternative to Auth0?**
+Yes. Keycloak supports the same core standards as Auth0 (OAuth 2.0, OpenID Connect, SAML) and matches it on most authentication and authorization features, while being open source and free of per-user licensing. The main trade-off is operational overhead, which a managed host like Phase Two removes.
 
-Both platforms offer extensive documentation and community support, which can help mitigate some of the challenges associated with implementation and maintenance.
+**Is Keycloak cheaper than Auth0?**
+For most growing applications, yes. Auth0 pricing scales with monthly active users and feature tiers, while Keycloak's cost is driven by hosting infrastructure and stays largely fixed as your user base grows. Teams moving from Auth0 to managed Keycloak frequently see substantial savings.
 
-Ultimately, we at Phase Two believe marrying the two together is the strongest match. We offer robust [hosting options](https://phasetwo.io/hosting/) that fit well for multiple business sizes. Coupling the capabilities of Keycloak and the advantages of a managed service translates directly to implementation and cost control. **Leveraging Keycloak means that ongoing costs are relatively fixed**, since concerns about user growth or feature needs don't have to factor into every decision.
+**Can I migrate from Auth0 to Keycloak?**
+Yes. Keycloak can import your users and broker authentication to Auth0 during a phased cutover, so you can migrate incrementally without disrupting users. See [Migrate to Keycloak](https://phasetwo.io/support/migrate-to-keycloak/).
+
+**Does Keycloak support SAML, OIDC, and OAuth 2.0?**
+Yes. Keycloak is built on these standards and interoperates with both modern applications and legacy systems, including LDAP and Active Directory.
+
+**Can Keycloak be self-hosted or run on-premise?**
+Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This flexibility is a key advantage over Auth0's cloud-only model, especially for data-residency and compliance requirements.
