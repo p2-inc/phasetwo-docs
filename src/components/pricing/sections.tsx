@@ -378,6 +378,17 @@ const Sections: {
           custom: true,
         },
       },
+      {
+        name: "Phone support",
+        description:
+          "Direct phone access to our support team for urgent issues.",
+        tiers: {
+          starter: false,
+          premium: false,
+          enterprise: true,
+          custom: true,
+        },
+      },
     ],
   },
   {
