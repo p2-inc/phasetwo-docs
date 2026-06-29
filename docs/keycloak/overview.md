@@ -33,7 +33,7 @@ Increase account security with configurable MFA options, including TOTP (e.g., G
 
 Keycloak uses industry-standard tokens (JWTs) for stateless authentication and authorization. Tokens support scopes, roles, and expiration policies to ensure secure and efficient access control across microservices and APIs.
 
-JWT's are a subject unto themselves. See our articles on [JWTs](/articles/category/json-web-tokens-jwt/).
+JWT's are a subject unto themselves. See our articles on [JWTs](/articles/category/json-web-tokens-jwt/), or paste a token into our free [JWT Decoder](/tools/jwt-decoder) to inspect its claims, roles, and scopes.
 
 ### Protocol Support
 

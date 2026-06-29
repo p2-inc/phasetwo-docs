@@ -114,7 +114,7 @@ Start the server:
 python server.py
 ```
 
-That `scope` check matters. If `mcp:run` exists as a Keycloak client scope but is not included in token scope, the access token can come back with the correct audience but an empty `scope` claim, and the server will reject it.
+That `scope` check matters. If `mcp:run` exists as a Keycloak client scope but is not included in token scope, the access token can come back with the correct audience but an empty `scope` claim, and the server will reject it. If you hit this, paste the access token into our [JWT Decoder](/tools/jwt-decoder) — it surfaces the `scope` claim and `aud` so you can see exactly what Keycloak emitted.
 
 ## Step 2: Verify the server before using VS Code
 
