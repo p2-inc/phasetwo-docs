@@ -62,7 +62,7 @@ If you currently have active realms on our free, shared infrastructure:
 - **You have 30 days from today (2026-06-30) — through 2026-07-30 — to upgrade and migrate your realms** if you want to preserve them.
 - After 2026-07-30, the shared infrastructure will be shut down and its data permanently deleted.
 
-To migrate, create a Starter (or larger) cluster from the dashboard, export your realm config from the shared instance, and import it into your new cluster. Our [migration docs](/docs/migration) cover the steps; our team is happy to walk through it with you.
+To migrate, create a Starter (or larger) cluster from the dashboard, export your realm config from the shared instance, and import it into your new cluster. If you'd like a hand with the steps, our team is happy to walk through it with you.
 
 ## We're here to help
 
