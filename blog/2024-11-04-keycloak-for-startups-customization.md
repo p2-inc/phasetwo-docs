@@ -39,7 +39,7 @@ From branding and user interface customization to advanced authentication flows 
 
 ### Why Customizability Matters in Comparison to Closed-Source Solutions
 
-In contrast, commercial IAM solutions like [Auth0](./2024-05-01-alternatives-auth0.md) or [WorkOS](./2024-07-22-keycloak-vs-workos.md) often limit customization to predefined configuration options. These providers typically restrict access to source code and SPIs, which can prevent organizations from fully adapting the IAM solution to fit unique workflows, branding requirements, or security demands. Additionally, while some commercial IAM providers offer custom integrations or enhanced features, these are often gated behind higher-tier pricing plans, increasing costs as startups scale.
+In contrast, commercial IAM solutions like [Auth0](/keycloak-alternatives/auth0/) or [WorkOS](/keycloak-alternatives/workos/) often limit customization to predefined configuration options. These providers typically restrict access to source code and SPIs, which can prevent organizations from fully adapting the IAM solution to fit unique workflows, branding requirements, or security demands. Additionally, while some commercial IAM providers offer custom integrations or enhanced features, these are often gated behind higher-tier pricing plans, increasing costs as startups scale.
 
 The flexibility Keycloak offers through customization allows startups to truly own their IAM strategy, aligning it directly with their brand identity, security protocols, and business objectives. By choosing Keycloak, startups retain the freedom to innovate at every layer of the IAM process, without being constrained by the limitations or financial restrictions imposed by closed-source, SaaS-based IAM providers.
 

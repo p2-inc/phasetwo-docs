@@ -15,7 +15,7 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
-  onBrokenAnchors: 'log',
+  onBrokenAnchors: "log",
   customFields: {
     caseStudyRequestEndpoint:
       process.env.CASE_STUDY_REQUEST_ENDPOINT ||
@@ -275,6 +275,7 @@ module.exports = {
                   },
                 ],
               },
+
               {
                 title: "Managed Hosting",
                 description: "How we run it for you.",
@@ -634,6 +635,10 @@ module.exports = {
               label: "Support",
               to: "pricing/support",
             },
+            {
+              label: "Keycloak Alternatives",
+              to: "keycloak-alternatives",
+            },
           ],
           megaMenu: {
             sections: [
@@ -653,6 +658,62 @@ module.exports = {
                     label: "Support",
                     sub: "Enterprise support tiers",
                     icon: "life",
+                  },
+                ],
+              },
+              {
+                title: "Compare Keycloak",
+                description: "Keycloak vs. commercial IAM.",
+                accent: "blue",
+                links: [
+                  {
+                    to: "keycloak-alternatives",
+                    activeBasePath: "keycloak-alternatives",
+                    label: "All Alternatives",
+                    sub: "Compare Keycloak to commercial IAM",
+                    icon: "grid",
+                  },
+                  {
+                    to: "keycloak-alternatives/auth0",
+                    label: "vs Auth0",
+                    sub: "Open-source alternative to Auth0",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/okta",
+                    label: "vs Okta",
+                    sub: "Open-source alternative to Okta",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/workos",
+                    label: "vs WorkOS",
+                    sub: "Open-source alternative to WorkOS",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/ping-identity",
+                    label: "vs Ping Identity",
+                    sub: "Open-source alternative to Ping",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/frontegg",
+                    label: "vs FrontEgg",
+                    sub: "Open-source alternative to FrontEgg",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/onelogin",
+                    label: "vs OneLogin",
+                    sub: "Open-source alternative to OneLogin",
+                    icon: "scale",
+                  },
+                  {
+                    to: "blog/open-source-iam",
+                    label: "Open-Source IAM",
+                    sub: "The roundup",
+                    icon: "doc",
                   },
                 ],
               },
@@ -844,6 +905,11 @@ module.exports = {
               to: "hosting/dedicated-clusters/",
               activeBasePath: "hosting",
               label: "Hosting",
+            },
+            {
+              to: "keycloak-alternatives",
+              activeBasePath: "keycloak-alternatives",
+              label: "Keycloak Alternatives",
             },
             {
               to: "product/sso",
@@ -1040,6 +1106,39 @@ module.exports = {
     ],
   ],
   plugins: [
+    [
+      "@docusaurus/plugin-client-redirects",
+      {
+        // Comparison blog posts migrated to evergreen /keycloak-alternatives/<vendor>/ pages.
+        // Preserve link equity from the old (ranking) blog URLs.
+        redirects: [
+          {
+            from: "/blog/keycloak-vs-auth0-open-source-alternative",
+            to: "/keycloak-alternatives/auth0/",
+          },
+          {
+            from: "/blog/keycloak-vs-okta-open-source-alternative",
+            to: "/keycloak-alternatives/okta/",
+          },
+          {
+            from: "/blog/keycloak-vs-workos-open-source-alternative",
+            to: "/keycloak-alternatives/workos/",
+          },
+          {
+            from: "/blog/keycloak-vs-PingIdentity-open-source-alternative",
+            to: "/keycloak-alternatives/ping-identity/",
+          },
+          {
+            from: "/blog/keycloak-vs-frontegg-open-source-alternative",
+            to: "/keycloak-alternatives/frontegg/",
+          },
+          {
+            from: "/blog/keycloak-vs-onelogin-open-source-alternative",
+            to: "/keycloak-alternatives/onelogin/",
+          },
+        ],
+      },
+    ],
     [
       "docusaurus-plugin-openapi-docs",
       {

@@ -2697,3 +2697,105 @@ table.tw-table-pricing th {
   margin-top: 0;
   font-size: 13px;
 }
+
+/* =====================================================
+   Keycloak Alternatives — comparison matrix
+   ===================================================== */
+.alternatives-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  color: rgb(229, 231, 235);
+  font-size: 14.5px;
+  min-width: 720px;
+}
+.alternatives-matrix th,
+.alternatives-matrix td {
+  text-align: left;
+  vertical-align: top;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.alternatives-matrix thead th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(156, 163, 175);
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+.alternatives-matrix tbody th[scope="row"] {
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+.alternatives-matrix tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.alternatives-matrix a {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.alternatives-matrix-keycloak {
+  background: color-mix(in srgb, var(--ifm-color-primary) 12%, transparent);
+}
+.alternatives-matrix-keycloak:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 16%, transparent) !important;
+}
+.alternatives-matrix-keycloak th[scope="row"] {
+  white-space: normal;
+}
+
+/* Reusable cross-link block (CompareKeycloakBlock) */
+.compare-keycloak-block {
+  margin: 24px auto;
+  max-width: var(--content-width-wide);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, #1a1a1a 0%, #131313 100%);
+}
+.compare-keycloak-block-title {
+  color: #fff;
+  margin: 0;
+  font-size: 18px;
+}
+.compare-keycloak-block-sub {
+  color: rgb(156, 163, 175);
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+.compare-keycloak-block-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  list-style: none;
+  margin: 16px 0;
+  padding: 0;
+}
+.compare-keycloak-block-links > li {
+  margin: 0;
+  padding: 0;
+}
+.compare-keycloak-block-links a {
+  font-weight: 600;
+  font-size: 14.5px;
+}
+
+/* Per-vendor comparison page prose */
+.comparison-prose p {
+  margin-bottom: 0;
+}
+.comparison-prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0;
+}
+.comparison-prose li {
+  margin: 4px 0;
+}
+.comparison-prose a {
+  font-weight: 600;
+}
+.comparison-prose strong {
+  color: #fff;
+}
