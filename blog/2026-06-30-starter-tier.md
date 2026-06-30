@@ -4,7 +4,7 @@ title: Introducing the Starter Cluster Tier — Phase Two Keycloak from $149/mon
 date: 2026-06-30
 authors: phasetwo
 tags: [release, starter, pricing, keycloak, phase_two, dedicated]
-description: A new dedicated-cluster tier for teams moving from evaluation to a production-ready Phase Two Keycloak deployment. $149/month, 30-day free trial, all the features of our dedicated plans. Also covering the wind-down of our free shared-realm offering.
+description: A new dedicated-cluster tier for teams moving from evaluation to a production-ready Phase Two Keycloak deployment. $149/month, 30-day free trial, all the features of our dedicated clusters. Also covering the wind-down of our free shared-realm offering.
 ---
 
 Today we're launching a new way to run Phase Two: the **Starter** cluster tier, available at **$149 per month**. Starter bundles the same feature set as our existing dedicated clusters into a plan that's accessible for teams getting their use case off the ground or running development environments with lower SLA needs. It also includes a **30-day free trial**, so you can validate your setup before committing.
@@ -24,16 +24,16 @@ A Starter cluster is a real dedicated Phase Two Keycloak cluster — not a share
 - **The same managed CockroachDB tier** powering our larger plans, in partnership with [Cockroach Labs](https://www.cockroachlabs.com/).
 - **All the regions we support** — pick whichever is closest to your users.
 
-The thing Starter doesn't ship with — and the reason it's priced where it is — is the resource ceiling. Starter is sized for early-stage production workloads and development environments; clusters built to handle hundreds of thousands of users or aggressive throughput should still pick one of our standard dedicated plans, where the resource envelope and SLA match those needs.
+Starter is built to be genuinely capable, with resource limits set where most early-stage teams actually need them — enough headroom for real production workloads and development environments. When you need more, our existing higher-capacity cluster offerings are ready for you. They've proven themselves capable for many teams pushing serious throughput, with a larger resource envelope and a matching SLA — and you can scale straight up from Starter into them without re-provisioning.
 
 ## Who it's for
 
 We built Starter for two specific shapes of team:
 
 1. **Teams ready to move past evaluation.** You've validated Phase Two on a free realm, you're getting close to a real launch, and you want to put your auth on its own infrastructure with a predictable monthly price.
-2. **Dev and staging environments.** You're already running a dedicated cluster in production and want a matching environment that doesn't blow up your bill. Starter is intentionally priced so a team can comfortably run a cluster-per-environment without thinking twice.
+2. **Dev and staging environments.** You're already running a dedicated cluster in production and want a matching environment that doesn't double your bill. Starter is intentionally priced so a team can comfortably run a cluster-per-environment without thinking twice.
 
-If your use case is large or mission-critical from day one, our [standard dedicated plans](/pricing) remain the right choice. Starter is the on-ramp, not the destination — and clusters scale up from Starter into the larger tiers without a re-provision.
+If your use case is large or mission-critical from day one, our [higher-capacity clusters](/pricing) remain the right choice. Starter is the on-ramp, not the destination — and clusters scale up from Starter into the larger tiers without a re-provision.
 
 ## Try it for 30 days, free
 
@@ -60,7 +60,7 @@ The Starter tier (with its 30-day trial) is now the path from "I want to try thi
 If you currently have active realms on our free, shared infrastructure:
 
 - **You have 30 days from today (2026-06-30) — through 2026-07-30 — to upgrade and migrate your realms** if you want to preserve them.
-- After 2026-07-30, the shared infrastructure will be shut down and the data deleted.
+- After 2026-07-30, the shared infrastructure will be shut down and its data permanently deleted.
 
 To migrate, create a Starter (or larger) cluster from the dashboard, export your realm config from the shared instance, and import it into your new cluster. Our [migration docs](/docs/migration) cover the steps; our team is happy to walk through it with you.
 
