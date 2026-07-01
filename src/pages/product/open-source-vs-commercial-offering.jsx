@@ -4,6 +4,7 @@ import React from "react";
 import CardWithIcon from "../../components/CardWithIcon";
 import CardWithImage from "../../components/CardWithImage";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
+import CompareKeycloakBlock from "../../components/CompareKeycloakBlock";
 import IconQuestionMarkCircle from "@site/static/img/icon-question-mark-circle.svg";
 
 const HERO_IMG = "/img/hero-opensource-vs-commercial.svg";
@@ -209,6 +210,13 @@ export default function OpenSourceVsCommercialOffering() {
                 reliably—just the right approach.
               </h3>
             </div>
+          </div>
+        </section>
+
+        {/* Compare to commercial IAM vendors */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <CompareKeycloakBlock />
           </div>
         </section>
 

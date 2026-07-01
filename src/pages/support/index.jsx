@@ -64,7 +64,7 @@ const TOP_BENEFITS = [
     description: (
       <p>
         <Link to="/support/migrate-to-keycloak" className="link-accent">
-          Migrate from Okta, Auth0, WorkOS, Cognito
+          Migrate from Okta, Auth0, WorkOS, PingIdentity
         </Link>
         , or other providers with confidence. We support any Keycloak version,
         including RHBK, from initial testing through production launch.

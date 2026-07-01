@@ -49,7 +49,7 @@ While SaaS solutions like Auth0 and WorkOS offer convenience and ease of use, th
 
 ### Conclusion: Empowering Startups with Financial Freedom and Flexibility
 
-In conclusion, the cost comparison between hosting an open-source product like Keycloak and opting for SaaS solutions like [Auth0](./2024-05-01-alternatives-auth0.md) and [WorkOS](./2024-07-22-keycloak-vs-workos.md) underscores the importance of financial freedom and flexibility for startups.
+In conclusion, the cost comparison between hosting an open-source product like Keycloak and opting for SaaS solutions like [Auth0](/keycloak-alternatives/auth0/) and [WorkOS](/keycloak-alternatives/workos/) underscores the importance of financial freedom and flexibility for startups.
 
 By choosing Keycloak, startups can break free from the predatory pricing models of SaaS solutions, empowering themselves with a cost-effective and customizable IAM solution that aligns seamlessly with their budgetary constraints and growth objectives. With Keycloak, startups can redirect their financial resources towards innovation, differentiation, and sustainable growth, unlocking their full potential in the competitive landscape of Enterprise SaaS.
 

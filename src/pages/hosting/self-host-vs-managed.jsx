@@ -5,6 +5,7 @@ import IconExpense from "@site/static/img/icon-expense.svg";
 import CardWithImage from "../../components/CardWithImage";
 import CardWithIcon from "../../components/CardWithIcon";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
+import CompareKeycloakBlock from "../../components/CompareKeycloakBlock";
 
 const PLACEHOLDER_IMG = "/img/placeholder.svg";
 const BENEFIT_IMAGES = [
@@ -176,6 +177,13 @@ export default function SelfHostVsManaged() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Compare to commercial IAM vendors */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <CompareKeycloakBlock />
           </div>
         </section>
 

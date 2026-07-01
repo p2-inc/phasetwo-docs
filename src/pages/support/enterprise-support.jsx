@@ -126,27 +126,27 @@ const ENGAGE_CARDS = [
     badges: [
       {
         label: "vs Auth0",
-        url: "/blog/keycloak-vs-auth0-open-source-alternative",
+        url: "/keycloak-alternatives/auth0/",
       },
       {
         label: "vs Okta",
-        url: "/blog/keycloak-vs-okta-open-source-alternative",
+        url: "/keycloak-alternatives/okta/",
       },
       {
         label: "vs WorkOS",
-        url: "/blog/keycloak-vs-workos-open-source-alternative",
+        url: "/keycloak-alternatives/workos/",
       },
       {
         label: "vs Ping",
-        url: "/blog/keycloak-vs-PingIdentity-open-source-alternative",
+        url: "/keycloak-alternatives/ping-identity/",
       },
       {
         label: "vs OneLogin",
-        url: "/blog/keycloak-vs-onelogin-open-source-alternative",
+        url: "/keycloak-alternatives/onelogin/",
       },
       {
         label: "vs FrontEgg",
-        url: "/blog/keycloak-vs-frontegg-open-source-alternative",
+        url: "/keycloak-alternatives/frontegg/",
       },
     ],
     learnMore: {
