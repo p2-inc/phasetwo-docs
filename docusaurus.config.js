@@ -52,6 +52,13 @@ module.exports = {
     {
       tagName: "link",
       attributes: {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
+      },
+    },
+    {
+      tagName: "link",
+      attributes: {
         rel: "preconnect",
         href: "https://www.google-analytics.com",
       },

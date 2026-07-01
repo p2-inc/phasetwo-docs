@@ -3,322 +3,197 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. FrontEgg: The Open-Source Alternative",
+  title: "Keycloak vs. FrontEgg — Phase Two",
   description:
-    "An in-depth comparison of Keycloak vs. FrontEgg — cost, deployment, customization, scalability, and support — and why open-source Keycloak is a strong alternative to FrontEgg's SaaS-focused user management platform.",
+    "A 2026 comparison of Keycloak vs. FrontEgg — cost, deployment, maintenance, and B2B features — and why managed Keycloak is a strong open-source alternative to FrontEgg.",
   keywords:
-    "keycloak vs frontegg, frontegg alternative, open source frontegg alternative, frontegg pricing, managed keycloak, b2b user management",
+    "keycloak vs frontegg, frontegg alternative, open source frontegg alternative, frontegg pricing, managed keycloak, b2b authentication",
 };
 
-const heroIntro = (
-  <>
-    FrontEgg is a cloud-native platform built for embedded B2B user management in SaaS
-    applications; Keycloak is the open-source alternative that gives you the same authentication
-    and authorization capabilities with full control over cost, deployment, and customization.
-    Here's how the two compare — and why pairing Keycloak with a managed host like Phase Two often
-    gives you the best of both.
-  </>
-);
+const hero = {
+  variant: "C",
+  headline: <>FrontEgg charges per MAU. <span className="grad">Keycloak charges per server.</span></>,
+  lede: (
+    <>
+      FrontEgg is an embedded B2B user-management platform billed on monthly active users with B2B
+      features gated by tier. Keycloak gives you the same B2B building blocks — organizations, roles,
+      SSO, self-service — priced on <b>infrastructure, not per active user</b>.
+    </>
+  ),
+  secondaryCta: { label: "See the cost breakdown →", href: "#cost" },
+  chart: {
+    title: "Annual identity spend vs. monthly active users",
+    xLabels: ["1k", "25k", "100k MAU"],
+    legendVendor: "FrontEgg (per-MAU)",
+    ariaLabel: "Cost growth: FrontEgg climbs, Keycloak stays flat",
+  },
+};
 
 const atAGlance = [
-  { dim: "Licensing model", vendor: "Proprietary, subscription", keycloak: "Open source (Apache 2.0), no license fee" },
-  { dim: "Pricing driver", vendor: "Per-feature tiers + usage; sales-gated above the entry plan", keycloak: "Fixed infrastructure / hosting cost, not per-user" },
-  { dim: "Cost predictability", vendor: "Scales with features and user volume", keycloak: "Predictable; decoupled from user growth" },
-  { dim: "Deployment", vendor: "Cloud SaaS, no robust on-premise option", keycloak: "Self-hosted, your cloud, on-premise, or managed" },
-  { dim: "Data residency / sovereignty", vendor: "Limited control", keycloak: "Full control over environment and data location" },
-  { dim: "Standards", vendor: "OAuth 2.0, OIDC, SAML", keycloak: "OAuth 2.0, OIDC, SAML" },
-  { dim: "Extensibility", vendor: "Bounded; plug-and-play, SaaS-focused", keycloak: "Full source access + SPIs/extensions" },
-  { dim: "Vendor lock-in", vendor: "High", keycloak: "Low — portable, standards-based" },
+  { dim: "Licensing model", vendor: "Proprietary, subscription", keycloak: "Open-source (Apache 2.0), no license fee", check: true },
+  { dim: "Pricing driver", vendor: "Per-MAU tiers + B2B feature gating", keycloak: "Fixed infrastructure / hosting cost, not per-user", check: true },
+  { dim: "Cost predictability", vendor: "Scales with MAU & feature tiers", keycloak: "Predictable, decoupled from user growth", check: true },
+  { dim: "Deployment", vendor: "Cloud / SaaS only", keycloak: "Self-hosted, your cloud, on-premise, or managed", check: true },
+  { dim: "Data residency / sovereignty", vendor: "Limited control", keycloak: "Full control over environment and data location", check: true },
+  { dim: "Standards", vendor: "OAuth 2.0, OIDC, SAML, SCIM", keycloak: "SAML, OpenID Connect, OAuth 2.0, SCIM", check: true },
+  { dim: "Extensibility", vendor: "Embeddable widgets, bounded", keycloak: "Full source access — SPI extensions, themes, custom code", check: true },
+  { dim: "Vendor lock-in", vendor: "High", keycloak: "Low — portable, standards-based", check: true },
 ];
 
 const sections = [
   {
-    title: "Cost Structure",
+    id: "cost",
+    kicker: "01 — TCO",
+    title: "Cost of Ownership",
     body: (
       <>
-        <p>
-          As an open-source solution, Keycloak is free to use, making it an attractive option for
-          organizations of all sizes. While there are no licensing fees, organizations need to
-          consider hosting costs and the resources required for system management. This cost model
-          makes Keycloak particularly appealing for startups and enterprises that can manage their
-          own infrastructure effectively.
-        </p>
-        <p>
-          FrontEgg operates on a subscription-based pricing model, starting with a free trial that
-          unlocks the platform's features. After the trial, paid plans require an ongoing
-          subscription, and pricing climbs as you adopt more capabilities. FrontEgg also offers a
-          generous "free forever" tier that gives you enough to evaluate the platform — but it isn't
-          intended for a production application with serious user commitments. Moving up is driven by
-          features and typically requires contacting sales to assess pricing. While the higher tiers
-          promise growth toward unlimited users, the cost is heavily dependent on usage.
-        </p>
-        <p>
-          While FrontEgg simplifies IAM implementation and reduces the development burden,
-          organizations must weigh the recurring, usage-driven costs against the value gained from
-          its streamlined user management.{" "}
-          <strong>Winner: Keycloak</strong> — a more economically advantageous option, particularly
-          for organizations with the technical capability to manage their own infrastructure.
-          Leverage <Link to="/hosting/">Phase Two's hosting</Link> to test and integrate
-          authentication and authorization into your application(s), and see a side-by-side{" "}
-          <Link to="/pricing/hosting/">pricing estimate</Link>.
-        </p>
+        <p>FrontEgg sells speed: drop-in login boxes, an admin portal, and B2B primitives like organizations and roles. The pricing follows the same B2B SaaS pattern as the platforms it serves — a free tier to start, then usage-based pricing that climbs on multiple axes at once: monthly active users, SSO/SCIM connections, and machine-to-machine (M2M) tokens.</p>
+        <p>As of 2026, FrontEgg's published pricing estimator scales roughly like this:</p>
+        <table className="ptable">
+          <thead><tr><th>Plan</th><th>Price</th><th>What's included</th></tr></thead>
+          <tbody>
+            <tr><td className="plan">Free</td><td className="price">$0</td><td>Up to 7,500 MAU to evaluate the platform</td></tr>
+            <tr><td className="plan">Pay as you go</td><td className="price">Usage-based (≈$2,490/mo at 18,000 MAU, 15 SSO/SCIM connections, 190 M2M tokens)</td><td>Hosted login, 5 enterprise connections, unlimited orgs, custom domain</td></tr>
+            <tr><td className="plan">Enterprise</td><td className="price">Custom</td><td>Add-ons, multiple environments, advanced fraud protection, 99.99% SLA</td></tr>
+          </tbody>
+        </table>
+        <p className="footnote">Figures reflect FrontEgg's published pricing estimator as of 2026 (<a href="https://frontegg.com/pricing" target="_blank" rel="noreferrer" className="ilink">frontegg.com/pricing</a>); the pay-as-you-go figure is an example at one slider configuration, not a flat rate — your cost moves with MAU, connections, and M2M tokens. Enterprise is quote-based.</p>
+        <p>The catch is the same one every per-MAU platform shares, multiplied across three axes. The pay-as-you-go bill rises with your monthly active users, with each additional SSO/SCIM connection, and with the volume of M2M tokens you issue — so success makes it more expensive on three fronts at once. And the most advanced capabilities — multiple environments, advanced fraud protection, and a 99.99% SLA — sit behind a custom Enterprise contract rather than a published price.</p>
+        <p>Keycloak provides the same B2B building blocks — multi-tenant organizations, fine-grained roles, SSO, and self-service flows (Phase Two maintains the widely used Organizations extension) — with no per-MAU charge, no per-connection metering, and no M2M token billing. Your cost tracks infrastructure, not signups.</p>
+        <p className="verdict"><span className="verdict-tag">Winner: Keycloak</span></p>
+        <p>With Phase Two <Link to="/hosting/" className="ilink">managed hosting</Link>, growth in active users doesn't change your bill. See a side-by-side <Link to="/pricing/hosting/" className="ilink">pricing estimate vs. FrontEgg</Link>.</p>
       </>
     ),
   },
   {
-    title: "Deployment Options",
+    id: "architecture",
+    kicker: "02 — Deployment",
+    title: "Architecture & Deployment",
     body: (
       <>
-        <p>
-          Keycloak offers flexibility in deployment, supporting both on-premises and cloud-based
-          solutions. This capability allows organizations to maintain control over their identity
-          management infrastructure, making it suitable for varying operational requirements and
-          compliance needs.
-        </p>
-        <p>
-          FrontEgg is primarily a cloud-based solution designed for rapid deployment, offering a
-          plug-and-play experience that facilitates quick integration into existing applications.
-          While it doesn't provide robust on-premises capabilities, it excels in cloud environments,
-          catering particularly well to SaaS platforms aiming for fast time-to-market.
-        </p>
-        <p>
-          <strong>
-            Winner: Keycloak offers superior deployment flexibility, accommodating both complex
-            cloud and on-premises infrastructures.
-          </strong>{" "}
-          FrontEgg, however, excels in ease of use for cloud-based deployments. Keycloak still gives
-          you the choice to <Link to="/product/onprem/">deploy on-premise</Link> or to{" "}
-          <Link to="/hosting/self-host-vs-managed/">self-host or use managed hosting</Link>.
-        </p>
+        <p>FrontEgg is a cloud-based service, so there is little infrastructure to set up. That enables quick deployment and removes much of the DevOps burden. The trade-off is that enterprises with strict regulatory or data-residency requirements often need on-premise options that a SaaS-only model can't fully provide.</p>
+        <p>Keycloak can be deployed on-premise, in your own cloud, or via a <Link to="/hosting/" className="ilink">managed cloud service</Link>. Because you control the deployment environment, it conforms to compliance and data-sovereignty needs and gives you greater control over your security and compliance standards.</p>
+        <p className="verdict"><span className="verdict-tag depends">Winner: Depends</span></p>
+        <p>If you need on-premise or strict data control, Keycloak wins clearly — and it still gives you the flexibility to <Link to="/hosting/self-host-vs-managed/" className="ilink">self-host or use managed hosting</Link>.</p>
       </>
     ),
   },
   {
-    title: "Customization and Branding",
+    id: "maintenance",
+    kicker: "03 — Operations",
+    title: "Maintenance",
     body: (
       <>
-        <p>
-          Keycloak is renowned for its extensive customization options, enabling organizations to
-          tailor authentication flows, user interfaces, and security protocols to meet their
-          specific needs. Its open-source nature allows for modifications that avoid vendor lock-in,
-          facilitating a user experience that matches organizational needs. While branding and
-          theming Keycloak is possible, doing so isn't always straightforward out of the box. Phase
-          Two has made this easier by extending the Keycloak Admin UI, a capability available across
-          all of its <Link to="/hosting/">hosted</Link> offerings.
-        </p>
-        <p>
-          FrontEgg also provides customization capabilities but focuses on delivering a user-friendly
-          interface that prioritizes speed and accessibility. It allows basic branding and minor
-          adjustments but may not match the depth of customization available in Keycloak. The
-          branding tool FrontEgg built is well done and prioritizes the user experience.
-        </p>
-        <p>
-          <strong>Winner: Keycloak takes the lead in customization and flexibility</strong>,
-          providing organizations more granular control over user interfaces and workflows — while
-          FrontEgg leads with a strong user experience for branding customization.
-        </p>
+        <p>A strong advantage of FrontEgg is that it's a managed service. From a DevOps perspective, it requires minimal maintenance — the FrontEgg team handles updates, security patches, and infrastructure, keeping the system up to date. This comes at a cost, though, since customization is comparatively limited.</p>
+        <p>Self-hosted Keycloak requires more attention: organizations must allocate resources for installing, configuring, and updating the software, as well as managing the underlying infrastructure. This can be a drawback for teams without the necessary expertise. Phase Two removes this trade-off entirely: with <Link to="/hosting/" className="ilink">managed hosting</Link> and <Link to="/support/zero-downtime-upgrades/" className="ilink">zero-downtime upgrades</Link>, you get Keycloak's control without the operational load.</p>
+        <p className="verdict"><span className="verdict-tag tie">Winner: FrontEgg for self-hosted Keycloak — a tie when Keycloak is managed by Phase Two</span></p>
       </>
     ),
   },
   {
-    title: "Scalability and Performance",
+    id: "functionality",
+    kicker: "04 — Capability",
+    title: "Functionality & Flexibility",
     body: (
       <>
-        <p>
-          Keycloak is designed for high scalability, accommodating large user bases through
-          horizontal scaling and clustered deployments. This architecture makes it suitable for
-          extensive enterprise environments that require robust performance under varying loads.
-        </p>
-        <p>
-          FrontEgg is also built with scalability in mind, catering to growing SaaS applications
-          through its multi-tenant architecture. While it's designed to manage increasing user
-          volumes effectively, its performance may not yet match Keycloak's capabilities in
-          extremely large-scale environments.
-        </p>
-        <p>
-          <strong>
-            Winner: Keycloak is the preferred option for larger applications requiring robust
-            scalability.
-          </strong>{" "}
-          However, FrontEgg is well-suited for rapidly growing applications, especially in the SaaS
-          space.
-        </p>
+        <p>FrontEgg is strong at embedded B2B UX: prebuilt login and admin components, organizations, role-based access, and self-service that teams can ship quickly. Its model is to own the user-management layer of your app through its widgets and APIs.</p>
+        <p>Keycloak covers the same B2B primitives — multi-tenant organizations, RBAC and ABAC, SSO, MFA, and self-service registration and account management — with fully themeable, embeddable login flows. Because it's open source, you can extend any of it, and you own the user data outright.</p>
+        <p className="verdict"><span className="verdict-tag">Winner: Keycloak</span></p>
+        <p>FrontEgg gets you live fast; Keycloak gives you the same capabilities without per-user cost and with a far higher customization ceiling.</p>
       </>
     ),
   },
   {
-    title: "Functionality and Flexibility",
+    id: "integrating",
+    kicker: "05 — Interop",
+    title: "Integrating Keycloak with external systems like FrontEgg",
     body: (
       <>
-        <p>
-          Keycloak provides a comprehensive suite of IAM features, including various authentication
-          methods, fine-grained access control, and advanced identity federation capabilities. Its
-          versatility in integrating with existing infrastructures makes Keycloak a powerful solution
-          for complex IAM scenarios.
-        </p>
-        <p>
-          FrontEgg focuses on user management, facilitating seamless authentication and role
-          management. Its end-to-end user management platform integrates easily with existing
-          applications, offering a robust alternative for companies seeking quick implementation
-          without extensive customization.
-        </p>
-        <p>
-          <strong>Winner: Keycloak leads in functionality and versatility</strong>, offering a
-          broader range of advanced IAM features, making it a better choice for diverse security
-          needs. Phase Two can provide expert enterprise help, custom development, and{" "}
-          <Link to="/support/migrate-to-keycloak/">migrations</Link>.
-        </p>
+        <p>For organizations looking to transition from FrontEgg to Keycloak — or to integrate Keycloak with systems already using FrontEgg — Keycloak's flexibility offers a significant advantage. Keycloak can act as a broker that sits between FrontEgg and your applications, letting you leverage the strengths of both platforms during a transition.</p>
+        <p>Keycloak's identity-brokering capability lets it delegate authentication to external identity providers (IdPs) such as FrontEgg. Keycloak can manage internal permissions and roles, provide additional security checks, and maintain a consistent, user-friendly login experience across systems. This makes <Link to="/support/migrate-to-keycloak/" className="ilink">migrating off FrontEgg</Link> a low-risk, phased process — you can move one piece at a time without disrupting user access or security.</p>
       </>
     ),
   },
   {
-    title: "Integration Capabilities",
+    id: "best",
+    kicker: "06 — Verdict",
+    title: "Which IAM solution is best for me?",
     body: (
       <>
-        <p>
-          Keycloak's extensive integration capabilities include support for various identity
-          providers and protocols like SAML, OAuth 2.0, and OpenID Connect. This allows
-          organizations to leverage existing systems while enabling seamless authentication across
-          applications.
-        </p>
-        <p>
-          FrontEgg also supports a wide range of integrations but primarily focuses on simplifying
-          connections for SaaS applications. Its plug-and-play approach makes it easy to incorporate
-          into existing products but may lack the depth of integration options available in Keycloak.
-        </p>
-        <p>
-          <strong>Winner: Keycloak emerges as the more versatile option</strong>, providing greater
-          flexibility for organizations with complex integration requirements. FrontEgg offers a
-          great and easy interface to integrate with the providers and protocols it supports.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "Community and Support",
-    body: (
-      <>
-        <p>
-          Keycloak benefits from a robust open-source community, with extensive documentation,
-          forums, and active user contributions. Organizations can rely on community-driven support
-          and resources to troubleshoot issues and share best practices.
-        </p>
-        <p>
-          FrontEgg provides dedicated customer support along with a library of resources. While still
-          relatively new, it focuses on delivering good customer experiences and support for its
-          users. Much of FrontEgg's Enterprise tier is focused on providing that support.
-        </p>
-        <p>
-          <strong>
-            Winner: Keycloak's established community offers a good way to get answers and help.
-          </strong>{" "}
-          FrontEgg's support channels are only available with the right license. Phase Two helps fill
-          the gap between community help and Enterprise support — see{" "}
-          <Link to="/support/migrate-to-keycloak/">how we support and migrate teams to Keycloak</Link>.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "How Should I Choose an IAM?",
-    body: (
-      <>
-        <p>
-          Choosing the right IAM solution depends on your organization's specific needs and strategic
-          goals. Keycloak is ideal for those seeking a customizable, open-source platform with
-          extensive features and deployment flexibility. FrontEgg, with its focus on rapid
-          implementation and simplicity for SaaS applications, is a compelling option for tech
-          companies looking to reduce development time and overhead.
-        </p>
-        <p>
-          If you're looking to explore Keycloak further or have questions about{" "}
-          <Link to="/support/migrate-to-keycloak/">integrating</Link> it into your organization,{" "}
-          <a href="mailto:sales@phasetwo.io">reach out for assistance</a>. The right IAM solution can
-          help you secure your digital environment and streamline user management effectively.
-        </p>
+        <p>FrontEgg is a good fit for early B2B teams that want embedded user management shipped in days and don't yet feel the per-MAU cost. As active users and B2B feature needs grow, Keycloak becomes the more economical and flexible choice — and it removes the ceiling on customization and data ownership.</p>
+        <p>Phase Two runs Keycloak for you, pairing the B2B building blocks FrontEgg is known for with open standards, full data ownership, and a fixed, predictable cost.</p>
       </>
     ),
   },
 ];
 
+const matrix = {
+  savings: "~80%",
+  rows: [
+    { feat: "Per-MAU pricing penalty", vendor: "$$$", keycloak: "lim" },
+    { feat: "Open-source core", vendor: "no", keycloak: "yes" },
+    { feat: "Self-hostable (no lock-in)", vendor: "no", keycloak: "yes" },
+    { feat: "On-premise / data residency", vendor: "no", keycloak: "yes" },
+    { feat: "B2B orgs & roles without tier gating", vendor: "$$$", keycloak: "yes" },
+    { feat: "Custom SAML / OIDC IdPs & SCIM", vendor: "yes", keycloak: "yes" },
+    { feat: "Full source access & SPI extensions", vendor: "lim", keycloak: "yes" },
+    { feat: "Federate / broker existing IdP", vendor: "lim", keycloak: "yes" },
+    { feat: "24/7 escalation with Keycloak experts", vendor: "lim", keycloak: "yes" },
+  ],
+};
+
 const faqs = [
   {
     q: "Is Keycloak a good alternative to FrontEgg?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak supports the same core standards as FrontEgg (OAuth 2.0, OpenID Connect, SAML)
-        and provides a comprehensive set of authentication and authorization features, while being
-        open source and free of subscription licensing. FrontEgg excels at plug-and-play B2B user
-        management for SaaS, but Keycloak offers deeper customization, deployment flexibility, and
-        lower long-term cost.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak supports the same core standards as FrontEgg (OAuth 2.0, OpenID Connect, SAML) and provides a comprehensive set of features, while being open source and free of subscription licensing. FrontEgg excels at plug-and-play B2B user management for SaaS, but Keycloak offers deeper customization, deployment flexibility, and lower long-term cost.",
+    a: <p>Yes. Keycloak provides the same B2B building blocks — organizations, roles, SSO, MFA, and self-service — on open standards, while being open source and free of per-MAU licensing. Phase Two maintains the popular Organizations extension used for multi-tenant B2B.</p>,
+    text: "Yes. Keycloak provides the same B2B building blocks — organizations, roles, SSO, MFA, and self-service — on open standards, while being open source and free of per-MAU licensing. Phase Two maintains the popular Organizations extension used for multi-tenant B2B.",
   },
   {
     q: "Is Keycloak cheaper than FrontEgg?",
-    a: (
-      <p className="mb-0">
-        For most organizations that can manage their own infrastructure, yes. FrontEgg uses a
-        subscription model where cost is driven by features and usage and often requires a sales
-        conversation as you grow. Keycloak has no licensing fees — your cost is hosting and
-        operations, which stays largely fixed as your user base grows.
-      </p>
-    ),
-    text:
-      "For most organizations that can manage their own infrastructure, yes. FrontEgg uses a subscription model where cost is driven by features and usage. Keycloak has no licensing fees — your cost is hosting and operations, which stays largely fixed as your user base grows.",
+    a: <p>For growing B2B products, usually. FrontEgg bills per monthly active user with features gated by tier, so cost rises with success. Keycloak is priced on infrastructure and stays largely fixed as your user base grows.</p>,
+    text: "For growing B2B products, usually. FrontEgg bills per monthly active user with features gated by tier, so cost rises with success. Keycloak is priced on infrastructure and stays largely fixed as your user base grows.",
+  },
+  {
+    q: "Can I migrate from FrontEgg to Keycloak?",
+    a: <p>Yes. Keycloak can import users and broker authentication during a phased cutover, so you can move tenants across incrementally without disrupting access. See <Link to="/support/migrate-to-keycloak/" className="ilink">Migrate to Keycloak</Link>.</p>,
+    text: "Yes. Keycloak can import users and broker authentication during a phased cutover, so you can move tenants across incrementally without disrupting access.",
+  },
+  {
+    q: "Does Keycloak support multi-tenant organizations?",
+    a: <p>Yes. Keycloak supports organizations and multi-tenancy, and Phase Two maintains a widely used Organizations extension plus fine-grained roles and permissions for B2B use cases.</p>,
+    text: "Yes. Keycloak supports organizations and multi-tenancy, and Phase Two maintains a widely used Organizations extension plus fine-grained roles and permissions for B2B use cases.",
   },
   {
     q: "Can Keycloak be self-hosted or run on-premise?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This is a key
-        advantage over FrontEgg, which is primarily a cloud-based SaaS without robust on-premises
-        capabilities — making Keycloak the better fit for data-residency and compliance requirements.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This is a key advantage over FrontEgg, which is primarily a cloud-based SaaS without robust on-premises capabilities.",
-  },
-  {
-    q: "Does Keycloak support SAML, OIDC, and OAuth 2.0?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak is built on these standards and supports a wide range of identity providers,
-        allowing organizations to leverage existing systems while enabling seamless authentication
-        across applications.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak is built on these standards and supports a wide range of identity providers, allowing organizations to leverage existing systems while enabling seamless authentication across applications.",
-  },
-  {
-    q: "How customizable is Keycloak compared to FrontEgg?",
-    a: (
-      <p className="mb-0">
-        Keycloak is far more customizable. You can tailor authentication flows, user interfaces, and
-        security protocols, and because it's open source you can modify the codebase directly to
-        avoid vendor lock-in. FrontEgg offers a polished, user-friendly branding experience but more
-        limited depth. Phase Two makes Keycloak customization easier by extending the Admin UI across
-        its <Link to="/hosting/">hosted</Link> offerings.
-      </p>
-    ),
-    text:
-      "Keycloak is far more customizable. You can tailor authentication flows, user interfaces, and security protocols, and because it's open source you can modify the codebase directly to avoid vendor lock-in. FrontEgg offers a polished branding experience but more limited depth.",
+    a: <p>Yes. Keycloak runs on-premise, in your own cloud, or as a managed service — a key advantage over FrontEgg's cloud-only model for data-residency and compliance.</p>,
+    text: "Yes. Keycloak runs on-premise, in your own cloud, or as a managed service — a key advantage over FrontEgg's cloud-only model for data-residency and compliance.",
   },
 ];
+
+const migration = {
+  heading: "Already using FrontEgg?",
+  body: "Moving to Keycloak is more approachable than most teams expect. We import users, broker authentication during a phased cutover, and move you off FrontEgg without disrupting access.",
+};
+
+const bigcta = {
+  heading: "See how much you'd save.",
+  body: "A 30-minute demo and a custom proposal — keyed to your current FrontEgg contract — usually beats your renewal.",
+};
 
 export default function KeycloakVsFrontEgg() {
   return (
     <ComparisonLayout
       vendor="FrontEgg"
       slug="frontegg"
+      accent="magenta"
       meta={meta}
-      heroIntro={heroIntro}
+      hero={hero}
       atAGlance={atAGlance}
       sections={sections}
+      matrix={matrix}
       faqs={faqs}
+      migration={migration}
+      bigcta={bigcta}
     />
   );
 }

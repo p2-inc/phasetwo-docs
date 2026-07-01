@@ -3,329 +3,201 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. WorkOS: The Open-Source Alternative",
+  title: "Keycloak vs. WorkOS — Phase Two",
   description:
-    "An in-depth comparison of Keycloak vs. WorkOS — cost of ownership, deployment, customization, scalability, and features — and why managed Keycloak is a strong open-source alternative to WorkOS.",
+    "A 2026 comparison of Keycloak vs. WorkOS — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to WorkOS for enterprise SSO and SCIM.",
   keywords:
-    "keycloak vs workos, workos alternative, open source workos alternative, workos pricing, managed keycloak, workos sso",
+    "keycloak vs workos, workos alternative, open source workos alternative, workos pricing, enterprise sso, scim, managed keycloak",
 };
 
-const heroIntro = (
-  <>
-    WorkOS is a closed-source, fully managed platform built to add SSO to an application quickly;
-    Keycloak is the open-source alternative that competes strongly on cost, control, and
-    extensibility. Here's how the two compare across cost of ownership, deployment, customization,
-    scalability, and features — and why pairing Keycloak with a managed host like Phase Two often
-    gives you the best of both.
-  </>
-);
+const hero = {
+  variant: "B",
+  headline: <>Enterprise SSO without the <span className="strike">per-connection</span> toll.</>,
+  lede: (
+    <>
+      WorkOS is a developer-focused platform for enterprise SSO, SCIM, and directory sync, billed per
+      connection. Keycloak is the open-source alternative that delivers the same enterprise standards —
+      priced on <b>infrastructure, not per connection</b> — with the option of managed hosting from
+      Phase Two.
+    </>
+  ),
+  secondaryCta: { label: "See the comparison →", href: "#glance" },
+  miniRows: [
+    { feat: "Per-connection pricing", vendor: "$$$", keycloak: "lim" },
+    { feat: "Open-source core", vendor: "no", keycloak: "yes" },
+    { feat: "Self-host / on-premise", vendor: "no", keycloak: "yes" },
+    { feat: "SAML / OIDC / SCIM", vendor: "yes", keycloak: "yes" },
+    { feat: "Vendor lock-in", vendor: { label: "High", red: true }, keycloak: "yes" },
+  ],
+};
 
 const atAGlance = [
-  { dim: "Licensing model", vendor: "Proprietary, subscription", keycloak: "Open source (Apache 2.0), no license fee" },
-  { dim: "Pricing driver", vendor: "Per monthly active user + per-feature (SSO, SCIM, audit logs, custom domains)", keycloak: "Fixed infrastructure / hosting cost, not per-user or per-feature" },
-  { dim: "Cost predictability", vendor: "Scales with users, connections, and features", keycloak: "Predictable; decoupled from user growth and feature gates" },
-  { dim: "Deployment", vendor: "Cloud SaaS only, hosted by WorkOS", keycloak: "Self-hosted, your cloud, on-premise, or managed" },
-  { dim: "Data residency / sovereignty", vendor: "Limited control", keycloak: "Full control over environment and data location" },
-  { dim: "Standards", vendor: "OAuth 2.0, OIDC, SAML, SCIM", keycloak: "OAuth 2.0, OIDC, SAML, SCIM, LDAP" },
-  { dim: "Extensibility", vendor: "Unified API, bounded customization", keycloak: "Full source access + SPIs/extensions" },
-  { dim: "Vendor lock-in", vendor: "High", keycloak: "Low — portable, standards-based" },
+  { dim: "Licensing model", vendor: "Proprietary, usage-based", keycloak: "Open-source (Apache 2.0), no license fee", check: true },
+  { dim: "Pricing driver", vendor: "Per-connection / per-organization SSO", keycloak: "Fixed infrastructure / hosting cost, not per-connection", check: true },
+  { dim: "Cost predictability", vendor: "Scales with SSO connections & orgs", keycloak: "Predictable, decoupled from connection count", check: true },
+  { dim: "Deployment", vendor: "Cloud / SaaS only", keycloak: "Self-hosted, your cloud, on-premise, or managed", check: true },
+  { dim: "Data residency / sovereignty", vendor: "Limited control", keycloak: "Full control over environment and data location", check: true },
+  { dim: "Standards", vendor: "SAML, OIDC, SCIM", keycloak: "SAML, OpenID Connect, OAuth 2.0, SCIM", check: true },
+  { dim: "Extensibility", vendor: "API-first, bounded", keycloak: "Full source access — SPI extensions, themes, custom code", check: true },
+  { dim: "Vendor lock-in", vendor: "High", keycloak: "Low — portable, standards-based", check: true },
 ];
 
 const sections = [
   {
+    id: "cost",
+    kicker: "01 — TCO",
     title: "Cost of Ownership",
     body: (
       <>
-        <p>
-          WorkOS operates on a subscription-based model, where pricing is tied to the number of
-          monthly active users. While a large block of users is included at the base tier, WorkOS
-          charges separately for capabilities like custom domains, SSO connections, SCIM
-          provisioning, and audit logs. The more enterprise customers you onboard, the more your
-          costs grow — and with every feature enabled, the per-user cost climbs, so bills can rise
-          quickly and become a significant piece of overall IT spend.
-        </p>
-        <p>
-          Keycloak, by contrast, is open source and free to use regardless of users or scale. The
-          primary cost is the infrastructure to host and operate the software. Because cost isn't
-          driven by features, connections, or user counts, your spend tends to be{" "}
-          <strong>fixed</strong> — a far more predictable model when you're bringing multiple
-          applications together, since adding connections doesn't increase your bill. The biggest
-          cost factor becomes the scale of the infrastructure you need.
-        </p>
-        <p>
-          <strong>Winner: Keycloak.</strong> With the right hosting solution, Keycloak is a far
-          more cost-effective choice, freeing organizations to allocate funds elsewhere. Compare a{" "}
-          <Link to="/pricing/hosting/">side-by-side pricing estimate</Link>, or start on{" "}
-          <Link to="/hosting/">Phase Two's hosting</Link> to test and integrate authentication and
-          authorization into your applications.
-        </p>
+        <p>WorkOS is attractive early: its AuthKit user-management product is free up to a high MAU ceiling, which makes the platform feel inexpensive for B2C-style auth. The cost shows up where WorkOS makes its money — the enterprise features SaaS companies actually sell on, billed per connection.</p>
+        <p>As of 2026, the enterprise building blocks are priced roughly like this:</p>
+        <table className="ptable">
+          <thead><tr><th>Capability</th><th>How it's billed</th><th>Price</th></tr></thead>
+          <tbody>
+            <tr><td className="plan">AuthKit (user management)</td><td>Per MAU</td><td className="price">Free to 1M MAU, then ~$2,500/mo per additional 1M</td></tr>
+            <tr><td className="plan">Single Sign-On (SSO)</td><td>Per connection / month</td><td className="price">$125 each (tiered down to ~$50 at volume)</td></tr>
+            <tr><td className="plan">Directory Sync (SCIM)</td><td>Per connection / month</td><td className="price">$125 each (tiered down to ~$50 at volume)</td></tr>
+            <tr><td className="plan">Audit Logs</td><td>Per SIEM stream / events</td><td className="price">$125/mo per stream + $99/mo per 1M events</td></tr>
+            <tr><td className="plan">Custom Domain</td><td>Flat</td><td className="price">$99/mo</td></tr>
+          </tbody>
+        </table>
+        <p className="footnote">Figures reflect WorkOS's published list pricing as of 2026 (<a href="https://workos.com/pricing" target="_blank" rel="noreferrer" className="ilink">workos.com/pricing</a>); 200+ connections and Enterprise agreements are quote-based.</p>
+        <p>The per-connection model is the catch. Every enterprise customer you onboard typically needs both SSO and SCIM — two separately billed connections — so the bill scales directly with your most valuable B2B customers. A few dozen enterprise logos can turn an "inexpensive" platform into a five- or six-figure annual line item.</p>
+        <p>Keycloak, by contrast, supports unlimited SAML/OIDC identity providers and SCIM directories with no per-connection fee. Your cost is the infrastructure it runs on — fixed, and decoupled from how many enterprise customers you connect.</p>
+        <p className="verdict"><span className="verdict-tag">Winner: Keycloak</span></p>
+        <p>With Phase Two <Link to="/hosting/" className="ilink">managed hosting</Link>, you add enterprise connections without adding line items. See a side-by-side <Link to="/pricing/hosting/" className="ilink">pricing estimate vs. WorkOS</Link>.</p>
       </>
     ),
   },
   {
-    title: "Deployment and Maintenance",
+    id: "architecture",
+    kicker: "02 — Deployment",
+    title: "Architecture & Deployment",
     body: (
       <>
-        <p>
-          WorkOS is a cloud-based identity platform that is hosted and managed by WorkOS. It offers
-          a simpler deployment process because there's no infrastructure to set up or maintain, and
-          organizations benefit from reduced internal IT burden since WorkOS handles updates,
-          security patches, and system maintenance.
-        </p>
-        <p>
-          Keycloak can be deployed on-premise or in a private cloud, giving you complete control
-          over the infrastructure and the ability to customize and integrate with existing systems.
-          With support for Docker, Kubernetes, and other containerization technologies, it slots
-          into existing environments and workflows. The trade-off with self-hosting is that
-          organizations must allocate resources to install, configure, update, and operate the
-          underlying infrastructure. Phase Two removes that trade-off with{" "}
-          <Link to="/hosting/">managed hosting</Link> and{" "}
-          <Link to="/support/zero-downtime-upgrades/">zero-downtime upgrades</Link>, so you keep
-          Keycloak's control without the operational load.
-        </p>
-        <p>
-          <strong>Winner: WorkOS for a fully hands-off managed service; a tie when Keycloak is
-          managed by Phase Two.</strong> If you need on-premise or strict data control, Keycloak
-          wins clearly — and it still lets you{" "}
-          <Link to="/hosting/self-host-vs-managed/">self-host or use managed hosting</Link>.
-        </p>
+        <p>WorkOS is a cloud-based service, so there is little infrastructure to set up. That enables quick deployment and removes much of the DevOps burden. The trade-off is that enterprises with strict regulatory or data-residency requirements often need on-premise options that a SaaS-only model can't fully provide.</p>
+        <p>Keycloak can be deployed on-premise, in your own cloud, or via a <Link to="/hosting/" className="ilink">managed cloud service</Link>. Because you control the deployment environment, it conforms to compliance and data-sovereignty needs and gives you greater control over your security and compliance standards.</p>
+        <p className="verdict"><span className="verdict-tag depends">Winner: Depends</span></p>
+        <p>If you need on-premise or strict data control, Keycloak wins clearly — and it still gives you the flexibility to <Link to="/hosting/self-host-vs-managed/" className="ilink">self-host or use managed hosting</Link>.</p>
       </>
     ),
   },
   {
-    title: "Customization and Branding",
+    id: "maintenance",
+    kicker: "03 — Operations",
+    title: "Maintenance",
     body: (
       <>
-        <p>
-          Keycloak offers unparalleled customization and extensibility — from authentication flows
-          and user federation to role-based access control (RBAC) and fine-grained permissions —
-          letting organizations tailor the user experience, login screens, and authentication
-          process to their specific needs. That level of control does require learning the
-          capabilities of Keycloak.
-        </p>
-        <p>
-          WorkOS offers more limited customization options and focuses on providing a unified user
-          experience across different identity providers. We tip our hats to WorkOS for the
-          excellent job they've done on design and user experience.
-        </p>
-        <p>
-          <strong>Winner: Keycloak, by a nose.</strong> Keycloak offers complete control over the
-          look and feel of the authentication and authorization process, while WorkOS does a strong
-          job of simplifying and constraining the problem for quick implementation.
-        </p>
+        <p>A strong advantage of WorkOS is that it's a managed service. From a DevOps perspective, it requires minimal maintenance — the WorkOS team handles updates, security patches, and infrastructure, keeping the system up to date. This comes at a cost, though, since customization is comparatively limited.</p>
+        <p>Self-hosted Keycloak requires more attention: organizations must allocate resources for installing, configuring, and updating the software, as well as managing the underlying infrastructure. This can be a drawback for teams without the necessary expertise. Phase Two removes this trade-off entirely: with <Link to="/hosting/" className="ilink">managed hosting</Link> and <Link to="/support/zero-downtime-upgrades/" className="ilink">zero-downtime upgrades</Link>, you get Keycloak's control without the operational load.</p>
+        <p className="verdict"><span className="verdict-tag tie">Winner: WorkOS for self-hosted Keycloak — a tie when Keycloak is managed by Phase Two</span></p>
       </>
     ),
   },
   {
-    title: "Scalability and Performance",
+    id: "functionality",
+    kicker: "04 — Capability",
+    title: "Functionality & Flexibility",
     body: (
       <>
-        <p>
-          With its robust architecture, Keycloak is designed to handle large-scale user bases,
-          making it an ideal choice for enterprises. It can be scaled horizontally by adding more
-          instances or running in clustered mode, ensuring high performance and reliability.
-          Keycloak is a great platform to unify on for companies with a growing number of
-          applications that have each taken their own approach to IAM.
-        </p>
-        <p>
-          WorkOS offers scalable infrastructure, but it's better suited to small- and medium-sized
-          applications with moderate-to-high traffic. Its architecture is optimized for efficient
-          performance but may be less well-equipped for extremely high user-traffic volumes or a
-          rapidly growing number of connected enterprises. It tends to be stronger when working with
-          a specific application rather than connecting many applications together.
-        </p>
-        <p>
-          <strong>Winner: Depends.</strong> Keycloak is a strong contender for large-scale
-          applications looking to scale, while WorkOS may deliver strong performance for small- and
-          medium-sized apps.
-        </p>
+        <p>WorkOS is purpose-built for the enterprise-readiness checklist — SSO, Directory Sync (SCIM), Audit Logs, and admin portals — exposed through clean, developer-friendly APIs. It does that job well, but it is intentionally focused: it is not a full identity platform for your own users, and customization stops at the edges of its API.</p>
+        <p>Keycloak covers the same enterprise standards — SAML, OpenID Connect, and SCIM — and adds a complete identity platform on top: your own user store, fine-grained authorization (RBAC and ABAC), social login, MFA, and fully themeable login flows. Being open source, the customization ceiling is the source code itself. A standout capability is Keycloak's <Link to="/product/onprem/" className="ilink">on-premise deployment</Link> options.</p>
+        <p className="verdict"><span className="verdict-tag">Winner: Keycloak</span></p>
+        <p>WorkOS is excellent at the slice it covers; Keycloak covers that slice and the rest of your identity needs in one deployment.</p>
       </>
     ),
   },
   {
-    title: "Functionality and Flexibility",
+    id: "integrating",
+    kicker: "05 — Interop",
+    title: "Integrating Keycloak with external systems like WorkOS",
     body: (
       <>
-        <p>
-          Keycloak offers a comprehensive suite of features for modern applications. It provides
-          secure authentication methods — including username/password, social logins, and MFA — as
-          well as fine-grained authorization through RBAC and ABAC. Keycloak excels at identity
-          federation with support for SAML and OpenID Connect, and its SSO feature offers a seamless
-          experience across applications. It also provides robust user management, customization,
-          self-registration, and active community support. For any missing functionality,{" "}
-          <em>extensions can be written and deployed</em>, allowing Keycloak to bend and mold to the
-          needs of its developers.
-        </p>
-        <p>
-          WorkOS offers robust authentication and authorization capabilities, including role-based
-          access control, policy management, and support for multiple identity standards. Its single
-          sign-on feature provides a seamless experience across apps and services, and it includes
-          self-service registration, account recovery, and a comprehensive user directory.
-          Integration with third-party apps is simplified through APIs and pre-built integrations,
-          while analytics and logging tools help with monitoring and compliance.
-        </p>
-        <p>
-          <strong>Winner: Keycloak.</strong> Both platforms offer robust functionality, but
-          Keycloak's advanced identity federation, fine-grained authorization controls, and ability
-          to customize and extend give it an edge.
-        </p>
+        <p>For organizations looking to transition from WorkOS to Keycloak — or to integrate Keycloak with systems already using WorkOS — Keycloak's flexibility offers a significant advantage. Keycloak can act as a broker that sits between WorkOS and your applications, letting you leverage the strengths of both platforms during a transition.</p>
+        <p>Keycloak's identity-brokering capability lets it delegate authentication to external identity providers (IdPs) such as WorkOS. Keycloak can manage internal permissions and roles, provide additional security checks, and maintain a consistent, user-friendly login experience across systems. This makes <Link to="/support/migrate-to-keycloak/" className="ilink">migrating off WorkOS</Link> a low-risk, phased process — you can move one piece at a time without disrupting user access or security.</p>
       </>
     ),
   },
   {
-    title: "Integration Capabilities",
+    id: "best",
+    kicker: "06 — Verdict",
+    title: "Which IAM solution is best for me?",
     body: (
       <>
-        <p>
-          Keycloak's identity brokering capability lets you delegate authentication to external
-          identity providers, applications, and protocols such as LDAP, SAML, OAuth, and OpenID
-          Connect. Managing internal permissions and roles, security checks, and login experiences
-          across different systems can be done seamlessly.
-        </p>
-        <p>
-          WorkOS has a narrower focus on authentication, but it provides a uniform API for
-          integrating with popular identity providers like Google, Microsoft, and Okta. That unified
-          interface reduces complexity and development time.
-        </p>
-        <p>
-          If you're switching from WorkOS, Keycloak can be configured to act as a broker that sits
-          between WorkOS and your applications, letting you leverage the strengths of both. For
-          example, WorkOS can handle external user management while Keycloak handles more sensitive,
-          internal authentication needs.{" "}
-          <strong>Winner: Keycloak</strong> is the most versatile choice for organizations with
-          complex requirements.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "Community and Support",
-    body: (
-      <>
-        <p>
-          Keycloak has a large and active community of developers and contributors, ensuring
-          continuous development, bug fixes, and updates. It has extensive documentation, forums,
-          and{" "}
-          <a
-            href="https://keycloak.discourse.group/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            community support channels
-          </a>{" "}
-          where users can seek help and share knowledge. WorkOS also provides support but may have
-          limitations in terms of community contributions and public resources; it offers dedicated
-          support channels and resources for assistance and issue resolution.
-        </p>
-        <p>
-          Working with Phase Two gives you some of the best of both worlds: easy integration with
-          the ability to scale without incurring additional costs. If you have questions about Phase
-          Two's <Link to="/support/">enterprise support</Link>, we're happy to help.
-        </p>
-      </>
-    ),
-  },
-  {
-    title: "Migrating from WorkOS to Keycloak",
-    body: (
-      <>
-        <p>
-          Moving off WorkOS is more approachable than many teams expect. Keycloak imports users,
-          supports gradual cutover, and brokers identities so you can transition without disrupting
-          access — see <Link to="/support/migrate-to-keycloak/">Migrate to Keycloak</Link>.
-        </p>
-        <p>
-          You can also run Keycloak <em>alongside</em> WorkOS during a transition: Keycloak can act
-          as a broker that sits between WorkOS and your applications. That lets you keep existing
-          WorkOS connections — for example, for external user management — while Keycloak handles
-          internal permissions, roles, and a consistent login experience. It's a low-risk path to
-          migrating one piece at a time. For teams with strict requirements, Keycloak's{" "}
-          <Link to="/product/onprem/">on-premise deployment</Link> options are a standout advantage
-          over a cloud-only platform.
-        </p>
+        <p>WorkOS is a strong fit for SaaS teams that want to ship enterprise SSO and SCIM fast and are comfortable paying per connection as they add enterprise customers. For teams that want to avoid per-connection costs, own their user data, or need on-premise deployment, Keycloak is the more flexible and cost-stable choice.</p>
+        <p>At Phase Two, we run Keycloak so you don't have to — combining the open standards WorkOS is known for with a complete, self-ownable identity platform and a fixed, predictable cost. We offer robust Keycloak <Link to="/hosting/" className="ilink">hosting</Link>, <Link to="/support/migrate-to-keycloak/" className="ilink">migration</Link>, and <Link to="/support/" className="ilink">support</Link>.</p>
       </>
     ),
   },
 ];
 
+const matrix = {
+  savings: "~80%",
+  rows: [
+    { feat: "Per-connection pricing penalty", vendor: "$$$", keycloak: "lim" },
+    { feat: "Open-source core", vendor: "no", keycloak: "yes" },
+    { feat: "Self-hostable (no lock-in)", vendor: "no", keycloak: "yes" },
+    { feat: "On-premise / data residency", vendor: "no", keycloak: "yes" },
+    { feat: "Unlimited IdP connections without per-seat fees", vendor: "$$$", keycloak: "yes" },
+    { feat: "Custom SAML / OIDC IdPs & SCIM", vendor: "yes", keycloak: "yes" },
+    { feat: "Full source access & SPI extensions", vendor: "lim", keycloak: "yes" },
+    { feat: "Federate / broker existing IdP", vendor: "lim", keycloak: "yes" },
+    { feat: "24/7 escalation with Keycloak experts", vendor: "lim", keycloak: "yes" },
+  ],
+};
+
 const faqs = [
   {
     q: "Is Keycloak a good alternative to WorkOS?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak supports the same core standards as WorkOS (OAuth 2.0, OpenID Connect, SAML,
-        and SCIM) and matches it on most authentication and authorization features, while being open
-        source and free of per-user, per-connection licensing. It also offers far greater
-        customization and extensibility. The main trade-off is operational overhead, which a managed
-        host like Phase Two removes.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak supports the same core standards as WorkOS (OAuth 2.0, OpenID Connect, SAML, and SCIM) and matches it on most features, while being open source and free of per-user, per-connection licensing. It also offers far greater customization and extensibility. The main trade-off is operational overhead, which a managed host like Phase Two removes.",
+    a: <p>Yes. Keycloak supports the same enterprise standards as WorkOS — SAML, OpenID Connect, and SCIM — and adds a full identity platform (your own users, RBAC/ABAC, MFA, themeable login), while being open source and free of per-connection licensing.</p>,
+    text: "Yes. Keycloak supports the same enterprise standards as WorkOS — SAML, OpenID Connect, and SCIM — and adds a full identity platform (your own users, RBAC/ABAC, MFA, themeable login), while being open source and free of per-connection licensing.",
   },
   {
     q: "Is Keycloak cheaper than WorkOS?",
-    a: (
-      <p className="mb-0">
-        For most growing applications, yes. WorkOS pricing scales with monthly active users and
-        adds per-feature charges for things like SSO connections, SCIM, custom domains, and audit
-        logs, while Keycloak's cost is driven by hosting infrastructure and stays largely fixed as
-        your user base and connections grow. Because cost isn't tied to features or users, the
-        ongoing spend is predictable.
-      </p>
-    ),
-    text:
-      "For most growing applications, yes. WorkOS pricing scales with monthly active users and adds per-feature charges for SSO connections, SCIM, custom domains, and audit logs, while Keycloak's cost is driven by hosting infrastructure and stays largely fixed as your user base and connections grow.",
+    a: <p>For teams with many enterprise customers, usually yes. WorkOS bills per SSO/SCIM connection, so cost scales with your B2B logos. Keycloak supports unlimited connections and is priced on infrastructure, which stays largely fixed as you grow.</p>,
+    text: "For teams with many enterprise customers, usually yes. WorkOS bills per SSO/SCIM connection, so cost scales with your B2B logos. Keycloak supports unlimited connections and is priced on infrastructure, which stays largely fixed as you grow.",
   },
   {
     q: "Can I migrate from WorkOS to Keycloak?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak can import your users and broker authentication to WorkOS during a phased
-        cutover, so you can migrate incrementally without disrupting users. You can even run
-        Keycloak as a broker in front of WorkOS to leverage both platforms during the transition.
-        See <Link to="/support/migrate-to-keycloak/">Migrate to Keycloak</Link>.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak can import your users and broker authentication to WorkOS during a phased cutover, so you can migrate incrementally without disrupting users. You can even run Keycloak as a broker in front of WorkOS during the transition.",
+    a: <p>Yes. Keycloak can broker or replace WorkOS connections during a phased cutover, so you can move enterprise customers across incrementally without disrupting their SSO. See <Link to="/support/migrate-to-keycloak/" className="ilink">Migrate to Keycloak</Link>.</p>,
+    text: "Yes. Keycloak can broker or replace WorkOS connections during a phased cutover, so you can move enterprise customers across incrementally without disrupting their SSO.",
   },
   {
-    q: "Does Keycloak support SAML, OIDC, OAuth 2.0, and SCIM?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak is built on these standards and interoperates with both modern applications
-        and legacy systems, including LDAP and Active Directory. Its identity brokering lets you
-        delegate authentication to external identity providers like Google, Microsoft, and Okta.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak is built on these standards and interoperates with both modern applications and legacy systems, including LDAP and Active Directory. Its identity brokering lets you delegate authentication to external identity providers like Google, Microsoft, and Okta.",
+    q: "Does Keycloak support SAML, OIDC, and SCIM?",
+    a: <p>Yes. Keycloak is built on SAML and OpenID Connect, supports unlimited identity-provider connections, and offers SCIM directory provisioning through extensions.</p>,
+    text: "Yes. Keycloak is built on SAML and OpenID Connect, supports unlimited identity-provider connections, and offers SCIM directory provisioning through extensions.",
   },
   {
     q: "Can Keycloak be self-hosted or run on-premise?",
-    a: (
-      <p className="mb-0">
-        Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This
-        flexibility is a key advantage over WorkOS's cloud-only model, especially for data-residency
-        and compliance requirements.
-      </p>
-    ),
-    text:
-      "Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This flexibility is a key advantage over WorkOS's cloud-only model, especially for data-residency and compliance requirements.",
+    a: <p>Yes. Keycloak can run on-premise, in your own cloud, or as a managed service — a key advantage over WorkOS's cloud-only model for data-residency and compliance.</p>,
+    text: "Yes. Keycloak can run on-premise, in your own cloud, or as a managed service — a key advantage over WorkOS's cloud-only model for data-residency and compliance.",
   },
 ];
+
+const migration = {
+  heading: "Already using WorkOS?",
+  body: "Moving to Keycloak is more approachable than most teams expect. We import users, broker authentication during a phased cutover, and move you off WorkOS without disrupting access.",
+};
+
+const bigcta = {
+  heading: "See how much you'd save.",
+  body: "A 30-minute demo and a custom proposal — keyed to your current WorkOS contract — usually beats your renewal.",
+};
 
 export default function KeycloakVsWorkOS() {
   return (
     <ComparisonLayout
       vendor="WorkOS"
       slug="workos"
+      accent="magenta"
       meta={meta}
-      heroIntro={heroIntro}
+      hero={hero}
       atAGlance={atAGlance}
       sections={sections}
+      matrix={matrix}
       faqs={faqs}
+      migration={migration}
+      bigcta={bigcta}
     />
   );
 }
