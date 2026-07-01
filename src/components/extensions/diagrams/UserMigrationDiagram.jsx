@@ -21,7 +21,7 @@ export default function UserMigrationDiagram() {
       <g transform="translate(20,46)">
         <rect width="130" height="130" rx="10" fill="#0a0a0a" stroke={C_NODE_BORDER} />
         <text x="65" y="22" textAnchor="middle" fontFamily="JetBrains Mono" fontSize="9" fill={C_TEXT_DIM} letterSpacing="0.5">LEGACY</text>
-        <text x="65" y="42" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="700" fill="#fff">Auth0 · Cognito</text>
+        <text x="65" y="42" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="700" fill="#fff">Auth0 · WorkOS</text>
         <text x="65" y="56" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="700" fill="#fff">REST API · LDAP · SQL</text>
         <line x1="14" y1="68" x2="116" y2="68" stroke={C_LINE} />
         {Array.from({ length: 12 }).map((_, i) => (

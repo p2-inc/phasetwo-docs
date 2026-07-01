@@ -371,7 +371,7 @@ module.exports = {
                   {
                     label: "Migration to Keycloak",
                     to: "support/migrate-to-keycloak",
-                    sub: "Move off Auth0, Okta, Cognito",
+                    sub: "Move off Auth0, Okta, WorkOS",
                     icon: "migrate",
                   },
                   {

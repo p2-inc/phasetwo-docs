@@ -62,7 +62,7 @@ const FAQS = [
     text: "For most growing applications, yes. Commercial IAM pricing scales with monthly active users and feature tiers, while Keycloak's cost is driven by hosting infrastructure and stays largely fixed as your user base grows.",
   },
   {
-    q: "Can I migrate off Auth0, Okta, or Cognito to Keycloak?",
+    q: "Can I migrate off Auth0, Okta, or WorkOS to Keycloak?",
     a: <p>Yes. Keycloak can import your users and broker authentication to your existing provider during a phased cutover, so you can migrate incrementally without disrupting users. We've built tooling and a process for exactly this — see <Link to="/support/migrate-to-keycloak/" className="ilink">Migrate to Keycloak</Link>.</p>,
     text: "Yes. Keycloak can import your users and broker authentication to your existing provider during a phased cutover, so you can migrate incrementally without disrupting users.",
   },
@@ -216,7 +216,7 @@ export default function KeycloakAlternatives() {
         <section className="using section">
           <div className="wrap inner">
             <div className="eyebrow" style={{ marginBottom: 18 }}><span className="dot"></span>Migration</div>
-            <h2 className="h-sec">Already on Auth0, Okta, or Cognito?</h2>
+            <h2 className="h-sec">Already on Auth0, Okta, or WorkOS?</h2>
             <p className="lede" style={{ margin: "16px auto 26px", maxWidth: 580 }}>Moving to Keycloak is more approachable than most teams expect. We import users, broker authentication during a phased cutover, and move you off your current vendor without disrupting access.</p>
             <Link to="/support/migrate-to-keycloak/" className="btn btn-primary btn-lg"><Icon name="arrow-right-left" /> See how we migrate teams to Keycloak</Link>
           </div>
