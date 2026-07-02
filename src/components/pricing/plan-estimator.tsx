@@ -9,8 +9,8 @@ import { Tooltip } from "radix-ui";
  *
  * The recommendation is the highest tier required across all inputs: the MAU
  * range AND any features/limits that have a tier floor (custom extensions and
- * IP allow/deny lists start at Premium; SSO-connection and custom-domain counts
- * each step up through the tiers).
+ * IP allow/deny lists start at Premium; custom-domain counts step up through
+ * the tiers).
  */
 const ORDER = ["starter", "premium", "enterprise", "custom"] as const;
 type TierKey = (typeof ORDER)[number];
@@ -37,8 +37,6 @@ const mauTier = (m: number): TierKey =>
       : m <= 250_000
         ? "enterprise"
         : "custom";
-const ssoTier = (n: number): TierKey =>
-  n <= 3 ? "starter" : n <= 10 ? "premium" : "enterprise";
 const domainTier = (n: number): TierKey =>
   n <= 1 ? "starter" : n <= 5 ? "premium" : n <= 15 ? "enterprise" : "custom";
 
@@ -131,7 +129,6 @@ function CheckRow({
 
 export default function PlanEstimator() {
   const [mau, setMau] = useState(10_000);
-  const [sso, setSso] = useState(1);
   const [domains, setDomains] = useState(1);
   const [customExt, setCustomExt] = useState(false);
   const [ipList, setIpList] = useState(false);
@@ -145,13 +142,6 @@ export default function PlanEstimator() {
       key: mt,
       text: `${mau >= 300_000 ? "300K+" : mau.toLocaleString()} MAU → ${TIERS[mt].name}`,
     });
-    if (sso > 3) {
-      const k = ssoTier(sso);
-      items.push({
-        key: k,
-        text: `${sso >= 20 ? "20+" : sso} SSO connections → ${TIERS[k].name}`,
-      });
-    }
     if (domains > 1) {
       const k = domainTier(domains);
       items.push({
@@ -169,7 +159,7 @@ export default function PlanEstimator() {
       rank(b.key) > rank(a.key) ? b : a,
     ).key;
     return { tier: TIERS[topKey], bullets: items.map((i) => i.text) };
-  }, [mau, sso, domains, customExt, ipList]);
+  }, [mau, domains, customExt, ipList]);
 
   return (
     <div className="rounded-[32px] border border-white/10 bg-[var(--ifm-background-surface-color)] p-6 sm:p-8">
@@ -220,14 +210,7 @@ export default function PlanEstimator() {
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <NumberSlider
-          label="SSO connections"
-          value={sso}
-          min={1}
-          max={20}
-          onChange={setSso}
-        />
+      <div className="mt-6">
         <NumberSlider
           label="Custom domains"
           value={domains}
