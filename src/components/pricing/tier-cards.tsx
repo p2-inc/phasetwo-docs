@@ -67,7 +67,7 @@ const TIERS: Tier[] = [
       "Up to 15K monthly active users",
       "Dedicated, independently provisioned cluster",
       "95% uptime guarantee",
-      "3 SSO connections · 1 custom domain",
+      "Unlimited SSO connections · 1 custom domain",
       "Email support",
     ],
   },
@@ -84,7 +84,7 @@ const TIERS: Tier[] = [
     features: [
       "Up to 100K monthly active users",
       "99.5% uptime guarantee · Standard SLA",
-      "10 SSO connections · 5 custom domains",
+      "Unlimited SSO connections · 5 custom domains",
       "Email support",
     ],
   },
