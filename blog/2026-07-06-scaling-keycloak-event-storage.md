@@ -1,7 +1,7 @@
 ---
 title: How We Scaled Keycloak Event Storage with Logs, S3, and ClickHouse
 slug: scaling-keycloak-event-storage
-date: 2026-07-05
+date: 2026-07-06
 authors: phasetwo
 tags: [phase_two, keycloak, events, open_source, hosting, data]
 description: How Phase Two moved Keycloak event storage out of the database and into a log-based analytics pipeline — with an open-source EventStoreProvider anyone can use.
@@ -15,9 +15,10 @@ Every login, logout, failed password attempt, and admin change in Keycloak produ
 
 Out of the box, Keycloak stores events in the `EVENT_ENTITY` and `ADMIN_EVENT_ENTITY` tables via its JPA event store. This works fine for a small realm. It works a lot less fine when you're hosting many busy realms:
 
-- **Write amplification on the hot path.** Every authentication now also inserts event rows into the database that issues your tokens. Your busiest login day is also your busiest event-write day.
-- **Unbounded growth or aggressive expiry.** You either let the event tables grow forever, or you configure short expiry and lose the history your customers actually want. Expiry itself runs bulk `DELETE`s against those same tables.
-- **Queries that hurt.** "Show me all failed logins for this user over the last 90 days" is an analytics query. Running analytics queries against your production auth database during business hours is how you end up on a status page.
+- **Event writes ride the request transaction.** The JPA event store persists events inside the same transaction as the request that produced them. Every login is now gated on an extra insert: if the database is slow, the request thread waits; if event persistence fails, it can take the whole request down with it. Your users are paying an event-storage tax on every authentication, and your busiest login day is also your busiest event-write day.
+- **Big tables are operationally fragile tables.** Once `EVENT_ENTITY` grows into the tens or hundreds of millions of rows, routine maintenance becomes dangerous. A Keycloak upgrade that touches the event schema can hold a lock on a table that every in-flight request is trying to insert into — and now request threads are hanging behind a migration. The same goes for adding an index or any other DDL you'd normally consider harmless.
+- **Expiry is a bulk `DELETE` against your hot path.** Keycloak's event expiry doesn't make old events quietly disappear — it runs mass deletes against the very tables your logins are writing to, generating lock contention, vacuum/bloat pressure, and I/O spikes. So you're stuck choosing between unbounded growth and periodic self-inflicted incidents, and either way you lose the long history your customers actually want.
+- **Queries that hurt.** "Show me all failed logins for this user over the last 90 days" is an analytics query: a full scan over a huge, write-hot, row-oriented table. Running analytics queries against your production auth database during business hours is how you end up on a status page.
 
 Our customers were asking good questions — *How many active users did we have last month? When did failed logins spike? Who changed that client configuration?* — and the honest answer was that the default event store isn't built to answer them at scale.
 
@@ -103,7 +104,7 @@ That filtering step is what keeps the pipeline lean. Loki holds everything for t
 
 ## Step 3: ClickHouse Ingestion with S3Queue
 
-For the analytics layer we chose [ClickHouse](https://clickhouse.com/), running in-cluster via the [Altinity Operator](https://github.com/Altinity/clickhouse-operator). The ingestion mechanism is one of ClickHouse's best-kept secrets: the [`S3Queue` table engine](https://clickhouse.com/docs/en/engines/table-engines/integrations/s3queue), which continuously watches an S3 prefix and streams new files in as they appear:
+For the analytics layer we chose [ClickHouse](https://clickhouse.com/), running alongside each cluster. The ingestion mechanism is one of ClickHouse's best-kept secrets: the [`S3Queue` table engine](https://clickhouse.com/docs/en/engines/table-engines/integrations/s3queue), which continuously watches an S3 prefix and streams new files in as they appear:
 
 ```sql
 CREATE TABLE keycloak_events.s3_keycloak_event_queue (raw String)
