@@ -89,37 +89,37 @@ const MIGRATION_SUPPORT_CARDS = [
 
 const IDP_LOGOS = [
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-auth0-open-source-alternative/",
+    href: "/keycloak-alternatives/auth0/",
     icon: "logos:auth0",
     src: "/customer-logos/auth0.svg",
     alt: "Auth0",
   },
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-okta-open-source-alternative/",
+    href: "/keycloak-alternatives/okta/",
     icon: "logos:okta",
     src: "/customer-logos/okta.svg",
     alt: "Okta",
   },
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-PingIdentity-open-source-alternative/",
+    href: "/keycloak-alternatives/ping-identity/",
     icon: null,
     src: "/customer-logos/ping-identity.svg",
     alt: "Ping Identity",
   },
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-workos-open-source-alternative/",
+    href: "/keycloak-alternatives/workos/",
     icon: "logos:workos",
     src: "/customer-logos/workos.svg",
     alt: "WorkOS",
   },
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-frontegg-open-source-alternative/",
+    href: "/keycloak-alternatives/frontegg/",
     icon: null,
     src: "/customer-logos/frontegg.svg",
     alt: "Frontegg",
   },
   {
-    href: "https://phasetwo.io/blog/keycloak-vs-onelogin-open-source-alternative/",
+    href: "/keycloak-alternatives/onelogin/",
     icon: null,
     src: "/customer-logos/onelogin.svg",
     alt: "OneLogin",

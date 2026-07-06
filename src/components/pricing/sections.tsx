@@ -68,8 +68,8 @@ const Sections: {
         name: "SSO connections",
         description: "Number of supported identity provider (SSO) connections.",
         tiers: {
-          starter: "3",
-          premium: "10",
+          starter: "Unlimited",
+          premium: "Unlimited",
           enterprise: "Unlimited",
           custom: true,
         },

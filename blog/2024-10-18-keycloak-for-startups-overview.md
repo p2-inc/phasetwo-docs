@@ -12,7 +12,7 @@ In the ever-evolving landscape of Enterprise SaaS, navigating the complexities o
 
 There are a glut of commercial startups that solve some of the core challenges of authentication and authorization. But most of them rely on obscuring their true nature as a _commodity_ as a way of _marketing_ their products as _somehow differentiated_.
 
-The purpose of this series is to dive into the key issues that separate an open source solution like Keycloak from commercial entities like [Auth0](./2024-05-01-alternatives-auth0.md), [Okta](./2024-06-03-alternatives-okta.md), or [WorkOs](./2024-07-22-keycloak-vs-workos.md). This should give a startup engineer or manager ample background to understand the decision, and to cut through the marketing gibberish.
+The purpose of this series is to dive into the key issues that separate an open source solution like Keycloak from commercial entities like [Auth0](/keycloak-alternatives/auth0/), [Okta](/keycloak-alternatives/okta/), or [WorkOs](/keycloak-alternatives/workos/). This should give a startup engineer or manager ample background to understand the decision, and to cut through the marketing gibberish.
 
 This series will address the following key issues in 4 parts:
 

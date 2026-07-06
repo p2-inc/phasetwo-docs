@@ -21,7 +21,7 @@ Use **Cluster Logs** when you need to investigate a recent issue, narrow activit
 If you have not selected a time range yet, the streaming view starts with the last hour of logs.
 
 <figure>
-  <img src="/docs/dashboard/cluster-observability-stream-logs.png" className="max-w-2xl" alt="Phase Two Dash - Cluster Logs" />
+  <img src="/docs/dashboard/cluster-observability-stream-logs-2.png" className="max-w-2xl" alt="Phase Two Dash - Cluster Logs" />
   <figcaption>Stream and inspect logs</figcaption>
 </figure>
 
@@ -80,33 +80,84 @@ Use the dedicated **Realm** and **Level** filters when possible instead of encod
 
 ## Event Logs
 
-**Event Logs** show Keycloak event entries — logins, registrations, admin actions, and similar — over the selected time range, with the same time-range and realm filters as the streaming view. Use these when you want to follow authentication activity as discrete events rather than raw cluster log lines.
+**Event Logs** show Keycloak event entries — logins, registrations, admin actions, and similar — over the selected time range. Use these when you want to follow authentication activity as discrete, structured events rather than raw cluster log lines.
 
-:::note Screenshot needed
-`logs-events.png` — the Event Logs view listing Keycloak event entries.
-:::
+Event Logs are split into two tabs that share the common time-range and realm filters. A realm must be selected to view events.
+
+<figure>
+  <img src="/docs/dashboard/cluster-observability-event-logs.png" className="max-w-2xl" alt="Phase Two Dash - Event Logs" />
+  <figcaption>Browse Keycloak user and admin events</figcaption>
+</figure>
+
+### User events
+
+User events cover authentication and account activity — logins, logouts, registrations, token exchanges, and similar. Alongside the shared filters, you can narrow by:
+
+- **Event type** (for example `LOGIN`, `LOGOUT`, `CODE_TO_TOKEN`)
+- **User ID**
+- **Client ID**
+- **IP address**
+- **Search (details)** — free-text match against the event details
+
+The results table shows **Time**, **Type**, **User**, **Client**, **IP**, and **Error**.
+
+### Admin events
+
+Admin events cover administrative changes made through the admin console or API. The filters here are:
+
+- **Resource type** (for example `USER`, `CLIENT`)
+- **Operation** (for example `CREATE`, `UPDATE`, `DELETE`)
+- **Resource path** (for example `users/…`)
+- **User ID** and **Client ID**
+- **Search (repr/details)** — free-text match against the representation or details
+
+The results table shows **Time**, **Resource**, **Operation**, **Path**, **Auth user**, **IP**, and **Error**.
+
+### Limit and row count
+
+Choose how many rows to fetch with **Limit** (`100`, `200`, `500`, `1000`, `2000`, or `5000`; default `500`). The count above the table shows how many rows matched, and notes when results are capped at the selected limit.
+
+### Inspecting an event
+
+Click any row to open the detail drawer. It shows the full structured **Event** record, the **Details** payload, and — for admin events — the changed **Representation**. Each section is JSON-formatted and can be copied directly.
 
 ## Request Logs
 
-**Request Logs** present individual HTTP requests in a structured, sortable table. Columns include:
+**Request Logs** present individual HTTP requests in a structured table over the selected time range. Unlike Event Logs, a realm is not required — by default you see requests across the whole cluster, and realm is an optional filter.
+
+<figure>
+  <img src="/docs/dashboard/cluster-observability-request-logs.png" className="max-w-2xl" alt="Phase Two Dash - Request Logs" />
+  <figcaption>Inspect individual HTTP requests</figcaption>
+</figure>
+
+### Filters
+
+In addition to the shared time-range filter, you can narrow requests by:
+
+- **Endpoint type** (for example `oidc`, `admin`)
+- **Status class** — `All`, `2xx`, `3xx`, `4xx`, or `5xx`
+- **Method** (for example `GET`, `POST`)
+- **Host header**
+- **Client IP**
+- **Realm (optional)**
+- **Path contains** — free-text match against the request path
+- **Limit** — `100`, `200`, `500`, `1000`, `2000`, or `5000` (default `500`)
+
+### Columns
 
 - **Time**, **Method**, **Status**, **Type** (endpoint type)
 - **Host**, **Path**
 - **Customer**, **Realm**
 - **Cache** (edge result), **Latency (s)**, **IP**
 
-Click a row to open a detail drawer with the full request record. Request Logs pair well with the [Request Metrics](./metrics.md#request-metrics) charts: use the charts to spot an anomaly, then drop into Request Logs to find the specific requests behind it.
-
-:::note Screenshot needed
-`logs-requests.png` — the Request Logs table with the request detail drawer open.
-:::
+Click a row to open a detail drawer with the full request record as JSON, which you can copy directly. Request Logs pair well with the [Request Metrics](./metrics.md#request-metrics) charts: use the charts to spot an anomaly, then drop into Request Logs to find the specific requests behind it.
 
 ## Download Logs
 
 Use **Download Logs** when you need retained logs for offline review, auditing, or support cases.
 
 <figure>
-  <img src="/docs/dashboard/cluster-observability-download-logs.png" className="max-w-2xl" alt="Phase Two Dash - Download Logs" />
+  <img src="/docs/dashboard/cluster-observability-download-logs-2.png" className="max-w-2xl" alt="Phase Two Dash - Download Logs" />
   <figcaption>Browse and download retained log files</figcaption>
 </figure>
 

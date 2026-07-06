@@ -64,3 +64,7 @@ Configuring, integrating, and operating an Identity and Access Management (IAM) 
 ### Conclusion
 
 In a landscape dominated by commercial IAM solutions, Keycloak shines as a compelling alternative that combines the power of open source with enterprise-grade features and flexibility. With its cost-effectiveness, customization capabilities, deployment flexibility, and active community support, Keycloak empowers organizations to take control of their identity infrastructure, unlock new possibilities, and adapt to evolving security and compliance requirements. Whether you're a startup looking to bootstrap your identity management or an enterprise seeking to streamline operations, Keycloak offers a compelling solution that puts you in the driver's seat of your IAM journey.
+
+## Compare Keycloak to specific platforms
+
+For a side-by-side breakdown against individual vendors, see the [Keycloak alternatives hub](https://phasetwo.io/keycloak-alternatives/) or a detailed comparison: [Auth0](https://phasetwo.io/keycloak-alternatives/auth0/), [Okta](https://phasetwo.io/keycloak-alternatives/okta/), [WorkOS](https://phasetwo.io/keycloak-alternatives/workos/), [Ping Identity](https://phasetwo.io/keycloak-alternatives/ping-identity/), [FrontEgg](https://phasetwo.io/keycloak-alternatives/frontegg/), [OneLogin](https://phasetwo.io/keycloak-alternatives/onelogin/).

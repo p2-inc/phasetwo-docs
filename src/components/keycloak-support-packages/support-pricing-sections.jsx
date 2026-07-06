@@ -143,7 +143,7 @@ export function SupportTierCards() {
 const SERVICES = [
   {
     t: "Migration to Keycloak",
-    d: "Move off Auth0, Okta, or Cognito with zero password resets.",
+    d: "Move off Auth0, Okta, or WorkOS with zero password resets.",
   },
   {
     t: "Architecture & scaling review",
