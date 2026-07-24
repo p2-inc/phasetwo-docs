@@ -5,7 +5,7 @@ title: Customizing UI / Theming
 
 Phase Two ships a unified theme called **phasetwo-ui** that covers all four Keycloak theme types — login, account, admin, and email — in a single package. It is built with [Keycloakify](https://www.keycloakify.dev/) and [shadcn/ui](https://ui.shadcn.com/) and is the default theme on Phase Two hosted instances.
 
-Branding is applied at runtime through realm attributes, so changes take effect immediately without rebuilding or redeploying the theme JAR. The **Styles** panel in the admin console (under **Extensions**) provides a UI for all of these settings. To access it, ensure the `phasetwo-ui` theme is selected for the **Admin** theme in **Realm Settings > Themes**.
+Branding is applied at runtime through realm attributes, so changes take effect immediately without rebuilding or redeploying the theme JAR. The **Styles** panel in the admin console (under **Extensions**) provides a UI for most of these settings — the Admin Portal `v2` theme tokens described below are not exposed there yet. To access it, ensure the `phasetwo-ui` theme is selected for the **Admin** theme in **Realm Settings > Themes**.
 
 :::tip Email theme
 For email branding (logo, footer), set your realm's email theme to `phasetwo-ui`. This unlocks the **Email Branding** settings described in the [Emails](/docs/getting-started/email#email-branding) guide.
@@ -134,20 +134,63 @@ See the [Emails](./email.md) page for details on email template customization.
 
 **Admin Portal**
 
-Full customization details can be viewed in the Phase Two [Admin Portal Repo](https://github.com/p2-inc/phasetwo-admin-portal).
+The [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal) is built on [shadcn/ui](https://ui.shadcn.com/) components that read their colors from CSS variables. Realm branding is applied at runtime by resolving a small set of theme tokens and injecting a `<style>` element that overwrites those variables.
 
-| Attribute                                    | Description                        |
-| -------------------------------------------- | ---------------------------------- |
-| `_providerConfig.assets.portal.primary100`   |                                    |
-| `_providerConfig.assets.portal.primary200`   |                                    |
-| `_providerConfig.assets.portal.primary400`   |                                    |
-| `_providerConfig.assets.portal.primary500`   |                                    |
-| `_providerConfig.assets.portal.primary600`   |                                    |
-| `_providerConfig.assets.portal.primary700`   |                                    |
-| `_providerConfig.assets.portal.primary900`   |                                    |
-| `_providerConfig.assets.portal.secondary800` |                                    |
-| `_providerConfig.assets.portal.secondary900` |                                    |
-| `_providerConfig.assets.portal.css`          | Arbitrary CSS for the Admin Portal |
+Each token is set with the `_providerConfig.assets.portal.v2.` prefix. Color tokens take a `#rgb` or `#rrggbb` hex value — the recommended format — and also accept bare CSS color keywords such as `red` or `transparent` and the `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()`, and `oklch()` functions. Contrast is only measured from hex, so if you use a keyword or a color function, set the matching foreground token explicitly rather than relying on the auto-contrast described below. `radius` accepts a CSS length such as `0`, `4px`, or `0.5rem`. A value that matches none of these is ignored as if it were unset.
+
+:::note
+The **Styles > Portal** tab in the admin console still edits the legacy keys listed further below. Set the `v2` tokens with the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export.
+:::
+
+_Theme tokens_
+
+| Attribute                                            | Default       | Description                                                                                                        |
+| ---------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `_providerConfig.assets.portal.v2.primary`           | `#1570c2`     | Brand color: primary buttons, links, focus rings, active sidebar item                                              |
+| `_providerConfig.assets.portal.v2.primaryForeground` | auto-contrast | Text and icons on the primary color                                                                                |
+| `_providerConfig.assets.portal.v2.cta`               | `#252627`     | Emphasized neutral action button                                                                                   |
+| `_providerConfig.assets.portal.v2.ctaForeground`     | auto-contrast | Text on the CTA button                                                                                             |
+| `_providerConfig.assets.portal.v2.background`        | `#ffffff`     | Page, card, and popover background                                                                                 |
+| `_providerConfig.assets.portal.v2.foreground`        | `#09090b`     | Default text color                                                                                                 |
+| `_providerConfig.assets.portal.v2.muted`             | `#f4f4f5`     | Muted, secondary, and accent surfaces in light mode, including the sidebar                                         |
+| `_providerConfig.assets.portal.v2.border`            | `#e4e4e7`     | Borders and input outlines in light mode                                                                           |
+| `_providerConfig.assets.portal.v2.radius`            | `0.5rem`      | Corner radius of buttons, cards, and inputs (a CSS length)                                                         |
+| `_providerConfig.assets.portal.v2.darkBackground`    | `#09090b`     | Page, card, and popover background in dark mode; the muted, accent, border, and sidebar surfaces are mixed from it |
+| `_providerConfig.assets.portal.v2.darkForeground`    | `#fafafa`     | Default text color in dark mode                                                                                    |
+| `_providerConfig.assets.portal.v2.darkCta`           | `#ffffff`     | CTA button in dark mode                                                                                            |
+| `_providerConfig.assets.portal.v2.darkCtaForeground` | auto-contrast | Text on the CTA button in dark mode                                                                                |
+
+Each token resolves independently: the `v2` attribute if set, otherwise a legacy fallback — only `primary` (from `primaryColor700`) and `cta` (from `secondaryColor900`) have one — otherwise the built-in default. A foreground token you leave unset is computed for readability from the relative luminance of its background: `primaryForeground` from `primary`, `ctaForeground` from `cta`, `darkCtaForeground` from `darkCta`, and `foreground` / `darkForeground` from `background` / `darkBackground` when you set those explicitly.
+
+_Legacy (deprecated)_
+
+These keys follow the [Tailwind color](https://tailwindcss.com/docs/customizing-colors) scale, with the lowest number lightest. They are still read, but only `primaryColor700` and `secondaryColor900` affect rendering — as the two fallbacks above. Set the `v2` tokens to customize anything else.
+
+| Attribute                                         | Default | Description                                                                       |
+| ------------------------------------------------- | ------- | --------------------------------------------------------------------------------- |
+| `_providerConfig.assets.portal.primaryColor100`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.primaryColor200`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.primaryColor400`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.primaryColor500`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.primaryColor600`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.primaryColor700`   | —       | Fallback for the `primary` token when `v2.primary` is unset                       |
+| `_providerConfig.assets.portal.primaryColor900`   | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.secondaryColor800` | —       | Read, but no longer affects rendering; the CTA hover shade now derives from `cta` |
+| `_providerConfig.assets.portal.secondaryColor900` | —       | Fallback for the `cta` token when `v2.cta` is unset                               |
+
+_Custom CSS_
+
+| Attribute                           | Default | Description                        |
+| ----------------------------------- | ------- | ---------------------------------- |
+| `_providerConfig.assets.portal.css` | —       | Arbitrary CSS for the Admin Portal |
+
+Custom CSS is appended last, after the generated variables, so it overrides both the tokens and the built-in defaults. Target the CSS variables (`--primary`, `--background`, `--radius`, and the `.dark` block) or standard selectors.
+
+:::caution Breaking change
+Custom CSS that targeted the old generated utility classes — `.bg-primary-700`, `.text-primary-500`, `.bg-primary-gradient`, and friends — no longer has any effect, because the portal's components now use semantic shadcn/ui classes such as `bg-primary` and `text-muted-foreground`. Migrate that CSS to the variables above. Realms that customized `primaryColor100` or `primaryColor900` will see neutral surfaces after upgrading — their brand color is preserved through `primaryColor700` and their CTA button color through `secondaryColor900` — so set the matching `v2` tokens to restore custom surfaces.
+:::
+
+Full customization details can be viewed in the Phase Two [Admin Portal Repo](https://github.com/p2-inc/phasetwo-admin-portal).
 
 ## Custom Themes
 
