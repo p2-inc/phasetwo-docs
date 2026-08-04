@@ -151,9 +151,7 @@ Full customization details can be viewed in the Phase Two [Admin Portal Repo](ht
 
 ## Custom Themes
 
-If you decide to use a custom theme, you must contact Phase Two support to have it added to your Realm. It is only available to subscribes of dedicated clusters.
-
-Coming soon will be the ability to upload custom themes via the Phase Two dashboard.
+If you decide to use a custom theme, you can upload it yourself from the Phase Two Dashboard under `Cluster > Config > Resources`. See [Cluster Resources](/docs/self-service/resources) for the full walkthrough. Custom themes are available to subscribers of dedicated clusters.
 
 ### Keycloakify
 
