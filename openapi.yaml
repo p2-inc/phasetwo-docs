@@ -690,6 +690,12 @@ paths:
             type: string
           style: form
           description: search by attributes using the format (space separated) `k1:v1 k2:v2`
+        - in: query
+          name: exact
+          schema:
+            type: string
+          style: form
+          description: search parameter exact match
       responses:
         200:
           description: success
@@ -745,6 +751,12 @@ paths:
             type: string
           style: form
           description: search by attributes using the format (space separated) `k1:v1 k2:v2`
+        - in: query
+          name: exact
+          schema:
+            type: string
+          style: form
+          description: exact search
       responses:
         200:
           description: success
