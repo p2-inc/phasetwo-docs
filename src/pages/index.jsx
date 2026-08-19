@@ -753,7 +753,6 @@ function Home() {
         <Cta
           background="primary"
           primaryText="Ready to try Keycloak?"
-          secondaryText="Create your free deployment today."
           showCta
           ctaLabel="Try for Free"
           ctaHref="https://dash.phasetwo.io/"

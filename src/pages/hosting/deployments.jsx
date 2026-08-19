@@ -8,7 +8,7 @@ const features = [
   {
     name: "Up in minutes.",
     description:
-      "Deployments are created in a matter of minutes. No need to worry about the underlying infrastructure.",
+      "Clusters are provisioned in minutes. No need to worry about the underlying infrastructure.",
     icon: (
       <InlineIcon
         icon="heroicons:cloud-arrow-up-solid"
@@ -19,7 +19,7 @@ const features = [
   {
     name: "Fully secure.",
     description:
-      "Protected out of the box with a strong SLA for security and uptime.",
+      "Protected out of the box, with an uptime SLA on Premium and Enterprise clusters.",
     icon: (
       <InlineIcon
         icon="heroicons:lock-closed-solid"
@@ -29,7 +29,7 @@ const features = [
   },
   {
     name: "Self-service.",
-    description: "Create deployments in multiple regions with a few clicks.",
+    description: "Create clusters in multiple regions with a few clicks.",
     icon: (
       <InlineIcon
         icon="heroicons:server-solid"
@@ -40,7 +40,7 @@ const features = [
   {
     name: "Fit to your needs.",
     description:
-      "Our deployments can be customized to fit your needs. Configure regions, availability zones, and more to handle traffic and needs.",
+      "Our clusters can be customized to fit your needs. Configure regions, availability zones, and more to handle traffic and needs.",
     icon: (
       <InlineIcon
         icon="heroicons:lifebuoy-solid"
@@ -51,21 +51,21 @@ const features = [
 ];
 
 const stats = [
-  { id: 1, name: "Sessions per instance", value: "50,000" },
-  { id: 2, name: "SLA and Uptime", value: "99.95%" },
-  { id: 3, name: "Deployment ready time", value: "<5 mins" },
+  { id: 1, name: "Concurrent sessions", value: "Up to 50,000" },
+  { id: 2, name: "Uptime SLA", value: "Up to 99.95%" },
+  { id: 3, name: "Cluster ready time", value: "<5 mins" },
 ];
 
 const Deployments = () => {
   return (
     <Layout
-      title="Keycloak Deployments"
-      description="Multi-region High-availability Keycloak deployments that are extended with additional features, 99.95% uptime SLA, and 24/7 support."
+      title="Keycloak Clusters"
+      description="Multi-region, high-availability Keycloak clusters extended with additional features, an uptime SLA up to 99.95%, and 24/7 support."
     >
       <main className="hosting-page">
         <div className="pageHero mt-20">
           <div className="pageHeroMsg">
-            <h1>Enterprise-Level Keycloak Deployments</h1>
+            <h1>Enterprise-Level Keycloak Clusters</h1>
             <h3 className="margin-top--md text-p2blue-700">
               Everything you need to run Keycloak in production at a fraction of
               the cost and headache.
@@ -92,7 +92,7 @@ const Deployments = () => {
                     Enhanced Keycloak
                   </p>
                   <p className="mt-6 text-lg/8 text-gray-600">
-                    Deployments are a fully managed service with all the
+                    Clusters are a fully managed service with all the
                     necessary extensions you'll need to run Keycloak in
                     production. We take care of the infrastructure, so you can
                     focus on building your application.
@@ -235,7 +235,7 @@ const Deployments = () => {
                       </strong>{" "}
                       Keycloak is updated frequently and keeping up-to-date with
                       those changes is hard. Our team takes care of that and
-                      make sure that you're deployment is always on the latest
+                      make sure that your cluster is always on the latest
                       version.
                     </span>
                   </li>
@@ -252,7 +252,7 @@ const Deployments = () => {
                       Keycloak requires a lot of configuration to be "production
                       ready". Leveraging our years of experience, we have built
                       out a set of some of the most popular community extensions
-                      that we automatically bundle with our deployment images.
+                      that we automatically bundle with our cluster images.
                     </span>
                   </li>
                   <li className="flex gap-x-3">
@@ -272,7 +272,7 @@ const Deployments = () => {
                   </li>
                 </ul>
                 <p className="mt-8">
-                  Our managed deployments are designed to provide incredible
+                  Our managed clusters are designed to provide incredible
                   value at a great price. We have done the leg work to make it
                   possible to configure and deploy a Keycloak system in minutes,
                   not weeks or days.

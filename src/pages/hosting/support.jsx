@@ -219,7 +219,6 @@ export default function Support() {
           sectionClassName="subpage-section cta-section-gradient"
           background="primary"
           primaryText="Ready to Try Keycloak?"
-          secondaryText="Create Your Free Deployment Today."
           showCta
           ctaLabel="Try for Free"
           ctaHref="https://dash.phasetwo.io/"

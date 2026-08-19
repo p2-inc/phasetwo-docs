@@ -243,7 +243,7 @@ export default function KeycloakAlternatives() {
         {/* Bottom CTA */}
         <section className="bigcta section">
           <div className="wrap">
-            <h2>Ready to Try Keycloak?<br />Create your free deployment today.</h2>
+            <h2>Ready to Try Keycloak?<br />Start your 30-day free trial today.</h2>
             <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginTop: 8 }}>
               <a href={DASH} target="_blank" rel="noreferrer"><button className="btn btn-primary btn-lg"><Icon name="zap" /> Try for Free</button></a>
             </div>
