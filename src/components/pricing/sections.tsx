@@ -417,7 +417,7 @@ const Sections: {
       {
         name: "Uptime Guarantee",
         tiers: {
-          starter: "95%",
+          starter: "95% target",
           premium: "99.5%",
           enterprise: "99.95%",
           custom: "99.95%",
@@ -426,7 +426,7 @@ const Sections: {
       {
         name: "SLA",
         tiers: {
-          starter: "Standard",
+          starter: "Best effort",
           premium: "Standard",
           enterprise: "Enhanced",
           custom: "Custom",
