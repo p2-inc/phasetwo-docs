@@ -6,3 +6,5 @@ title: Penetration Tests
 Phase Two maintains compliance that can be reviewed at [trust.phasetwo.io](https://trust.phasetwo.io/). This includes a list of penetration tests that have been performed on our platform.
 
 If you are a customer and would like to perform a penetration test on your Keycloak instance, please contact our support team. We will provide you with the necessary information and guidelines to ensure that the test is conducted safely and effectively.
+
+Penetration testing is not available on Starter clusters. If you need to run one, upgrade to Premium or Enterprise and contact support to schedule it.
