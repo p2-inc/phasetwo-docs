@@ -93,7 +93,7 @@ const Sections: {
       {
         name: "Custom themes",
         description:
-          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but voids the SLA.",
+          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but not covered by the uptime guarantee.",
         tiers: {
           starter: true,
           premium: true,
