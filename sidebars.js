@@ -30,10 +30,10 @@ module.exports = {
       items: [
         "self-service/access",
         "self-service/dashboard-overview",
-        "self-service/deployments",
         "self-service/your-organization",
         "self-service/dedicated-clusters",
         "self-service/create-a-cluster",
+        "self-service/realms",
         "self-service/regions",
         "self-service/custom-domains",
         {

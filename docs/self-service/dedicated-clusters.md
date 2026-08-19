@@ -19,17 +19,11 @@ If you need more, please contact your account representative or email [support@p
 
 For more information view the [Hosting](/hosting) and [Pricing](/pricing) pages.
 
-## Migrating from a shared deployment
+## Creating Realms in your Cluster
 
-If you currently have a free, shared deployment, and you would like to migrate that deployment into your dedicated cluster, this can be done in a one-time operation. This is a batch operation, and will require 24 hours to process, so immediate migrations are not available. Please contact your customer success representative at [support@phasetwo.io](mailto:support@phasetwo.io) and indicate the deployment name you want to migrate, the target cluster, and the time you want to initiate the migration.
+Once your Cluster has been provisioned, you can create Realms in it. Open the create Realm modal from the Cluster, and access the admin console for each one using the _Open Console_ link next to it. Learn more about [creating realms](./realms.md).
 
-## Using a Cluster
-
-Clusters are used much the same as our shared deployments. The number of Realms you can create depends on your cluster tier (see the table above).
-
-## Creating Deployments in your Cluster
-
-Once your Cluster has been provisioned, you can create Deployments as before, but you will open the create Deployment modal from the Cluster. Access to the admin console for those Realms is the same, using the _Open Console_ link next to each Deployment. Learn more about [creating deployments](./deployments.md)
+The number of Realms you can create depends on your cluster tier (see the table above).
 
 ## Billing
 

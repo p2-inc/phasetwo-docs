@@ -15,7 +15,7 @@ This example uses [Next.js](https://nextjs.org/) 13 and splits `server` and `cli
 
    ```js
    const authServerUrl = "https://euc1.auth.ac/auth/";
-   const realm = "shared-deployment-001";
+   const realm = "my-realm";
    const clientId = "reg-example-1";
    const clientSecret = "CLIENT_SECRET"; // Paste "Client secret" here. Use Environment variables in prod
    ```
