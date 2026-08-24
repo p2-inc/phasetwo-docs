@@ -102,12 +102,12 @@ All values set through the Styles panel are stored as Realm attributes. You can 
 | `_providerConfig.assets.login.primaryColor`           | `#3b82f6` | Buttons, links, sidebar                   |
 | `_providerConfig.assets.login.secondaryColor`         | `#60a5fa` | Secondary accents                         |
 | `_providerConfig.assets.login.backgroundColor`        | `#ffffff` | Page background                           |
-| `_providerConfig.assets.login.primaryForegroundColor` | `#ffffff` | Text on primary color                     |
+| `_providerConfig.assets.login.primaryForegroundColor` | `#ffffff` | Text on the primary color. Only takes effect through the brand-token path above, as the legacy fallback for `theme.v2.primaryForeground` — the legacy stylesheet never emitted a variable for it. |
 | `_providerConfig.assets.login.css`                    | —         | Arbitrary CSS appended after theme styles |
 
 **Login (dark mode overrides)**
 
-If omitted, the light-mode values are used as fallbacks.
+Omit one and the fallback depends on the kind of color. `primaryColor` and `secondaryColor` are brand colors and fall back to their light-mode values, so a custom brand color stays consistent across modes. `backgroundColor` does **not** — it falls back to the dark default, because carrying a light background into dark mode would stop dark mode being dark.
 
 | Attribute                                                  | Description                   |
 | ---------------------------------------------------------- | ----------------------------- |
@@ -132,39 +132,56 @@ See the [Emails](./email.md) page for details on email template customization.
 - `_providerConfig.assets.email.footer.line1` — first footer line; defaults to realm display name when absent
 - `_providerConfig.assets.email.footer.line2` — optional second footer line
 
-**Admin Portal**
+**Brand tokens (login, Admin Portal, and email)**
 
-The [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal) is built on [shadcn/ui](https://ui.shadcn.com/) components that read their colors from CSS variables. Realm branding is applied at runtime by resolving a small set of theme tokens and injecting a `<style>` element that overwrites those variables.
+The login theme and the [Admin Portal](https://github.com/p2-inc/phasetwo-admin-portal) are built on [shadcn/ui](https://ui.shadcn.com/) components that read their colors from CSS variables, and the email templates use the same values inline. All three resolve one **shared** set of brand tokens, so branding a realm once brands every surface.
 
-Each token is set with the `_providerConfig.assets.portal.v2.` prefix. Color tokens take a `#rgb` or `#rrggbb` hex value — the recommended format — and also accept bare CSS color keywords such as `red` or `transparent` and the `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()`, and `oklch()` functions. Contrast is only measured from hex, so if you use a keyword or a color function, set the matching foreground token explicitly rather than relying on the auto-contrast described below. `radius` accepts a CSS length such as `0`, `4px`, or `0.5rem`. A value that matches none of these is ignored as if it were unset.
+Each token is a realm attribute prefixed with `_providerConfig.assets.theme.v2.` — for example `_providerConfig.assets.theme.v2.primary`. Every color token takes an optional dark-mode override named `dark<Token>`, such as `_providerConfig.assets.theme.v2.darkBackground`.
 
-:::note
-The **Styles > Portal** tab in the admin console still edits the legacy keys listed further below. Set the `v2` tokens with the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export.
-:::
+Color tokens accept a `#rgb` or `#rrggbb` hex value — the recommended format — and also bare CSS color keywords such as `red`, and the `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()` and `oklch()` functions. Contrast is only measured from hex, so if you use a keyword or a color function, set the matching foreground token explicitly rather than relying on auto-contrast. `radius` accepts a CSS length such as `0`, `4px` or `0.5rem`. A value matching none of these is ignored as if unset.
 
-_Theme tokens_
+_Base tokens_ — each has a built-in default:
 
-| Attribute                                            | Default       | Description                                                                                                        |
-| ---------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `_providerConfig.assets.portal.v2.primary`           | `#1570c2`     | Brand color: primary buttons, links, focus rings, active sidebar item                                              |
-| `_providerConfig.assets.portal.v2.primaryForeground` | auto-contrast | Text and icons on the primary color                                                                                |
-| `_providerConfig.assets.portal.v2.cta`               | `#252627`     | Emphasized neutral action button                                                                                   |
-| `_providerConfig.assets.portal.v2.ctaForeground`     | auto-contrast | Text on the CTA button                                                                                             |
-| `_providerConfig.assets.portal.v2.background`        | `#ffffff`     | Page, card, and popover background                                                                                 |
-| `_providerConfig.assets.portal.v2.foreground`        | `#09090b`     | Default text color                                                                                                 |
-| `_providerConfig.assets.portal.v2.muted`             | `#f4f4f5`     | Muted, secondary, and accent surfaces in light mode, including the sidebar                                         |
-| `_providerConfig.assets.portal.v2.border`            | `#e4e4e7`     | Borders and input outlines in light mode                                                                           |
-| `_providerConfig.assets.portal.v2.radius`            | `0.5rem`      | Corner radius of buttons, cards, and inputs (a CSS length)                                                         |
-| `_providerConfig.assets.portal.v2.darkBackground`    | `#09090b`     | Page, card, and popover background in dark mode; the muted, accent, border, and sidebar surfaces are mixed from it |
-| `_providerConfig.assets.portal.v2.darkForeground`    | `#fafafa`     | Default text color in dark mode                                                                                    |
-| `_providerConfig.assets.portal.v2.darkCta`           | `#ffffff`     | CTA button in dark mode                                                                                            |
-| `_providerConfig.assets.portal.v2.darkCtaForeground` | auto-contrast | Text on the CTA button in dark mode                                                                                |
+| Token                 | Light default | Dark default | Description                                                    |
+| --------------------- | ------------- | ------------ | -------------------------------------------------------------- |
+| `background`          | `#ffffff`     | `#09090b`    | Page surface                                                   |
+| `foreground`          | `#09090b`     | `#fafafa`    | Body text                                                      |
+| `primary`             | `#3b82f6`     | `#3b82f6`    | Brand color: primary buttons, links, active items              |
+| `primaryForeground`   | `#ffffff`     | `#ffffff`    | Text and icons on `primary`; auto-contrasts when unset         |
+| `secondary`           | `#60a5fa`     | `#1e3a5f`    | Secondary buttons and accents                                  |
+| `secondaryForeground` | `#0a0a0a`     | `#fafafa`    | Text on `secondary`; auto-contrasts when unset                 |
+| `muted`               | `#f4f4f5`     | `#27272a`    | Recessed surfaces: sidebar, hover states                       |
+| `mutedForeground`     | `#71717a`     | `#a1a1aa`    | De-emphasized text, such as helper text                        |
+| `border`              | `#e4e4e7`     | `#3f3f46`    | Borders                                                        |
 
-Each token resolves independently: the `v2` attribute if set, otherwise a legacy fallback — only `primary` (from `primaryColor700`) and `cta` (from `secondaryColor900`) have one — otherwise the built-in default. A foreground token you leave unset is computed for readability from the relative luminance of its background: `primaryForeground` from `primary`, `ctaForeground` from `cta`, `darkCtaForeground` from `darkCta`, and `foreground` / `darkForeground` from `background` / `darkBackground` when you set those explicitly.
+_Derived tokens_ — no default of their own; set one to override it, or leave it unset and it follows its base token. This is what lets a lone custom `primary` also move the focus ring:
+
+| Token              | Follows when unset |
+| ------------------ | ------------------ |
+| `card`             | `background`       |
+| `cardForeground`   | `foreground`       |
+| `accent`           | `muted`            |
+| `accentForeground` | `foreground`       |
+| `input`            | `border`           |
+| `ring`             | `primary`          |
+
+_Other tokens_ — `radius` (a CSS length) and `fontFamily` (a CSS font stack).
+
+Three behaviors are worth knowing:
+
+- **Brand color is mode-independent.** Set `primary` or `secondary` and leave the dark override unset, and dark mode inherits your light value rather than reverting to the default. Surface and neutral tokens never inherit, so a light `background` will not light up dark mode.
+- **Foregrounds auto-contrast.** `primaryForeground` and `secondaryForeground`, when unset, are computed as a readable near-black or white from their background's relative luminance. `foreground` does the same from `background`, but only when that value is measurable hex.
+- **Per-surface defaults differ slightly.** The Admin Portal's own `primary` default is `#1570c2` and its `radius` default is `0.5rem`, against `0.625rem` on the login pages. Those only apply when you leave the token unset.
+
+Each token resolves independently: the `theme.v2` attribute if set, otherwise the surface's legacy fallback where one exists, otherwise a derivation, otherwise the built-in default.
+
+Email is the one surface that does **not** fall back to resolved defaults — only tokens you have explicitly set reach the email templates, because their built-in defaults deliberately differ from the login palette. An unbranded realm's email is unchanged.
+
+See [Admin Portal configuration](../admin-portal/configuration.md#theme-tokens) for how the portal applies these at runtime, including how the sidebar derives from them.
 
 _Legacy (deprecated)_
 
-These keys follow the [Tailwind color](https://tailwindcss.com/docs/customizing-colors) scale, with the lowest number lightest. They are still read, but only `primaryColor700` and `secondaryColor900` affect rendering — as the two fallbacks above. Set the `v2` tokens to customize anything else.
+These Admin Portal keys follow the [Tailwind color](https://tailwindcss.com/docs/customizing-colors) scale, with the lowest number lightest. They are still read, but only `primaryColor700` still affects rendering, as the legacy fallback for `primary`. `secondaryColor900` used to feed a separate `cta` token for the neutral emphasized button; that token has folded into `primary`, so a realm which only customized `secondaryColor900` should set `_providerConfig.assets.theme.v2.primary` instead. Set the `theme.v2` tokens to customize anything else.
 
 | Attribute                                         | Default | Description                                                                       |
 | ------------------------------------------------- | ------- | --------------------------------------------------------------------------------- |

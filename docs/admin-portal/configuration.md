@@ -32,37 +32,42 @@ The portal is built on [shadcn/ui](https://ui.shadcn.com/) components that read 
 
 #### Theme tokens
 
-Each token is a realm attribute prefixed with `_providerConfig.assets.portal.v2.` — for example, the `primary` token is set with `_providerConfig.assets.portal.v2.primary`. `#rgb` and `#rrggbb` hex values are the recommended format for colors. Bare CSS color keywords such as `red` or `transparent`, and the `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()` and `oklch()` functions, are also accepted — but contrast is only measured from hex, so a keyword or color function leaves `foreground` and `darkForeground` at their built-in defaults and resolves `primaryForeground`, `ctaForeground` and `darkCtaForeground` to white. Set the matching foreground token explicitly whenever you use one. The **Styles**->_Portal_ tab of the admin UI does not expose these fields yet, so set them with the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON.
+Brand tokens are **shared across surfaces**. Each one is a realm attribute prefixed with `_providerConfig.assets.theme.v2.` — for example, the `primary` token is set with `_providerConfig.assets.theme.v2.primary`. The same attributes drive the `phasetwo-ui` login theme and the email templates, so branding a realm once brands all three.
 
-| Token               | CSS variable                                                             | Default                                                         | Notes                                                                                                              |
-| ------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `primary`           | `--primary`, `--ring`                                                    | `#1570c2`                                                       | Brand color: primary buttons, links, focus rings, active sidebar item. Legacy fallback: `primaryColor700`.         |
-| `primaryForeground` | `--primary-foreground`                                                   | auto-contrast of `primary`                                      | Text and icons drawn on top of `primary`.                                                                          |
-| `cta`               | `--cta`                                                                  | `#252627`                                                       | Neutral emphasized action button, distinct from the brand-colored `primary`. Legacy fallback: `secondaryColor900`. |
-| `ctaForeground`     | `--cta-foreground`                                                       | auto-contrast of `cta`                                          | Text drawn on top of `cta`.                                                                                        |
-| `background`        | `--background`, `--card`, `--popover` (light mode)                       | `#ffffff`                                                       | Page, card and popover surface.                                                                                    |
-| `foreground`        | `--foreground`, `--card-foreground`, `--popover-foreground` (light mode) | `#09090b`, or auto-contrast of `background` when you set it     | Body text. `--muted-foreground` is a mix of it and `background`.                                                   |
-| `muted`             | `--muted`, `--secondary`, `--accent` (light mode)                        | `#f4f4f5`                                                       | Recessed surfaces: sidebar, secondary buttons, hover states. No effect in dark mode.                               |
-| `border`            | `--border`, `--input` (light mode)                                       | `#e4e4e7`                                                       | Borders and input outlines. No effect in dark mode.                                                                |
-| `radius`            | `--radius`                                                               | `0.5rem`                                                        | Corner radius. Accepts a CSS length such as `0`, `4px`, `0.5rem` or `1em`.                                         |
-| `darkBackground`    | `--background`, `--card`, `--popover` (dark mode)                        | `#09090b`                                                       | Dark mode base surface. The other dark surfaces are mixed from it.                                                 |
-| `darkForeground`    | `--foreground` (dark mode)                                               | `#fafafa`, or auto-contrast of `darkBackground` when you set it | Body text in dark mode.                                                                                            |
-| `darkCta`           | `--cta` (dark mode)                                                      | `#ffffff`                                                       | CTA button in dark mode.                                                                                           |
-| `darkCtaForeground` | `--cta-foreground` (dark mode)                                           | auto-contrast of `darkCta`                                      | Text drawn on top of `darkCta`.                                                                                    |
+Every color token takes an optional dark-mode override named `dark<Token>` — for example `_providerConfig.assets.theme.v2.darkBackground`.
 
-Every foreground token is optional, but they fall back in two different ways. `primaryForeground`, `ctaForeground` and `darkCtaForeground` have no built-in default: when one is unset, a readable near-black or white is always computed from the relative luminance of `primary`, `cta` or `darkCta`. `foreground` and `darkForeground` do have built-in defaults, and keep them unless you set `background` or `darkBackground` — set one of those and the matching text color is auto-contrasted from it instead, so a lone dark `background` never leaves near-black text on top of it.
+`#rgb` and `#rrggbb` hex values are the recommended format. Bare CSS color keywords such as `red`, and the `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()` and `oklch()` functions, are also accepted — but contrast is only measured from hex, so a keyword or color function leaves `foreground` at its built-in default and resolves `primaryForeground` and `secondaryForeground` to white. Set the matching foreground token explicitly whenever you use one.
 
-The `--sidebar-*` variables have no tokens of their own — the sidebar is a recessed surface, so it reuses `muted`, `border` and `primary` for its surfaces, and `foreground` and `primaryForeground` for the text on them.
+Because these tokens are shared rather than portal-specific, the admin UI edits them under **Styles**->_Login_ — the **Styles**->_Portal_ tab still shows the legacy portal colors described below. You can also set them with the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON.
+
+The full token list — nine base tokens with built-in defaults, six derived tokens that follow a base token until you set them, plus `radius` and `fontFamily` — is documented once in [Customizing the UI](../getting-started/customizing-ui.md#manually-by-realm-attributes), since the same tokens drive the login pages and email.
+
+The Admin Portal's own defaults differ from the login palette in two places: `primary` defaults to `#1570c2` rather than `#3b82f6`, and `radius` to `0.5rem` rather than `0.625rem`. Those apply only where you leave the token unset.
+
+The `--sidebar-*` variables have no tokens of their own — the sidebar is a recessed surface, so it reuses `muted` for its background, `border` for its hover tint, and `primary` for the active item and focus ring. Brand those three and the sidebar follows.
 
 #### Precedence
 
-Every token resolves independently: the `v2` attribute if it is set, then — for `primary` and `cta` only — the matching legacy attribute, then the built-in default. `primary` and `cta` are the only tokens with a legacy fallback. A value that is not a valid color, or not a valid CSS length in the case of `radius`, is treated as unset and falls through to the next step.
+Every token resolves independently, first valid value winning:
 
-`primaryForeground`, `ctaForeground` and `darkCtaForeground` have no built-in default at all: their second step _is_ the contrast derivation described above, so they always resolve to a readable color for whatever `primary`, `cta` or `darkCta` ended up being.
+1. the `theme.v2.<token>` attribute (or `dark<Token>` in dark mode);
+2. for `primary` only, the legacy `primaryColor700` attribute;
+3. for a derived token, the base token it follows;
+4. the built-in default for that mode.
+
+A value that is not a valid color — or not a valid CSS length, for `radius` — is treated as unset and falls through to the next step.
+
+Three behaviors are worth knowing:
+
+- **Brand color is mode-independent.** Set `primary` or `secondary` and leave the dark override unset, and dark mode inherits your light value rather than reverting to the default. Surface and neutral tokens never inherit: a light `background` will not light up dark mode.
+- **Foregrounds auto-contrast.** `primaryForeground` and `secondaryForeground`, when unset, are computed as a readable near-black or white from the relative luminance of their background. `foreground` does the same from `background`, but only when that value is a measurable hex color — assuming a dark background would put white text on `background: white`.
+- **Values are validated** before they reach the stylesheet, so a malformed attribute cannot break out of the rule.
 
 #### Legacy colors
 
-The older `_providerConfig.assets.portal.primaryColor*` and `_providerConfig.assets.portal.secondaryColor*` attributes are still read, but only two of them still affect rendering: `primaryColor700` is the fallback for the `primary` token, and `secondaryColor900` is the fallback for `cta`. The rest — `primaryColor100`, `primaryColor200`, `primaryColor400`, `primaryColor500`, `primaryColor600` and `primaryColor900` — are accepted and ignored. They used to style incidental details rather than surfaces, so use the `v2` tokens above to customize surfaces. `secondaryColor800` is ignored for a different reason: it was the CTA button's hover shade, which is now derived from `cta` itself (the button renders as `bg-cta/90` on hover).
+The older `_providerConfig.assets.portal.primaryColor*` and `_providerConfig.assets.portal.secondaryColor*` attributes are still read, but only `primaryColor700` still affects rendering: it is the fallback for the `primary` token. Every other legacy key — `primaryColor100`, `primaryColor200`, `primaryColor400`, `primaryColor500`, `primaryColor600`, `primaryColor900`, `secondaryColor800` and `secondaryColor900` — is accepted and ignored. They used to style incidental details rather than surfaces, so promoting them would repaint the page with a color that never had that role.
+
+`secondaryColor900` deserves a specific note: it used to be the fallback for a separate `cta` token, the neutral emphasized action button. That token has folded into `primary`, so a realm that only ever customized `secondaryColor900` should set `_providerConfig.assets.theme.v2.primary` instead.
 
 These legacy fields are what the **Styles**->_Portal_ tab of the admin UI shows today:
 
