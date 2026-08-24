@@ -35,6 +35,7 @@ module.exports = {
         "self-service/dedicated-clusters",
         "self-service/create-a-cluster",
         "self-service/regions",
+        "self-service/egress-ip-addresses",
         "self-service/custom-domains",
         {
           type: "category",
