@@ -57,7 +57,7 @@ For this example, we need to disable "Client Authentication" in the OIDC client.
    export default defineNuxtPlugin((nuxtApp) => {
      const initOptions: KeycloakConfig = {
        url: "https://euc1.auth.ac/auth/",
-       realm: "shared-deployment-001",
+       realm: "my-realm",
        clientId: "reg-example-1",
      };
 
@@ -87,7 +87,7 @@ The [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) package is 
    export const keycloakConfig = {
      authorityUrl: "https://euc1.auth.ac",
      applicationUrl: "http://localhost:3000",
-     realm: "shared-deployment-001",
+     realm: "my-realm",
      clientId: "reg-example-1",
      clientSecret: "CLIENT_SECRET",
    };

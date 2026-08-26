@@ -91,7 +91,7 @@ Now that we've discussed how the system is designed, let's work through an examp
 
 #### Keycloak Configuration
 
-We'll be using Phase Two's [free hosted Keycloak](/hosting) to set up a deployment and associated organizations. Visit [Phase Two Dashboard](https://dash.phasetwo.io/) to sign up for a free account and create a deployment. After you have created the deployment, click the "Open Console" link to go to the Keycloak deployment.
+We'll be using Phase Two's [hosted Keycloak](/hosting) to set up a realm and associated organizations. Visit the [Phase Two Dashboard](https://dash.phasetwo.io/) to sign up, create a Starter cluster — free for 30 days — and add a realm to it. After you have created the realm, click the "Open Console" link to go to the Keycloak admin console.
 
 Next we'll configure Keycloak and then configure the applications.
 

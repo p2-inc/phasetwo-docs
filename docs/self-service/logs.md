@@ -32,7 +32,7 @@ The streaming view includes a filter bar for narrowing results quickly:
 - **Time range presets**: `Last 15 minutes`, `Last 1 hour`, `Last 6 hours`, `Last 24 hours`, `Last 2 days`, `Last 7 days`, and `Last 30 days`
 - **Custom time window**: set exact **From** and **To** values
 - **Search**: text search with optional LogQL-style line match operators
-- **Realm**: limit results to a specific deployment/realm in the cluster, or view all realms
+- **Realm**: limit results to a specific realm in the cluster, or view all realms
 - **Level**: filter by `INFO`, `WARN`, `ERROR`, `DEBUG`, `TRACE`, and `FATAL`
 - **Limit**: choose how many rows to fetch per query: `200`, `500`, `1000`, or `2000`
 - **Refresh**: rerun the current query immediately

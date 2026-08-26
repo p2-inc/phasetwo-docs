@@ -66,7 +66,7 @@ const TIERS: Tier[] = [
     features: [
       "Up to 15K monthly active users",
       "Dedicated, independently provisioned cluster",
-      "95% uptime guarantee",
+      "95% uptime target (best effort, no SLA)",
       "Unlimited SSO connections · 1 custom domain",
       "Email support",
     ],

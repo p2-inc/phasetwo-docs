@@ -1,21 +1,25 @@
 ---
 id: sla
-title: Phase Two Dedicated and Enterprise Clusters Service Level Agreement (SLA)
+title: Phase Two Cluster Service Level Agreement (SLA)
 ---
 
-> Please read this Service Level Agreement carefully before subscribing to our Dedicated or Enterprise Cluster offering.
+> Please read this Service Level Agreement carefully before subscribing to a Phase Two cluster.
+
+This Service Level Agreement applies to Premium and Enterprise clusters. Starter clusters are operated on a best-effort basis and are not covered by the commitments in this Agreement.
 
 This Service Level Agreement between Phase Two and the customer outlines the level of service, the process by which the customer can request technical support or submit a claim for not meeting the service level and request credit for the period of time service level was not met.
 
 ### Uptime
 
-We guarantee at least 99.5% availability on Dedicated plans and 99.95% on Enterprise plans. In case of an outage larger than that occurring during more than one day (24 hours), Phase Two will provide the Customer with service credits equaling an amount of 50% of the monthly equivalent instance’s subscription cost for all outages during a calendar month. Service credits will be calculated in accordance with the following formula :
+We guarantee at least 99.5% availability on Premium plans and 99.95% on Enterprise plans. Starter clusters target 95% availability on a best-effort basis; Phase Two makes no availability commitment for Starter clusters and they are not eligible for the service credits described below. In case of an outage larger than that occurring during more than one day (24 hours), Phase Two will provide the Customer with service credits equaling an amount of 50% of the monthly equivalent instance’s subscription cost for all outages during a calendar month. Service credits will be calculated in accordance with the following formula :
 
 Service credit = (Annualized subscription cost / 12) \* 50%
 
 Definition of Availability. “Availability” means the ability for end users to successfully authenticate through the primary Keycloak authentication endpoint. Availability is measured at the application endpoint level and excludes Excluded Events as defined in this SLA. Availability does not include performance degradation, latency, partial feature unavailability, or issues affecting only administrative functionality, unless such issues prevent user authentication entirely.
 
 ### Response and resolution times
+
+The following apply to Premium and Enterprise clusters.
 
 - Urgent server-down issues will receive a response within one (1) hour and Phase Two will use commercially reasonable efforts to restore service within four (4) hours. Urgent level is reached when the Customer’s Keycloak deployment has availability issues (user cannot login).
 - Routine issues will be acknowledged within 1 working day. Issues within Phase Two’s span of control will also be resolved within 1 working day. Routine priority level is for every other support request.

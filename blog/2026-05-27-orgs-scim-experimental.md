@@ -58,6 +58,6 @@ If you're evaluating this for a production rollout, the realistic posture is: it
 
 If you're already running Phase Two's Keycloak extensions, upgrade to the latest `keycloak-orgs`, enable the realm-level `scimEnabled` flag, and the SCIM tab will appear on each organization. The [SCIM docs](https://github.com/p2-inc/keycloak-orgs/blob/main/docs/scim.md) walk through the realm flag, the per-organization configuration, and each of the four authentication modes.
 
-If you want to skip the self-host setup, you can try this on a free realm in the [Phase Two Dashboard](https://dash.phasetwo.io/) — the same Organization SCIM capability is available there.
+If you want to skip the self-host setup, you can try this on a Starter cluster in the [Phase Two Dashboard](https://dash.phasetwo.io/), free for 30 days — the same Organization SCIM capability is available there.
 
 Feedback, bug reports, and use-case stories are all welcome on the [keycloak-orgs issue tracker](https://github.com/p2-inc/keycloak-orgs/issues) or directly to [support@phasetwo.io](mailto:support@phasetwo.io). The faster we hear from real integrations, the faster we get this to stable.

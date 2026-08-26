@@ -3,7 +3,7 @@ id: your-organization
 title: Teams (Organizations)
 ---
 
-Teams, or Organizations, allow you to create a team to manage your Phase Two Deployments and Clusters. You can use the Teams link in the navigation to view and manage your organization for teams you are a member. Every realm and cluster also displays information about the associated team.
+Teams, or Organizations, allow you to create a team to manage your Phase Two Realms and Clusters. You can use the Teams link in the navigation to view and manage your organization for teams you are a member. Every realm and cluster also displays information about the associated team.
 
 Visit the [Teams overview](https://dash.phasetwo.io/teams)
 

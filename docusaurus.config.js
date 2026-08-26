@@ -1143,6 +1143,17 @@ module.exports = {
             from: "/blog/keycloak-vs-onelogin-open-source-alternative",
             to: "/keycloak-alternatives/onelogin/",
           },
+          // Free shared realms were retired 2026-07-30. The realm docs moved to
+          // a cluster-scoped name, and the standalone hosting page they fed was
+          // folded into the dedicated-clusters page.
+          {
+            from: "/docs/self-service/deployments",
+            to: "/docs/self-service/realms",
+          },
+          {
+            from: "/hosting/deployments",
+            to: "/hosting/dedicated-clusters",
+          },
         ],
       },
     ],

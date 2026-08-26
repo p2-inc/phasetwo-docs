@@ -85,7 +85,6 @@ const IDP_ROUTING_NOTE =
 
 const PAGE_CTA = {
   primaryText: "Ready to Try Keycloak?",
-  secondaryText: "Create Your Free Deployment Today.",
   ctaLabel: "Try for Free",
   ctaHref: "https://dash.phasetwo.io/",
 };
@@ -206,7 +205,6 @@ export default function OnPrem() {
           sectionClassName="subpage-section cta-section-gradient"
           background="primary"
           primaryText={PAGE_CTA.primaryText}
-          secondaryText={PAGE_CTA.secondaryText}
           showCta
           ctaLabel={PAGE_CTA.ctaLabel}
           ctaHref={PAGE_CTA.ctaHref}

@@ -5,12 +5,19 @@ function isExternalHref(href) {
 }
 
 /**
+ * The default second line for product and hosting CTAs. Kept here rather than
+ * repeated at every call site so pricing changes are a one-line edit; pass
+ * `secondaryText` explicitly to override it.
+ */
+export const DEFAULT_CTA_SECONDARY_TEXT = "Start Your 30-Day Free Trial Today.";
+
+/**
  * Homepage CTA section with two text weights (medium + light) and optional button.
  */
 export default function Cta({
   background = "primary", // "primary" | "secondary"
   primaryText,
-  secondaryText,
+  secondaryText = DEFAULT_CTA_SECONDARY_TEXT,
   showCta = true,
   ctaLabel,
   ctaHref,

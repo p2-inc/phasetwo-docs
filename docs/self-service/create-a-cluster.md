@@ -16,11 +16,11 @@ Creating a new cluster can be started in a couple of ways:
 
 Dedicated clusters are available in three tiers. For custom requirements (multi-region, on-prem, custom DPA, or higher limits) you should message our team to discus further.
 
-| Tier       | Best for                                          | Concurrent sessions | Uptime SLA | Notes                                               |
-| ---------- | ------------------------------------------------- | ------------------- | ---------- | --------------------------------------------------- |
-| Starter    | New projects and small teams moving to production | Up to 1,000         | 99%        | Includes a 30-day free trial. Monthly billing only. |
-| Premium    | Growing products with real traffic                | Up to 10,000        | 99.5%      | Monthly or annual billing.                          |
-| Enterprise | High-scale products needing priority support      | Up to 50,000        | 99.9%      | Monthly or annual billing.                          |
+| Tier       | Best for                                          | Monthly active users | Uptime                | Notes                                               |
+| ---------- | ------------------------------------------------- | -------------------- | --------------------- | --------------------------------------------------- |
+| Starter    | New projects and small teams moving to production | Up to 15K            | 95% target, no SLA    | Includes a 30-day free trial. Monthly billing only. |
+| Premium    | Growing products with real traffic                | Up to 100K           | 99.5% SLA             | Monthly or annual billing.                          |
+| Enterprise | High-scale products needing priority support      | Up to 250K           | 99.95% SLA            | Monthly or annual billing.                          |
 
 All tiers run on isolated, high-availability infrastructure and include the core Keycloak + Phase Two feature set, custom domains, and theming. For current pricing and the full feature-by-feature breakdown, see the [Pricing page](/pricing) or open **Detailed comparison** in the create flow.
 

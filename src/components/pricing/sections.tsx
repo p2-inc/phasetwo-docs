@@ -93,7 +93,7 @@ const Sections: {
       {
         name: "Custom themes",
         description:
-          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but voids the SLA.",
+          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but not covered by the uptime guarantee.",
         tiers: {
           starter: true,
           premium: true,
@@ -417,7 +417,7 @@ const Sections: {
       {
         name: "Uptime Guarantee",
         tiers: {
-          starter: "95%",
+          starter: "95% target",
           premium: "99.5%",
           enterprise: "99.95%",
           custom: "99.95%",
@@ -426,7 +426,7 @@ const Sections: {
       {
         name: "SLA",
         tiers: {
-          starter: "Standard",
+          starter: "Best effort",
           premium: "Standard",
           enterprise: "Enhanced",
           custom: "Custom",

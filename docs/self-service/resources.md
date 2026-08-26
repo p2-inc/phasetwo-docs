@@ -3,7 +3,7 @@ id: resources
 title: Cluster Resources (Themes, Extensions, and Denylists)
 ---
 
-Resources can be uploaded to your cluster for deployment to any Realm (deployment) in that cluster. A cluster resource is one of three types:
+Resources can be uploaded to your cluster for deployment to any Realm in that cluster. A cluster resource is one of three types:
 
 - **Theme** — a Keycloak theme for login, account, or email UI customization. Uploaded per Keycloak major version.
 - **Extension** — a Keycloak server extension JAR (providers and SPI code). Uploaded per Keycloak major version.
@@ -65,7 +65,7 @@ alt="Resources Update Cluster"
 style={{ width: "60%", borderRadius: "8px" }}
 />
 
-Once the refresh is complete, visit your Realm (deployment) and select the theme for use. For an extension, configure it in your Realm according to how the extension operates. For a Password Denylist, use **Apply to Realm** as described below.
+Once the refresh is complete, visit your Realm and select the theme for use. For an extension, configure it in your Realm according to how the extension operates. For a Password Denylist, use **Apply to Realm** as described below.
 
 ### Applying a Password Denylist to a realm
 

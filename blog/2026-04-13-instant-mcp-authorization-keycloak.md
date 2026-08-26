@@ -25,7 +25,7 @@ This walkthrough uses:
 - `Include in token scope` enabled for `mcp:run`
 - Trusted Hosts removed from anonymous client registration policies so VS Code's DCR request is accepted
 
-If you do not want to host and configure Keycloak yourself, you can create a free realm in the [Phase Two Dashboard](https://dash.phasetwo.io/) and use that instead of a self-hosted local Keycloak instance. The rest of the MCP-side setup stays the same.
+If you do not want to host and configure Keycloak yourself, you can create a Starter cluster in the [Phase Two Dashboard](https://dash.phasetwo.io/) — it comes with a 30-day free trial — and use that instead of a self-hosted local Keycloak instance. The rest of the MCP-side setup stays the same.
 
 ## What you are building
 
@@ -174,7 +174,7 @@ Sign in as:
 - Username: `admin`
 - Password: `admin`
 
-If you want to skip self-hosting, create a free realm in the [Phase Two Dashboard](https://dash.phasetwo.io/) instead. For this tutorial, that is usually the fastest route because you avoid local Keycloak setup, bootstrap admin credentials, and one-off realm configuration from scratch.
+If you want to skip self-hosting, create a Starter cluster in the [Phase Two Dashboard](https://dash.phasetwo.io/) instead — it starts with a 30-day free trial. For this tutorial, that is usually the fastest route because you avoid local Keycloak setup, bootstrap admin credentials, and one-off realm configuration from scratch.
 
 ## Step 4: Create the realm and a test user
 
@@ -412,4 +412,4 @@ If those are true, you have a clean local setup for a Keycloak-protected MCP ser
 
 If you like this pattern but do not want to spend time standing up and operating Keycloak, Phase Two's hosted Keycloak offering is the fastest way to get there. You get a managed realm, a production-ready control plane, and a much shorter path from prototype to deployed MCP authorization server.
 
-You can start with a free realm in the [Phase Two Dashboard](https://dash.phasetwo.io/) for testing, and when you are ready for a hosted setup with support, upgrades, and operational help, Phase Two's managed Keycloak offering is the easiest way to run an MCP authorization server without owning the infrastructure yourself.
+You can start with a Starter cluster in the [Phase Two Dashboard](https://dash.phasetwo.io/) — free for 30 days — for testing, and when you are ready for a hosted setup with support, upgrades, and operational help, Phase Two's managed Keycloak offering is the easiest way to run an MCP authorization server without owning the infrastructure yourself.

@@ -16,7 +16,7 @@ All charts share the same filter bar (time range, realm, and refresh controls) a
 
 - **Time range presets**: `Last 15 minutes`, `Last 1 hour`, `Last 6 hours`, `Last 24 hours`, `Last 2 days`, `Last 7 days`, and `Last 30 days`
 - **Custom time window**: set exact **From** and **To** values
-- **Realm**: limit results to a specific deployment/realm in the cluster, or view all realms
+- **Realm**: limit results to a specific realm in the cluster, or view all realms
 - **Refresh**: rerun the current query immediately
 - Charts support zooming into a time window; use the reset control to restore the previous range
 
