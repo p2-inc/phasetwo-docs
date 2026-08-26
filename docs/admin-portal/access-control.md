@@ -17,6 +17,7 @@ Profile access requires the User to have the following `account` Client roles. T
 Access to each of the Organization components is controlled by the User's member roles within the organization. There are no organization default roles, so you must grant these to Users after they are created and added to the organization. Member roles can be managed in the **Organizations** section of the Admin UI by selecting the Organization you wish to manage, finding the User in the **Members** tab, and managing their roles using the context menu on the right.
 
 - Details: requires `view-organization` to view, and `manage-organization` to change
+- Attributes: requires `view-organization` to view, and `manage-organization` to edit
 - Members & Invitations: requires `view-organization`
   - requires `view-members` to see members, and `manage-members` to remove or edit them
   - requires `view-roles` to see member roles
@@ -27,18 +28,25 @@ Access to each of the Organization components is controlled by the User's member
 
 Most of the visibility of functionality in the Portal is controlled by user permissions. However, it is also possible to control visibility through Realm Attributes.
 
-When setting the attributes manually, the values are: 
-| `_providerConfig.portal.profile.enabled` | Profile section (whole) | `true` |
-| `_providerConfig.portal.profile.password.enabled` | Password update | `true` |
-| `_providerConfig.portal.profile.twofactor.enabled` | 2fa create/update | `true` |
-| `_providerConfig.portal.profile.activity.enabled` | Device activity | `true` |
-| `_providerConfig.portal.profile.linked.enabled` | Linked accounts | `true` |
-| `_providerConfig.portal.org.enabled` | Organizations section (whole) | `true` |
-| `_providerConfig.portal.org.details.enabled` | Details edit | `true` |
-| `_providerConfig.portal.org.members.enabled` | Members list | `true` |
-| `_providerConfig.portal.org.invitations.enabled` | Invitations | `true` |
-| `_providerConfig.portal.org.domains.enabled` | Domains | `true` |
-| `_providerConfig.portal.org.sso.enabled` | SSO (requires idp-wizard extension) | `true` |
-| `_providerConfig.portal.org.events.enabled` | Events | `true` |
+When setting the attributes manually, the values are:
+
+| Attribute                                             | Controls                                  | Default |
+| ----------------------------------------------------- | ----------------------------------------- | ------- |
+| `_providerConfig.portal.profile.enabled`              | Profile section (whole)                   | `true`  |
+| `_providerConfig.portal.profile.password.enabled`     | Password update                           | `true`  |
+| `_providerConfig.portal.profile.twofactor.enabled`    | 2fa create/update                         | `true`  |
+| `_providerConfig.portal.profile.passwordless.enabled` | Passwordless WebAuthn credentials         | `true`  |
+| `_providerConfig.portal.profile.activity.enabled`     | Device activity                           | `true`  |
+| `_providerConfig.portal.profile.linked.enabled`       | Linked accounts                           | `true`  |
+| `_providerConfig.portal.org.enabled`                  | Organizations section (whole)             | `true`  |
+| `_providerConfig.portal.org.details.enabled`          | Details edit                              | `true`  |
+| `_providerConfig.portal.org.members.enabled`          | Members list                              | `true`  |
+| `_providerConfig.portal.org.invitations.enabled`      | Invitations                               | `true`  |
+| `_providerConfig.portal.org.attributes.enabled`       | Attributes editor (organization settings) | `true`  |
+| `_providerConfig.portal.org.domains.enabled`          | Domains                                   | `true`  |
+| `_providerConfig.portal.org.sso.enabled`              | SSO (requires idp-wizard extension)       | `true`  |
+| `_providerConfig.portal.org.events.enabled`           | Events                                    | `true`  |
+
+The comparison is exact and case-sensitive: only the literal lowercase string `true` enables a section. An attribute that is absent falls back to the default above, and any other value — including `TRUE`, `1` or `yes` — disables the section.
 
 For more on manually setting Realm Attributes for the Admin Portal, view the [Github repo](https://github.com/p2-inc/phasetwo-admin-portal/blob/main/README.md#visibility)
