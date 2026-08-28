@@ -30,6 +30,8 @@ Two commands to install. Apache-2.0. Works against any Keycloak — and gets sha
      shown as invoked, and a couple of MCP tool calls (addFlow / bindRealmAuthenticationFlow)
      with their results. This is the one image that has to sell the whole post: it should be
      obvious at a glance that the agent is *doing* the work, not describing it.
+     A still frame from the demo video below would do the job and is cheaper to produce —
+     this is also the image that ends up on the blog index and the social card.
      Save to: static/blog/keycloak_skills_mcp/session-hero.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/session-hero.png" alt="A Claude Code session configuring magic-link passwordless login on a Phase Two Keycloak realm through the Keycloak MCP server" />
@@ -84,6 +86,25 @@ claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
 -->
 
 Then just ask for what you want — "add passwordless login by magic link", "connect our customer's Okta by email domain", "add login to this React app". The skill figures out which of its chapters applies, asks the one or two questions it actually needs, and goes.
+
+## Watch it work
+
+Rasvan from our team takes an unsecured Angular app and simply says *"I want to secure this app"* — and the skill does the rest: it asks the one question that matters (Phase Two hosted, or self-managed?), picks the cluster and realm over MCP, registers the OIDC client, rewrites the app's own configuration to match, and then the protected route logs in for real against the cluster. No documentation, no admin console, no copy-pasting a client secret between two browser tabs.
+
+<!-- TODO(video): replace VIDEO_ID with the YouTube id once the demo is uploaded.
+     If the final cut also shows the plugin install and the Phase Two login (they are
+     narrated as already-done prerequisites in the recording), move those two into the
+     bullet list below as shown steps rather than prerequisites. -->
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="Keycloak Skills and the Phase Two MCP server — securing an Angular app end to end" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+What the walkthrough covers:
+
+- **Prerequisites** — an agent, the plugin installed, and a Phase Two subscription with a cluster. (The cluster can be created through the plugin too, as above; the demo uses an existing one to keep things moving.)
+- **Authorizing against Phase Two** — the MCP server's OAuth login, so every subsequent call is made as him.
+- **The skill routing the request** — `securing-apps` recognizing an Angular app and asking the hosted-vs-self-managed question before touching anything.
+- **Driving the cluster over MCP** — listing his clusters, choosing the target realm, and registering the client in it.
+- **The payoff** — the app's config updated in place, and a real login completed at the protected endpoint.
 
 ## Any Keycloak — and better the closer you get to ours
 
