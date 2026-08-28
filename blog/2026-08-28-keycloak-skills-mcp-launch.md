@@ -21,7 +21,7 @@ description: Two launches in one — an open-source Agent Skills plugin that tea
 
 Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-skills)** — an open-source Agent Skills plugin that teaches Claude how to configure Keycloak *correctly* — and the **Phase Two Keycloak MCP server**, 158 admin tools that let it do the work against a live cluster instead of just telling you what to type.
 
-Two commands to install. Apache-2.0. Works against any Keycloak.
+Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours.
 
 <!-- truncate -->
 
@@ -85,11 +85,27 @@ claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
 
 Then just ask for what you want — "add passwordless login by magic link", "connect our customer's Okta by email domain", "add login to this React app". The skill figures out which of its chapters applies, asks the one or two questions it actually needs, and goes.
 
-## Any Keycloak — and superpowers on Phase Two
+## Any Keycloak — and better the closer you get to ours
 
-**The skills work against any Keycloak installation.** Bare metal, Docker, Kubernetes, someone else's managed offering. Every chapter ships in two variants, and the skill asks you one question to pick between them: `rest` drives the Keycloak Admin REST API with your own admin token, `mcp` drives the Phase Two MCP server. The Keycloak knowledge is the same either way.
+There are three rungs here, and you get real value on the first one.
 
-But the combination is where it gets fun. On a **Phase Two hosted cluster**, Claude stops writing `curl` commands for you to run and starts operating the realm directly:
+### Rung 1 — any Keycloak at all
+
+**The skills work against any Keycloak installation.** Bare metal, Docker, Kubernetes, someone else's managed offering. Every chapter ships in two variants and the skill asks you one question to pick between them: `rest` drives the Keycloak Admin REST API with your own admin token, `mcp` drives the Phase Two MCP server. The Keycloak knowledge is identical either way.
+
+Plenty of the catalogue is pure stock Keycloak with no extensions involved: passkey-only WebAuthn login, credential enrollment for existing users, social login buttons, enterprise IdP federation, IdP-initiated SSO tiles, and every last thing in `securing-apps`.
+
+### Rung 2 — Phase Two's enhanced Keycloak distribution
+
+Swap your image for **[`quay.io/phasetwo/phasetwo-keycloak`](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags)** and the rest of the catalogue opens up. It's Keycloak with our popular [open-source extensions](https://phasetwo.io/docs/introduction/open-source/) already bundled — [organizations](https://github.com/p2-inc/keycloak-orgs), [magic link](https://github.com/p2-inc/keycloak-magic-link), [events and webhooks](https://github.com/p2-inc/keycloak-events), [attribute-driven themes](https://github.com/p2-inc/keycloak-themes), admin UI and portal customizations. One line of Helm values or one `docker run`; examples live in [phasetwo-containers](https://github.com/p2-inc/phasetwo-containers).
+
+That single change unlocks magic-link login, emailed OTP both passwordless *and* as a second factor, organizations with all three membership-gated login variants, and corporate SSO routed by email domain — none of which exist in stock Keycloak at any price.
+
+And this is exactly where the skills earn their keep, because these flows are assembled from authenticators (`ext-magic-form`, `ext-email-otp`, `ext-select-org`, `ext-auth-username-auth-note`, `ext-auth-home-idp-discovery`) whose **order relative to one another is the behaviour**, and which no amount of general Keycloak knowledge will teach you. Put the organization check after the magic-link step and a non-member still gets a login email. Reach for stock `auth-username-form` instead of the identifier-only authenticator and you leak which addresses have accounts. The skills know these orderings because we've gotten them wrong first.
+
+### Rung 3 — Phase Two hosted
+
+On a **hosted cluster** the MCP server is there too, and Claude stops writing `curl` commands for you to run and starts operating the realm directly:
 
 | Domain | Tools |
 | --- | --- |
@@ -127,17 +143,17 @@ That's the real reason the guidance is shaped the way it is. Every silent failur
 
 ## Verified, not vibed
 
-Skill content is only as good as its testing. Each capability ships with a [skillsbench](https://github.com/anthropics/skillsbench) task in the repo that stands up a real Keycloak in a sandbox and drives an actual login — magic links clicked, passkeys signed by a headless browser's virtual authenticator, a second realm standing in for a partner's IdP for genuine brokered SSO.
+Skill content is only as good as its testing. Each capability ships with a benchmark task in the repo's [`benchmarks/`](https://github.com/p2-inc/keycloak-skills/tree/main/benchmarks) directory that stands up a real Keycloak in a sandbox and drives an actual login — magic links clicked, passkeys signed by a headless browser's virtual authenticator, a second realm standing in for a partner's IdP for genuine brokered SSO.
 
 The assertions are deliberately adversarial, because the plausible-but-wrong answer is the enemy. The email-OTP-as-MFA task asserts that a **wrong password sends no mail at all** — a flow that merely puts a code step in front of a login passes a happy-path test while leaving the password irrelevant. The credential-enrollment task asserts that a user who had no password still has **none** at the end, because setting a temporary one satisfies a naive reading of the goal and defeats its entire point.
 
-<!-- TODO(image, optional): BENCHMARKS — verifier output from a skillsbench run: the task name
+<!-- TODO(image, optional): BENCHMARKS — verifier output from a benchmark run: the task name
      and its passing assertions, ideally one of the negative ones ("no mail sent for a wrong
      password", "user still has no password"). A terminal capture is fine; a small summary
      table across the 14 tasks would be better if one is easy to generate.
      Save to: static/blog/keycloak_skills_mcp/benchmark-run.png
 <figure>
-  <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="skillsbench verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
+  <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="Benchmark verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
   <figcaption>Each capability ships with a sandboxed task that drives a real login and asserts the negative cases too.</figcaption>
 </figure>
 -->
@@ -155,6 +171,8 @@ The assertions are deliberately adversarial, because the plausible-but-wrong ans
 - IdP-initiated SSO from an Okta or Entra portal tile into one specific app
 - Organization-membership login restriction — for local password login, for federated/SSO login, and for magic-link login
 - Phase Two cluster provisioning and new deployments
+
+The magic-link, email-OTP, organization and domain-routed-SSO rows need our extensions — so rung 2 or 3 above. Everything else is stock Keycloak.
 
 **Application integration** (the `securing-apps` skill): browser login, logout and route protection for React, Angular, Vue, Next.js and vanilla SPAs; bearer-JWT validation for Spring Boot, Express, FastAPI and Quarkus resource servers; native login for Android, iOS and React Native; plus registering the OIDC client each one needs — and diagnosing the classics (`invalid redirect_uri`, a 401 from your API, CORS on the token call, redirect loops, missing roles).
 
@@ -177,4 +195,4 @@ claude plugin install phasetwo@keycloak-skills
 
 ---
 
-Star and fork the repo at [p2-inc/keycloak-skills](https://github.com/p2-inc/keycloak-skills). Don't have a Keycloak to point it at? Spin up a [Starter cluster](https://dash.phasetwo.io/clusters) with a 30-day free trial. Questions, or want to tell us what to build next? [support@phasetwo.io](mailto:support@phasetwo.io).
+Star and fork the repo at [p2-inc/keycloak-skills](https://github.com/p2-inc/keycloak-skills). Running your own Keycloak? Pull [`quay.io/phasetwo/phasetwo-keycloak`](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) and the whole catalogue becomes available. Don't have a Keycloak to point it at at all? Spin up a [Starter cluster](https://dash.phasetwo.io/clusters) with a 30-day free trial. Questions, or want to tell us what to build next? [support@phasetwo.io](mailto:support@phasetwo.io).
