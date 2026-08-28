@@ -21,7 +21,7 @@ description: Two launches in one — an open-source Agent Skills plugin that tea
 
 Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-skills)** — an open-source Agent Skills plugin that teaches Claude how to configure Keycloak *correctly* — and the **Phase Two Keycloak MCP server**, 158 admin tools that let it do the work against a live cluster instead of just telling you what to type.
 
-Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours.
+Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours. Don't have a Keycloak yet? The agent can provision one for you and it's free for 30 days.
 
 <!-- truncate -->
 
@@ -44,7 +44,7 @@ Keycloak is enormously powerful, and enormously easy to misconfigure in ways tha
 A few real examples, all of which we've fixed in production for customers:
 
 - Mix `ALTERNATIVE` and `REQUIRED` executions at the same level of an authentication flow and Keycloak **silently erases the alternatives**. This is how "primary login, then a choice of second factors" gets built wrong.
-- The Admin REST calls that create flow executions **do not establish their order**. You have to read the flow back and repair it. Order *is* the behaviour in an `ALTERNATIVE` block — first to succeed wins.
+- The Admin REST calls that create flow executions **do not establish their order**. You have to read the flow back and repair it. Order *is* the behavior in an `ALTERNATIVE` block — first to succeed wins.
 - Put stock `auth-username-form` in front of an email-OTP step and it rejects unknown addresses with "Invalid username or email" *before* the OTP step runs — leaking which email addresses have accounts.
 - Copy a generic OIDC attribute mapper into a "Sign in with GitHub" setup and it maps **nothing**: GitHub sends `login`, not `preferred_username`, and needs its own `github-user-attribute-mapper`.
 - Keycloak's `partialImport` endpoint accepts authentication flows with an HTTP 200 and creates none of them.
@@ -101,7 +101,7 @@ Swap your image for **[`quay.io/phasetwo/phasetwo-keycloak`](https://quay.io/rep
 
 That single change unlocks magic-link login, emailed OTP both passwordless *and* as a second factor, organizations with all three membership-gated login variants, and corporate SSO routed by email domain — none of which exist in stock Keycloak at any price.
 
-And this is exactly where the skills earn their keep, because these flows are assembled from authenticators (`ext-magic-form`, `ext-email-otp`, `ext-select-org`, `ext-auth-username-auth-note`, `ext-auth-home-idp-discovery`) whose **order relative to one another is the behaviour**, and which no amount of general Keycloak knowledge will teach you. Put the organization check after the magic-link step and a non-member still gets a login email. Reach for stock `auth-username-form` instead of the identifier-only authenticator and you leak which addresses have accounts. The skills know these orderings because we've gotten them wrong first.
+And this is exactly where the skills earn their keep, because these flows are assembled from authenticators (`ext-magic-form`, `ext-email-otp`, `ext-select-org`, `ext-auth-username-auth-note`, `ext-auth-home-idp-discovery`) whose **order relative to one another is the behavior**, and which no amount of general Keycloak knowledge will teach you. Put the organization check after the magic-link step and a non-member still gets a login email. Reach for stock `auth-username-form` instead of the identifier-only authenticator and you leak which addresses have accounts. The skills know these orderings because we've gotten them wrong first.
 
 ### Rung 3 — Phase Two hosted
 
@@ -131,9 +131,33 @@ On a **hosted cluster** the MCP server is there too, and Claude stops writing `c
      Save to: static/blog/keycloak_skills_mcp/deletion-refused.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/deletion-refused.png" alt="The skill declining a request to delete a Keycloak realm, explaining that deletion is console-only and pointing at the Phase Two dashboard" />
-  <figcaption>Destructive requests are denied by the skill and by the server — not left to the model's judgement.</figcaption>
+  <figcaption>Destructive requests are denied by the skill and by the server — not left to the model's judgment.</figcaption>
 </figure>
 -->
+
+### No Keycloak at all? Ask the agent for one
+
+Here's our favorite part. You don't need an existing cluster to start — **the agent can provision you a Starter cluster, on a 30-day free trial, without you leaving the session.**
+
+Say "spin up a Phase Two cluster" and the skill walks the whole thing: identifies you from your token, finds the organization that will own the cluster, lists the available regions, checks your chosen name is free, and calls `createCluster` on the **Starter** tier — [$149/month with a 30-day free trial](https://phasetwo.io/blog/starter-tier-launch/). It hands you the Stripe checkout link to open yourself (it will never enter payment details on your behalf — that's an explicit rule in the skill, not a limitation), polls `getCluster` until the status goes `BILLING_SETUP → PROVISIONING → ACTIVE`, then offers to create your first deployment and point a custom domain at it.
+
+And then it keeps going. Same session, same agent: "now add passwordless login by magic link" against the cluster it just built for you. From nothing to a running, observable, passwordless Keycloak in one conversation.
+
+<!-- TODO(image): PROVISIONING — the agent standing up a Starter cluster: the batched question
+     (name / region / tier / billing), the returned Stripe checkout link, and the poll through
+     BILLING_SETUP -> PROVISIONING -> ACTIVE. A two-panel crop works well — the question at the
+     top, the ACTIVE status at the bottom. Redact the org UUID and the checkout URL's session id.
+     Save to: static/blog/keycloak_skills_mcp/cluster-provisioning.png
+<figure>
+  <img src="/blog/keycloak_skills_mcp/cluster-provisioning.png" alt="The agent provisioning a Phase Two Starter cluster: name, region and tier chosen, a Stripe checkout link returned, and the cluster status polled through to ACTIVE" />
+  <figcaption>From no Keycloak to an ACTIVE cluster, in the session — the agent hands off payment and never touches it.</figcaption>
+</figure>
+-->
+
+:::info
+**Try the whole thing free**
+Install the plugin, then ask for a cluster. Starter includes a **30-day free trial**, so the entire path — provision, configure, wire up your app — costs nothing to walk end to end.
+:::
 
 ## We run our support desk on this
 
@@ -143,17 +167,17 @@ That's the real reason the guidance is shaped the way it is. Every silent failur
 
 ## Verified, not vibed
 
-Skill content is only as good as its testing. Each capability ships with a benchmark task in the repo's [`benchmarks/`](https://github.com/p2-inc/keycloak-skills/tree/main/benchmarks) directory that stands up a real Keycloak in a sandbox and drives an actual login — magic links clicked, passkeys signed by a headless browser's virtual authenticator, a second realm standing in for a partner's IdP for genuine brokered SSO.
+Skill content is only as good as its testing. Each capability ships with a [skillsbench](https://github.com/benchflow-ai/skillsbench) task in the repo's [`benchmarks/`](https://github.com/p2-inc/keycloak-skills/tree/main/benchmarks) directory that stands up a real Keycloak in a sandbox and drives an actual login — magic links clicked, passkeys signed by a headless browser's virtual authenticator, a second realm standing in for a partner's IdP for genuine brokered SSO.
 
 The assertions are deliberately adversarial, because the plausible-but-wrong answer is the enemy. The email-OTP-as-MFA task asserts that a **wrong password sends no mail at all** — a flow that merely puts a code step in front of a login passes a happy-path test while leaving the password irrelevant. The credential-enrollment task asserts that a user who had no password still has **none** at the end, because setting a temporary one satisfies a naive reading of the goal and defeats its entire point.
 
-<!-- TODO(image, optional): BENCHMARKS — verifier output from a benchmark run: the task name
+<!-- TODO(image, optional): BENCHMARKS — verifier output from a skillsbench run: the task name
      and its passing assertions, ideally one of the negative ones ("no mail sent for a wrong
      password", "user still has no password"). A terminal capture is fine; a small summary
      table across the 14 tasks would be better if one is easy to generate.
      Save to: static/blog/keycloak_skills_mcp/benchmark-run.png
 <figure>
-  <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="Benchmark verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
+  <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="skillsbench verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
   <figcaption>Each capability ships with a sandboxed task that drives a real login and asserts the negative cases too.</figcaption>
 </figure>
 -->
@@ -195,4 +219,4 @@ claude plugin install phasetwo@keycloak-skills
 
 ---
 
-Star and fork the repo at [p2-inc/keycloak-skills](https://github.com/p2-inc/keycloak-skills). Running your own Keycloak? Pull [`quay.io/phasetwo/phasetwo-keycloak`](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) and the whole catalogue becomes available. Don't have a Keycloak to point it at at all? Spin up a [Starter cluster](https://dash.phasetwo.io/clusters) with a 30-day free trial. Questions, or want to tell us what to build next? [support@phasetwo.io](mailto:support@phasetwo.io).
+Star and fork the repo at [p2-inc/keycloak-skills](https://github.com/p2-inc/keycloak-skills). Running your own Keycloak? Pull [`quay.io/phasetwo/phasetwo-keycloak`](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) and the whole catalogue becomes available. Don't have a Keycloak at all? Install the plugin and just ask for one — a [Starter cluster](https://dash.phasetwo.io/clusters) comes with a 30-day free trial and the agent can provision it for you. Questions, or want to tell us what to build next? [support@phasetwo.io](mailto:support@phasetwo.io).

@@ -10,6 +10,7 @@ uncomment.
 | `session-hero.png` | A Claude Code session mid-task: prompt, the `keycloak` skill invoked, MCP tool calls and results. The one image that has to sell the post. |
 | `plugin-install.png` | The interactive `/plugin` browser on the `phasetwo` plugin, or `claude plugin details phasetwo` showing Skills (2) + MCP servers (1). |
 | `deletion-refused.png` | The skill declining a "delete the realm" request and pointing at the dashboard. Crop tight. |
+| `cluster-provisioning.png` | The agent standing up a Starter cluster — batched question, Stripe checkout link, poll to ACTIVE. Redact the org UUID and checkout session id. |
 | `benchmark-run.png` | *Optional.* skillsbench verifier output, ideally a passing negative assertion. |
 
-Delete this file once all four are in.
+Delete this file once all five are in.
