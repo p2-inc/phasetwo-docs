@@ -1,0 +1,180 @@
+---
+title: Keycloak Skills and the Phase Two MCP Server
+slug: keycloak-skills-mcp-launch
+date: 2026-08-28
+authors: phasetwo
+tags:
+  [
+    phase_two,
+    keycloak,
+    mcp,
+    claude,
+    agent-skills,
+    ai,
+    open_source,
+    sso,
+    passwordless,
+    dedicated-clusters,
+  ]
+description: Two launches in one — an open-source Agent Skills plugin that teaches Claude how to configure Keycloak properly, and the Phase Two Keycloak MCP server with 158 admin tools. Install it in two commands.
+---
+
+Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-skills)** — an open-source Agent Skills plugin that teaches Claude how to configure Keycloak *correctly* — and the **Phase Two Keycloak MCP server**, 158 admin tools that let it do the work against a live cluster instead of just telling you what to type.
+
+Two commands to install. Apache-2.0. Works against any Keycloak.
+
+<!-- truncate -->
+
+<!-- TODO(image): HERO — a Claude Code session in a terminal, mid-task. Prompt visible at the
+     top ("add passwordless login by magic link to our staging realm"), the `keycloak` skill
+     shown as invoked, and a couple of MCP tool calls (addFlow / bindRealmAuthenticationFlow)
+     with their results. This is the one image that has to sell the whole post: it should be
+     obvious at a glance that the agent is *doing* the work, not describing it.
+     Save to: static/blog/keycloak_skills_mcp/session-hero.png
+<figure>
+  <img src="/blog/keycloak_skills_mcp/session-hero.png" alt="A Claude Code session configuring magic-link passwordless login on a Phase Two Keycloak realm through the Keycloak MCP server" />
+  <figcaption>Ask for the outcome; the skill picks the recipe and the MCP tools do the work.</figcaption>
+</figure>
+-->
+
+## The problem with asking an AI about Keycloak
+
+Keycloak is enormously powerful, and enormously easy to misconfigure in ways that produce **no error at all**. Ask a general-purpose model to "set up passwordless login" and you will usually get something that looks right, returns `204 No Content` from every call, and is quietly broken.
+
+A few real examples, all of which we've fixed in production for customers:
+
+- Mix `ALTERNATIVE` and `REQUIRED` executions at the same level of an authentication flow and Keycloak **silently erases the alternatives**. This is how "primary login, then a choice of second factors" gets built wrong.
+- The Admin REST calls that create flow executions **do not establish their order**. You have to read the flow back and repair it. Order *is* the behaviour in an `ALTERNATIVE` block — first to succeed wins.
+- Put stock `auth-username-form` in front of an email-OTP step and it rejects unknown addresses with "Invalid username or email" *before* the OTP step runs — leaking which email addresses have accounts.
+- Copy a generic OIDC attribute mapper into a "Sign in with GitHub" setup and it maps **nothing**: GitHub sends `login`, not `preferred_username`, and needs its own `github-user-attribute-mapper`.
+- Keycloak's `partialImport` endpoint accepts authentication flows with an HTTP 200 and creates none of them.
+- For an IdP-initiated SSO tile, two client attributes silently outrank the redirect you configured, and `RelayState` — which looks exactly like the routing mechanism — is discarded outright.
+- `CONFIGURE_TOTP` ships **registered but disabled**. A required action you set on a user is accepted by the API and then never prompts.
+
+None of that is guessable. It's the accumulated scar tissue of years of running Keycloak, and it's exactly what we've distilled into these skills — 30 reference chapters for realm administration, 18 for application integration, roughly 12,000 lines of verified guidance.
+
+## Install it
+
+```bash
+claude plugin marketplace add p2-inc/keycloak-skills
+```
+
+```bash
+claude plugin install phasetwo@keycloak-skills
+```
+
+Or interactively inside a Claude Code session: `/plugin marketplace add p2-inc/keycloak-skills`, then `/plugin install phasetwo`. Restart Claude Code afterwards — skills load at session start.
+
+The plugin **declares the MCP server for you**, so there's nothing else to run. The first tool call opens a browser to authorize; check the connection any time with `/mcp`. If you want the server on its own, without the skills:
+
+```bash
+claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
+```
+
+<!-- TODO(image): INSTALL — the interactive `/plugin` browser inside Claude Code showing the
+     `keycloak-skills` marketplace with the `phasetwo` plugin selected, or the post-install
+     `claude plugin details phasetwo` output listing Skills (2) and MCP servers (1). Prefer
+     whichever more clearly shows the MCP server arriving *with* the plugin, since "there is
+     nothing else to run" is the claim this image is backing up.
+     Save to: static/blog/keycloak_skills_mcp/plugin-install.png
+<figure>
+  <img src="/blog/keycloak_skills_mcp/plugin-install.png" alt="The Claude Code plugin browser showing the phasetwo plugin in the keycloak-skills marketplace, with two skills and one MCP server" />
+  <figcaption>Two skills and the Keycloak MCP server, installed together — no separate setup step.</figcaption>
+</figure>
+-->
+
+Then just ask for what you want — "add passwordless login by magic link", "connect our customer's Okta by email domain", "add login to this React app". The skill figures out which of its chapters applies, asks the one or two questions it actually needs, and goes.
+
+## Any Keycloak — and superpowers on Phase Two
+
+**The skills work against any Keycloak installation.** Bare metal, Docker, Kubernetes, someone else's managed offering. Every chapter ships in two variants, and the skill asks you one question to pick between them: `rest` drives the Keycloak Admin REST API with your own admin token, `mcp` drives the Phase Two MCP server. The Keycloak knowledge is the same either way.
+
+But the combination is where it gets fun. On a **Phase Two hosted cluster**, Claude stops writing `curl` commands for you to run and starts operating the realm directly:
+
+| Domain | Tools |
+| --- | --- |
+| **Authentication flows** | Create, copy, and author flows; add authenticators, sub-flows and conditionals; set requirements; reorder executions; import a whole flow atomically; bind realm, client and IdP-broker flows |
+| **Identity providers** | Okta OIDC/SAML, generic OIDC/SAML, built-in social providers, attribute and role mappers, IdP↔organization linking |
+| **Clients & scopes** | OIDC and SAML client registration, secret rotation, protocol mappers, client scopes, login themes, and `explainTokenClaims` to show *why* a claim is in a token |
+| **Users, roles, groups** | Search, create, update, passwords, lockout status, required-action emails, realm roles and composites, groups, sessions and forced logout, LDAP user federation with connection test and sync |
+| **Realm settings** | Login and registration, SMTP, WebAuthn passwordless policy, password policy, brute-force protection, themes |
+| **Organizations** | Full [keycloak-orgs](https://github.com/p2-inc/keycloak-orgs) surface — CRUD, domains, members, org roles, invitations |
+| **Events & webhooks** | Event settings, webhook subscriptions, delivery attempts, secrets |
+| **Clusters & deployments** | List and provision clusters, regions, custom domains and their status, environment variables, IP rules, deployments, restart status |
+
+158 tools in all. Two details worth calling out:
+
+**Every call is authorized as *you*.** The MCP server stores no admin credentials of its own — it acts as an OAuth 2.1 resource server, and control-plane calls are made with the bearer token of the human logged into the MCP client. Reaching into a cluster deployment mints a short-lived, deployment-scoped admin token from that same authorization, so your existing roles and permissions apply and the audit trail shows you, not a shared robot.
+
+**It refuses to delete things that matter.** Deleting a cluster, deployment or realm is irreversible — a deployment *is* a realm, so it takes every user, client and flow with it. `deleteCluster` refuses every call and never reaches the API, no tool deletes a deployment or realm at all, and the skill's very first instruction is to deny the request and point you at the dashboard rather than reach for `curl`. Changing a client that already serves traffic requires your confirmation, and the skills verify by reading configuration back rather than trusting a `204`.
+
+<!-- TODO(image): GUARDRAIL — a session where the user asks to delete a cluster/realm ("tear
+     down the staging realm") and the agent declines, explains that it is console-only and
+     why, and links dash.phasetwo.io/clusters — without reaching for curl or the REST API.
+     Crop tight: the refusal text is the whole point, not the surrounding session.
+     Save to: static/blog/keycloak_skills_mcp/deletion-refused.png
+<figure>
+  <img src="/blog/keycloak_skills_mcp/deletion-refused.png" alt="The skill declining a request to delete a Keycloak realm, explaining that deletion is console-only and pointing at the Phase Two dashboard" />
+  <figcaption>Destructive requests are denied by the skill and by the server — not left to the model's judgement.</figcaption>
+</figure>
+-->
+
+## We run our support desk on this
+
+This isn't a demo we built for a launch post. Phase Two's support team uses these skills and this MCP server every day for **customer support, debugging, and hands-on assistance across our fleet of Keycloak clusters, for hundreds of customers**.
+
+That's the real reason the guidance is shaped the way it is. Every silent failure in the list above cost somebody an afternoon before it became a paragraph in a reference file. When a customer opens a ticket saying "MFA isn't prompting" or "the SSO redirect goes to the wrong place," the fastest path to an answer is an agent that already knows the twelve ways each of those goes wrong.
+
+## Verified, not vibed
+
+Skill content is only as good as its testing. Each capability ships with a [skillsbench](https://github.com/anthropics/skillsbench) task in the repo that stands up a real Keycloak in a sandbox and drives an actual login — magic links clicked, passkeys signed by a headless browser's virtual authenticator, a second realm standing in for a partner's IdP for genuine brokered SSO.
+
+The assertions are deliberately adversarial, because the plausible-but-wrong answer is the enemy. The email-OTP-as-MFA task asserts that a **wrong password sends no mail at all** — a flow that merely puts a code step in front of a login passes a happy-path test while leaving the password irrelevant. The credential-enrollment task asserts that a user who had no password still has **none** at the end, because setting a temporary one satisfies a naive reading of the goal and defeats its entire point.
+
+<!-- TODO(image, optional): BENCHMARKS — verifier output from a skillsbench run: the task name
+     and its passing assertions, ideally one of the negative ones ("no mail sent for a wrong
+     password", "user still has no password"). A terminal capture is fine; a small summary
+     table across the 14 tasks would be better if one is easy to generate.
+     Save to: static/blog/keycloak_skills_mcp/benchmark-run.png
+<figure>
+  <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="skillsbench verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
+  <figcaption>Each capability ships with a sandboxed task that drives a real login and asserts the negative cases too.</figcaption>
+</figure>
+-->
+
+## What it covers today
+
+**Realm administration** (the `keycloak` skill):
+
+- Passwordless login — magic link, emailed OTP code, passkey-only WebAuthn, or the combined "0 password required" flow offering a passkey *or* a magic link
+- Emailed OTP as a **second factor** behind a still-required password
+- Credential enrollment for users who already exist — required actions, or an emailed enrollment link
+- Corporate SSO routed by email domain (home realm discovery)
+- Social login buttons — Google, GitHub, Microsoft, Facebook and the rest
+- Enterprise IdP federation — Entra ID, Okta, Auth0, ADFS, AWS SSO, Google Workspace, PingOne, OneLogin, Oracle, Duo, CyberArk, JumpCloud, LastPass, Salesforce, Cloudflare Access, or any generic OIDC/SAML 2.0 IdP
+- IdP-initiated SSO from an Okta or Entra portal tile into one specific app
+- Organization-membership login restriction — for local password login, for federated/SSO login, and for magic-link login
+- Phase Two cluster provisioning and new deployments
+
+**Application integration** (the `securing-apps` skill): browser login, logout and route protection for React, Angular, Vue, Next.js and vanilla SPAs; bearer-JWT validation for Spring Boot, Express, FastAPI and Quarkus resource servers; native login for Android, iOS and React Native; plus registering the OIDC client each one needs — and diagnosing the classics (`invalid redirect_uri`, a 401 from your API, CORS on the token call, redirect loops, missing roles).
+
+## Not covered? Tell us — that's the point
+
+The router is deliberately honest about its edges. Ask for something it doesn't cover and it will **say so** rather than force your request into the nearest-looking recipe and hand you confidently wrong guidance. It will then offer to draft a GitHub issue for you, quoting your request verbatim — because the exact phrasing you used is precisely what the next version needs in order to recognize the case.
+
+So: **[file an issue in `p2-inc/keycloak-skills`](https://github.com/p2-inc/keycloak-skills/issues)**. Missing capability, a chapter that's wrong for your Keycloak version, a tool you wish the MCP server had — all of it is useful, and it's how this grows. New capabilities land as reference chapters under the same skill once they're genuinely written and verified.
+
+## Where this is going
+
+We're committing to this: **distilling years of Keycloak expertise into skills and MCP tools, in the open, so everyone benefits.** Keycloak's power has always come with a learning curve measured in months. Encoding that knowledge where your agent can read it is the most direct way we know to flatten it — for our customers, and for the much larger community running Keycloak themselves.
+
+Two commands, and your agent knows Keycloak.
+
+```bash
+claude plugin marketplace add p2-inc/keycloak-skills
+claude plugin install phasetwo@keycloak-skills
+```
+
+---
+
+Star and fork the repo at [p2-inc/keycloak-skills](https://github.com/p2-inc/keycloak-skills). Don't have a Keycloak to point it at? Spin up a [Starter cluster](https://dash.phasetwo.io/clusters) with a 30-day free trial. Questions, or want to tell us what to build next? [support@phasetwo.io](mailto:support@phasetwo.io).
