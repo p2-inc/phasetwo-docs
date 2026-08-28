@@ -89,7 +89,7 @@ Then just ask for what you want — "add passwordless login by magic link", "con
 
 ## Watch it work
 
-Rasvan from our team takes an unsecured Angular app and simply says *"I want to secure this app"* — and the skill does the rest: it asks the one question that matters (Phase Two hosted, or self-managed?), picks the cluster and realm over MCP, registers the OIDC client, rewrites the app's own configuration to match, and then the protected route logs in for real against the cluster. No documentation, no admin console, no copy-pasting a client secret between two browser tabs.
+Razvan from our team takes an unsecured Angular app and simply says *"I want to secure this app"* — and the skill does the rest: it asks the one question that matters (Phase Two hosted, or self-managed?), picks the cluster and realm over MCP, registers the OIDC client, rewrites the app's own configuration to match, and then the protected route logs in for real against the cluster. No documentation, no admin console, no copy-pasting a client secret between two browser tabs.
 
 <!-- TODO(video): replace VIDEO_ID with the YouTube id once the demo is uploaded.
      If the final cut also shows the plugin install and the Phase Two login (they are
