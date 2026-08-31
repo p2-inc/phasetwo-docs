@@ -34,6 +34,14 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 **Securing an application** — get a token, then learn to trust it. *(Coming soon.)*
 
+**Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
+
+1. [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
+2. [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)
+3. [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)
+
+Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
+
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
 ## A note on scope

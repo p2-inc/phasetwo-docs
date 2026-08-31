@@ -15,5 +15,15 @@ module.exports = {
         "getting-started/first-realm-client-user",
       ],
     },
+    {
+      type: "category",
+      label: "JSON Web Tokens (JWT)",
+      link: { type: "doc", id: "jwts/index" },
+      items: [
+        "jwts/decoding-jwt-structure",
+        "jwts/jwt-benefits-drawbacks",
+        "jwts/jwt-security-best-practices",
+      ],
+    },
   ],
 };
