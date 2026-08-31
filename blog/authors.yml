@@ -16,8 +16,10 @@ gpatil:
   socials:
     github: xgp
   description: >-
-    GR works on Keycloak and identity infrastructure at Phase Two, and contributes to
-    Keycloak and its open-source extension ecosystem.
+    GR is the co-founder and CEO of Phase Two, and has been working on Keycloak for 10+ years, 
+    and running Phase Two for the past 6. A technology entrepreneur for 30 years, he was a 
+    founder at BrightRoll (sold to Yahoo! for $640M), an early engineer at Twitter, and founded 
+    or lead several successful early-stage startups.
 
 jpatzer:
   name: Jeff Patzer
@@ -28,8 +30,9 @@ jpatzer:
   socials:
     github: pnzrr
   description: >-
-    Jeff works on Keycloak and identity infrastructure at Phase Two, and contributes to
-    Keycloak and its open-source extension ecosystem.
+    Jeff is the co-founder at COO of Phase Two, and has been actively contributing to 
+    Keycloak and its open-source extension ecosystem for many years. Prior to Phase Two, 
+    he built a successful career as an engineering director at a major CDN.
 
 rtufisi:
   name: Razvan Tufisi
@@ -40,8 +43,9 @@ rtufisi:
   socials:
     github: rtufisi
   description: >-
-    Razvan works on Keycloak and identity infrastructure at Phase Two, and contributes to
-    Keycloak and its open-source extension ecosystem.
+    Razvan is a Senior Staff Engineer at Phase Two, and has worked on Keycloak and 
+    identity infrastructure for almost 10 years. He is the principle author of many of 
+    Phase Two's popular open-source extensions.
 
 rishirajjain:
   name: Rishi Raj Jain
