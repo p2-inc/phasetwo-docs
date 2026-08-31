@@ -2,7 +2,7 @@
 title: Run the Keycloak Admin UI Locally (with Phase Two Extensions)
 slug: run-admin-ui
 date: 2025-10-14
-authors: phasetwo
+authors: [jpatzer]
 tags:
   [
     phase_two,

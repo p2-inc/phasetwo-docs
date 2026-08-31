@@ -101,7 +101,7 @@ const ENGAGE_CARDS = [
       <p className="mb-0">
         Custom identity systems are tightly coupled to their original
         application. Adapting them to Keycloak often requires{" "}
-        <a href="/support/custom-extensions" className="link-accent">
+        <a href="/extensions/" className="link-accent">
           custom extensions
         </a>
         —we know how to build those and where the edge cases hide.
@@ -163,7 +163,7 @@ const ENGAGE_CARDS = [
         Keycloak functions as an Identity Operating System—it can do a lot.
         We&apos;ll tell you honestly what&apos;s possible and how to get there,
         from{" "}
-        <a href="/support/custom-extensions" className="link-accent">
+        <a href="/extensions/" className="link-accent">
           custom auth flows
         </a>{" "}
         to replacing the user storage provider entirely.
@@ -179,8 +179,8 @@ const ENGAGE_CARDS = [
       </p>
     ),
     badges: [
-      { label: "Custom Extensions", url: "/support/custom-extensions" },
-      { label: "Theming", url: "/support/theming" },
+      { label: "Custom Extensions", url: "/extensions/" },
+      { label: "Theming", url: "/extensions/themes/" },
     ],
   },
   {

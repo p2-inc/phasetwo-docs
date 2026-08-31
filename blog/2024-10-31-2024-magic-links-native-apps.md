@@ -2,7 +2,7 @@
 slug: magic-links-native-applications
 title: Using Magic Links Within a Native iOS, Android, or Other Application for Fast and Secure Login
 description: Leverage the Keycloak Magic Link extension to easily and securely log users into native applications.
-authors: phasetwo
+authors: [jpatzer]
 tags: [keycloak, phase_two, keycloak_magic_link, keycloak_extensions]
 ---
 

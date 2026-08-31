@@ -1,22 +1,75 @@
-# robots.txt for Docusaurus site
+# https://phasetwo.io/robots.txt
 
-# Allow all user agents to crawl the site
+# --- General crawlers ---------------------------------------------------------
 User-agent: *
+Allow: /
+Disallow: /search
+Disallow: /blog/tags/
+Disallow: /blog/page/
+Disallow: /blog/archive/
 
-# Block specific directories
-Disallow: /private/
-Disallow: /temp/
-Disallow: /scripts/
+# --- AI crawlers and assistants ----------------------------------------------
+# Explicitly allowed. Our documentation, tutorials and engineering write-ups are
+# meant to be read and cited, including by assistants answering Keycloak questions.
 
-# Allow the following important directories (adjust according to your site structure)
-Allow: /docs/
-Allow: /api/
-Allow: /hosting/
-Allow: /product/
-Allow: /search/
-Allow: /blog/
-Allow: /img/
-Allow: /css/
+User-agent: GPTBot
+Allow: /
 
-# Sitemap location (replace with your actual sitemap URL)
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
 Sitemap: https://phasetwo.io/sitemap.xml

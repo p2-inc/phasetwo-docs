@@ -2,7 +2,7 @@
 slug: licensing-change
 title: Changing Our License to Elastic License v2 to Enable Hosting and Derivative Works
 description: Phase Two changes to Elastic License v2 to enable hosting and usage of extensions by customers.
-authors: phasetwo
+authors: [gpatil]
 tags: [oss, license, phase_two]
 ---
 

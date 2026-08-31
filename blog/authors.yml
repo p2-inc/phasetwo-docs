@@ -1,3 +1,64 @@
+# Blog authors.
+#
+# Attribution was reconstructed from the commit that first added each post
+# (`git log --diff-filter=A`). Named bylines are an E-E-A-T signal for search and the
+# primary attribution heuristic used by LLMs, so prefer a person over the org account.
+#
+# `description` renders in the author-bio footer under each post (see
+# src/components/AuthorBio). The bios below are stubs — replace with real copy.
+
+gpatil:
+  name: GR Patil
+  title: Phase Two
+  url: https://github.com/xgp
+  image_url: https://avatars.githubusercontent.com/u/244253?v=4
+  page: true
+  socials:
+    github: xgp
+  description: >-
+    GR is the co-founder and CEO of Phase Two, and has been working on Keycloak for 10+ years, 
+    and running Phase Two for the past 6. A technology entrepreneur for 30 years, he was a 
+    founder at BrightRoll (sold to Yahoo! for $640M), an early engineer at Twitter, and founded 
+    or led several successful early-stage startups.
+
+jpatzer:
+  name: Jeff Patzer
+  title: Phase Two
+  url: https://github.com/pnzrr
+  image_url: https://avatars.githubusercontent.com/u/93841792?v=4
+  page: true
+  socials:
+    github: pnzrr
+  description: >-
+    Jeff is the co-founder and COO of Phase Two, and has been actively contributing to 
+    Keycloak and its open-source extension ecosystem for many years. Prior to Phase Two, 
+    he built a successful career as an engineering director at a major CDN.
+
+rtufisi:
+  name: Razvan Tufisi
+  title: Phase Two
+  url: https://github.com/rtufisi
+  image_url: https://avatars.githubusercontent.com/u/160157925?v=4
+  page: true
+  socials:
+    github: rtufisi
+  description: >-
+    Razvan is a Senior Staff Engineer at Phase Two, and has worked on Keycloak and 
+    identity infrastructure for almost 10 years. He is the principal author of many of 
+    Phase Two's popular open-source extensions.
+
+rishirajjain:
+  name: Rishi Raj Jain
+  title: Guest contributor
+  url: https://github.com/rishirajjain
+  image_url: https://avatars.githubusercontent.com/u/20815882?v=4
+  socials:
+    github: rishirajjain
+  description: >-
+    Rishi is a guest contributor who writes about integrating Keycloak with modern
+    JavaScript frameworks.
+
+# Retained for company-level announcements that genuinely have no individual author.
 phasetwo:
   name: Phase Two
   title: Hosted Keycloak and Keycloak Support

@@ -2,7 +2,7 @@
 slug: magic-link
 title: Magic Links, Passwordless Sign-in with Keycloak and Open Sourcing the Extension
 description: Phase Two's Magic Link extension provides a powerful and easy way to create a passwordless sign-in. In addition, the extension is now open source.
-authors: phasetwo
+authors: [gpatil]
 tags: [open_source, release, keycloak, phase_two, passwordless]
 ---
 

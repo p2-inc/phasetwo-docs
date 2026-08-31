@@ -2,7 +2,7 @@
 title: Phase Two Launches New Dashboard for Keycloak Resource Management
 slug: dashboard-launch
 date: 2025-07-24
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, open_source, dashboard, manage]
 ---
 

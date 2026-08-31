@@ -2,7 +2,7 @@
 title: How We Scaled Keycloak Event Storage with Logs, S3, and ClickHouse
 slug: scaling-keycloak-event-storage
 date: 2026-07-06
-authors: phasetwo
+authors: [gpatil]
 tags: [phase_two, keycloak, events, open_source, hosting, data]
 description: How Phase Two moved Keycloak event storage out of the database and into a log-based analytics pipeline — with an open-source EventStoreProvider anyone can use.
 ---

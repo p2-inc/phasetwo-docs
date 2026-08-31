@@ -2,7 +2,7 @@
 slug: multi-tenancy-with-keycloak-organizations
 title: Implement Multi-Tenancy Applications with Keycloak Organizations
 description: Applications needing to leverage Keycloak to consolidate logins can leverage Keycloak Organizations.
-authors: phasetwo
+authors: [jpatzer]
 tags: [keycloak, phase_two, organizations, multitenant]
 ---
 

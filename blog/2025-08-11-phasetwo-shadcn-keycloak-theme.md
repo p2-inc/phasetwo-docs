@@ -2,7 +2,7 @@
 title: Shadcn Keycloak Theme Starter with Tailwind CSS
 slug: shadcn-keycloak-theme
 date: 2025-08-11
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, keycloak, theme, shadcn, tailwind]
 ---
 

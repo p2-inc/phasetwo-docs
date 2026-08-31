@@ -2,7 +2,7 @@
 title: Web Application Security with Your Keycloak Deployment
 slug: waf-keycloak
 date: 2025-04-18
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, open_source, web_application_security, security]
 ---
 

@@ -2,7 +2,7 @@
 title: "A New Keycloak Theme Experience: Login, Admin, Account, and Email"
 slug: new-keycloak-themes
 date: 2026-04-27
-authors: phasetwo
+authors: [jpatzer]
 tags:
   [
     phase_two,

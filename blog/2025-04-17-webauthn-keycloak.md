@@ -2,7 +2,7 @@
 title: Webauthn and Passkeys with Keycloak
 slug: webauthn-keycloak
 date: 2025-04-17
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, open_source, webauthn, passkeys, authentication]
 ---
 

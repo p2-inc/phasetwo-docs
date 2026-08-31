@@ -2,7 +2,7 @@
 slug: free-realm
 title: Free as in Beer, Free Keycloak Realm in Phase Two's Hosted Keycloak
 description: Phase Two offers a free Keycloak realm for experimentation or small companies to use at their discretion to implement Authentication or Authorization.
-authors: phasetwo
+authors: [gpatil]
 tags: [phase_two]
 ---
 

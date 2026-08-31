@@ -2,7 +2,7 @@
 slug: keycloak-extensions-presentation
 title: Presentation on Extending Keycloak for All Your Identity Use Cases
 description: A detailed introduction to building Keycloak extensions. This talk presents an overview of Keycloak’s commonly used extension mechanisms, best practices for development and testing of extensions, and several exemplary, real-world examples. Finally, it puts it all together with a deep-dive into one such extension that is available in the Phase Two keycloak-events extension.
-authors: phasetwo
+authors: [gpatil]
 tags: [release, keycloak, phase_two, extensions, events, webhooks]
 ---
 

@@ -2,7 +2,7 @@
 title: Cockroach Labs features Phase Two's Managed Keycloak Hosting
 slug: cockroach-labs-features-phasetwo-managed-keycloak-hosting
 date: 2026-01-14
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, hosting, open_source, keycloak, cockroachdb]
 description: Cockroach Labs highlights Phase Two's managed Keycloak hosting platform in their latest blog post.
 ---

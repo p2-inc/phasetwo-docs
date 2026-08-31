@@ -2,7 +2,7 @@
 slug: securing-apps-with-keycloak
 title: Secure Your Application With Keycloak
 description: Enabling Authentication and Authorization on your Application using open source Keycloak to provide better security
-authors: phasetwo
+authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, sso, authentication, authorization]
 ---
 

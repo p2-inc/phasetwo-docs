@@ -29,8 +29,8 @@ const DEPLOYMENT_CARDS = [
     imageAlt: "Illustration for design and implementation of on-prem Keycloak",
     reverseHorizontal: false,
     learnMore: {
-      label: "Infrastructure Implementation",
-      url: "/support/infrastructure-implementation",
+      label: "Architecture Review and Scaling",
+      url: "/support/architecture-review-and-scaling/",
     },
   },
   {

@@ -2,7 +2,7 @@
 title: Observability for Keycloak, with Zero Setup
 slug: observability-launch
 date: 2026-06-22
-authors: phasetwo
+authors: [jpatzer]
 tags:
   [
     phase_two,

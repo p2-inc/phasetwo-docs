@@ -2,7 +2,7 @@
 title: Custom domains on Phase Two Paid Plans
 slug: custom-domains
 date: 2025-09-03
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, keycloak, domains, ssl, certificates, custom_domains]
 ---
 

@@ -2,7 +2,7 @@
 title: Understanding Multi-Tenancy Options in Keycloak
 slug: multi-tenancy-options-keycloak
 date: 2025-04-21
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, open_source, multi_tenancy, organizations, keycloak]
 ---
 

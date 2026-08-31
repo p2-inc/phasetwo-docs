@@ -1,6 +1,13 @@
 ---
 id: jwt-security-best-practices
-title: Security Best Practices
+title: JWT Security Best Practices
+description: How to implement JSON Web Tokens securely — signing algorithms, token storage, transmission, validation, expiry and revocation, and the attack vectors each one closes.
+keywords:
+  - jwt best practices
+  - jwt security best practices
+  - owasp jwt best practices
+  - jwt token storage
+  - json web token security
 ---
 
 # JWT Security Best Practices

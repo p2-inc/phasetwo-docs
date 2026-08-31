@@ -2,7 +2,7 @@
 title: Cluster Observability and Logs
 slug: cluster-observability-and-logs
 date: 2026-02-04
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, hosting, open_source, keycloak, observability, logs]
 description: Phase Two now includes built-in observability for dedicated clusters, starting with log downloads via the self-service dashboard.
 ---

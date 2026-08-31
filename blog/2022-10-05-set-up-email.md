@@ -2,7 +2,7 @@
 slug: set-up-email
 title: Set Up Email in Phase Two for a Better Branding Experience
 description: Configure your email provider for better email and user management and to ensure security of your emails and application.
-authors: phasetwo
+authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, email]
 ---
 

@@ -1109,10 +1109,60 @@ module.exports = {
           blogDescription:
             "Learn more about how we make Keycloak Hosting and Authentication easy.",
         },
+        sitemap: {
+          // Emit a real <lastmod> per URL. Without it every page looked equally stale
+          // to crawlers, and both competitors were sending the signal while we weren't.
+          lastmod: "date",
+          // Suppress the blanket priority/changefreq the defaults applied to all ~485
+          // URLs. Uniform values on every page carry no information; per-route priority
+          // is set in createSitemapItems below.
+          changefreq: null,
+          priority: null,
+          ignorePatterns: [
+            "/search",
+            "/blog/tags/**",
+            "/blog/page/**",
+            "/blog/archive/**",
+            // Routes with no indexable content of their own. These also carry noindex
+            // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
+            // out of the sitemap stops us asking Google to crawl a page we know is empty.
+            // Remove each entry as its page gets real content.
+            "/access",   // bare Google Form iframe
+            "/pricing",  // redirect stub -> /pricing/hosting/
+            "/guides",
+            "/guides/",
+            "/docs/affiliate",
+            "/docs/affiliate/",
+          ],
+          createSitemapItems: async ({ defaultCreateSitemapItems, ...rest }) => {
+            const items = await defaultCreateSitemapItems(rest);
+            // Commercial and hub pages first, then reference content, then posts.
+            const priorityFor = (url) => {
+              const { pathname } = new URL(url);
+              if (pathname === "/") return 1.0;
+              if (
+                /^\/(hosting|pricing|product|support|extensions|keycloak-alternatives|tools)\//.test(
+                  pathname,
+                )
+              )
+                return 0.9;
+              if (/^\/(docs|tutorials|api|guides|articles)\//.test(pathname))
+                return 0.8;
+              if (/^\/blog\//.test(pathname)) return 0.6;
+              return 0.5;
+            };
+            return items.map((item) => ({
+              ...item,
+              priority: priorityFor(item.url),
+            }));
+          },
+        },
       }),
     ],
   ],
   plugins: [
+    // Generates /llms.txt at build time from the built pages.
+    require.resolve("./plugins/llms-txt"),
     [
       "@docusaurus/plugin-client-redirects",
       {

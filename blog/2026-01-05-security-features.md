@@ -2,7 +2,7 @@
 title: Security Capabilities Now Available for Keycloak Clusters
 slug: dedicated-clusters-security-capabilities
 date: 2026-01-05
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, hosting, open_source, keycloak, security]
 description: Enhance the security of your Keycloak clusters with new features available on the Phase Two Dash.
 ---

@@ -2,7 +2,7 @@
 title: Phase Two Releases Self Service Resource Management
 slug: self-service-resource-management
 date: 2025-09-22
-authors: phasetwo
+authors: [jpatzer]
 tags:
   [
     phase_two,

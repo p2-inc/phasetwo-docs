@@ -2,7 +2,7 @@
 title: Instant MCP authorization using Keycloak
 slug: instant-mcp-authorization-keycloak
 date: 2026-04-13
-authors: phasetwo
+authors: [gpatil]
 tags: [phase_two, keycloak, mcp, authorization, vscode, tutorial, open_source]
 description: Protect an MCP server with Keycloak, wire it into VS Code using dynamic client registration, and get a working local setup quickly.
 ---
