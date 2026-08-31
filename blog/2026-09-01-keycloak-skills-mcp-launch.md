@@ -21,7 +21,7 @@ description: Two launches in one — an open-source Agent Skills plugin that tea
 
 Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-skills)** — an open-source Agent Skills plugin that teaches Claude how to configure Keycloak *correctly* — and the **Phase Two Keycloak MCP server**, 158 admin tools that let it do the work against a live cluster instead of just telling you what to type.
 
-Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours. Don't have a Keycloak yet? The agent can provision one for you and it's free for 30 days.
+Two commands to install. Works against any Keycloak — and gets sharper the closer you get to ours. Don't have a Keycloak yet? The agent can provision one for you and it's free for 30 days.
 
 <!--truncate-->
 
