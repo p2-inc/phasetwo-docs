@@ -314,27 +314,6 @@ components:
       required:
         - organizationId
 
-    ActiveOrganizationRepresentation:
-      type: object
-      properties:
-        organizationId:
-          type: string
-          description: The ID of the active organization
-        organizationName:
-          type: string
-          description: The name of the active organization
-        displayName:
-          type: string
-          description: The display name of the active organization
-        roles:
-          type: array
-          items:
-            type: string
-          description: User's roles in the active organization
-        switchedAt:
-          type: string
-          format: date-time
-          description: When the organization was last switched to
     OrganizationDomainRepresentation:
       type: object
       properties:
@@ -2531,7 +2510,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ActiveOrganizationRepresentation"
+                $ref: "#/components/schemas/OrganizationRepresentation"
         204:
           description: No active organization set
   /{realm}/events:
