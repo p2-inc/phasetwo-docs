@@ -1255,6 +1255,20 @@ module.exports = {
         sidebarPath: require.resolve("./sidebars.articles.js"),
       },
     ],
+    [
+      // Vendor-neutral Keycloak tutorials. These teach open-source Keycloak and run on any
+      // deployment; Phase Two appears only in the shared <ProductionNote/> closing block.
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "tutorials",
+        path: "tutorials",
+        routeBasePath: "tutorials",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.tutorials.js"),
+        editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/main",
+        showLastUpdateTime: true,
+      },
+    ],
     require.resolve("./plugins/docusaurus-tailwindcss-loader"),
     require.resolve("./sitePlugin"),
   ],
