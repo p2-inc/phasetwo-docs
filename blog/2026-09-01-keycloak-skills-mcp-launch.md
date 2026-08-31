@@ -1,7 +1,7 @@
 ---
 title: Keycloak Skills and the Phase Two MCP Server
 slug: keycloak-skills-mcp-launch
-date: 2026-08-28
+date: 2026-09-01
 authors: phasetwo
 tags:
   [
