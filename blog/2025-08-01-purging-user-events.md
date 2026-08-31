@@ -2,7 +2,7 @@
 title: "User Events in Keycloak: Best Practices, Management, and Purging"
 slug: user-events-in-keycloak
 date: 2025-08-01
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, keycloak, user_events, admin_events, database, performance]
 ---
 

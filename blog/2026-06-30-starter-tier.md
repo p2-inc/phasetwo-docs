@@ -2,7 +2,7 @@
 slug: starter-tier-launch
 title: Introducing the Starter Cluster Tier — Phase Two Keycloak from $149/month
 date: 2026-06-30
-authors: phasetwo
+authors: [gpatil]
 tags: [release, starter, pricing, keycloak, phase_two, dedicated]
 description: A new dedicated-cluster tier for teams moving from evaluation to a production-ready Phase Two Keycloak deployment. $149/month, 30-day free trial, all the features of our dedicated clusters. Also covering the wind-down of our free shared-realm offering.
 ---

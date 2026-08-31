@@ -2,7 +2,7 @@
 slug: self-service
 title: Self-service (beta) Launch to Enable Management of Keycloak Realms
 description: Phase Two's self-service options allows customer to manage their own Keycloak Realms or dedicated Keycloak clusters.
-authors: phasetwo
+authors: [gpatil]
 tags: [release, keycloak, phase_two, cockroach, cockroachdb]
 ---
 

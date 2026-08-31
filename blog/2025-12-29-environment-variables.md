@@ -2,7 +2,7 @@
 title: Configure Environment Variables for Dedicated Keycloak Clusters
 slug: dedicated-clusters-environment-variables
 date: 2025-12-29
-authors: phasetwo
+authors: [jpatzer]
 tags: [phase_two, hosting, open_source, keycloak]
 description: How to set environment variables for dedicated Keycloak clusters on the Phase Two Dash
 ---

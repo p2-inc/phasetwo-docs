@@ -2,7 +2,7 @@
 title: Auth.it featured on Keycloak Friday Chat
 slug: authit-on-kfc
 date: 2025-12-15
-authors: phasetwo
+authors: [gpatil]
 tags: [phase_two, hosting, open_source, keycloak, authit]
 description: Phase Two's new hosting platform, Auth.it, was featured on Mr. Keycloak's livestream
 ---

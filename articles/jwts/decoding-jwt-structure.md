@@ -1,6 +1,13 @@
 ---
 id: decoding-jwt-structure
-title: Decoding JWT Structure
+title: Decoding a JWT — Header, Payload, and Signature
+description: A field-by-field walkthrough of a real JSON Web Token — what each header and payload claim means, how the signature is produced, and how to decode one yourself.
+keywords:
+  - how to decode jwt token
+  - decode jwt
+  - jwt structure
+  - jwt header payload signature
+  - access token decode
 ---
 
 # Decoding JWTs Structure

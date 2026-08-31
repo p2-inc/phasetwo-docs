@@ -1,6 +1,13 @@
 ---
 id: jwt-benefits-drawbacks
 title: Benefits and Drawbacks of JWTs
+description: Where JSON Web Tokens are the right architectural choice and where they are not — stateless validation, revocation limits, token size, and the alternatives worth considering.
+keywords:
+  - jwt benefits
+  - jwt drawbacks
+  - jwt vs session
+  - are jwts secure
+  - json web token tradeoffs
 ---
 
 # Benefits and Drawbacks of JWTs

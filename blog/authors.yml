@@ -1,3 +1,60 @@
+# Blog authors.
+#
+# Attribution was reconstructed from the commit that first added each post
+# (`git log --diff-filter=A`). Named bylines are an E-E-A-T signal for search and the
+# primary attribution heuristic used by LLMs, so prefer a person over the org account.
+#
+# `description` renders in the author-bio footer under each post (see
+# src/components/AuthorBio). The bios below are stubs — replace with real copy.
+
+gpatil:
+  name: GR Patil
+  title: Phase Two
+  url: https://github.com/xgp
+  image_url: https://avatars.githubusercontent.com/u/244253?v=4
+  page: true
+  socials:
+    github: xgp
+  description: >-
+    GR works on Keycloak and identity infrastructure at Phase Two, and contributes to
+    Keycloak and its open-source extension ecosystem.
+
+jpatzer:
+  name: Jeff Patzer
+  title: Phase Two
+  url: https://github.com/pnzrr
+  image_url: https://avatars.githubusercontent.com/u/93841792?v=4
+  page: true
+  socials:
+    github: pnzrr
+  description: >-
+    Jeff works on Keycloak and identity infrastructure at Phase Two, and contributes to
+    Keycloak and its open-source extension ecosystem.
+
+rtufisi:
+  name: Razvan Tufisi
+  title: Phase Two
+  url: https://github.com/rtufisi
+  image_url: https://avatars.githubusercontent.com/u/160157925?v=4
+  page: true
+  socials:
+    github: rtufisi
+  description: >-
+    Razvan works on Keycloak and identity infrastructure at Phase Two, and contributes to
+    Keycloak and its open-source extension ecosystem.
+
+rishirajjain:
+  name: Rishi Raj Jain
+  title: Guest contributor
+  url: https://github.com/rishirajjain
+  image_url: https://avatars.githubusercontent.com/u/20815882?v=4
+  socials:
+    github: rishirajjain
+  description: >-
+    Rishi is a guest contributor who writes about integrating Keycloak with modern
+    JavaScript frameworks.
+
+# Retained for company-level announcements that genuinely have no individual author.
 phasetwo:
   name: Phase Two
   title: Hosted Keycloak and Keycloak Support

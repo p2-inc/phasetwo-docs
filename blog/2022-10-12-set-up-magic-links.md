@@ -1,7 +1,7 @@
 ---
 slug: set-up-magic-links
 title: Magic Links Guide, and 5 Minute Setup for Open Source Passwordless Authentication and Better Security
-authors: phasetwo
+authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, magic_links]
 ---
 

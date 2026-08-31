@@ -1,6 +1,12 @@
 ---
 id: iam
 title: Keycloak as an Identity and Access Management System (IAM)
+description: How Keycloak works as an IAM platform — authentication, authorization, user federation and centralized access control over OAuth 2.0, OpenID Connect and SAML.
+keywords:
+  - keycloak iam
+  - keycloak identity and access management
+  - iam keycloak
+  - open source iam
 ---
 
 ## What Is IAM?

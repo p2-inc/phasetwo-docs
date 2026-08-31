@@ -2,7 +2,7 @@
 slug: keycloak-for-startups-data
 title: "Why your startup should use Keycloak for SSO and User Management - Part 2: Data"
 description: "Part 2: The ability to control your data is essential, now and in the future."
-authors: phasetwo
+authors: [gpatil]
 tags: [keycloak, phase_two, startup, data]
 ---
 

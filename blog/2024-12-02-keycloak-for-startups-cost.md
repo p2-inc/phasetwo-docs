@@ -2,7 +2,7 @@
 slug: keycloak-for-startups-cost
 title: "Why your startup should use Keycloak for SSO and User Management - Part 4: Cost"
 description: "Part 4: There is no justification for variable cost for individual features."
-authors: phasetwo
+authors: [jpatzer]
 tags: [keycloak, phase_two, startup, customization, extension]
 ---
 

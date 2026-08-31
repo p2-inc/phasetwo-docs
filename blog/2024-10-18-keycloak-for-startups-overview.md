@@ -2,7 +2,7 @@
 slug: keycloak-for-startups-overview
 title: Why your startup should use Keycloak for SSO and User Management
 description: Startups are striving for excellence in user experience and security, while simultaneously focusing on their core competencies. That means picking the best tools that expedite their time to market, with as few compromises as possible. Learn why Keycloak excels where commercial solutions fail.
-authors: phasetwo
+authors: [gpatil]
 tags: [keycloak, phase_two, startup]
 ---
 

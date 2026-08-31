@@ -237,8 +237,11 @@ function FeatureCard({
 export default function DedicatedClusters() {
   return (
     <Layout
-      title={HERO.title}
-      description="Dedicated clusters provide isolated compute, network, and storage for high-performance Keycloak workloads—managed by Phase Two."
+      // Canonical page for the "managed keycloak" / "keycloak hosting" cluster. Eight of
+      // our URLs were competing for "managed keycloak" and none ranked; this one is the
+      // designated target, so it carries the phrase in its title.
+      title="Managed Keycloak Hosting on Dedicated Clusters"
+      description="Managed Keycloak hosting on dedicated clusters — isolated compute, network and storage for production Keycloak, operated by the authors of the most widely used Keycloak extensions."
     >
       <main className="hosting-page">
         {/* Hero */}

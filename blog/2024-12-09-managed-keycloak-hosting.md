@@ -2,7 +2,7 @@
 slug: managed-keycloak-hosting
 title: "Managed Keycloak Hosting - Picking a Provider"
 description: "Picking a provider for Managed Keycloak Hosting should be about more that price, it should be about picking a partner to help you and your app succeed."
-authors: phasetwo
+authors: [jpatzer]
 tags: [keycloak, phase_two, startup, customization, extension]
 ---
 

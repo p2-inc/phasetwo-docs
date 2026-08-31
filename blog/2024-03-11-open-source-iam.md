@@ -2,7 +2,7 @@
 slug: open-source-iam
 title: "Keycloak: An open source alternative to Auth0, WorkOS, Okta, Cognito, ..."
 description: Keycloak is a financially sustainable, open source alternative to many paid identity and access management providers.
-authors: phasetwo
+authors: [gpatil]
 tags:
   [
     keycloak,
