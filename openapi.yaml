@@ -312,7 +312,35 @@ components:
           type: string
           description: The ID of the organization to switch to
       required:
-        - organizationId
+        - id
+
+    AccessTokenResponse:
+      type: object
+      description: >-
+        A freshly issued OIDC token set, reflecting the user's new active
+        organization. The `refresh_token` is only present when the client is
+        configured to use refresh tokens, and `id_token` only for OIDC requests.
+      properties:
+        access_token:
+          type: string
+        expires_in:
+          type: integer
+          format: int64
+        refresh_expires_in:
+          type: integer
+          format: int64
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+        id_token:
+          type: string
+        not-before-policy:
+          type: integer
+        session_state:
+          type: string
+        scope:
+          type: string
 
     OrganizationDomainRepresentation:
       type: object
@@ -2480,14 +2508,21 @@ paths:
               $ref: "#/components/schemas/SwitchOrganizationRepresentation"
         required: true
       responses:
-        204:
-          description: Active organization switched successfully
+        200:
+          description: >-
+            Active organization switched successfully. Returns a new token set
+            reflecting the updated active organization; clients should replace
+            their stored tokens with these.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessTokenResponse"
         400:
-          description: Invalid organization or user is not a member
+          description: Malformed request body
+        401:
+          description: User is not a member of this organization
         404:
           description: Organization not found
-        403:
-          description: User does not have access to the organization
 
   /{realm}/users/active-organization:
     parameters:
