@@ -2,7 +2,7 @@
 title: "Atomic authentication flow updates for Keycloak, built with Gusto"
 slug: keycloak-atomic-auth-flows
 date: 2026-08-31
-authors: phasetwo
+authors: [rtufisi]
 tags:
   [
     phase_two,
