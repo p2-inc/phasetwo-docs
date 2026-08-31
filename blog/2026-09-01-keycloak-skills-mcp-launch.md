@@ -23,6 +23,7 @@ Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-s
 
 Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours. Don't have a Keycloak yet? The agent can provision one for you and it's free for 30 days.
 
+<!--truncate-->
 
 <figure>
   <img src="/blog/keycloak_skills_mcp/session-hero.png" alt="A Claude Code session configuring magic-link passwordless login on a Phase Two Keycloak realm through the Keycloak MCP server" />
