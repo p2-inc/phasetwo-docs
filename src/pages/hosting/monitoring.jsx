@@ -1,15 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
-const Monitoring = () => {
+export default function Monitoring() {
   return (
-    <Layout title="Monitoring" description="This is the Monitoring page.">
-      <main className="hosting-page">
-        <h1>Monitoring</h1>
-        <p>This is the Monitoring page.</p>
-      </main>
-    </Layout>
+    <UnderConstruction
+      title="Monitoring"
+      backTo="/docs/self-service/observability/"
+      backLabel="the observability docs"
+    />
   );
-};
-
-export default Monitoring;
+}

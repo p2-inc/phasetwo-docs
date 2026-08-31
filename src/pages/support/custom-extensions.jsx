@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
 export default function CustomExtensions() {
   return (
-    <Layout title="Custom Extensions">
-      <div>
-        <h1>Custom Extensions</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="Custom Extensions"
+      backTo="/extensions/"
+      backLabel="our open-source Keycloak extensions"
+    />
   );
 }

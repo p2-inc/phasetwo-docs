@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
-export default function VersionUpgrades() {
+export default function SupportVersionUpgrades() {
   return (
-    <Layout title="Version Upgrades">
-      <div>
-        <h1>Version Upgrades</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="Version Upgrades"
+      backTo="/support/"
+      backLabel="enterprise Keycloak support"
+    />
   );
 }

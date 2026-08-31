@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
 export default function InfrastructureImplementation() {
   return (
-    <Layout title="Infrastructure Implementation (IAC)">
-      <div>
-        <h1>Infrastructure Implementation (IAC)</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="Infrastructure Implementation"
+      backTo="/support/"
+      backLabel="enterprise Keycloak support"
+    />
   );
 }

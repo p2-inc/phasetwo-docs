@@ -1,15 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
-const VersionUpgrades = () => {
+export default function VersionUpgrades() {
   return (
-    <Layout title="Version Upgrades">
-      <main className="hosting-page">
-        <h1>Version Upgrades</h1>
-        <p>This page will provide information about version upgrades.</p>
-      </main>
-    </Layout>
+    <UnderConstruction
+      title="Version Upgrades"
+      backTo="/support/version-upgrades/"
+      backLabel="Keycloak version upgrade support"
+    />
   );
-};
-
-export default VersionUpgrades;
+}

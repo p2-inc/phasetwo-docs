@@ -1,15 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
-const Backups = () => {
+export default function Backups() {
   return (
-    <Layout title="Backups">
-      <main className="hosting-page">
-        <h1>Backups</h1>
-        <p>This is the Backups page.</p>
-      </main>
-    </Layout>
+    <UnderConstruction
+      title="Backups"
+      backTo="/hosting/dedicated-clusters/"
+      backLabel="managed Keycloak hosting"
+    />
   );
-};
-
-export default Backups;
+}

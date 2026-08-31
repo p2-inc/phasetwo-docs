@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
 export default function Theming() {
   return (
-    <Layout title="Theming">
-      <div>
-        <h1>Theming</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="Theming"
+      backTo="/extensions/themes/"
+      backLabel="our Keycloak themes"
+    />
   );
 }

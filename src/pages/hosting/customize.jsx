@@ -1,15 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
-const Customize = () => {
+export default function CustomizeHosting() {
   return (
-    <Layout title="Customize Hosting">
-      <main className="hosting-page">
-        <h1>Customize Hosting</h1>
-        <p>Welcome to the customization page for hosting!</p>
-      </main>
-    </Layout>
+    <UnderConstruction
+      title="Customize"
+      backTo="/hosting/configure/"
+      backLabel="configuring your cluster"
+    />
   );
-};
-
-export default Customize;
+}

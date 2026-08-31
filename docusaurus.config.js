@@ -1123,6 +1123,26 @@ module.exports = {
             "/blog/tags/**",
             "/blog/page/**",
             "/blog/archive/**",
+            // Placeholder routes with no content yet. They also carry noindex; keeping
+            // them out of the sitemap stops us actively asking Google to crawl a page we
+            // know is empty. Remove each entry as its page gets written.
+            "/access",
+            "/pricing",
+            "/guides",
+            "/guides/",
+            "/docs/affiliate",
+            "/docs/affiliate/",
+            "/hosting/security",
+            "/hosting/backups",
+            "/hosting/monitoring",
+            "/hosting/customize",
+            "/hosting/version-upgrades",
+            "/support/theming",
+            "/support/24-7-on-call",
+            "/support/version-upgrades",
+            "/support/guidance-for-scale",
+            "/support/custom-extensions",
+            "/support/infrastructure-implementation",
           ],
           createSitemapItems: async ({ defaultCreateSitemapItems, ...rest }) => {
             const items = await defaultCreateSitemapItems(rest);

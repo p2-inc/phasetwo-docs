@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
 export default function OnCall247() {
   return (
-    <Layout title="On-call 24/7">
-      <div>
-        <h1>On-call 24/7</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="24/7 On-Call"
+      backTo="/support/"
+      backLabel="enterprise Keycloak support"
+    />
   );
 }

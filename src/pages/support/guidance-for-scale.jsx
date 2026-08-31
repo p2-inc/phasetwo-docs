@@ -1,13 +1,12 @@
 import React from "react";
-import Layout from "@theme/Layout";
+import UnderConstruction from "@site/src/components/UnderConstruction";
 
 export default function GuidanceForScale() {
   return (
-    <Layout title="Guidance for Scale">
-      <div>
-        <h1>Guidance for Scale</h1>
-        <p>This page is under construction.</p>
-      </div>
-    </Layout>
+    <UnderConstruction
+      title="Guidance for Scale"
+      backTo="/support/"
+      backLabel="enterprise Keycloak support"
+    />
   );
 }
