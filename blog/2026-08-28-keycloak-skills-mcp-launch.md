@@ -23,21 +23,11 @@ Today we're launching **[`keycloak-skills`](https://github.com/p2-inc/keycloak-s
 
 Two commands to install. Apache-2.0. Works against any Keycloak — and gets sharper the closer you get to ours. Don't have a Keycloak yet? The agent can provision one for you and it's free for 30 days.
 
-<!-- truncate -->
 
-<!-- TODO(image): HERO — a Claude Code session in a terminal, mid-task. Prompt visible at the
-     top ("add passwordless login by magic link to our staging realm"), the `keycloak` skill
-     shown as invoked, and a couple of MCP tool calls (addFlow / bindRealmAuthenticationFlow)
-     with their results. This is the one image that has to sell the whole post: it should be
-     obvious at a glance that the agent is *doing* the work, not describing it.
-     A still frame from the demo video below would do the job and is cheaper to produce —
-     this is also the image that ends up on the blog index and the social card.
-     Save to: static/blog/keycloak_skills_mcp/session-hero.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/session-hero.png" alt="A Claude Code session configuring magic-link passwordless login on a Phase Two Keycloak realm through the Keycloak MCP server" />
   <figcaption>Ask for the outcome; the skill picks the recipe and the MCP tools do the work.</figcaption>
 </figure>
--->
 
 ## The problem with asking an AI about Keycloak
 
@@ -73,17 +63,10 @@ The plugin **declares the MCP server for you**, so there's nothing else to run. 
 claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
 ```
 
-<!-- TODO(image): INSTALL — the interactive `/plugin` browser inside Claude Code showing the
-     `keycloak-skills` marketplace with the `phasetwo` plugin selected, or the post-install
-     `claude plugin details phasetwo` output listing Skills (2) and MCP servers (1). Prefer
-     whichever more clearly shows the MCP server arriving *with* the plugin, since "there is
-     nothing else to run" is the claim this image is backing up.
-     Save to: static/blog/keycloak_skills_mcp/plugin-install.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/plugin-install.png" alt="The Claude Code plugin browser showing the phasetwo plugin in the keycloak-skills marketplace, with two skills and one MCP server" />
   <figcaption>Two skills and the Keycloak MCP server, installed together — no separate setup step.</figcaption>
 </figure>
--->
 
 Then just ask for what you want — "add passwordless login by magic link", "connect our customer's Okta by email domain", "add login to this React app". The skill figures out which of its chapters applies, asks the one or two questions it actually needs, and goes.
 
@@ -91,13 +74,7 @@ Then just ask for what you want — "add passwordless login by magic link", "con
 
 Razvan from our team takes an unsecured Angular app and simply says *"I want to secure this app"* — and the skill does the rest: it asks the one question that matters (Phase Two hosted, or self-managed?), picks the cluster and realm over MCP, registers the OIDC client, rewrites the app's own configuration to match, and then the protected route logs in for real against the cluster. No documentation, no admin console, no copy-pasting a client secret between two browser tabs.
 
-<!-- TODO(video): replace VIDEO_ID with the YouTube id once the demo is uploaded.
-     If the final cut also shows the plugin install and the Phase Two login (they are
-     narrated as already-done prerequisites in the recording), move those two into the
-     bullet list below as shown steps rather than prerequisites. -->
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" title="Keycloak Skills and the Phase Two MCP server — securing an Angular app end to end" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
+<iframe width="1048" height="681" src="https://www.youtube.com/embed/w_TAEKUzV4Q" title="Phase Two MCP introduction" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 What the walkthrough covers:
 
 - **Prerequisites** — an agent, the plugin installed, and a Phase Two subscription with a cluster. (The cluster can be created through the plugin too, as above; the demo uses an existing one to keep things moving.)
@@ -144,17 +121,10 @@ On a **hosted cluster** the MCP server is there too, and Claude stops writing `c
 **Every call is authorized as *you*.** The MCP server stores no admin credentials of its own — it acts as an OAuth 2.1 resource server, and control-plane calls are made with the bearer token of the human logged into the MCP client. Reaching into a cluster deployment mints a short-lived, deployment-scoped admin token from that same authorization, so your existing roles and permissions apply and the audit trail shows you, not a shared robot.
 
 **It refuses to delete things that matter.** Deleting a cluster, deployment or realm is irreversible — a deployment *is* a realm, so it takes every user, client and flow with it. `deleteCluster` refuses every call and never reaches the API, no tool deletes a deployment or realm at all, and the skill's very first instruction is to deny the request and point you at the dashboard rather than reach for `curl`. Changing a client that already serves traffic requires your confirmation, and the skills verify by reading configuration back rather than trusting a `204`.
-
-<!-- TODO(image): GUARDRAIL — a session where the user asks to delete a cluster/realm ("tear
-     down the staging realm") and the agent declines, explains that it is console-only and
-     why, and links dash.phasetwo.io/clusters — without reaching for curl or the REST API.
-     Crop tight: the refusal text is the whole point, not the surrounding session.
-     Save to: static/blog/keycloak_skills_mcp/deletion-refused.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/deletion-refused.png" alt="The skill declining a request to delete a Keycloak realm, explaining that deletion is console-only and pointing at the Phase Two dashboard" />
   <figcaption>Destructive requests are denied by the skill and by the server — not left to the model's judgment.</figcaption>
 </figure>
--->
 
 ### No Keycloak at all? Ask the agent for one
 
@@ -164,16 +134,10 @@ Say "spin up a Phase Two cluster" and the skill walks the whole thing: identifie
 
 And then it keeps going. Same session, same agent: "now add passwordless login by magic link" against the cluster it just built for you. From nothing to a running, observable, passwordless Keycloak in one conversation.
 
-<!-- TODO(image): PROVISIONING — the agent standing up a Starter cluster: the batched question
-     (name / region / tier / billing), the returned Stripe checkout link, and the poll through
-     BILLING_SETUP -> PROVISIONING -> ACTIVE. A two-panel crop works well — the question at the
-     top, the ACTIVE status at the bottom. Redact the org UUID and the checkout URL's session id.
-     Save to: static/blog/keycloak_skills_mcp/cluster-provisioning.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/cluster-provisioning.png" alt="The agent provisioning a Phase Two Starter cluster: name, region and tier chosen, a Stripe checkout link returned, and the cluster status polled through to ACTIVE" />
   <figcaption>From no Keycloak to an ACTIVE cluster, in the session — the agent hands off payment and never touches it.</figcaption>
 </figure>
--->
 
 :::info
 **Try the whole thing free**
@@ -192,16 +156,10 @@ Skill content is only as good as its testing. Each capability ships with a [skil
 
 The assertions are deliberately adversarial, because the plausible-but-wrong answer is the enemy. The email-OTP-as-MFA task asserts that a **wrong password sends no mail at all** — a flow that merely puts a code step in front of a login passes a happy-path test while leaving the password irrelevant. The credential-enrollment task asserts that a user who had no password still has **none** at the end, because setting a temporary one satisfies a naive reading of the goal and defeats its entire point.
 
-<!-- TODO(image, optional): BENCHMARKS — verifier output from a skillsbench run: the task name
-     and its passing assertions, ideally one of the negative ones ("no mail sent for a wrong
-     password", "user still has no password"). A terminal capture is fine; a small summary
-     table across the 14 tasks would be better if one is easy to generate.
-     Save to: static/blog/keycloak_skills_mcp/benchmark-run.png
 <figure>
   <img src="/blog/keycloak_skills_mcp/benchmark-run.png" alt="skillsbench verifier output for the Keycloak email-OTP MFA task, showing passing assertions including that a wrong password sends no email" />
   <figcaption>Each capability ships with a sandboxed task that drives a real login and asserts the negative cases too.</figcaption>
 </figure>
--->
 
 ## What it covers today
 
