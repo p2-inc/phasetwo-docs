@@ -207,6 +207,8 @@ kcadm.sh get users -r demo --fields id,username,email
 
 Now the real test — get a token as Alice:
 
+You can either use https://www.keycloak.org/app/ to test using a web browser flow, or use an OIDC Direct Access Grant to test using the command line.
+
 ```bash
 curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
   -d client_id=demo-app \
