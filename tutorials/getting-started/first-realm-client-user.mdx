@@ -1,0 +1,260 @@
+---
+id: first-realm-client-user
+title: Your First Keycloak Realm, Client, and User
+description: Create a Keycloak realm, register a client, and add a user — in the admin console and with kcadm.sh — plus what each of the three actually means.
+keywords:
+  - how to configure keycloak
+  - what is a keycloak realm
+  - keycloak create client
+  - keycloak create user
+  - keycloak realm client user
+difficulty: beginner
+time: 15 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Your First Keycloak Realm, Client, and User
+
+Keycloak has three concepts you need before anything else makes sense:
+
+- A **realm** is an isolated tenant. Its own users, its own clients, its own signing keys.
+  Users in one realm cannot log into another.
+- A **client** is an application that asks Keycloak to authenticate someone. Your SPA, your
+  API, your mobile app.
+- A **user** is an identity inside a realm.
+
+By the end of this page you will have all three, and a real access token proving they work.
+
+:::info Tested against
+Keycloak **26.7.3**, started per
+[Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/). Every command and
+every output below is copied from an actual run.
+:::
+
+## Prerequisites
+
+A running Keycloak and an admin login. If you don't have one:
+
+```bash
+docker run -d --name keycloak -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+## Don't use the master realm
+
+The `master` realm exists to administer Keycloak itself. It is where your admin account
+lives and where realm-management permissions are defined.
+
+**Do not put application users in it.** Anyone there is a candidate for administrative
+access to your entire Keycloak instance, and the blast radius of a mistake is every realm
+on the server. Create a realm per application or per environment and leave `master` for
+administration.
+
+## Step 1 — Create a realm
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. Open http://localhost:8080 and sign in.
+2. Click the realm selector in the top left (it says **Keycloak** or **master**).
+3. **Create realm** → name it `demo` → **Create**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+Authenticate once — the session is cached, so later commands don't repeat credentials:
+
+```bash
+kcadm.sh config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+```
+Logging into http://localhost:8080 as user admin of realm master
+```
+
+Then:
+
+```bash
+kcadm.sh create realms -s realm=demo -s enabled=true
+```
+
+```
+Created new realm with id 'demo'
+```
+
+Running Keycloak in Docker? Prefix with
+`docker exec keycloak /opt/keycloak/bin/kcadm.sh`, or add the container's `bin` to `PATH`.
+
+</details>
+
+**Learn it in the console, ship it with the CLI.** The console is faster for understanding
+what the options are; the CLI is what you put in version control so environments match. Once
+you know what you want, [manage it as code](https://www.keycloak.org/guides#server).
+
+## Step 2 — Register a client
+
+The one decision that matters here is **public vs confidential**:
+
+| | Public | Confidential |
+|---|---|---|
+| Keeps a secret | No | Yes |
+| Use for | SPAs, mobile, CLI tools | Server-side apps, backends |
+| Why | Browser and mobile code can't hide a secret | The secret never leaves your server |
+| Protection | PKCE (mandatory) | Client secret + PKCE |
+
+Anything running on a device you don't control is public. Shipping a "confidential" client
+secret inside a JavaScript bundle does not make it confidential — it makes it published.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. In the `demo` realm: **Clients** → **Create client**.
+2. Client ID `demo-app` → **Next**.
+3. Leave **Client authentication** *off* (this makes it public) → **Next**.
+4. Set **Valid redirect URIs** to `http://localhost:5173/*` and **Web origins** to
+   `http://localhost:5173` → **Save**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm.sh create clients -r demo \
+  -s clientId=demo-app \
+  -s publicClient=true \
+  -s 'redirectUris=["http://localhost:5173/*"]' \
+  -s 'webOrigins=["http://localhost:5173"]' \
+  -s directAccessGrantsEnabled=true
+```
+
+```
+Created new client with id '78a8c5b3-138e-41fd-8e82-b8324b72417c'
+```
+
+The returned id is the client's internal UUID, which is **not** the `clientId`. Admin API
+paths use the UUID; tokens and configuration use `demo-app`. Confusing the two is a common
+source of 404s from the admin API.
+
+</details>
+
+:::warning `directAccessGrantsEnabled` is for this tutorial only
+It enables the password grant, which lets us fetch a token with `curl` in one step to prove
+the setup works. Real browser apps must use the authorization code flow with PKCE. The
+password grant is discouraged in OAuth 2.1 and should not survive into your application.
+:::
+
+Redirect URIs are a security control, not configuration noise — Keycloak will only send a
+user back to a URI you have listed. Be specific; avoid bare wildcards. This is also the
+single most common source of first-run errors: if you see
+`Invalid parameter: redirect_uri`, the URI your app sent does not match anything in this
+list, and the mismatch is usually a trailing slash or a missing `/*`.
+
+## Step 3 — Create a user
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Users** → **Add user**.
+2. Username `alice`, email `alice@example.com`, tick **Email verified** → **Create**.
+3. **Credentials** tab → **Set password** → `s3cret` → turn **Temporary** *off* → **Save**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm.sh create users -r demo \
+  -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+
+kcadm.sh set-password -r demo --username alice --new-password s3cret
+```
+
+```
+Created new user with id 'f9020f8d-3afc-4cb1-9f23-9396c3ffef0e'
+```
+
+</details>
+
+Leaving **Temporary** on forces a password change at first login. That is right for real
+users and annoying for a test account.
+
+## Step 4 — Verify it works
+
+List the user back:
+
+```bash
+kcadm.sh get users -r demo --fields id,username,email
+```
+
+```json
+[ {
+  "id" : "f9020f8d-3afc-4cb1-9f23-9396c3ffef0e",
+  "username" : "alice",
+  "email" : "alice@example.com"
+} ]
+```
+
+Now the real test — get a token as Alice:
+
+You can either use https://www.keycloak.org/app/ to test using a web browser flow, or use an OIDC Direct Access Grant to test using the command line.
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app \
+  -d username=alice \
+  -d password=s3cret \
+  -d grant_type=password | jq .
+```
+
+You get back `access_token`, `refresh_token`, `expires_in`, `token_type` and `scope`. Paste
+the `access_token` into [our JWT decoder](/tools/jwt-decoder/) and you will see:
+
+```
+iss                : http://localhost:8080/realms/demo
+azp                : demo-app
+preferred_username : alice
+aud                : account
+exp                : 300 seconds out
+```
+
+Three things worth noticing now, because each one causes real problems later:
+
+- **`iss` is the realm URL.** Every service validating this token must expect exactly that
+  issuer, which is why hostname configuration matters so much in production.
+- **`aud` is `account`, not `demo-app`.** This surprises everyone. Keycloak does not put your
+  client in the audience by default; you add it with an audience mapper. It is the most
+  common cause of a resource server rejecting a token that otherwise looks perfect.
+- **`expires_in` is 300 seconds.** Access tokens are short-lived on purpose. Your app is
+  expected to refresh, not to hold one for an hour.
+
+## What you built
+
+```
+Realm: demo
+├── Client: demo-app        (public, PKCE, redirect to localhost:5173)
+└── User:   alice           (password set, email verified)
+```
+
+That is a complete, working identity provider. Everything else in Keycloak — federation,
+MFA, roles, organizations — is layered onto these three objects.
+
+## Next steps
+
+- [Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/) if you skipped it.
+- Official reference:
+  [Configuring realms](https://www.keycloak.org/docs/latest/server_admin/index.html#configuring-realms)
+  and [Managing clients](https://www.keycloak.org/docs/latest/server_admin/index.html#assembly-managing-clients_server_administration_guide).
+- Clean up when you're done: `docker rm -f keycloak` removes the container and everything in it.
+
+<ProductionNote />

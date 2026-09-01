@@ -205,7 +205,7 @@ export default function JwtDecoderPage() {
             (HMAC), a PEM public key, or a JWKS URL — for Keycloak realms the
             JWKS endpoint is prefilled from the token's issuer. For the security
             model and common pitfalls, see our guide on{" "}
-            <Link to="/articles/jwts/jwt-security-best-practices">
+            <Link to="/tutorials/jwts/jwt-security-best-practices">
               JWT security best practices
             </Link>
             .
@@ -214,19 +214,19 @@ export default function JwtDecoderPage() {
           <H2>Learn more about JWTs</H2>
           <ul className="mb-4 list-disc space-y-1 pl-5">
             <li>
-              <Link to="/articles/jwts/decoding-jwt-structure">
+              <Link to="/tutorials/jwts/decoding-jwt-structure">
                 Decoding JWT structure
               </Link>{" "}
               — a deep dive into each segment.
             </li>
             <li>
-              <Link to="/articles/jwts/jwt-benefits-drawbacks">
+              <Link to="/tutorials/jwts/jwt-benefits-drawbacks">
                 JWT benefits and drawbacks
               </Link>{" "}
               — when to use them, and when not to.
             </li>
             <li>
-              <Link to="/articles/jwts/jwt-security-best-practices">
+              <Link to="/tutorials/jwts/jwt-security-best-practices">
                 JWT security best practices
               </Link>{" "}
               — algorithms, expiry, revocation, and storage.

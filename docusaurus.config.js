@@ -460,9 +460,9 @@ module.exports = {
               label: "Keycloak Extensions",
             },
             {
-              to: "articles/introduction",
-              activeBasePath: "articles",
-              label: "Articles",
+              to: "tutorials",
+              activeBasePath: "tutorials",
+              label: "Tutorials",
             },
             {
               href: "https://github.com/p2-inc/",
@@ -491,10 +491,10 @@ module.exports = {
                     icon: "api",
                   },
                   {
-                    to: "articles/introduction",
-                    activeBasePath: "articles",
-                    label: "Articles",
-                    sub: "Deep dives & how-tos",
+                    to: "tutorials",
+                    activeBasePath: "tutorials",
+                    label: "Tutorials",
+                    sub: "Keycloak deep dives & how-tos",
                     icon: "article",
                   },
                   {
@@ -958,6 +958,10 @@ module.exports = {
               to: "docs/introduction",
             },
             {
+              label: "Tutorials",
+              to: "tutorials",
+            },
+            {
               label: "Getting Started",
               to: "docs/getting-started",
             },
@@ -1169,6 +1173,30 @@ module.exports = {
         // Comparison blog posts migrated to evergreen /keycloak-alternatives/<vendor>/ pages.
         // Preserve link equity from the old (ranking) blog URLs.
         redirects: [
+          // The /articles/ section was folded into /tutorials/. These are high-traffic
+          // URLs, so every old path redirects rather than 404s. plugin-client-redirects
+          // emits meta-refresh + rel=canonical, which is the strongest signal available
+          // on static hosting — the same mechanism that carried the vs-vendor blog posts
+          // to /keycloak-alternatives/ without losing their positions.
+          { from: "/articles", to: "/tutorials/" },
+          { from: "/articles/introduction", to: "/tutorials/" },
+          { from: "/articles/jwts", to: "/tutorials/jwts/" },
+          {
+            from: "/articles/category/json-web-tokens-jwt",
+            to: "/tutorials/jwts/",
+          },
+          {
+            from: "/articles/jwts/decoding-jwt-structure",
+            to: "/tutorials/jwts/decoding-jwt-structure/",
+          },
+          {
+            from: "/articles/jwts/jwt-benefits-drawbacks",
+            to: "/tutorials/jwts/jwt-benefits-drawbacks/",
+          },
+          {
+            from: "/articles/jwts/jwt-security-best-practices",
+            to: "/tutorials/jwts/jwt-security-best-practices/",
+          },
           {
             from: "/blog/keycloak-vs-auth0-open-source-alternative",
             to: "/keycloak-alternatives/auth0/",
@@ -1246,13 +1274,17 @@ module.exports = {
       },
     ],
     [
+      // Vendor-neutral Keycloak tutorials. These teach open-source Keycloak and run on any
+      // deployment; Phase Two appears only in the shared <ProductionNote/> closing block.
       "@docusaurus/plugin-content-docs",
       {
-        id: "articles",
-        path: "articles",
-        routeBasePath: "articles",
+        id: "tutorials",
+        path: "tutorials",
+        routeBasePath: "tutorials",
         include: ["**/*.md", "**/*.mdx"],
-        sidebarPath: require.resolve("./sidebars.articles.js"),
+        sidebarPath: require.resolve("./sidebars.tutorials.js"),
+        editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/main",
+        showLastUpdateTime: true,
       },
     ],
     require.resolve("./plugins/docusaurus-tailwindcss-loader"),

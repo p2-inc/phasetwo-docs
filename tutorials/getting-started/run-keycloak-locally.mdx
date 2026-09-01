@@ -1,0 +1,205 @@
+---
+id: run-keycloak-locally
+title: Run Keycloak Locally in 5 Minutes
+description: Start a working Keycloak server on your machine with Docker, Podman, or the zip distribution — plus the dev-mode trap that bites people later.
+keywords:
+  - how to install keycloak
+  - how to start keycloak locally
+  - how to setup keycloak
+  - keycloak docker
+  - run keycloak locally
+difficulty: beginner
+time: 5 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Run Keycloak Locally in 5 Minutes
+
+One command gets you a running Keycloak with an admin account:
+
+```bash
+docker run -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+Open **http://localhost:8080** and sign in with `admin` / `admin`. That is the whole thing.
+
+The rest of this page is the part that matters later: what `start-dev` actually did, why
+you must not build on it, and where your data went.
+
+:::info Tested against
+Keycloak **26.7.3**. The admin bootstrap variables changed in Keycloak 26 — if you find a
+guide using `KEYCLOAK_ADMIN` and `KEYCLOAK_ADMIN_PASSWORD`, it predates that change.
+:::
+
+## Prerequisites
+
+Docker, Podman, or a JDK 21+. Nothing else.
+
+## Start it
+
+<details>
+<summary><b>Docker</b> (recommended)</summary>
+
+```bash
+docker run -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+Add `-d --name keycloak` to run it in the background.
+
+</details>
+
+<details>
+<summary><b>Podman</b></summary>
+
+Identical, because the image is the same:
+
+```bash
+podman run -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+</details>
+
+<details>
+<summary><b>Zip distribution</b> (no container runtime)</summary>
+
+```bash
+curl -LO https://github.com/keycloak/keycloak/releases/download/26.7.3/keycloak-26.7.3.zip
+unzip keycloak-26.7.3.zip && cd keycloak-26.7.3
+export KC_BOOTSTRAP_ADMIN_USERNAME=admin
+export KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+bin/kc.sh start-dev
+```
+
+Needs JDK 21 or later on your `PATH`.
+
+</details>
+
+## Verify it worked
+
+Don't trust the browser — ask the server:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8080/realms/master
+```
+
+`200` means Keycloak is up and the `master` realm is serving. Anything else and it is still
+starting or something below went wrong.
+
+For the full picture of what this instance can do:
+
+```bash
+curl -s http://localhost:8080/realms/master/.well-known/openid-configuration | jq .
+```
+
+Startup takes a few seconds. On a recent laptop:
+
+```
+Keycloak 26.7.3 on JVM (powered by Quarkus 3.33.3.1) started in 4.659s.
+Listening on: http://0.0.0.0:8080
+```
+
+Roughly 10 seconds from `docker run` to a `200` on the realm endpoint, most of it JVM start
+and the first-run database bootstrap.
+
+## What `start-dev` actually did
+
+This is the part the quickstarts skip, and it is the reason people get stuck two weeks later.
+
+Look at your logs and you will find this on the first line:
+
+```
+Running the server in development mode. DO NOT use this configuration in production.
+```
+
+`start-dev` is not "Keycloak with logging turned up." It is a materially different
+configuration:
+
+| | `start-dev` | `start` (production) |
+|---|---|---|
+| Database | In-container H2 | Postgres/MySQL/etc, required |
+| HTTPS | Disabled | Required unless explicitly relaxed |
+| Hostname | Inferred from the request | Must be set explicitly |
+| Caching | Local only | Distributed (Infinispan) |
+| Theme/config caching | Off, so edits appear instantly | On |
+| Startup | Re-derives config each time | Wants an optimized build |
+
+Two practical consequences:
+
+1. **Things that work in dev will fail in production** — most often hostname and proxy
+   settings, because dev mode guesses and production refuses to. That is not Keycloak being
+   awkward; guessing your public hostname is how you get token issuer mismatches and open
+   redirects.
+2. **Config that is fine in dev is not a starting point for prod.** You do not "turn off dev
+   mode." You configure a real database, TLS, and hostname, and run `start`.
+
+For now, dev mode is exactly right. Just don't build a deployment on it.
+
+## Where your data lives
+
+`start-dev` uses an H2 file database **inside the container**. That leads to a result people
+find surprising:
+
+```bash
+docker restart keycloak     # data survives
+docker rm -f keycloak       # data is gone, permanently
+```
+
+Verified: after `docker restart`, a realm created earlier still returns `200`. After
+`docker rm -f` and starting a fresh container, the same realm returns `404`.
+
+If you want your experiments to survive removing the container, mount the data directory:
+
+```bash
+docker run -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -v keycloak_data:/opt/keycloak/data \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+H2 is for local development only. It is not a supported production database and it will not
+survive a second Keycloak node.
+
+## Troubleshooting
+
+**`Bind for 127.0.0.1:8080 failed: port is already allocated`**
+Something already holds 8080 — very often a previous Keycloak container. `docker ps` to find
+it, `docker rm -f <name>` to clear it, or publish a different port with `-p 8081:8080`.
+
+**You can't reach Keycloak from another machine or VM.**
+The `127.0.0.1:` prefix in `-p 127.0.0.1:8080:8080` binds the port to loopback only, which is
+the right default. To expose it on your network, drop the prefix: `-p 8080:8080`. Do this
+only on a trusted network — this instance has a password of `admin` and no TLS.
+
+**The admin user isn't created on a later start.**
+Bootstrap only runs against an empty database. You will see
+`KC-SERVICES0077: Created temporary admin user with username admin` exactly once, on first
+start; subsequent starts skip it and changing the environment variables does nothing. To get
+a new admin on an existing database, use
+[`kc.sh bootstrap-admin`](https://www.keycloak.org/server/bootstrap-admin-recovery).
+
+Note the wording: **temporary** admin user. It is intended to get you in so you can create a
+real one, not to be a permanent account.
+
+**Startup hangs or the container exits immediately.**
+Check `docker logs <name>`. On the zip distribution the usual cause is a JDK older than 21.
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the mental model everything else depends on.
+- The official [Keycloak getting-started guides](https://www.keycloak.org/guides#getting-started)
+  cover Kubernetes and OpenShift if you want to skip straight to an orchestrator.
+
+<ProductionNote />
