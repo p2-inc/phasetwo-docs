@@ -1,7 +1,7 @@
 ---
 slug: keycloak-invalid-redirect-uri
 title: 'Keycloak "Invalid parameter: redirect_uri" — Every Cause and Fix'
-date: 2026-09-08
+date: 2026-09-02
 authors: [gpatil]
 tags: [keycloak, troubleshooting, oidc, clients, security]
 description: Why Keycloak rejects your redirect_uri, with a tested matching table for Keycloak 26 — including the query-string rule that breaks most OAuth callbacks.
