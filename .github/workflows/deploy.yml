@@ -17,6 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Full history: Docusaurus derives each page's last-modified date from
+          # git, and feeds it to the sitemap as <lastmod>. On the default shallow
+          # clone every file looks like it changed in the one fetched commit, so
+          # every URL gets stamped with the build date and <lastmod> stops
+          # carrying any information at all.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v6
         with:
@@ -40,6 +47,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          # Full history: Docusaurus derives each page's last-modified date from
+          # git, and feeds it to the sitemap as <lastmod>. On the default shallow
+          # clone every file looks like it changed in the one fetched commit, so
+          # every URL gets stamped with the build date and <lastmod> stops
+          # carrying any information at all.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v6
         with:
