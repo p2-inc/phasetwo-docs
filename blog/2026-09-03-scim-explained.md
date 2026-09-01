@@ -1,7 +1,7 @@
 ---
 slug: scim-explained
 title: "SCIM Explained: What It Is, When You Need It, and How Keycloak Does It"
-date: 2026-09-10
+date: 2026-09-03
 authors: [gpatil]
 tags: [keycloak, scim, provisioning, standards, organizations]
 description: What SCIM actually is, when you need it instead of SSO alone, and a working walkthrough of Keycloak's native SCIM API — tested on 26.7.3, with real requests and responses.
