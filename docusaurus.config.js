@@ -1103,6 +1103,10 @@ module.exports = {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/main",
+          // Feeds a real <lastmod> into the sitemap. Without it Docusaurus has
+          // no modification date for a page and the sitemap falls back to build
+          // time, which stamps every URL with today.
+          showLastUpdateTime: true,
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -1110,6 +1114,7 @@ module.exports = {
         blog: {
           blogSidebarTitle: "News",
           blogSidebarCount: "ALL",
+          showLastUpdateTime: true,
           blogDescription:
             "Learn more about how we make Keycloak Hosting and Authentication easy.",
         },
