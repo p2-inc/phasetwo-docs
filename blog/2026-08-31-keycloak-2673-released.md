@@ -40,6 +40,8 @@ Read this as three groups.
 
 **You have a decision to make** if you are on 26.6 or earlier. See the backport section below.
 
+One factor that argues against waiting: these are not embargoed zero-days. The 19 published advisories went public between 5 and 90 days before 26.7.3 shipped — `CVE-2026-35563` on 1 June 2026, three months before a fix existed. The technical detail has been readable for weeks, and none of these CVE identifiers appears in the 26.7.1 or 26.7.2 release bodies.
+
 We are not going to tell you nobody is affected. Of the 18 CVEs here with a published CVSS vector, 17 have `PR:L` or `PR:H`, meaning the attacker must already hold a client credential or an admin account. That is a real mitigating factor. It is also exactly the boundary many teams treat as a hard tenant separation, so whether "an admin can exceed their permissions" is a shrug or an incident depends entirely on who your admins are. The one exception, `CVE-2026-18209`, needs no privileges but is rated low and requires a wildcard redirect URI plus a client that trusts fragment parameters.
 
 ## Every CVE fixed in Keycloak 26.7.3
@@ -67,12 +69,12 @@ Ordered by published severity, then CVSS. Severities are quoted from the GitHub 
 | `CVE-2026-16104` | **medium** (4.3) | Read raw reCAPTCHA secret keys from the authenticator config endpoint with view-only permissions | You configure reCAPTCHA and have view-only admins or ship admin logs off-box | [GHSA](https://github.com/advisories/GHSA-qh48-wwv4-fmr8) · [CVE](https://nvd.nist.gov/vuln/detail/CVE-2026-16104) · [#51005](https://github.com/keycloak/keycloak/issues/51005) |
 | `CVE-2026-18218` | **medium** (4.2) | Have a client-level not-before token revocation silently ignored when the realm's not-before is older but nonzero | You revoke tokens with not-before policies — this one breaks an incident-response control | [GHSA](https://github.com/advisories/GHSA-vhxw-j6h3-48jm) · [CVE](https://nvd.nist.gov/vuln/detail/CVE-2026-18218) · [#51279](https://github.com/keycloak/keycloak/issues/51279) |
 | `CVE-2026-18209` | **low** (3.4) | Inject duplicate OIDC response parameters through the URL *fragment*, which the parameter-pollution check didn't inspect | A client is registered with a wildcard redirect URI **and** the app trusts fragment parameters | [GHSA](https://github.com/advisories/GHSA-c8xx-fr3x-6m5w) · [CVE](https://nvd.nist.gov/vuln/detail/CVE-2026-18209) · [#51286](https://github.com/keycloak/keycloak/issues/51286) |
-| `CVE-2026-19729` | **unrated** | Probe arbitrary filesystem paths as `manage-realm`, determining which files the Keycloak process can read — the fix for CVE-2026-9083 was incomplete | You grant `manage-realm` to admins you don't fully trust | no GHSA · [CVE](https://nvd.nist.gov/vuln/detail/CVE-2026-19729) · [#51745](https://github.com/keycloak/keycloak/issues/51745) |
+| `CVE-2026-19729` | **unrated** | Probe arbitrary filesystem paths as `manage-realm`, determining which files the Keycloak process can read — the fix for CVE-2026-9083 was incomplete | You grant `manage-realm` to admins you don't fully trust | no GHSA · no NVD record · [#51745](https://github.com/keycloak/keycloak/issues/51745) |
 
 Two notes on reading that table honestly:
 
 - **`CVE-2026-35563` is a dependency, not Keycloak.** The fixed version `2.1.8` is the Apache Directory LDAP API's version, not a Keycloak version. The story is "Keycloak shipped a vulnerable library", and the remediation is the Keycloak build that bundles the updated library.
-- **`CVE-2026-19729` has no advisory yet.** No GHSA is published for it, so it has no severity and no CVSS, and we have not invented one. The release body describes it as an incomplete fix for `CVE-2026-9083` ([GHSA-7pm9-g8jh-3m74](https://github.com/advisories/GHSA-7pm9-g8jh-3m74), medium 4.9), with path traversal still enabling filesystem probing in 26.6.4. If you grant `manage-realm` broadly, read that earlier advisory and treat this as the same class of issue. Two of the twenty are second attempts at earlier fixes, which is a reasonable prompt to check your own patch level rather than assume a CVE you patched in June is closed.
+- **`CVE-2026-19729` has no advisory yet.** No GHSA is published for it, so it has no severity and no CVSS, and we have not invented one. NVD has no record of the identifier either — checked 1 September 2026, when the other 21 identifiers in the release body all resolved — so issue [#51745](https://github.com/keycloak/keycloak/issues/51745) is currently the only public description of it. The release body describes it as an incomplete fix for `CVE-2026-9083` ([GHSA-7pm9-g8jh-3m74](https://github.com/advisories/GHSA-7pm9-g8jh-3m74), medium 4.9), with path traversal still enabling filesystem probing in 26.6.4. If you grant `manage-realm` broadly, read that earlier advisory and treat this as the same class of issue. Two of the twenty are second attempts at earlier fixes, which is a reasonable prompt to check your own patch level rather than assume a CVE you patched in June is closed.
 
 ## Which patch release on my branch has the fix?
 
@@ -110,6 +112,8 @@ Nineteen bug fixes, and several are performance regressions that landed in this 
 - Admin API per-request cost growing super-linearly with realm count since 26.7.1 (#51554), sustained high CPU on all nodes after upgrade (#51523), and lightweight access token role resolution resolving every role across every realm on each admin API request (#51707). If you run many realms on one cluster and saw admin API latency climb after 26.7.1, these three are your explanation.
 - `SQLGrammarException: The incoming request has too many parameters` (#51510), an NPE in `RoleUtils.expandCompositeRoles` when a cached client scope references a deleted role (#51589), and client session note removals not persisting with persistent user sessions (#52038).
 - V1 token exchange stripping the DPoP sender constraint from a bound access token (#50963), and creating an organization without a domain failing outright (#50825).
+
+One fix worth calling out separately because nothing will alert you to it: #52017 completes the fix for `CVE-2026-9794` (SAML ECP faultstrings disclosing client existence) but was filed under **Bugs** with no new CVE assigned. If you track CVE identifiers rather than issues, it is invisible.
 
 No new features. This is a patch release doing what patch releases are for.
 
