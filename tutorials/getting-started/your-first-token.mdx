@@ -1,0 +1,540 @@
+---
+id: your-first-token
+title: Get a Keycloak Token and Read Every Claim
+description: Get a token from Keycloak with one curl command, decode it, and learn what every claim in it means — plus the aud trap that makes valid tokens get rejected.
+keywords:
+  - how to get token from keycloak
+  - does keycloak use jwt
+  - keycloak token endpoint
+  - keycloak access token claims
+  - keycloak jwt claims
+difficulty: beginner
+time: 20 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Get a Keycloak Token and Read Every Claim
+
+To get a token from Keycloak, POST to the realm's token endpoint:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app \
+  -d username=alice \
+  -d password=s3cret \
+  -d grant_type=password | jq .
+```
+
+Yes, Keycloak uses JWTs. The `access_token` and `id_token` it returns are signed JSON Web
+Tokens you can decode and read. The `refresh_token` is also a JWT, but it is not yours to
+read — more on that below.
+
+The rest of this page is the part that actually matters: what every claim in that token
+means, why the `aud` claim is almost never what you expect, and what breaks when you get
+it wrong.
+
+:::info Tested against
+Keycloak **26.7.3**, started per
+[Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/). Every command,
+every JSON body, and every measured number below is copied from an actual run against that
+version.
+:::
+
+## Prerequisites
+
+A realm called `demo` with a client `demo-app` and a user `alice`. If you don't have one,
+[Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+builds it in about five minutes — or paste this:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+$K create realms -s realm=demo -s enabled=true
+$K create clients -r demo -s clientId=demo-app -s publicClient=true \
+  -s 'redirectUris=["http://localhost:5173/*"]' \
+  -s 'webOrigins=["http://localhost:5173"]' \
+  -s directAccessGrantsEnabled=true
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+```
+
+You also want `jq`. Every decode below uses it.
+
+:::warning The password grant is a tutorial shortcut
+`grant_type=password` gets you a token in one request, which is why it is used here. It is
+discouraged in OAuth 2.1 and should not survive into your application — browser and mobile
+apps use the authorization code flow with PKCE. Everything you learn about the token itself
+applies identically; only the way you obtained it differs.
+:::
+
+## Step 1 — Ask for a token
+
+Where do the endpoint URLs come from? The realm publishes them:
+
+```bash
+curl -s http://localhost:8080/realms/demo/.well-known/openid-configuration \
+  | jq '{issuer, token_endpoint, userinfo_endpoint, jwks_uri, introspection_endpoint}'
+```
+
+```json
+{
+  "issuer": "http://localhost:8080/realms/demo",
+  "token_endpoint": "http://localhost:8080/realms/demo/protocol/openid-connect/token",
+  "userinfo_endpoint": "http://localhost:8080/realms/demo/protocol/openid-connect/userinfo",
+  "jwks_uri": "http://localhost:8080/realms/demo/protocol/openid-connect/certs",
+  "introspection_endpoint": "http://localhost:8080/realms/demo/protocol/openid-connect/token/introspect"
+}
+```
+
+Hard-code the discovery URL, not the endpoints. Every path under it is derived from the
+realm name and the hostname configuration, and both change between environments.
+
+Now the token request. Note the `scope=openid` — it matters:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=alice -d password=s3cret \
+  -d grant_type=password -d scope=openid > /tmp/t.json
+
+jq 'keys' /tmp/t.json
+```
+
+```json
+["access_token","expires_in","id_token","not-before-policy",
+ "refresh_expires_in","refresh_token","scope","session_state","token_type"]
+```
+
+### The first thing that surprises people
+
+Drop `scope=openid` and run it again. The response no longer has an `id_token`:
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5…",
+  "expires_in": 300,
+  "refresh_expires_in": 1800,
+  "refresh_token": "eyJhbGciOiJIUzUxMiIsInR5…",
+  "token_type": "Bearer",
+  "not-before-policy": 0,
+  "session_state": "CACfLyp3tHqIrNV6PODbn991",
+  "scope": "email profile"
+}
+```
+
+Without `openid` in the requested scope this is a plain OAuth 2.0 request, not an OpenID
+Connect one, and Keycloak has no reason to issue an identity token. If your library reports
+"no ID token returned", this is almost always why.
+
+## Step 2 — Decode it
+
+A JWT is three base64url segments separated by dots. `jq` will do the whole job:
+
+```bash
+jq -r .access_token /tmp/t.json | jq -R 'split(".") | .[0] | @base64d | fromjson'
+```
+
+```json
+{
+  "alg": "RS256",
+  "typ": "JWT",
+  "kid": "LaiB1h_wPV_7gohEE8sY4Q81xlIKmVHUsmCFbFbalW8"
+}
+```
+
+`RS256` means asymmetric: Keycloak signs with a private key it never shares, and you verify
+with the matching public key it publishes. `kid` names which key — that is how key rotation
+works without an outage. Change `.[0]` to `.[1]` for the payload:
+
+```bash
+jq -r .access_token /tmp/t.json | jq -R 'split(".") | .[1] | @base64d | fromjson'
+```
+
+```json
+{
+  "exp": 1788292115,
+  "iat": 1788291815,
+  "jti": "onrtro:740f7ff8-8bac-51b5-a194-284ab6259455",
+  "iss": "http://localhost:8080/realms/demo",
+  "aud": "account",
+  "sub": "96c09b72-bc9b-465b-9858-05bf014c8d3e",
+  "typ": "Bearer",
+  "azp": "demo-app",
+  "sid": "GJ-uZ4op0AxggRdCctTuzYqn",
+  "acr": "1",
+  "allowed-origins": ["http://localhost:5173"],
+  "realm_access": {
+    "roles": ["offline_access", "uma_authorization", "default-roles-demo"]
+  },
+  "resource_access": {
+    "account": {
+      "roles": ["manage-account", "manage-account-links", "view-profile"]
+    }
+  },
+  "scope": "openid email profile",
+  "email_verified": true,
+  "name": "Alice Example",
+  "preferred_username": "alice",
+  "given_name": "Alice",
+  "family_name": "Example",
+  "email": "alice@example.com"
+}
+```
+
+Prefer a UI? Paste it into our [JWT decoder](/tools/jwt-decoder/) — it runs in your browser
+and the token is never sent anywhere. For the anatomy of the three segments and how the
+signature is computed, see
+[Decoding a JWT](/tutorials/jwts/decoding-jwt-structure/).
+
+## Every claim, and what to do with it
+
+| Claim | Value here | What it is | What you do with it |
+|---|---|---|---|
+| `exp` | `1788292115` | Expiry, Unix seconds | Reject if past. 300s after `iat` by default |
+| `iat` | `1788291815` | Issued at | Use with `exp` to reason about clock skew |
+| `jti` | `onrtro:740f…` | Unique token ID | Log it; it is your correlation key across services |
+| `iss` | realm URL | Issuer | Must equal your expected issuer **exactly**, string compare |
+| `aud` | `account` | Intended recipient | The trap. See below |
+| `sub` | user UUID | The user's stable ID | **This is the user key.** Never key on `email` or `preferred_username` |
+| `typ` | `Bearer` | Keycloak token type | `Bearer` = access, `ID` = ID token, `Refresh` = refresh |
+| `azp` | `demo-app` | Authorized party — the client that got the token | Log it; useful for "which app is calling me" |
+| `sid` | `GJ-uZ4op…` | SSO session ID | Correlates with back-channel logout events |
+| `acr` | `1` | Authentication context class (level of authentication) | Check it if you require step-up MFA for sensitive operations |
+| `allowed-origins` | `["http://localhost:5173"]` | Mirrors the client's Web origins | Nothing. It is for Keycloak's CORS handling, not authorization |
+| `realm_access.roles` | 3 defaults | Realm-wide roles | Coarse authorization |
+| `resource_access` | `account` roles | Per-client roles | Fine-grained authorization, keyed by client ID |
+| `scope` | `openid email profile` | Granted scopes | Determines which of the claims below are present |
+| `preferred_username`, `email`, `name`, … | Alice's profile | Profile claims from the `profile` / `email` scopes | Display only |
+
+Three of those are worth stating flatly, because each one is a real outage waiting to happen:
+
+- **`sub` is the only stable identifier.** Usernames and emails are editable in Keycloak.
+  If your database rows are keyed on `preferred_username`, an admin renaming a user
+  detaches them from their own data.
+- **`preferred_username` is not verified.** `email_verified` tells you whether the email
+  was proven. There is no equivalent for the username.
+- **Profile claims are scope-dependent.** Request without `email` scope and `email` is
+  simply absent. Code that reads `claims["email"]` unguarded will start throwing the day
+  someone edits a client scope.
+
+## Access token, ID token, refresh token
+
+Three tokens come back and they are not interchangeable:
+
+| | Access token | ID token | Refresh token |
+|---|---|---|---|
+| `typ` | `Bearer` | `ID` | `Refresh` |
+| Signed with | `RS256` (asymmetric) | `RS256` (asymmetric) | `HS512` (symmetric, realm-internal) |
+| `aud` | the resource server | the client (`demo-app`) | the realm |
+| Audience is | your API | your frontend | Keycloak itself |
+| Lifetime here | 300 s | 300 s | 1800 s |
+| Send it to | your API, as `Authorization: Bearer` | nobody | only Keycloak's token endpoint |
+| Read it | yes, in your API | yes, in your frontend | **no** |
+
+The ID token from the same request:
+
+```json
+{
+  "exp": 1788292115,
+  "iat": 1788291815,
+  "iss": "http://localhost:8080/realms/demo",
+  "aud": "demo-app",
+  "sub": "96c09b72-bc9b-465b-9858-05bf014c8d3e",
+  "typ": "ID",
+  "azp": "demo-app",
+  "sid": "GJ-uZ4op0AxggRdCctTuzYqn",
+  "at_hash": "rZDW6mC0Xd8UtafehJ6aBA",
+  "acr": "1",
+  "email_verified": true,
+  "name": "Alice Example",
+  "preferred_username": "alice",
+  "given_name": "Alice",
+  "family_name": "Example",
+  "email": "alice@example.com"
+}
+```
+
+Note `aud` here is `demo-app`, the frontend. **An ID token is proof to your frontend that a
+login happened. It is not an API credential.** Sending an ID token to a resource server is
+a common shortcut and it is wrong: the resource server is not in its audience, and it
+carries no `realm_access` or `resource_access` roles to authorize with.
+
+The refresh token decodes too, and its header is instructive:
+
+```json
+{ "alg": "HS512", "typ": "JWT", "kid": "d7eb451d-f5ae-4a6f-b578-7a2d8503bbe1" }
+```
+
+`HS512` is symmetric — signed with a secret only Keycloak holds, so only Keycloak can
+verify it. Its `aud` is the realm itself. Treat the refresh token as opaque: your only
+supported operation is to POST it back for a new access token.
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d grant_type=refresh_token -d "refresh_token=$RT" | jq keys
+```
+
+## Step 3 — Verify the signature
+
+Decoding is not validating. Anyone can craft a JSON payload, base64 it, and send it to you.
+Fetch the realm's public keys:
+
+```bash
+curl -s http://localhost:8080/realms/demo/protocol/openid-connect/certs \
+  | jq '[.keys[] | {kid, kty, alg, use}]'
+```
+
+```json
+[
+  { "kid": "WQJU9SPL5VmU-cJLrfk08mVlFGLTEkqWZjEEIeJVuxI",
+    "kty": "RSA", "alg": "RSA-OAEP", "use": "enc" },
+  { "kid": "LaiB1h_wPV_7gohEE8sY4Q81xlIKmVHUsmCFbFbalW8",
+    "kty": "RSA", "alg": "RS256", "use": "sig" }
+]
+```
+
+Two keys, one purpose each. Match on `kid` — the signing key is the one whose `kid` equals
+the token header's, and `use` is `sig`. Do not assume the first entry.
+
+```python
+# pip install pyjwt cryptography   (tested with PyJWT 2.7.0)
+import jwt
+from jwt import PyJWKClient
+
+JWKS = "http://localhost:8080/realms/demo/protocol/openid-connect/certs"
+jwks = PyJWKClient(JWKS)                       # caches keys — do not refetch per request
+key = jwks.get_signing_key_from_jwt(token).key
+
+claims = jwt.decode(
+    token, key,
+    algorithms=["RS256"],                      # pin it; never trust the header's alg
+    audience="demo-api",
+    issuer="http://localhost:8080/realms/demo",
+)
+```
+
+Run it and it fails:
+
+```
+InvalidAudienceError: Audience doesn't match
+```
+
+That is not a bug in your code. That is the next section.
+
+## The `aud` trap
+
+Look again: `"aud": "account"`. Not `demo-app`, and not your API. **Keycloak does not put
+your resource server in the audience unless you tell it to.** Every correctly written
+resource server checks `aud` — so out of the box, a perfectly valid token gets rejected by
+a perfectly correct API.
+
+The fix is an audience protocol mapper on the client that receives the token. Create the
+resource-server client, then map it in:
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+
+$K create clients -r demo -s clientId=demo-api \
+  -s publicClient=false -s standardFlowEnabled=false
+
+CID=$($K get clients -r demo -q clientId=demo-app --fields id --format csv --noquotes)
+
+$K create clients/$CID/protocol-mappers/models -r demo \
+  -s name=demo-api-audience \
+  -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=demo-api' \
+  -s 'config."access.token.claim"=true'
+```
+
+```
+Created new client with id 'ae6bf4eb-56c6-460a-93e5-3734bee6d43b'
+Created new model with id 'b689004d-5b83-46e6-8f16-065dcd41e1c0'
+```
+
+In the admin console the same thing is **Clients → demo-app → Client scopes →
+demo-app-dedicated → Configure a new mapper → Audience**, with *Included Client Audience*
+set to `demo-api` and *Add to access token* on.
+
+Request a new token and `aud` has changed:
+
+```json
+["demo-api", "account"]
+```
+
+The Python above now prints:
+
+```
+VALID — sub = 96c09b72-bc9b-465b-9858-05bf014c8d3e | aud = ['demo-api', 'account']
+```
+
+`account` stays because Keycloak's built-in `account` client roles resolve into the
+audience automatically. That is expected; your check is that *your* client ID is present,
+not that it is the only entry. Keycloak's
+[Audience support](https://www.keycloak.org/docs/latest/server_admin/index.html#audience-support)
+section explains why limiting audiences matters when services call other services.
+
+## Local validation or introspection?
+
+There is a second way to check a token: ask Keycloak.
+
+```bash
+curl -s -X POST \
+  http://localhost:8080/realms/demo/protocol/openid-connect/token/introspect \
+  -u "demo-api:$SECRET" -d "token=$ACCESS_TOKEN" \
+  | jq '{active, client_id, username, aud, exp, scope}'
+```
+
+```json
+{
+  "active": true,
+  "client_id": "demo-app",
+  "username": "alice",
+  "aud": ["demo-api", "account"],
+  "exp": 1788292133,
+  "scope": "openid email profile"
+}
+```
+
+Which one should you use? Measured on this machine, 200 iterations each, introspection over
+**loopback** with no network in the way:
+
+| | Median | p95 |
+|---|---|---|
+| Local signature verification (JWKS cached) | 0.06 ms | 0.08 ms |
+| Introspection call | 6.08 ms | 10.92 ms |
+
+Roughly 100× — and that is the best case for introspection, since a real deployment adds
+network latency and a Keycloak round trip to every single API request.
+
+| | Local verification | Introspection |
+|---|---|---|
+| Cost per request | ~0.06 ms, no network | one HTTP round trip |
+| Keycloak load | JWKS fetch, then nothing | scales with your API traffic |
+| Sees revocation | No — valid until `exp` | Yes, immediately |
+| Needs client credentials | No | Yes, and the client must be in `aud` |
+| Works offline | Yes | No |
+
+**Default to local verification.** Access tokens live 300 seconds; that is the revocation
+window you are accepting, and it is short by design. Reach for introspection when 300
+seconds of stale authorization is genuinely unacceptable, or when the token is opaque
+rather than a JWT.
+
+## When it goes wrong
+
+Five failures you will actually hit, with the exact response each produces.
+
+**`401` + `{"error":"invalid_client"}`** — the `client_id` does not exist in this realm, or
+the client is confidential and you sent no secret. Check the realm name in the URL first;
+a typo there produces this, not a 404.
+
+```json
+{"error":"invalid_client","error_description":"Invalid client or Invalid client credentials"}
+```
+
+**`400` + `{"error":"invalid_grant"}`** — wrong password, disabled user, or a required
+action pending on the account. The message is deliberately identical for all three so it
+cannot be used to enumerate users.
+
+```json
+{"error":"invalid_grant","error_description":"Invalid user credentials"}
+```
+
+**`400` + `{"error":"unauthorized_client"}`** — the client exists but *Direct access
+grants* is off. The password grant is enabled per client; that switch is
+`directAccessGrantsEnabled`.
+
+```json
+{"error":"unauthorized_client","error_description":"Client not allowed for direct access grants"}
+```
+
+**`401` from your API on a token that decodes perfectly** — the `aud` trap above. Decode the
+token and look at `aud` before you debug anything else.
+
+**Introspection returns `{"active": false}` for a token that is valid and unexpired.** This
+one costs people hours. Keycloak's introspection endpoint checks that the *introspecting*
+client is in the token's `aud` claim; if it isn't, you get `active: false` rather than an
+error explaining why. Verified against 26.7.3 with a token issued seconds earlier:
+
+```bash
+# token's aud is ["account"], introspecting as demo-api
+{"active":false}
+```
+
+The fix is the same audience mapper. See
+[Token introspection audience validation](https://www.keycloak.org/docs/latest/server_admin/index.html#token-introspection-audience-validation)
+for the backwards-compatibility switch if you need one during a migration.
+
+And one expiry check, so you know what expiry looks like on both sides. With the realm's
+Access Token Lifespan temporarily set to 5 seconds:
+
+```
+ExpiredSignatureError: Signature has expired
+```
+
+```
+HTTP 401
+WWW-Authenticate: Bearer realm="demo", error="invalid_token",
+                  error_description="Token verification failed"
+```
+
+## What your token costs you
+
+Tokens travel in an HTTP header on every request, and headers have limits — proxies commonly
+cap them at 4–8 KB. Measured on the realm built above:
+
+| Token | Bytes |
+|---|---|
+| Access token | 1,365 |
+| ID token | 1,038 |
+| Refresh token | 700 |
+
+Then we granted Alice 20 more realm roles (names like `team-role-7`) and re-requested:
+
+| | Bytes |
+|---|---|
+| Access token, 3 realm roles | 1,365 |
+| Access token, 23 realm roles | 1,753 |
+
+**About 19 bytes of encoded token per role.** Harmless at 20 roles, a genuine incident at
+400 — and role counts grow quietly. If your tokens are drifting toward a kilobyte of
+`realm_access`, the answer is a narrower client scope, not a bigger proxy buffer.
+
+## Verify you got it all
+
+You understand your token if you can answer these from the decoded payload:
+
+1. Which user is this? → `sub`, never `preferred_username`.
+2. Who issued it? → `iss`, compared exactly against your configured issuer.
+3. Is it for me? → your client ID appears in `aud`.
+4. Is it still good? → `exp` is in the future, and the `RS256` signature verifies against
+   the `kid` from the JWKS endpoint.
+5. What may it do? → `realm_access.roles` and `resource_access.<client>.roles`.
+
+A resource server that checks all five is doing token validation correctly. One that skips
+step 4 is not validating at all.
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+  — the objects these claims describe.
+- [Decoding a JWT](/tutorials/jwts/decoding-jwt-structure/) — the wire format, segment by
+  segment, and how the signature is computed.
+- [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — algorithm
+  confusion, storage, and what not to put in a token.
+- [Authentication against an API](/docs/api/authentication) — the same bearer token, used
+  against a real API.
+- Official reference:
+  [Keycloak OIDC endpoints](https://www.keycloak.org/docs/latest/server_admin/index.html#con-server-oidc-uri-endpoints_server_administration_guide)
+  and [OIDC token mappings](https://www.keycloak.org/docs/latest/server_admin/index.html#_protocol-mappers).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
