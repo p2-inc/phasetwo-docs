@@ -34,6 +34,26 @@ jobs:
           # carrying any information at all.
           fetch-depth: 0
 
+      # Docusaurus drops `draft: true` posts from production builds silently. A
+      # post merged with the flag still set therefore looks published -- PR
+      # merged, deploy green -- and simply is not on the site. That is how the
+      # atomic-auth-flows launch went missing. Say so at review time, while
+      # someone is still looking at it.
+      - name: Flag posts that will not publish
+        run: |
+          set -euo pipefail
+          found=0
+          for f in blog/*.md blog/*.mdx; do
+            [ -f "$f" ] || continue
+            flag=$(awk '/^---$/{n++;next} n==1 && /^(draft|unlisted): *true/ {print $1}' "$f" | tr -d ':')
+            if [ -n "$flag" ]; then
+              echo "::warning file=$f::$(basename "$f") has ${flag}: true and will NOT appear on the site."
+              echo "- \`$f\` — \`${flag}: true\`, will not publish" >> "$GITHUB_STEP_SUMMARY"
+              found=1
+            fi
+          done
+          [ "$found" = "1" ] || echo "no draft or unlisted posts"
+
       - uses: pnpm/action-setup@v6
         with:
           run_install: false
