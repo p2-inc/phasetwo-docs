@@ -218,4 +218,5 @@ usually why — and the fix is a narrower URI, not a workaround.
 
 Running Keycloak in production means owning these details across every environment and every
 upgrade. [Phase Two](/hosting/dedicated-clusters/) runs managed Keycloak so you don't have to
-— including the upgrades that change wildcard behaviour.
+— including the upgrades that change wildcard behaviour. Or work through the
+[Keycloak tutorials](/tutorials/) if you'd rather learn it yourself.

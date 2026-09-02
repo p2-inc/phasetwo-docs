@@ -153,9 +153,10 @@ password grant is discouraged in OAuth 2.1 and should not survive into your appl
 
 Redirect URIs are a security control, not configuration noise — Keycloak will only send a
 user back to a URI you have listed. Be specific; avoid bare wildcards. This is also the
-single most common source of first-run errors: if you see
+single most common source of first-run errors. If you see
 `Invalid parameter: redirect_uri`, the URI your app sent does not match anything in this
-list, and the mismatch is usually a trailing slash or a missing `/*`.
+list — usually a trailing slash or a missing `/*`. We wrote up
+[every cause and fix](/blog/keycloak-invalid-redirect-uri/), with a tested matching table.
 
 ## Step 3 — Create a user
 
