@@ -1,7 +1,7 @@
 ---
 title: "Atomic authentication flow updates for Keycloak, built with Gusto"
 slug: keycloak-atomic-auth-flows
-date: 2026-09-01
+date: 2026-09-02
 authors: [rtufisi]
 tags:
   [
@@ -13,8 +13,6 @@ tags:
     open_source,
   ]
 description: A new open-source extension that imports Keycloak authentication flows, configs, and bindings in a single atomic transaction — built in partnership with Gusto and in production for almost a year.
-# Held pending Gusto legal review. Do not remove without their sign-off.
-draft: true
 ---
 
 We're open-sourcing [`keycloak-atomic-auth-flows`](https://github.com/p2-inc/keycloak-atomic-auth-flows), a Keycloak extension that replaces an entire set of authentication flows, authenticator configs, and their bindings in **one atomic, transactional request**.
@@ -114,7 +112,7 @@ ruby examples/scripts/update_auth_flows.rb
 
 Then open the admin console at `http://localhost:8080` (admin / admin) → realm **demo** → _Authentication_, and you'll see the imported flows, alias-prefixed with their import hash, bound to the realm and to the demo identity provider. Run the script a second time to watch the `409`.
 
-The extension targets **Keycloak 26.5.7**, builds with **JDK 21** and Maven, and is licensed **Apache 2.0**. Integration tests run against a real Keycloak via Testcontainers.
+As of publication, the extension targets **Keycloak 26.7.3**, builds with **JDK 21** and Maven, and is licensed **Apache 2.0**. Integration tests run against a real Keycloak via Testcontainers.
 
 ## Thanks to Gusto
 
