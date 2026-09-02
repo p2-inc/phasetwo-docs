@@ -31,14 +31,16 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 1. [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/)
 2. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
 
 **Securing an application** — get a token, then learn to trust it. *(Coming soon.)*
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 
-1. [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
-2. [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)
-3. [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)
+1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+2. [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
+3. [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)
+4. [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 

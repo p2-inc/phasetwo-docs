@@ -13,6 +13,7 @@ module.exports = {
       items: [
         "getting-started/run-keycloak-locally",
         "getting-started/first-realm-client-user",
+        "getting-started/your-first-token",
       ],
     },
     {
