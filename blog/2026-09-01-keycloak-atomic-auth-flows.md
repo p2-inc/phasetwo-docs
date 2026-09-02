@@ -13,7 +13,6 @@ tags:
     open_source,
   ]
 description: A new open-source extension that imports Keycloak authentication flows, configs, and bindings in a single atomic transaction — built in partnership with Gusto and in production for almost a year.
-draft: true
 ---
 
 We're open-sourcing [`keycloak-atomic-auth-flows`](https://github.com/p2-inc/keycloak-atomic-auth-flows), a Keycloak extension that replaces an entire set of authentication flows, authenticator configs, and their bindings in **one atomic, transactional request**.
