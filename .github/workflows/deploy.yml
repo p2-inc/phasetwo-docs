@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# Publishing force-pushes to p2-inc.github.io, so two deploys in flight race and
+# the loser fails. Merging four PRs in a few minutes did exactly that today.
+# Queue them instead of cancelling: each run publishes the main it built from, and
+# cancelling the in-flight one can leave the site on an older commit than the run
+# that superseded it.
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: false
+
 env:
   NODE_VERSION: 22
   CUSTOM_DOMAIN: phasetwo.io
