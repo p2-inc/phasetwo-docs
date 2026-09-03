@@ -33,7 +33,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['"Manrope"', "system-ui", "-apple-system", "sans-serif"],
+        sans: ['"Instrument Sans"', "system-ui", "-apple-system", "sans-serif"],
       },
       fontWeight: {
         normal: "400",

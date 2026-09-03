@@ -24,8 +24,8 @@
 
 :root {
   /* Font Family */
-  --ifm-font-family-base: "Manrope", system-ui, -apple-system, sans-serif;
-  --ifm-heading-font-family: "Manrope", system-ui, -apple-system, sans-serif;
+  --ifm-font-family-base: "Instrument Sans", system-ui, -apple-system, sans-serif;
+  --ifm-heading-font-family: "Instrument Sans", system-ui, -apple-system, sans-serif;
   --ifm-font-weight-base: 400;
   --ifm-font-weight-semibold: 500;
   --ifm-font-weight-bold: 500;
@@ -275,7 +275,9 @@ h6 {
   font-family: var(--ifm-heading-font-family);
   font-weight: var(--ifm-font-weight-base);
   line-height: var(--ifm-heading-line-height);
-  letter-spacing: -0.02em;
+  /* Instrument Sans sets headings at -0.015em; each family needs its own
+     optical correction, so this is not a straight swap of the family name. */
+  letter-spacing: -0.015em;
 }
 
 h1 {
@@ -1139,7 +1141,7 @@ a.support:hover {
   padding: 0 var(--ifm-pre-padding);
 }
 
-/* Ensure all text uses Manrope */
+/* Ensure all text uses Instrument Sans */
 * {
   font-family: var(--ifm-font-family-base);
 }
