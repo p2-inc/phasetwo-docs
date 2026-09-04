@@ -26,5 +26,11 @@ module.exports = {
         "jwts/jwt-security-best-practices",
       ],
     },
+    {
+      type: "category",
+      label: "Mobile apps",
+      link: { type: "generated-index" },
+      items: ["mobile-apps/app-association-files"],
+    },
   ],
 };
