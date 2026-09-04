@@ -6,13 +6,9 @@ description: The static outbound IP addresses Phase Two clusters send traffic fr
 
 ## Egress IP Addresses
 
-If you need to allowlist Phase Two's outbound traffic — for an SMTP relay, an
-IP-restricted API, or your own firewall — use the addresses below for your cluster's
-region. These are the addresses your cluster sends traffic *from*, which are not the
-same as the addresses your users connect *to*.
+If you need to allowlist Phase Two's outbound traffic — for an SMTP relay, an IP-restricted API, or your own firewall — use the addresses below for your cluster's region. These are the addresses your cluster sends traffic *from*, which are not the same as the addresses your users connect *to*.
 
-Allowlist **all three addresses** for your region. Traffic may originate from any of
-them.
+Allowlist **all three addresses** for your region. Traffic may originate from any of them.
 
 ### AWS US East (N. Virginia) `us-east-1`
 
@@ -48,11 +44,8 @@ them.
 
 ## Changes to these addresses
 
-These addresses are static and we do not expect them to change. If they ever do, we
-will announce the change in a release notification before it takes effect.
+These addresses are static and we do not expect them to change. If they ever do, we will announce the change in a release notification before it takes effect.
 
 Your egress addresses will change if your cluster is migrated to a different region.
 
-If you are unsure which region your cluster runs in, or you need these addresses
-confirmed for a compliance review, contact
-[support@phasetwo.io](mailto:support@phasetwo.io).
+If you are unsure which region your cluster runs in, or you need these addresses confirmed for a compliance review, contact [support@phasetwo.io](mailto:support@phasetwo.io).
