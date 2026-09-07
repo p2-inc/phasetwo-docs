@@ -1154,14 +1154,17 @@ module.exports = {
             // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
             // out of the sitemap stops us asking Google to crawl a page we know is empty.
             // Remove each entry as its page gets real content.
-            "/access",   // bare Google Form iframe
-            "/pricing",  // redirect stub -> /pricing/hosting/
+            "/access", // bare Google Form iframe
+            "/pricing", // redirect stub -> /pricing/hosting/
             "/guides",
             "/guides/",
             "/docs/affiliate",
             "/docs/affiliate/",
           ],
-          createSitemapItems: async ({ defaultCreateSitemapItems, ...rest }) => {
+          createSitemapItems: async ({
+            defaultCreateSitemapItems,
+            ...rest
+          }) => {
             const items = await defaultCreateSitemapItems(rest);
             // Commercial and hub pages first, then reference content, then posts.
             const priorityFor = (url) => {
@@ -1201,6 +1204,7 @@ module.exports = {
           {
             from: ["/about", "/about-us"],
             to: "/company/about/",
+          },
           // Dead URLs still being requested, from the 2026-09-07 coverage export.
           // Each target was checked to return 200 before being written here.
           {
