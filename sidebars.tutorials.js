@@ -18,6 +18,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Securing applications",
+      link: { type: "generated-index" },
+      items: ["securing-applications/validating-tokens"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [
