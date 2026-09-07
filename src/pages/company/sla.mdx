@@ -11,9 +11,21 @@ This Service Level Agreement between Phase Two and the customer outlines the lev
 
 ### Uptime
 
-We guarantee at least 99.5% availability on Premium plans and 99.95% on Enterprise plans. Starter clusters target 95% availability on a best-effort basis; Phase Two makes no availability commitment for Starter clusters and they are not eligible for the service credits described below. In case of an outage larger than that occurring during more than one day (24 hours), Phase Two will provide the Customer with service credits equaling an amount of 50% of the monthly equivalent instance’s subscription cost for all outages during a calendar month. Service credits will be calculated in accordance with the following formula :
+We guarantee at least 99.5% availability on Premium plans and 99.95% on Enterprise plans. Starter clusters target 95% availability on a best-effort basis; Phase Two makes no availability commitment for Starter clusters and they are not eligible for the service credits described below.
 
-Service credit = (Annualized subscription cost / 12) \* 50%
+Availability is measured over a calendar month. Where availability for a Premium or Enterprise cluster falls below the commitment applicable to that plan in a calendar month, the customer may claim a service credit calculated as a percentage of that cluster’s monthly subscription fee for that month:
+
+| Availability in the calendar month | Service credit |
+|---|---|
+| Below the applicable commitment, and at or above 99.0% | 10% |
+| Below 99.0%, and at or above 95.0% | 25% |
+| Below 95.0% | 50% |
+
+Availability is calculated as:
+
+Availability = ((Total minutes in the month − Unavailable minutes) / Total minutes in the month) \* 100
+
+where Unavailable minutes are the minutes during which the cluster was not Available, excluding any minutes attributable to an Excluded Event. Where a cluster is billed annually, its monthly subscription fee is the annual subscription fee divided by twelve.
 
 Definition of Availability. “Availability” means the ability for end users to successfully authenticate through the primary Keycloak authentication endpoint. Availability is measured at the application endpoint level and excludes Excluded Events as defined in this SLA. Availability does not include performance degradation, latency, partial feature unavailability, or issues affecting only administrative functionality, unless such issues prevent user authentication entirely.
 
@@ -26,7 +38,7 @@ The following apply to Premium and Enterprise clusters.
 
 ### How to Claim a SLA Credit
 
-In the unlikely event that Phase Two fails to meet the above-mentioned uptime commitment, Phase Two shall offer service credits as compensation to the customer.
+In the unlikely event that Phase Two fails to meet the uptime commitment applicable to the customer’s plan in a calendar month, the customer may claim a service credit at the rate set out in the table under Uptime above.
 
 Request for an SLA credit must be submitted in writing, within 30 days from the outage to which they refer, via email to [support@phasetwo.io](mailto:support@phasetwo.io).
 
@@ -49,4 +61,4 @@ Phase Two does all that we can to keep your service up and running. However, the
 - Errors caused by factors outside of Phase Two’s reasonable control.
 - Features or Services designated Alpha or Beta or deprecated.
 
-_SLA Last updated: February, 2026_
+_SLA Last updated: September, 2026_
