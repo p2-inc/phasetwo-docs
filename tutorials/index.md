@@ -33,7 +33,10 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 2. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
 3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
 
-**Securing an application** — get a token, then learn to trust it. *(Coming soon.)*
+**Securing an application** — get a token, then learn to trust it:
+
+1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+2. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 

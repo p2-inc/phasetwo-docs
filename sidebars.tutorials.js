@@ -18,6 +18,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Securing applications",
+      link: { type: "generated-index" },
+      items: ["securing-applications/spring-boot"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [
