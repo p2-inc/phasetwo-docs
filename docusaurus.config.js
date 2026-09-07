@@ -1128,10 +1128,28 @@ module.exports = {
           changefreq: null,
           priority: null,
           ignorePatterns: [
+            // Patterns are matched against the route as generated, which ends in a
+            // slash. "/search" alone therefore does NOT exclude "/search/", which is
+            // why that URL was still being submitted. The entries below list both
+            // forms for anything without a "/**" suffix -- the same reason "/guides"
+            // and "/docs/affiliate" appear twice further down.
             "/search",
+            "/search/",
             "/blog/tags/**",
             "/blog/page/**",
             "/blog/archive/**",
+            // Author archives. Adding real bylines in #353 made Docusaurus generate a
+            // paginated archive per author -- 10 URLs of nothing but post titles that
+            // already have canonical homes. Exactly the same class of thin archive as
+            // the tag pages above, and it slipped in with the byline change.
+            "/blog/authors",
+            "/blog/authors/",
+            "/blog/authors/**",
+            // Category landing pages: a generated list of links with no content of
+            // its own. One per docs plugin instance -- the API reference has twelve.
+            "/tutorials/category/**",
+            "/docs/category/**",
+            "/api/category/**",
             // Routes with no indexable content of their own. These also carry noindex
             // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
             // out of the sitemap stops us asking Google to crawl a page we know is empty.
