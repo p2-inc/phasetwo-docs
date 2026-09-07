@@ -1196,6 +1196,12 @@ module.exports = {
         // Comparison blog posts migrated to evergreen /keycloak-alternatives/<vendor>/ pages.
         // Preserve link equity from the old (ranking) blog URLs.
         redirects: [
+          // /about is being requested and has no page; the about page has always
+          // lived under /company/. Conventional path -> real page.
+          {
+            from: ["/about", "/about-us"],
+            to: "/company/about/",
+          },
           // The /articles/ section was folded into /tutorials/. These are high-traffic
           // URLs, so every old path redirects rather than 404s. plugin-client-redirects
           // emits meta-refresh + rel=canonical, which is the strongest signal available
