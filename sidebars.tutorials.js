@@ -18,6 +18,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Sessions and tokens",
+      link: { type: "generated-index" },
+      items: ["sessions/timeouts"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [

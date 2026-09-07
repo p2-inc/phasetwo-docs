@@ -1,0 +1,423 @@
+---
+id: timeouts
+title: Keycloak Session and Token Timeouts, Explained
+description: Every Keycloak session timeout and token lifespan — the default, the REST field name, and how the twelve settings override each other. Measured on 26.7.3.
+keywords:
+  - keycloak session timeout
+  - keycloak token lifespan
+  - keycloak sso session idle
+  - keycloak access token lifespan
+  - keycloak refresh token expiration
+  - keycloak session timeout configuration
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Session and Token Timeouts, Explained
+
+A Keycloak session timeout is never one setting. Twelve of them interact, and the two that
+decide how long a token actually lives are these:
+
+1. **`expires_in`** (the access token) = the lower of **Access Token Lifespan** and the time
+   left on the session's **max lifespan**.
+2. **`refresh_expires_in`** (the refresh token) = the lower of the effective **session
+   idle** timeout and the time left on the effective **session max** lifespan.
+
+**Idle clocks reset on every refresh. Max clocks never reset.** Everything else on this page
+follows from those three sentences.
+
+:::info Tested against
+Keycloak **26.7.3**, started per
+[Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/). Every default,
+every number, and every error string below is copied from an actual run. Field names were
+read out of the admin console shipped in that release, not guessed.
+:::
+
+Keycloak's own
+[Session and token timeouts](https://www.keycloak.org/docs/latest/server_admin/index.html#_timeouts)
+reference lists what each setting means, and it is the right place to look up a definition.
+It does not tell you which setting wins when two disagree, what the defaults are, what the
+REST field is called, or what breaks. That is this page.
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+$K create realms -s realm=demo -s enabled=true
+$K create clients -r demo -s clientId=demo-app -s publicClient=true \
+  -s directAccessGrantsEnabled=true -s 'redirectUris=["http://localhost:5173/*"]'
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+```
+
+Set the email and names. A user missing them gets a `VERIFY_PROFILE` required action, and
+every token request returns `{"error":"invalid_grant","error_description":"Account is not
+fully set up"}` — which looks like a password problem and is not.
+
+You also want `jq`.
+
+## The four clocks
+
+Keycloak is not tracking one session. It is tracking four independent things, and each has
+its own expiry:
+
+| Clock | Lives | Ends when | Visible as |
+|---|---|---|---|
+| **Authentication session** | While a login is in progress | Login timeout / Login action timeout | The login page expiring |
+| **SSO session** | Per user, per realm | SSO Session Idle or SSO Session Max | Being asked to log in again |
+| **Client session** | Per user *per client* — one SSO session parents many | Client Session Idle/Max, else the SSO values | `refresh_expires_in` |
+| **Access token** | Per token, stateless | `exp` in the JWT | `expires_in` |
+
+The distinction that matters most: **the SSO session is server state, the access token is
+not.** Killing the session does not kill tokens already issued from it. That is the failure
+mode further down the page, and it is the one that costs people a security review.
+
+## Every setting, its default, and its REST field name
+
+The admin console shows labels; `kcadm.sh`, Terraform, and realm JSON want field names, and
+nothing publishes the mapping. Here it is, with the defaults from a freshly created 26.7.3
+realm.
+
+**Realm settings → Sessions**
+
+| Admin console label | REST field | Default |
+|---|---|---|
+| SSO Session Idle | `ssoSessionIdleTimeout` | `1800` (30 min) |
+| SSO Session Max | `ssoSessionMaxLifespan` | `36000` (10 h) |
+| SSO Session Idle Remember Me | `ssoSessionIdleTimeoutRememberMe` | `0` → falls back to SSO Session Idle |
+| SSO Session Max Remember Me | `ssoSessionMaxLifespanRememberMe` | `0` → falls back to SSO Session Max |
+| Client Session Idle | `clientSessionIdleTimeout` | `0` → falls back to SSO Session Idle |
+| Client Session Max | `clientSessionMaxLifespan` | `0` → falls back to SSO Session Max |
+| Offline Session Idle | `offlineSessionIdleTimeout` | `2592000` (30 days) |
+| Offline Session Max Limited | `offlineSessionMaxLifespanEnabled` | `false` |
+| Offline Session Max | `offlineSessionMaxLifespan` | `5184000` (60 days) |
+| Client Offline Session Idle | `clientOfflineSessionIdleTimeout` | `0` → falls back |
+| Client Offline Session Max | `clientOfflineSessionMaxLifespan` | `0` → falls back |
+| Login timeout | `accessCodeLifespanLogin` | `1800` (30 min) |
+| Login action timeout | `accessCodeLifespanUserAction` | `300` (5 min) |
+
+**Realm settings → Tokens**
+
+| Admin console label | REST field | Default |
+|---|---|---|
+| Revoke Refresh Token | `revokeRefreshToken` | `false` |
+| Refresh Token Max Reuse | `refreshTokenMaxReuse` | `0` |
+| Access Token Lifespan | `accessTokenLifespan` | `300` (5 min) |
+| Access Token Lifespan For Implicit Flow | `accessTokenLifespanForImplicitFlow` | `900` (15 min) |
+| Client Login Timeout | `accessCodeLifespan` | `60` (1 min) |
+| User-Initiated Action Lifespan | `actionTokenGeneratedByUserLifespan` | `300` (5 min) |
+| Default Admin-Initiated Action Lifespan | `actionTokenGeneratedByAdminLifespan` | `43200` (12 h) |
+
+Note `0` is not "no timeout" for the client and Remember Me rows — it means *inherit*. It
+does mean "no timeout" in the `refresh_expires_in` of an offline token. Same value, opposite
+meaning, depending on where you read it.
+
+The four per-action overrides at the bottom of the Tokens tab (Email Verification, IdP
+account email verification, Forgot password, Execute actions) are not top-level fields at
+all. They are **realm attributes**, and they are unset by default:
+
+```bash
+$K update realms/demo \
+  -s 'attributes."actionTokenGeneratedByUserLifespan.verify-email"=900'
+```
+
+The four valid keys, read out of the 26.7.3 admin console bundle:
+
+| Tokens tab label | Realm attribute key |
+|---|---|
+| Email Verification | `actionTokenGeneratedByUserLifespan.verify-email` |
+| IdP account email verification | `actionTokenGeneratedByUserLifespan.idp-verify-account-via-email` |
+| Forgot password | `actionTokenGeneratedByUserLifespan.reset-credentials` |
+| Execute actions | `actionTokenGeneratedByUserLifespan.execute-actions` |
+
+If none is set, all four fall back to `actionTokenGeneratedByUserLifespan` — five minutes.
+That is why password-reset emails expire before people finish reading them, and the fix is
+`reset-credentials`, not the global value.
+
+## How they actually interact
+
+Rather than reason about it, measure it. Each row below is a fresh realm setting, one
+password-grant login, and the token endpoint's own answer:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=alice -d password=s3cret \
+  -d grant_type=password -d scope=openid | jq '{expires_in, refresh_expires_in}'
+```
+
+| Realm configuration | `expires_in` | `refresh_expires_in` |
+|---|---|---|
+| Defaults (ATL 300, idle 1800, max 36000) | **300** | **1800** |
+| Access Token Lifespan `3600` | **3600** | 1800 |
+| SSO Session Max `120` | **120** | **120** |
+| SSO Session Idle `60` | **300** | **60** |
+| Client Session Idle `90` | 300 | **90** |
+| Client Session Max `150` | **150** | **150** |
+| Client Session Idle `600` + Client Session Max `200` | **200** | **200** |
+
+Five rules fall straight out of that table:
+
+1. **Max lifespans truncate the access token. Idle timeouts do not.** Row 3 caps a 300-second
+   token at 120. Row 4 leaves it at 300 even though the session dies after 60.
+2. **The refresh token is bounded by both**, and takes whichever is smaller.
+3. **Client Session Idle/Max override the SSO values for this client's tokens** — they do not
+   extend them, and they never touch the parent SSO session.
+4. **Access Token Lifespan is not clamped to anything at write time.** Row 2 accepts an hour
+   inside a 30-minute idle window without a warning.
+5. **A max lifespan always wins over an idle setting**, even a much larger one (row 7).
+
+## The two rules, precisely
+
+```
+expires_in         = min(accessTokenLifespan,
+                         time remaining on the effective session max lifespan)
+
+refresh_expires_in = min(effective session idle,
+                         time remaining on the effective session max lifespan)
+
+effective session idle = clientSessionIdleTimeout  || ssoSessionIdleTimeout
+effective session max  = clientSessionMaxLifespan  || ssoSessionMaxLifespan
+```
+
+"Time remaining" is why both values shrink as a session ages. Same session, SSO Session Idle
+150 and SSO Session Max 200, refreshed twice:
+
+| At | `expires_in` | `refresh_expires_in` |
+|---|---|---|
+| t+0 s | 200 | 150 |
+| t+60 s | 139 | 139 |
+| t+120 s | 79 | 79 |
+
+Once the remaining max drops below the idle timeout, it governs both numbers and they fall
+together toward zero. **A client that caches the first `refresh_expires_in` as a constant
+will schedule its last refresh after the session has already ended.** Re-read it from every
+refresh response.
+
+## What to set
+
+Defaults are tuned for a demo, not for your threat model. Reasonable starting points — the
+reasoning matters more than the numbers:
+
+| Deployment | Access Token | SSO Idle | SSO Max | Revoke Refresh Token | Why |
+|---|---|---|---|---|---|
+| Internal admin tool | 60–120 s | 15 min | 4 h | on | Blast radius of a stolen token is the whole estate; keep the token window tiny |
+| Consumer web app | 300 s | 30 min | 10 h | off | The defaults. Re-login once a day is tolerable, revocation churn is not |
+| Consumer app with Remember Me | 300 s | 30 min (idle RM 30 d) | 10 h (max RM 30 d) | off | Long life goes on the Remember Me pair only, so non-opted users keep short sessions |
+| Mobile / SPA | 300 s | 7 d | 30 d | **on** | Long sessions are the product requirement; rotation is what makes them survivable |
+| Machine-to-machine | 300–900 s | n/a | n/a | n/a | No user session exists; only Access Token Lifespan applies |
+| Regulated / high-assurance | 60 s | 5–10 min | 1 h | on | Short everything, and accept the login friction as the control it is |
+
+Two things not to do. Do not raise Access Token Lifespan to cut load on Keycloak — that
+trades a bounded, cheap refresh call for an unbounded revocation gap. And do not set SSO
+Session Idle above SSO Session Max; the max wins and the idle value becomes decoration.
+
+Applying a profile:
+
+```bash
+$K update realms/demo \
+  -s accessTokenLifespan=120 \
+  -s ssoSessionIdleTimeout=900 \
+  -s ssoSessionMaxLifespan=14400 \
+  -s revokeRefreshToken=true
+```
+
+In the console the same values live on two separate tabs — **Realm settings → Sessions** and
+**Realm settings → Tokens** — each with its own *Save* button. Save the tab you edited before
+moving to the other one.
+
+## Override per client
+
+One realm rarely suits every application. Five of these are overridable on the client, under
+**Clients → your client → Advanced → Advanced settings**. The stored attribute keys:
+
+```bash
+CID=$($K get clients -r demo -q clientId=demo-app --fields id --format csv --noquotes)
+
+$K update clients/$CID -r demo \
+  -s 'attributes."access.token.lifespan"=45' \
+  -s 'attributes."client.session.idle.timeout"=120' \
+  -s 'attributes."client.session.max.lifespan"=240'
+```
+
+The next login, on a realm still set to 300/1800/36000:
+
+```json
+{ "expires_in": 45, "refresh_expires_in": 120 }
+```
+
+The other two are `client.offline.session.idle.timeout` and
+`client.offline.session.max.lifespan`. Clear an override by setting it to empty, not to `0` —
+`0` is a real value here and means "inherit", which reads the same but is a different code
+path from "unset".
+
+## The one that surprises everyone
+
+Shortening SSO Session Idle feels like it shortens the window a stolen token is useful. It
+does not.
+
+With SSO Session Idle at 60 seconds and Access Token Lifespan at 300, log in once, wait, and
+try the same access token four ways:
+
+| At | Local JWT verify | `/userinfo` | Introspection | Refresh grant |
+|---|---|---|---|---|
+| t+0 s | accepted | `HTTP 200` | `active: true` | ok |
+| t+91 s | **accepted** | `HTTP 401` | `active: false` | `invalid_grant` |
+
+The session has been dead for half a minute. The refresh token is rejected. And the access
+token still verifies perfectly against the realm's JWKS, with more than 200 seconds of
+validity left — because a signed JWT carries its own expiry and asks nobody's permission.
+
+**Any resource server doing local signature validation — which is the recommended default,
+and roughly 100× cheaper than introspection — will accept that token until its `exp`.**
+Session idle timeouts bound *re-authentication*. Only Access Token Lifespan bounds the
+token itself. If a requirement says "access is revoked within N seconds", N is your Access
+Token Lifespan, and no session setting will help.
+
+Reproduce it:
+
+```bash
+$K update realms/demo -s ssoSessionIdleTimeout=60 -s accessTokenLifespan=300
+# log in, save $AT, wait 91s, then:
+curl -s -o /dev/null -w "userinfo: HTTP %{http_code}\n" \
+  -H "Authorization: Bearer $AT" \
+  http://localhost:8080/realms/demo/protocol/openid-connect/userinfo
+```
+
+The trade-off, stated plainly: local validation is the right default and this is its cost.
+See [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) for the
+handling rules that make a short-lived token safe, and
+[Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+for `exp`, `iat`, and the measured cost of introspection.
+
+## Offline sessions ignore all of it
+
+Ask for `scope=offline_access` and the rules above stop applying. Same realm, SSO Session
+Idle 60 and SSO Session Max **120**:
+
+| Requested scope | Refresh token `typ` | `expires_in` | `refresh_expires_in` | Refresh at t+150 s |
+|---|---|---|---|---|
+| `openid` | `Refresh` | 120 | 60 | `invalid_grant` / Token is not active |
+| `openid offline_access` | `Offline` | **300** | **0** | **OK** |
+
+Three things there are worth naming. The offline token's access token got the full 300
+seconds rather than being truncated to the 120-second session max, because an offline session
+is not bounded by SSO Session Max at all. `refresh_expires_in: 0` means *no expiry* — the
+realm ships with `offlineSessionMaxLifespanEnabled=false`, so the only limit is 30 days of
+inactivity. And the offline token still worked 150 seconds after the online session was
+gone.
+
+That is the intended design, and it is also how integrations keep running months after
+someone leaves. If you enable `offline_access` anywhere, turn on Offline Session Max Limited
+and audit **Clients → your client → Offline access** for tokens nobody is using:
+
+```bash
+$K update realms/demo -s offlineSessionMaxLifespanEnabled=true \
+  -s offlineSessionMaxLifespan=1209600      # 14 days, not the default 60
+```
+
+## About that "two-minute window"
+
+Keycloak's docs note that idle timeouts get a two-minute grace period, so a 30-minute idle
+is really 32 — with the qualifier that this applies only when persistent user sessions are
+*not* active. Persistent user sessions have been **on by default since Keycloak 26**, so most
+third-party copies of that advice describe a configuration you are not running.
+
+We measured it both ways on 26.7.3 — five independent sessions per run, SSO Session Idle 60,
+one refresh probe each, since a successful refresh resets the idle clock:
+
+| Probe | Default (`persistent-user-sessions` on) | `--features-disabled=persistent-user-sessions` |
+|---|---|---|
+| t+50 s | OK | OK |
+| t+65 s | `invalid_grant` | `invalid_grant` |
+| t+90 s | `invalid_grant` | `invalid_grant` |
+| t+130 s | `invalid_grant` | `invalid_grant` |
+| t+190 s | `invalid_grant` | `invalid_grant` |
+
+Identical. **For the refresh-token grant, the idle timeout is exact in both modes** — do not
+budget two extra minutes of refresh window. What we did not test is browser SSO
+re-authentication via the session cookie, which is a different code path and may well still
+use the window; treat the grace period as unproven rather than absent there.
+
+## When it goes wrong
+
+**`invalid_grant` / "Token is not active" on refresh, well before you expected.** The
+session hit an idle or max limit. Compare the token's `iat` against the four values in play;
+usually a Client Session Max is doing the truncating and nobody remembers setting it.
+
+**`invalid_grant` / "Maximum allowed refresh token reuse exceeded".** Revoke Refresh Token is
+on and the client replayed a refresh token. Each refresh returns a *new* refresh token that
+must replace the stored one. Raise `refreshTokenMaxReuse` above `0` only to survive a client
+that retries; the correct fix is in the client.
+
+**Users logged out much sooner than SSO Session Max.** Idle, not max. A single-page app that
+only refreshes on user action lets the idle clock run during idle tabs.
+
+**"You took too long to login" / an expired login page.** Login timeout
+(`accessCodeLifespanLogin`, 30 min) or Login action timeout
+(`accessCodeLifespanUserAction`, 5 min) — the second one is short and it is what fires when
+someone sets up MFA or reads a password policy slowly.
+
+**Password-reset links expiring in five minutes.** The per-action realm attribute is unset,
+so it inherits the 5-minute User-Initiated Action Lifespan. Set
+`actionTokenGeneratedByUserLifespan.reset-credentials`.
+
+**Everything looks right and nothing changed.** Two tabs, two Save buttons. Re-read the realm
+and trust that instead of the form:
+
+```bash
+$K get realms/demo | jq '{accessTokenLifespan, ssoSessionIdleTimeout,
+  ssoSessionMaxLifespan, clientSessionIdleTimeout, clientSessionMaxLifespan}'
+```
+
+## Verify your configuration
+
+Your realm is configured deliberately if you can answer all five:
+
+1. **How long is a stolen access token useful?** Access Token Lifespan. Not a session value.
+2. **How long can a user be away and still not log in again?** The effective session idle —
+   the client's if set, otherwise the realm's.
+3. **What is the hard ceiling on a login?** SSO Session Max, unless a Client Session Max is
+   lower, in which case tokens stop before the session does.
+4. **Does any client override the realm?** Check `attributes` on every client, not just the
+   Sessions tab.
+5. **Is `offline_access` granted anywhere, and is Offline Session Max Limited on?** If the
+   answers are yes and no, you have tokens with no expiry.
+
+```bash
+$K get clients -r demo --fields clientId,attributes \
+  | jq '.[] | select(.attributes | to_entries | any(.key |
+      test("session|token.lifespan"))) | {clientId, attributes}'
+```
+
+An empty result means the realm values are the whole story. Anything returned is a client
+whose tokens do not follow them.
+
+## Next steps
+
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+  — `exp`, `iat`, and why local validation beats introspection by ~100×.
+- [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — handling
+  rules that make a short-lived token safe.
+- [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/) — the revocation
+  trade-off this page keeps running into, argued properly.
+- [Enterprise SSO](/docs/authentication/sso) — where these session settings land when the
+  login itself comes from a customer's identity provider.
+- Official reference:
+  [Session and token timeouts](https://www.keycloak.org/docs/latest/server_admin/index.html#_timeouts),
+  [Offline access](https://www.keycloak.org/docs/latest/server_admin/index.html#_offline-access),
+  and [Configuring distributed caches](https://www.keycloak.org/server/caching) for
+  persistent user sessions.
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
