@@ -1201,6 +1201,26 @@ module.exports = {
           {
             from: ["/about", "/about-us"],
             to: "/company/about/",
+          // Dead URLs still being requested, from the 2026-09-07 coverage export.
+          // Each target was checked to return 200 before being written here.
+          {
+            from: "/product/hosting",
+            to: "/hosting/",
+          },
+          {
+            from: "/product/magic-link",
+            to: "/extensions/magic-link/",
+          },
+          {
+            from: "/product/webhooks",
+            to: "/extensions/events/",
+          },
+          {
+            // Misspelled slug with real inbound traffic -- "keyclaok". Points at
+            // the final destination, not at the correctly-spelled slug, because
+            // that is itself a redirect and a chain is worse than a hop.
+            from: "/blog/keyclaok-vs-workos-open-source-alternative",
+            to: "/keycloak-alternatives/workos/",
           },
           // The /articles/ section was folded into /tutorials/. These are high-traffic
           // URLs, so every old path redirects rather than 404s. plugin-client-redirects
