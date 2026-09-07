@@ -13,13 +13,9 @@ keywords:
   - keycloak scim
 ---
 
-**SCIM — System for Cross-domain Identity Management — is a standard REST API for creating,
-updating, and deactivating user accounts across systems.** SSO answers "can this person log
-in?" SCIM answers "does this person have an account at all, and should they still?"
+**SCIM — System for Cross-domain Identity Management — is a standard REST API for creating, updating, and deactivating user accounts across systems.** SSO answers "can this person log in?" SCIM answers "does this person have an account at all, and should they still?"
 
-If you sell to enterprises, you will be asked for it. This post covers what it is, when you
-actually need it, and a working walkthrough of Keycloak's native SCIM API — which arrived
-as a preview feature and is not enabled by default.
+If you sell to enterprises, you will be asked for it. This post covers what it is, when you actually need it, and a working walkthrough of Keycloak's native SCIM API — which arrived as a preview feature and is not enabled by default.
 
 Everything here was run against **Keycloak 26.7.3**.
 
@@ -27,13 +23,9 @@ Everything here was run against **Keycloak 26.7.3**.
 
 ## What problem SCIM solves
 
-Without it, enterprise onboarding looks like this: someone joins, IT adds them to Okta, and
-then a human logs into your app and creates their account too. Someone leaves, IT disables
-their Okta account — and the account in your app stays active until somebody remembers.
+Without it, enterprise onboarding looks like this: someone joins, IT adds them to Okta, and then a human logs into your app and creates their account too. Someone leaves, IT disables their Okta account — and the account in your app stays active until somebody remembers.
 
-That gap is the whole reason SCIM exists. It is a security problem before it is a
-convenience problem: **the leaver whose account never got deactivated is one of the most
-common ways access outlives employment.**
+That gap is the whole reason SCIM exists. It is a security problem before it is a convenience problem: **the leaver whose account never got deactivated is one of the most common ways access outlives employment.**
 
 SCIM standardises four operations across vendors:
 
@@ -44,9 +36,7 @@ SCIM standardises four operations across vendors:
 | Joins a team | `PATCH /Groups/{id}` |
 | Employee leaves | `PATCH /Users/{id}` setting `active: false` |
 
-Note the last one. **SCIM deactivates; it usually does not delete.** Most IdPs send
-`active: false` rather than `DELETE`, because audit trails need the record to survive.
-Systems that treat deprovisioning as deletion get this wrong and lose history.
+Note the last one. **SCIM deactivates; it usually does not delete.** Most IdPs send `active: false` rather than `DELETE`, because audit trails need the record to survive. Systems that treat deprovisioning as deletion get this wrong and lose history.
 
 ## SCIM vs SAML vs OIDC — they solve different problems
 
@@ -59,22 +49,15 @@ This is the most common confusion, and the comparison is not apples to apples:
 | Direction | User's browser → your app | IdP server → your API |
 | Without it | No SSO | Manual account admin, and stale leavers |
 
-They are complementary, not alternatives. A typical enterprise deal wants **both**: SAML or
-OIDC so people can log in, SCIM so the account list stays correct.
+They are complementary, not alternatives. A typical enterprise deal wants **both**: SAML or OIDC so people can log in, SCIM so the account list stays correct.
 
 ### Do you actually need it?
 
 Be honest about this, because SCIM is real work:
 
-**You probably need it if:** you sell to companies with hundreds of employees; your buyers
-ask about "provisioning" or "deprovisioning"; you have per-seat pricing (customers want
-their seat count to track reality automatically); or you have compliance requirements around
-timely access removal.
+**You probably need it if:** you sell to companies with hundreds of employees; your buyers ask about "provisioning" or "deprovisioning"; you have per-seat pricing (customers want their seat count to track reality automatically); or you have compliance requirements around timely access removal.
 
-**You probably don't yet if:** your customers are small teams; users self-register; or
-just-in-time provisioning at first login is sufficient. **JIT provisioning** — creating the
-account the first time someone logs in via SSO — covers a lot of ground and costs almost
-nothing. It just cannot deprovision, because a leaver simply never logs in again.
+**You probably don't yet if:** your customers are small teams; users self-register; or just-in-time provisioning at first login is sufficient. **JIT provisioning** — creating the account the first time someone logs in via SSO — covers a lot of ground and costs almost nothing. It just cannot deprovision, because a leaver simply never logs in again.
 
 That is the honest dividing line: *if you need deprovisioning, you need SCIM.*
 
@@ -133,8 +116,7 @@ kcadm.sh add-roles -r myrealm --uusername service-account-scim-client \
   --rolename manage-users --rolename view-users --rolename query-users
 ```
 
-Now the part that will cost you an afternoon. The token needs an audience mapper, and **the
-audience is not the client id — it is the SCIM base URL itself**:
+Now the part that will cost you an afternoon. The token needs an audience mapper, and **the audience is not the client id — it is the SCIM base URL itself**:
 
 ```bash
 kcadm.sh create clients/$CLIENT_UUID/protocol-mappers/models -r myrealm \
@@ -160,8 +142,7 @@ curl -X POST {server}/realms/myrealm/protocol/openid-connect/token \
 
 ### Check what it supports before you build
 
-`ServiceProviderConfig` is the first call any SCIM client makes, and for Keycloak 26.7.3 it
-returns some limitations worth knowing up front:
+`ServiceProviderConfig` is the first call any SCIM client makes, and for Keycloak 26.7.3 it returns some limitations worth knowing up front:
 
 ```json
 {
@@ -176,8 +157,7 @@ returns some limitations worth knowing up front:
 
 Read that carefully:
 
-- **`bulk` is not supported.** An IdP syncing 10,000 users will make 10,000 calls. Plan for
-  the rate, and for how your infrastructure handles a Monday-morning bulk sync.
+- **`bulk` is not supported.** An IdP syncing 10,000 users will make 10,000 calls. Plan for the rate, and for how your infrastructure handles a Monday-morning bulk sync.
 - **`sort` is not supported.** Clients that assume stable ordering across pages need testing.
 - **`filter` caps at 100 results per page.** Pagination is mandatory, not optional.
 - **`changePassword` is not supported** — passwords stay with the IdP, which is correct.
@@ -214,8 +194,7 @@ curl -X POST "$BASE/Users" \
 }
 ```
 
-That user is a normal Keycloak user — `kcadm.sh get users` returns it immediately. SCIM is a
-protocol surface over the same user store, not a parallel one.
+That user is a normal Keycloak user — `kcadm.sh get users` returns it immediately. SCIM is a protocol surface over the same user store, not a parallel one.
 
 Filtering works as specified:
 
@@ -231,42 +210,25 @@ curl -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
 
 ## What "supports SCIM" should mean when a buyer asks
 
-Vendors claim SCIM support at wildly different depths. If you are evaluating — or being
-evaluated — these are the questions that separate a real implementation from a checkbox:
+Vendors claim SCIM support at wildly different depths. If you are evaluating — or being evaluated — these are the questions that separate a real implementation from a checkbox:
 
-1. **Users and groups, or users only?** Group sync is where most implementations stop, and
-   it is usually what the customer actually wants.
-2. **Does deactivation work?** `active: false` must disable access immediately. This is the
-   single most important operation and the most commonly half-implemented.
-3. **Is `PATCH` supported, or only `PUT`?** Okta and Entra ID lean on `PATCH`. `PUT`-only
-   support causes data loss when the IdP sends a partial update.
+1. **Users and groups, or users only?** Group sync is where most implementations stop, and it is usually what the customer actually wants.
+2. **Does deactivation work?** `active: false` must disable access immediately. This is the single most important operation and the most commonly half-implemented.
+3. **Is `PATCH` supported, or only `PUT`?** Okta and Entra ID lean on `PATCH`. `PUT`-only support causes data loss when the IdP sends a partial update.
 4. **Which filters?** `eq` is table stakes. Real IdPs use more.
-5. **How does it handle a user who already exists?** Duplicate handling is where sync loops
-   are born.
-6. **Is there rate limiting, and what happens on bulk sync?** Especially with no bulk
-   endpoint.
+5. **How does it handle a user who already exists?** Duplicate handling is where sync loops are born.
+6. **Is there rate limiting, and what happens on bulk sync?** Especially with no bulk endpoint.
 
 ## Where this leaves you
 
-Keycloak's native SCIM API is real, it works, and it is preview — which means it may change
-before it stabilises, and you should not assume the audience quirk above is permanent. For a
-new integration it is the right place to start.
+Keycloak's native SCIM API is real, it works, and it is preview — which means it may change before it stabilises, and you should not assume the audience quirk above is permanent. For a new integration it is the right place to start.
 
-The gap it does not close is **multi-tenant** provisioning: a B2B SaaS usually needs each
-customer organization to have its own SCIM endpoint and its own credentials, so one
-customer's IdP cannot see or touch another's users. That is a different shape of problem to
-realm-level SCIM, and it is why we built
-[SCIM for Organizations](/docs/organizations/scim/) as an extension.
+The gap it does not close is **multi-tenant** provisioning: a B2B SaaS usually needs each customer organization to have its own SCIM endpoint and its own credentials, so one customer's IdP cannot see or touch another's users. That is a different shape of problem to realm-level SCIM, and it is why we built [SCIM for Organizations](/docs/organizations/scim/) as an extension.
 
-If you're implementing SCIM against Keycloak, start with the native API above and reach for
-per-organization endpoints when you have more than one customer wanting to sync.
+If you're implementing SCIM against Keycloak, start with the native API above and reach for per-organization endpoints when you have more than one customer wanting to sync.
 
 ---
 
-Further reading: [RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644) is the SCIM
-protocol specification and is unusually readable. Keycloak's own
-[SCIM documentation](https://www.keycloak.org/docs/latest/server_admin/index.html) covers the
-full endpoint surface.
+Further reading: [RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644) is the SCIM protocol specification and is unusually readable. Keycloak's own [SCIM documentation](https://www.keycloak.org/docs/latest/server_admin/index.html) covers the full endpoint surface.
 
-Running Keycloak in production — including preview features you'd rather not operate
-yourself? [That's what we do](/hosting/dedicated-clusters/).
+Running Keycloak in production — including preview features you'd rather not operate yourself? [That's what we do](/hosting/dedicated-clusters/).
