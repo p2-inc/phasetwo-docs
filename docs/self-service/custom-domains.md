@@ -13,6 +13,8 @@ Custom domains let you use your own domain name to access your Keycloak instance
 
 Serving [app association files](#app-association-files) on those domains requires Premium or Enterprise.
 
+On Enterprise, a domain can be a [wildcard](#wildcard-domains), which serves every subdomain beneath it from a single entry.
+
 :::tip Don't have a cluster yet?
 Every new cluster starts with a **30-day free trial** — no charge until it ends, cancel any time. [Start for free](https://dash.phasetwo.io/clusters/create), or see the [pricing page](/pricing) for what each plan includes.
 :::
@@ -47,6 +49,53 @@ If you fail to setup your DNS records within 48 hours, the request will expire a
   <figcaption>Record timeout.</figcaption>
 </figure>
 
+## Wildcard domains
+
+If you give each of your own customers a branded login URL — `customer1.sso.yourdomain.com`, `customer2.sso.yourdomain.com`, and so on — you do not need a custom domain for each one. A single wildcard domain serves all of them.
+
+Enter `*.sso.yourdomain.com` in the same **Add a custom domain** field. It counts as one of your custom domains, however many subdomains you go on to serve. Available on Enterprise.
+
+### The two records you need
+
+A wildcard needs exactly two DNS records, and that is true whether you serve five subdomains or five thousand:
+
+| Purpose    | Type    | Name                         | Value                            |
+| ---------- | ------- | ---------------------------- | -------------------------------- |
+| Validation | `CNAME` | `_<hash>.sso.yourdomain.com` | the value shown in the Dashboard |
+| Vanity     | `CNAME` | `*.sso.yourdomain.com`       | `{cluster_name}.global.auth.ac`  |
+
+The Dashboard shows you the exact values, as it does for any domain. Note that the validation record sits _beside_ your subdomains rather than beneath any of them — that is what makes this work.
+
+### Do not add records for individual subdomains
+
+This is the one thing worth getting right. Once the wildcard is in place, **do not create a CNAME for individual subdomains.** It looks harmless and it is not:
+
+- It is redundant. The wildcard already resolves every subdomain beneath it.
+- It creates a node in your DNS, which stops the wildcard resolving anything _below_ that name.
+- It makes that exact name impossible to certify, permanently. A certificate for `customer1.sso.yourdomain.com` needs a validation record _beneath_ that name, while routing it needs a CNAME _at_ that name — and DNS does not allow records beneath a CNAME.
+
+If you are moving from per-customer records to a wildcard, the migration is to **remove** those records, not to add to them.
+
+### Limits
+
+**A wildcard covers exactly one level.** `*.sso.yourdomain.com` serves `customer.sso.yourdomain.com`, but not `customer.team.sso.yourdomain.com`.
+
+Be aware of how that fails. DNS wildcards _do_ match multi-level names, so a deeper hostname resolves and connects, and only then fails on the certificate — which browsers show as a full-page security warning rather than an error. On a login page that is alarming. If you generate these URLs from customer names, validate that each produces a single label with no dots.
+
+**A wildcard does not cover its own parent.** `*.sso.yourdomain.com` does not serve `sso.yourdomain.com`. Add that separately if it needs to serve traffic.
+
+**App association files are not available on a wildcard domain.** [Those files](#app-association-files) are fetched from the exact hostname a credential was saved under, so they have to be published per hostname. Use a specific custom domain if you need them.
+
+### Each subdomain is its own issuer
+
+Signing in at `customer1.sso.yourdomain.com` produces tokens whose `iss` claim is `https://customer1.sso.yourdomain.com/realms/<realm>`. Every subdomain has a different one.
+
+If your application validates tokens against a single hardcoded issuer, it will reject them all. Either discover the OpenID configuration per tenant, or accept the issuer belonging to the subdomain the user signed in on. This is the most common thing to catch people out, and it is worth checking before you hand the first URL to a customer.
+
+### Sessions are per subdomain
+
+Cookies are scoped to the hostname, so a session on one subdomain is not shared with another, even though they are the same realm and the same Keycloak. That is usually what you want when the subdomains represent different tenants — just don't expect single sign-on to carry across them.
+
 ## App association files
 
 If you have a mobile app, your custom domain can publish the files iOS and Android use to link the domain to that app. This is what lets a password manager autofill a saved password inside your app — and, later, lets a passkey created on your login page be used from it.
@@ -55,11 +104,11 @@ Available on Premium and Enterprise plans, managed under **Clusters > Cluster > 
 
 Three things can be served:
 
-| Path | Purpose |
-| --- | --- |
-| `/.well-known/apple-app-site-association` | Links the domain to your iOS app |
-| `/.well-known/assetlinks.json` | Links the domain to your Android app |
-| `/.well-known/change-password` | Where password managers send someone to change their password |
+| Path                                      | Purpose                                                       |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `/.well-known/apple-app-site-association` | Links the domain to your iOS app                              |
+| `/.well-known/assetlinks.json`            | Links the domain to your Android app                          |
+| `/.well-known/change-password`            | Where password managers send someone to change their password |
 
 ### Why they must live on this domain
 
