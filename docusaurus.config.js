@@ -900,6 +900,10 @@ module.exports = {
               to: "blog",
             },
             {
+              label: "Monthly Updates",
+              to: "updates",
+            },
+            {
               label: "Careers",
               to: "company/careers",
             },
@@ -1150,6 +1154,7 @@ module.exports = {
             "/tutorials/category/**",
             "/docs/category/**",
             "/api/category/**",
+            "/updates/category/**",
             // Routes with no indexable content of their own. These also carry noindex
             // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
             // out of the sitemap stops us asking Google to crawl a page we know is empty.
@@ -1179,6 +1184,10 @@ module.exports = {
               if (/^\/(docs|tutorials|api|guides|articles)\//.test(pathname))
                 return 0.8;
               if (/^\/blog\//.test(pathname)) return 0.6;
+              // The archive hub is worth crawling; a four-year-old digest is not, so the
+              // month pages sit below the blog rather than beside it.
+              if (pathname === "/updates/") return 0.7;
+              if (/^\/updates\//.test(pathname)) return 0.4;
               return 0.5;
             };
             return items.map((item) => ({
@@ -1344,6 +1353,22 @@ module.exports = {
         include: ["**/*.md", "**/*.mdx"],
         sidebarPath: require.resolve("./sidebars.tutorials.js"),
         editUrl: "https://github.com/p2-inc/phasetwo-docs/tree/main",
+        showLastUpdateTime: true,
+      },
+    ],
+    [
+      // The monthly customer update archive. One page a month, each summarising what
+      // shipped in Phase Two, what changed in official Keycloak including CVEs, and what
+      // we published. The email that goes out on the 1st is built from the same page, so
+      // this route is also the email's "view online" link -- see
+      // content-marketing/automation/monthly-update/.
+      "@docusaurus/plugin-content-docs",
+      {
+        id: "updates",
+        path: "updates",
+        routeBasePath: "updates",
+        include: ["**/*.md", "**/*.mdx"],
+        sidebarPath: require.resolve("./sidebars.updates.js"),
         showLastUpdateTime: true,
       },
     ],
