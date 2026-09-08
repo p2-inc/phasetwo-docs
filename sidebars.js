@@ -46,6 +46,7 @@ module.exports = {
         "self-service/resources",
         "self-service/restrictions",
         "self-service/environment-variables",
+        "self-service/backups-and-data-retention",
       ],
     },
     {
