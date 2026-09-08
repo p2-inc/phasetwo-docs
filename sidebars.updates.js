@@ -9,5 +9,5 @@
  * One entry per month. The monthly update job adds its own, directly under "index".
  */
 module.exports = {
-  updatesSidebar: ["index"],
+  updatesSidebar: ["index", "2026-09"],
 };

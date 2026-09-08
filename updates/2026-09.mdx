@@ -1,0 +1,71 @@
+---
+id: "2026-09"
+title: "Phase Two: September 2026"
+description: "Keycloak 26.7.3 closed 20 CVEs and 26.4-26.6 have no patch yet. Plus first releases of the KMS key provider and atomic auth flows, and nine new tutorials."
+keywords:
+  - keycloak news september 2026
+  - keycloak 26.7.3 cve
+  - phase two release notes
+  - keycloak security updates
+email_subject: "20 CVEs in Keycloak 26.7.3 — 26.4-26.6 have no patch"
+email_preheader: "Plus first releases of the KMS key provider and atomic auth flows, and nine new Keycloak tutorials."
+covers_from: "2026-09-01T00:00:00Z"
+covers_through: "2026-09-08T18:08:52Z"
+---
+
+# Phase Two: September 2026
+
+The one thing here that might need a slot in your week is upstream. **Keycloak 26.7.3**
+fixes 20 CVEs. It is not an emergency, but upgrade this week if you use external token
+exchange or FGAP v2 — and 26.4-26.6 have no patch yet. On our side, two extensions cut
+their first release and the tutorials section went live.
+
+## Official Keycloak
+
+- **🔐 Keycloak 26.7.3**: every CVE with its advisory, which branches are patched and which
+  are not, and whether this upgrade is worth doing now.
+  ([our write-up](/blog/keycloak-2673-released/))
+
+## Phase Two releases
+
+- **🧙 IdP wizard v0.52**: three releases in two days, nearly all of them on the OIDC
+  callback — the wizard now strips response parameters before reusing the URL as a
+  `redirect_uri`, and keeps the fragment callback intact while it does.
+  ([docs](/extensions/idp-wizard/))
+- **🔑 KMS key provider v0.1**: first release of a realm key provider that keeps signing
+  keys encrypted under a cloud KMS key instead of in plaintext in `COMPONENT_CONFIG`, with
+  a per-realm migration that reuses the same `kid` so tokens already issued keep verifying.
+  ([v0.1](https://github.com/p2-inc/keycloak-kms/releases/tag/v0.1))
+- **⚛️ Atomic auth flows v0.1 and v0.2**: the first tags on a new extension that imports
+  flows, authenticator configs and bindings in one transactional request, and answers `409`
+  to an identical re-import rather than duplicating your flows.
+  ([v0.2](https://github.com/p2-inc/keycloak-atomic-auth-flows/releases/tag/v0.2))
+
+## New reading
+
+- **📖 Keycloak Skills and the Phase Two MCP server**: an open-source Agent Skills plugin
+  that teaches Claude how to configure Keycloak, and an MCP server with 158 admin tools.
+  ([read it](/blog/keycloak-skills-mcp-launch/))
+- **📖 Atomic authentication flows, built with Gusto**: the extension above, built in
+  partnership with Gusto and in production for almost a year.
+  ([read it](/blog/keycloak-atomic-auth-flows/))
+- **📖 Custom domains now serve app association files**: `apple-app-site-association`,
+  `assetlinks.json` and a change-password redirect off your own domain, so mobile apps
+  autofill saved passwords against a Keycloak login page.
+  ([read it](/blog/app-association-custom-domains/))
+- **📖 SCIM, explained**: what it is, when SSO alone stops being enough, and a walkthrough
+  of Keycloak's native SCIM API with real requests and responses.
+  ([read it](/blog/scim-explained/))
+- **📖 Two OIDC errors, decoded**: tested maps from every `invalid_grant` and every
+  `redirect_uri` rejection to the thing that actually caused it.
+  ([invalid_grant](/blog/keycloak-invalid-grant/) ·
+  [redirect_uri](/blog/keycloak-invalid-redirect-uri/))
+- **📚 Keycloak tutorials**: a new section, nine pages to start — running Keycloak locally,
+  your first realm and token, validating tokens in any backend, Spring Boot, and JWTs end
+  to end. ([tutorials](/tutorials/) · [JWTs](/tutorials/jwts/))
+
+---
+
+Running Keycloak yourself and want the upgrades handled?
+[Phase Two hosts it](/hosting/dedicated-clusters/). Already self-hosting and want a number
+to call? [We support it](/support/).

@@ -23,7 +23,7 @@ advisories feed.
 
 <!-- updates:list:start -->
 
-_The first monthly update publishes at the start of next month._
+- **[September 2026](/updates/2026-09/)** — Keycloak 26.7.3 closed 20 CVEs and 26.4-26.6 have no patch yet, plus first releases of the KMS key provider and atomic auth flows.
 
 <!-- updates:list:end -->
 
