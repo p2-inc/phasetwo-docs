@@ -17,6 +17,7 @@ const path = require("path");
 const SECTIONS = [
   { prefix: "/docs/", title: "Documentation" },
   { prefix: "/tutorials/", title: "Keycloak tutorials" },
+  { prefix: "/updates/", title: "Monthly updates" },
   { prefix: "/articles/", title: "Articles" },
   { prefix: "/guides/", title: "Guides" },
   { prefix: "/api/", title: "API reference" },
