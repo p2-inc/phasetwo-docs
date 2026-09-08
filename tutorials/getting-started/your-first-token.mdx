@@ -427,6 +427,9 @@ network latency and a Keycloak round trip to every single API request.
 window you are accepting, and it is short by design. Reach for introspection when 300
 seconds of stale authorization is genuinely unacceptable, or when the token is opaque
 rather than a JWT.
+[Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+has the full check order, working validators in four languages, and what JWKS caching and key
+rotation do to both options.
 
 ## When it goes wrong
 
@@ -530,6 +533,9 @@ step 4 is not validating at all.
   segment, and how the signature is computed.
 - [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — algorithm
   confusion, storage, and what not to put in a token.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — the resource-server side: JWKS caching, key rotation, and local validation vs
+  introspection, measured.
 - [Authentication against an API](/docs/api/authentication) — the same bearer token, used
   against a real API.
 - Official reference:

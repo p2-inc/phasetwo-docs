@@ -1128,22 +1128,43 @@ module.exports = {
           changefreq: null,
           priority: null,
           ignorePatterns: [
+            // Patterns are matched against the route as generated, which ends in a
+            // slash. "/search" alone therefore does NOT exclude "/search/", which is
+            // why that URL was still being submitted. The entries below list both
+            // forms for anything without a "/**" suffix -- the same reason "/guides"
+            // and "/docs/affiliate" appear twice further down.
             "/search",
+            "/search/",
             "/blog/tags/**",
             "/blog/page/**",
             "/blog/archive/**",
+            // Author archives. Adding real bylines in #353 made Docusaurus generate a
+            // paginated archive per author -- 10 URLs of nothing but post titles that
+            // already have canonical homes. Exactly the same class of thin archive as
+            // the tag pages above, and it slipped in with the byline change.
+            "/blog/authors",
+            "/blog/authors/",
+            "/blog/authors/**",
+            // Category landing pages: a generated list of links with no content of
+            // its own. One per docs plugin instance -- the API reference has twelve.
+            "/tutorials/category/**",
+            "/docs/category/**",
+            "/api/category/**",
             // Routes with no indexable content of their own. These also carry noindex
             // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
             // out of the sitemap stops us asking Google to crawl a page we know is empty.
             // Remove each entry as its page gets real content.
-            "/access",   // bare Google Form iframe
-            "/pricing",  // redirect stub -> /pricing/hosting/
+            "/access", // bare Google Form iframe
+            "/pricing", // redirect stub -> /pricing/hosting/
             "/guides",
             "/guides/",
             "/docs/affiliate",
             "/docs/affiliate/",
           ],
-          createSitemapItems: async ({ defaultCreateSitemapItems, ...rest }) => {
+          createSitemapItems: async ({
+            defaultCreateSitemapItems,
+            ...rest
+          }) => {
             const items = await defaultCreateSitemapItems(rest);
             // Commercial and hub pages first, then reference content, then posts.
             const priorityFor = (url) => {
@@ -1178,6 +1199,33 @@ module.exports = {
         // Comparison blog posts migrated to evergreen /keycloak-alternatives/<vendor>/ pages.
         // Preserve link equity from the old (ranking) blog URLs.
         redirects: [
+          // /about is being requested and has no page; the about page has always
+          // lived under /company/. Conventional path -> real page.
+          {
+            from: ["/about", "/about-us"],
+            to: "/company/about/",
+          },
+          // Dead URLs still being requested, from the 2026-09-07 coverage export.
+          // Each target was checked to return 200 before being written here.
+          {
+            from: "/product/hosting",
+            to: "/hosting/",
+          },
+          {
+            from: "/product/magic-link",
+            to: "/extensions/magic-link/",
+          },
+          {
+            from: "/product/webhooks",
+            to: "/extensions/events/",
+          },
+          {
+            // Misspelled slug with real inbound traffic -- "keyclaok". Points at
+            // the final destination, not at the correctly-spelled slug, because
+            // that is itself a redirect and a chain is worse than a hop.
+            from: "/blog/keyclaok-vs-workos-open-source-alternative",
+            to: "/keycloak-alternatives/workos/",
+          },
           // The /articles/ section was folded into /tutorials/. These are high-traffic
           // URLs, so every old path redirects rather than 404s. plugin-client-redirects
           // emits meta-refresh + rel=canonical, which is the strongest signal available

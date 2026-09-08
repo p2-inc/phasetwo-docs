@@ -36,7 +36,10 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 **Securing an application** — get a token, then learn to trust it:
 
 1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
-2. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
+2. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+3. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
+
+More framework-by-framework guides are next. *(Coming soon.)*
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 

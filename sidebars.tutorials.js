@@ -20,7 +20,10 @@ module.exports = {
       type: "category",
       label: "Securing applications",
       link: { type: "generated-index" },
-      items: ["securing-applications/spring-boot"],
+      items: [
+        "securing-applications/validating-tokens",
+        "securing-applications/spring-boot",
+      ],
     },
     {
       type: "category",
@@ -31,6 +34,12 @@ module.exports = {
         "jwts/jwt-benefits-drawbacks",
         "jwts/jwt-security-best-practices",
       ],
+    },
+    {
+      type: "category",
+      label: "Mobile apps",
+      link: { type: "generated-index" },
+      items: ["mobile-apps/app-association-files"],
     },
   ],
 };
