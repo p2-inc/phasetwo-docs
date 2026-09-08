@@ -15,7 +15,11 @@ module.exports = {
   projectName: "p2-inc.github.io",
   deploymentBranch: "main",
   trailingSlash: true,
-  onBrokenAnchors: "log",
+  // "throw", matching the default for onBrokenLinks. It was "log" because the
+  // report was 519 false positives from <section id> anchors in src/pages/ that
+  // the checker could not see -- see src/components/Section. With those
+  // registered the report is empty, so it can gate instead of scroll past.
+  onBrokenAnchors: "throw",
   customFields: {
     caseStudyRequestEndpoint:
       process.env.CASE_STUDY_REQUEST_ENDPOINT ||
