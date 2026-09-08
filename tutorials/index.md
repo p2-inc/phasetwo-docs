@@ -37,8 +37,9 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
 2. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+3. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
 
-Framework-by-framework guides are next. *(Coming soon.)*
+More framework-by-framework guides are next. *(Coming soon.)*
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 

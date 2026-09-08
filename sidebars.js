@@ -59,7 +59,6 @@ module.exports = {
           id: "securing-applications/native-apps",
           label: "Native - iOS/Android/macOS",
         },
-        "securing-applications/springboot",
         "securing-applications/javascript",
         "securing-applications/react",
         "securing-applications/next",

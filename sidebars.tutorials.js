@@ -20,7 +20,10 @@ module.exports = {
       type: "category",
       label: "Securing applications",
       link: { type: "generated-index" },
-      items: ["securing-applications/validating-tokens"],
+      items: [
+        "securing-applications/validating-tokens",
+        "securing-applications/spring-boot",
+      ],
     },
     {
       type: "category",

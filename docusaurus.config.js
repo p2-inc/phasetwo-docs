@@ -1274,6 +1274,13 @@ module.exports = {
             from: "/blog/keycloak-vs-onelogin-open-source-alternative",
             to: "/keycloak-alternatives/onelogin/",
           },
+          // The framework how-to for Spring Boot moved to the vendor-neutral
+          // /tutorials/ section, which is where task-oriented content belongs. One
+          // URL owns the topic; the product docs keep the product-specific material.
+          {
+            from: "/docs/securing-applications/springboot",
+            to: "/tutorials/securing-applications/spring-boot",
+          },
           // Free shared realms were retired 2026-07-30. The realm docs moved to
           // a cluster-scoped name, and the standalone hosting page they fed was
           // folded into the dedicated-clusters page.

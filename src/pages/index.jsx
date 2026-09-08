@@ -960,7 +960,7 @@ function Home() {
                           alt: "Django",
                         },
                         {
-                          href: "https://phasetwo.io/docs/securing-applications/springboot",
+                          href: "https://phasetwo.io/tutorials/securing-applications/spring-boot",
                           title: "Spring Boot",
                           src: "/customer-logos/spring.svg",
                           alt: "Spring",
