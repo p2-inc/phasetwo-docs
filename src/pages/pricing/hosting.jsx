@@ -1,6 +1,7 @@
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
+import Section from "../../components/Section";
 import DetailedPriceComparison from "../../components/pricing/detailed-comparison";
 import TierCards from "../../components/pricing/tier-cards";
 import PlanEstimator from "../../components/pricing/plan-estimator";
@@ -94,7 +95,7 @@ function Pricing() {
         </section>
 
         {/* Full comparison table */}
-        <section id="pricing-table" className="subpage-section">
+        <Section id="pricing-table" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading mb-8">
               <h2 className="text-white">Every plan, side by side</h2>
@@ -109,7 +110,7 @@ function Pricing() {
               as an add-on; contact sales for pricing.
             </p>
           </div>
-        </section>
+        </Section>
 
         {/* FAQ */}
         <section className="subpage-section">

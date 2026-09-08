@@ -3,6 +3,7 @@ import Layout from "@theme/Layout";
 import React from "react";
 
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PAGE_META = {
@@ -275,7 +276,7 @@ export default function Sso() {
         </section>
 
         {/* Scale */}
-        <section id="scale" className="subpage-section texture-plus">
+        <Section id="scale" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={SCALE.title} intro={SCALE.intro} />
 
@@ -305,10 +306,10 @@ export default function Sso() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Self service */}
-        <section id="idp-wizard" className="subpage-section texture-plus">
+        <Section id="idp-wizard" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={SELF_SERVICE.title} intro={SELF_SERVICE.intro} />
 
@@ -324,7 +325,7 @@ export default function Sso() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* FAQ */}
         <section className="subpage-section">

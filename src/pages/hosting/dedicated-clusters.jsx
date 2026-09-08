@@ -3,6 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import { InlineIcon } from "@iconify/react";
 
+import Section from "../../components/Section";
 import styles from "./styles.module.css";
 import IconCheckMarkCircle from "@site/static/img/icon-check-mark-circle.svg";
 
@@ -290,7 +291,7 @@ export default function DedicatedClusters() {
         </section>
 
         {/* Built by experts */}
-        <section id="built-by-experts" className="subpage-section">
+        <Section id="built-by-experts" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading
               title={BUILT_BY_EXPERTS.title}
@@ -314,7 +315,7 @@ export default function DedicatedClusters() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Enhanced features */}
         <section className="subpage-section texture-plus">
