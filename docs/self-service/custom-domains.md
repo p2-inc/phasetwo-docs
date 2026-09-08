@@ -3,7 +3,13 @@ id: custom-domains
 title: Custom Domains
 ---
 
-Custom domains let you use your own domain name to access your Keycloak instance instead of the default `*.phasetwo.io` domain. They are available on every plan, with the number you can add depending on your tier.
+Custom domains let you use your own domain name to access your Keycloak instance instead of the default `*.phasetwo.io` domain. They are available on every plan, with the number you can add depending on your tier:
+
+| Tier       | Custom domains |
+| ---------- | -------------- |
+| Starter    | Up to 2        |
+| Premium    | Up to 5        |
+| Enterprise | Up to 15       |
 
 Serving [app association files](#app-association-files) on those domains requires Premium or Enterprise.
 

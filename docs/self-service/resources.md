@@ -57,7 +57,17 @@ style={{ width: "100%", borderRadius: "8px" }}
 
 After your uploads are in place, click **Refresh Cluster Resources** to submit the deployment request. The latest valid resources are then copied to the cluster.
 
-Because of the way Keycloak manages themes and extensions, this requires a restart of your cluster (usually a zero-downtime operation). Phase Two staff review all resources before they are applied to a cluster to help ensure uptime and functionality.
+Because of the way Keycloak manages themes and extensions, this requires a restart of your cluster (usually a zero-downtime operation). The refresh and the restart are automated: submitting the request starts a workflow that reconciles your resources onto the cluster and restarts it, with no manual step on the Phase Two side.
+
+Only one refresh or restart runs against a cluster at a time. If you submit a refresh while one is already in flight, the request is rejected until the first one finishes. Environment variable changes use the same restart, so a resource refresh and an environment variable change queue behind one another rather than running together.
+
+### Automated extension checks
+
+When you upload an extension version, it is automatically scanned and the result is recorded against that version.
+
+These checks are **advisory**. A finding is reported and tracked, but it does not block your extension from being deployed to your cluster. You remain responsible for the stability and security of the extensions you upload — an extension that fails on startup can prevent your cluster from starting. Test extensions on a non-production cluster before deploying them to production.
+
+If you would like help reviewing an extension before you deploy it, [contact support](mailto:support@phasetwo.io).
 
 <img
 src="/docs/resources/resources-update-cluster.png"

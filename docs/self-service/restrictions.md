@@ -5,7 +5,15 @@ title: Cluster Restrictions (IP)
 
 Restrictions can be applied to your cluster to limit access to specific IP addresses or ranges. This is useful for enhancing security by ensuring that only traffic from known IPs can access your Keycloak instance.
 
-Note: Premium clusters are limited to a two IP restrictions on the Admin paths only. Enterprise clusters can have multiple IP restrictions applied to both Admin and Public paths.
+### Availability by tier
+
+| Tier       | IP restrictions                                   |
+| ---------- | ------------------------------------------------- |
+| Starter    | Not available                                     |
+| Premium    | Up to 2, on Admin paths only                      |
+| Enterprise | Unlimited, on both Admin and Public paths         |
+
+IP restrictions are the mechanism for limiting access to the Admin Console on a hosted cluster. There is no VPN or private networking option.
 
 ### Types of Restrictions
 
@@ -30,4 +38,4 @@ To add an IP restriction, follow these steps:
     style={{ width: "60%", borderRadius: "8px" }}
     />
 
-After changes are saved, the Phase Two team will review and apply the restrictions to your cluster. 
+After changes are saved, the Phase Two team will review and apply the restrictions to your cluster. Unlike [cluster resources](./resources.md) and [environment variables](./environment-variables.md), this step is not automated, so allow time for it to be applied. If a restriction change is time-sensitive, [contact support](mailto:support@phasetwo.io). 
