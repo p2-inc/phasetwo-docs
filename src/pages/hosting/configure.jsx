@@ -3,6 +3,7 @@ import Layout from "@theme/Layout";
 import React from "react";
 import { InlineIcon } from "@iconify/react";
 import CardWithIcon from "../../components/CardWithIcon";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PLACEHOLDER_IMG = "/img/placeholder.svg";
@@ -114,7 +115,7 @@ export default function Configure() {
         </section>
 
         {/* Security */}
-        <section id="security" className="subpage-section texture-plus">
+        <Section id="security" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">Tightly Controlled Security</h2>
@@ -169,10 +170,10 @@ export default function Configure() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Theming */}
-        <section id="theming" className="subpage-section">
+        <Section id="theming" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">Make It Your Own</h2>
@@ -200,10 +201,10 @@ export default function Configure() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Extending */}
-        <section id="extending" className="subpage-section">
+        <Section id="extending" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">Extend It Any Way You Want</h2>
@@ -232,7 +233,7 @@ export default function Configure() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* CTA */}
         <Cta

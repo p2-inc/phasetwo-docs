@@ -5,6 +5,7 @@ import Link from "@docusaurus/Link";
 import { InlineIcon } from "@iconify/react";
 import CardWithIcon from "../../components/CardWithIcon";
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 import DemoModal from "../../components/DemoModal";
 import { KeycloakSupportPackages } from "../../components/keycloak-support-packages";
@@ -352,7 +353,7 @@ export default function Support() {
         </section>
 
         {/* Plans / Pricing Table */}
-        <section id="experts" className="subpage-section">
+        <Section id="experts" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">Support Plans</h2>
@@ -361,7 +362,7 @@ export default function Support() {
               <KeycloakSupportPackages />
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* CTA - secondary color */}
         <Cta

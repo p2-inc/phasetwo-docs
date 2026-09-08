@@ -5,6 +5,7 @@ import React from "react";
 import IconQuestionMarkCircle from "@site/static/img/icon-question-mark-circle.svg";
 import BackupIllustration from "@site/static/img/backup.svg";
 import CardWithIcon from "../../components/CardWithIcon";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const updateChallenges = [
@@ -106,7 +107,7 @@ export default function Support() {
         </section>
 
         {/* Update Challenges */}
-        <section id="update-challenges" className="subpage-section">
+        <Section id="update-challenges" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">Update Challenges</h2>
@@ -145,7 +146,7 @@ export default function Support() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Update Solution */}
         <section className="subpage-section texture-plus">

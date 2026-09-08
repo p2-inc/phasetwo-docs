@@ -26,7 +26,7 @@ Furthermore, it allows us to support customer-provided domain names, and access 
 
 We built out our dedicated cluster offering using the best-of-breed open source tools and managed services.
 
-The core consists of Kubernetes clusters in each [supported AWS and GCP region](/docs/self-service/dedicated-clusters#regions). New dedicated clusters are provisioned instantly using FluxCD, a continuous delivery solution that gives us the history and auditability of git. Monitoring and alerting is done using Prometheus, Grafana, and a suite of external services that give us a complete view of cluster health.
+The core consists of Kubernetes clusters in each [supported AWS and GCP region](/docs/self-service/regions/). New dedicated clusters are provisioned instantly using FluxCD, a continuous delivery solution that gives us the history and auditability of git. Monitoring and alerting is done using Prometheus, Grafana, and a suite of external services that give us a complete view of cluster health.
 
 The database tier uses a managed CockroachDB service provided by [Cockroach Labs](https://www.cockroachlabs.com/). Phase Two is the only provider that is capable of hosting the current Keycloak distribution (the "legacy" store) using CockroachDB. Working with Cockroach Labs gives us the expertise and reliability from hosting thousands of customer clusters at massive scale.
 

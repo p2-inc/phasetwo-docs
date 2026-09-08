@@ -4,6 +4,7 @@ import React from "react";
 import IconExpense from "@site/static/img/icon-expense.svg";
 import CardWithImage from "../../components/CardWithImage";
 import CardWithIcon from "../../components/CardWithIcon";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 import CompareKeycloakBlock from "../../components/CompareKeycloakBlock";
 
@@ -129,7 +130,7 @@ export default function SelfHostVsManaged() {
         </section>
 
         {/* Costs */}
-        <section id="costs" className="subpage-section">
+        <Section id="costs" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">
@@ -151,7 +152,7 @@ export default function SelfHostVsManaged() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Phase Two Benefits */}
         <section className="subpage-section texture-plus">
