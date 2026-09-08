@@ -8,7 +8,9 @@ Phase Two operates the database behind your hosted cluster, which means backups 
 
 ## What Phase Two backs up
 
-Your cluster's data — realms, users, clients, sessions, and configuration — lives in a database we operate and back up. Database snapshots are taken hourly, are encrypted, and are stored separately from the production data they protect. Restores are tested periodically, and our business continuity and disaster recovery plan is tested at least annually.
+Your cluster's data — realms, users, clients, sessions, and configuration — lives in a database we operate and back up. Snapshots are taken hourly and written to encrypted object storage, separately from the production database they protect, and replicated to a second region. Backup data is retained for 30 days. Restores are tested periodically, and our business continuity and disaster recovery plan is tested at least annually.
+
+Backups are taken per customer rather than only at the cluster level, so restoring one customer's data does not depend on unrelated tenants.
 
 You do not need to configure, schedule, or verify any of this.
 
