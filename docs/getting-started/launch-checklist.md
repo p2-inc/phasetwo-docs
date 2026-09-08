@@ -18,7 +18,7 @@ Generic Keycloak hardening checklists include a number of items that are our res
 - Clustering, node scaling, and session replication
 - Distributed cache configuration and tuning
 - Database provisioning, connection pooling, and tuning
-- Database backups
+- Database backups — see [Backups and Data Retention](../self-service/backups-and-data-retention.md)
 - The master realm, which is not customer-accessible
 
 Our compliance posture, including completed penetration tests, is published at [trust.phasetwo.io](https://trust.phasetwo.io/).
