@@ -6,11 +6,13 @@ description: How Keycloak version upgrades are handled on Phase Two hosted clust
 
 Phase Two performs Keycloak version upgrades on hosted clusters. There is no upgrade action in the dashboard, and you do not need to plan or execute one yourself. This page covers what happens during an upgrade and the two things that are your responsibility around it.
 
-## Choosing a version
+## Which version your cluster runs
 
-You select a Keycloak version when you [create a cluster](./create-a-cluster.md). After that, the cluster stays on that version until we upgrade it.
+Phase Two selects the Keycloak version a cluster is provisioned on, and moves it forward over time. There is no version selector when you [create a cluster](./create-a-cluster.md) and no way to pin, choose, or roll back a version from the dashboard.
 
-If you need a cluster on a specific version — to match another environment, or because you are validating an application against a particular release — say so when you create it, or email [support@phasetwo.io](mailto:support@phasetwo.io).
+Upgrades are automatic on every tier. On Enterprise clusters they can be coordinated with you rather than simply applied, and custom plans can run to an agreed schedule.
+
+If you need to know which version a cluster is on, or you have a requirement to be on a particular version, email [support@phasetwo.io](mailto:support@phasetwo.io).
 
 ## What happens during an upgrade
 
@@ -35,6 +37,6 @@ Keycloak majors can change token contents, endpoint behavior, and login page mar
 
 The most reliable way to do this is to keep a non-production realm — ideally on a separate cluster — that you can exercise your full login flow against. See the [Go-Live Checklist](../getting-started/launch-checklist.md#before-you-announce) for what that pass should cover.
 
-## Getting an upgrade scheduled
+## Coordinating an upgrade
 
-If you need to be on a newer version sooner than we would reach you, or you need an upgrade to land inside or outside a particular window, email [support@phasetwo.io](mailto:support@phasetwo.io) and we will coordinate it with you.
+If an upgrade needs to land inside or outside a particular window — around a launch, an audit, or a freeze period — email [support@phasetwo.io](mailto:support@phasetwo.io). Coordination is part of the Enterprise tier and available by arrangement on custom plans.
