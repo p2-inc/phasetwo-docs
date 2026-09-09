@@ -76,13 +76,40 @@ This is the one thing worth getting right. Once the wildcard is in place, **do n
 
 If you are moving from per-customer records to a wildcard, the migration is to **remove** those records, not to add to them.
 
+### Serving the parent domain too
+
+A wildcard never covers its own parent: `*.sso.yourdomain.com` serves `customer1.sso.yourdomain.com` but not the bare `sso.yourdomain.com`. If you want that name to serve a login page as well, add it in the Dashboard as a second custom domain. It counts as one more of your allowance.
+
+To be clear about how this differs from the warning above: adding a record **at** the parent is expected and safe. What breaks a wildcard is adding a record at a name **beneath** it, alongside the subdomains it serves.
+
+This is the one domain that does not follow the two-record pattern, in two ways.
+
+**You do not need a new validation record.** A wildcard and its parent are validated by the same record — the one already in your zone for `*.sso.yourdomain.com`. Nothing to add, and the certificate is normally issued straight away rather than waiting on DNS.
+
+**Route it with an `ALIAS` record, not a `CNAME`.** This is the part worth reading twice, because a `CNAME` here does real damage:
+
+| Purpose    | Type                  | Name                 | Value                           |
+| ---------- | --------------------- | -------------------- | ------------------------------- |
+| Validation | —                     | already in your zone | —                               |
+| Vanity     | `ALIAS` (not `CNAME`) | `sso.yourdomain.com` | `{cluster_name}.global.auth.ac` |
+
+The reason is that `sso.yourdomain.com` already has records underneath it — the wildcard itself, and the validation record. DNS does not allow a `CNAME` to coexist with anything below it: a `CNAME` at a name hides every record beneath that name. Add one here and **every subdomain stops resolving, and the certificate can no longer renew.** Neither failure points back at the record you just added, which is what makes it an expensive mistake.
+
+An `ALIAS` record avoids this. It resolves to addresses at the name itself instead of pointing at another name, so nothing beneath it is hidden. Providers give it different names — `ALIAS`, `ANAME`, or "CNAME flattening" — but they behave the same way here, and many support it on a subdomain like this one.
+
+If your DNS provider has no equivalent, delegate `sso.yourdomain.com` as its own zone (with `NS` records) to one that does, and keep the wildcard and validation records there. Do not point an `A` record at addresses you have looked up yourself — the addresses serving your domain change without notice, and a hardcoded one will fail silently later.
+
+One quirk to expect: an `ALIAS` is resolved by your DNS provider rather than by your visitor's, so the parent domain may be served from a different location than the subdomains are. It is a small difference in latency and nothing more.
+
 ### Limits
 
 **A wildcard covers exactly one level.** `*.sso.yourdomain.com` serves `customer.sso.yourdomain.com`, but not `customer.team.sso.yourdomain.com`.
 
-Be aware of how that fails. DNS wildcards _do_ match multi-level names, so a deeper hostname resolves and connects, and only then fails on the certificate — which browsers show as a full-page security warning rather than an error. On a login page that is alarming. If you generate these URLs from customer names, validate that each produces a single label with no dots.
+Be aware of how that fails, because it is worse than a plain error. DNS wildcards _do_ match multi-level names, so `customer.team.sso.yourdomain.com` resolves. Our edge accepts the name and routes it. The request reaches your Keycloak and is answered. The only thing that stops it is the certificate, which covers one level and does not match that hostname — and a certificate mismatch is what browsers present as a full-page "your connection is not private" warning, on the login page itself.
 
-**A wildcard does not cover its own parent.** `*.sso.yourdomain.com` does not serve `sso.yourdomain.com`. Add that separately if it needs to serve traffic.
+So the shape to avoid does not announce itself as a misconfiguration; it looks like a working URL right up to the point a user is told the site may be impersonating you. If you generate these URLs from customer names, validate that each produces a **single label with no dots** before handing it out.
+
+**A wildcard does not cover its own parent.** `*.sso.yourdomain.com` does not serve `sso.yourdomain.com`. You can add that as a domain of its own — see [Serving the parent domain too](#serving-the-parent-domain-too), which is the one case with different DNS.
 
 **App association files are not available on a wildcard domain.** [Those files](#app-association-files) are fetched from the exact hostname a credential was saved under, so they have to be published per hostname. Use a specific custom domain if you need them.
 
