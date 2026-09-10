@@ -1,0 +1,1 @@
+{"parameters":[{"name":"search","in":"query","description":"Filter deployments by name substring.","schema":{"type":"string"}},{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]}

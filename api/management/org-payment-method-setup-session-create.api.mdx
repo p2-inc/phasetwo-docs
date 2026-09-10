@@ -1,0 +1,69 @@
+---
+id: org-payment-method-setup-session-create
+title: "Create a Stripe Checkout link to add a payment method."
+description: "Creates a Stripe Checkout session in setup mode, which collects and saves a card against this organization's Stripe customer without charging it. Redirect the browser to the returned link; Stripe returns the user to your `redirect_uri` with a `payment_method_setup=success` or `payment_method_setup=cancelled` query parameter appended. Requires manage-billing."
+sidebar_label: "Create a Stripe Checkout link to add a payment method."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a Stripe Checkout link to add a payment method."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/orgs/{orgId}/billing/payment-methods"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a Stripe Checkout session in setup mode, which collects and saves a card against this organization's Stripe customer without charging it. Redirect the browser to the returned link; Stripe returns the user to your `redirect_uri` with a `payment_method_setup=success` or `payment_method_setup=cancelled` query parameter appended. Requires manage-billing.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./org-payment-method-setup-session-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./org-payment-method-setup-session-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./org-payment-method-setup-session-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

@@ -1,0 +1,1 @@
+{"parameters":[{"name":"file","in":"path","description":"apple-app-site-association or assetlinks.json","required":true,"schema":{"type":"string"}},{"name":"id","in":"path","required":true,"schema":{"type":"string"}},{"name":"extensionId","in":"path","required":true,"schema":{"type":"string"}}]}

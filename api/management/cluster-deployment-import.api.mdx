@@ -1,0 +1,69 @@
+---
+id: cluster-deployment-import
+title: "Create a deployment from a realm export."
+description: "Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported — the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier."
+sidebar_label: "Create a deployment from a realm export."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a deployment from a realm export."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/deployments/import"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported — the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-deployment-import.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-deployment-import.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-deployment-import.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

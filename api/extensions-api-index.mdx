@@ -1,0 +1,109 @@
+---
+id: extensions-api-index
+title: Extensions API
+description: Phase Two's additions to the Keycloak Admin REST API — organizations, organization roles, invitations, per-organization identity providers, SCIM, events and webhooks. 84 endpoints, served from your own Keycloak.
+sidebar_label: About this API
+sidebar_position: 0
+keywords:
+  - keycloak organizations api
+  - keycloak admin rest api extensions
+  - keycloak scim api
+  - keycloak webhooks api
+---
+
+# Extensions API
+
+Phase Two adds resources to Keycloak that the standard admin API does not have — organizations,
+organization roles, invitations, per-organization identity providers, SCIM, and an event and
+webhook system. This section documents those endpoints.
+
+It **extends** the
+[Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html) rather
+than replacing it. Realms, clients, users and roles are still managed through Keycloak's own API;
+everything here sits alongside it on the same server, under the same authentication.
+
+## What it targets
+
+Your Keycloak — not the Phase Two control plane. Every path is relative to a realm on the server
+you are already talking to:
+
+```
+https://{your-keycloak-host}/realms/{realm}/...
+```
+
+On a Phase Two-hosted cluster that is your cluster's host. Some deployments serve Keycloak under
+an `/auth` prefix, in which case the base becomes `https://{host}/auth/realms/{realm}/...`.
+Self-hosted and local installs work the same way — these are Keycloak extensions, so they live
+wherever your Keycloak lives.
+
+:::tip These work without Phase Two hosting
+
+Everything in this section ships in Phase Two's Keycloak build. If you run that build yourself,
+these endpoints are available on your own infrastructure, and nothing here requires a Phase Two
+account or the [Management API](/api/management-api-index).
+:::
+
+## Authentication
+
+Every endpoint takes a bearer token:
+
+```
+Authorization: Bearer <access_token>
+```
+
+An ordinary Keycloak access token, so anything that can obtain one will work — a service account
+using the client credentials grant, or `admin-cli` for interactive use. The permissions required
+are Keycloak's own: most endpoints need realm-management roles, and the organization endpoints
+additionally respect organization role membership.
+
+This is **not** the same credential as the Management API's. An API secret from the Phase Two
+console will not authenticate here, and a realm token will not authenticate there. If you have
+not obtained a Keycloak token before, the
+[token tutorial](/tutorials/getting-started/your-first-token) walks through it end to end and
+shows what each claim means.
+
+## What is here
+
+84 endpoints across 12 groups.
+
+| Group                                                              | Endpoints | What it covers                                              |
+| ------------------------------------------------------------------ | --------: | ----------------------------------------------------------- |
+| [Organizations](/api/category/organizations)                       |        12 | Create, read, update and delete organizations; portal links |
+| [Organization Attributes](/api/category/organization-attributes)   |         2 | Arbitrary key/value metadata on an organization             |
+| [Organization Memberships](/api/category/organization-memberships) |         5 | Add, list, count and remove members                         |
+| [Organization Domains](/api/category/organization-domains)         |         3 | Claim and verify email domains for an organization          |
+| [Organization Invitation](/api/category/organization-invitations)  |         9 | Invite users, list and accept invitations                   |
+| [Organization Roles](/api/category/organization-roles)             |        11 | Define roles within an organization and grant them          |
+| [Active Organization](/api/category/active-organization)           |         2 | Read and switch the caller's active organization            |
+| [Identity Providers](/api/category/identity-providers)             |        13 | Per-organization IdPs, mappers and config import            |
+| [Organization SCIM](/api/category/organization-scim)               |         4 | Directory sync configuration per organization               |
+| [Users](/api/category/users)                                       |         5 | User-centric views across organizations                     |
+| [Events](/api/category/events)                                     |        13 | Event storage, webhooks and delivery inspection             |
+| [Attributes](/api/category/attributes)                             |         5 | Realm and resource attribute management                     |
+
+## The OpenAPI specification
+
+The whole surface is described by one spec, which is also what generates these pages:
+
+- [`/openapi.yaml`](/openapi.yaml) — OpenAPI 3, YAML
+- [`/openapi.json`](/openapi.json) — the same document as JSON
+
+Use it to generate a client, drive contract tests, or load into an HTTP client. The
+[reference introduction](/api/phase-two-admin-rest-api) carries the spec metadata as rendered by
+the API explorer.
+
+## Conventions worth knowing before you start
+
+**`{realm}` is a path segment, not a header.** Every organization-scoped call is realm-scoped
+first. There is no cross-realm endpoint.
+
+**Organization IDs are opaque.** Treat `{orgId}` as a string; do not derive it from a name or a
+domain. Look it up, or capture it from the create response.
+
+**Pagination is `first` and `max`**, matching Keycloak's own convention rather than page and
+per-page. List endpoints that support it say so, and several groups also expose a dedicated count
+endpoint so you do not have to page through everything to get a total.
+
+**Errors are Keycloak's errors.** A 401 means the token is bad or absent; a 403 means the token is
+valid but lacks the role. If a call that should work returns 403, check the service account's
+realm-management roles before anything else.

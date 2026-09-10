@@ -1,0 +1,69 @@
+---
+id: cluster-deployment-create
+title: "Create a deployment for a dedicated cluster."
+description: "Creates a new, empty deployment (Keycloak realm) on this cluster. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier. To create a deployment from an existing realm export, use the import operation instead."
+sidebar_label: "Create a deployment for a dedicated cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a deployment for a dedicated cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/deployments"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new, empty deployment (Keycloak realm) on this cluster. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier. To create a deployment from an existing realm export, use the import operation instead.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-deployment-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-deployment-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-deployment-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

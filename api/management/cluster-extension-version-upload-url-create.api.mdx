@@ -1,0 +1,69 @@
+---
+id: cluster-extension-version-upload-url-create
+title: "Create an upload URL for an extension version."
+description: "Returns a presigned S3 URL to upload the version's jar to. After uploading, call the version's `confirm` operation to finalize it."
+sidebar_label: "Create an upload URL for an extension version."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create an upload URL for an extension version."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/extensions/{extensionId}/versions/{versionId}/upload-url"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns a presigned S3 URL to upload the version's jar to. After uploading, call the version's `confirm` operation to finalize it.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-version-upload-url-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-version-upload-url-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-version-upload-url-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

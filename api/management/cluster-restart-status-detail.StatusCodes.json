@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"required":["restart_in_progress"],"type":"object","properties":{"restart_in_progress":{"description":"Whether a restart workflow is currently running for this cluster. Configuration changes are rejected with a 409 while true.","type":"boolean"}},"title":"RestartStatus"}}}}}}

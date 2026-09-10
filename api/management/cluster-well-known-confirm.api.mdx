@@ -1,0 +1,69 @@
+---
+id: cluster-well-known-confirm
+title: "Validate and publish an uploaded app association file."
+description: "Checks the uploaded object parses as JSON and has the shape the operating system expects, forces its content type, and records it against the domain."
+sidebar_label: "Validate and publish an uploaded app association file."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "put api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Validate and publish an uploaded app association file."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/clusters/{id}/extensions/{extensionId}/well-known/{file}/confirm"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Checks the uploaded object parses as JSON and has the shape the operating system expects, forces its content type, and records it against the domain.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-well-known-confirm.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-well-known-confirm.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-well-known-confirm.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

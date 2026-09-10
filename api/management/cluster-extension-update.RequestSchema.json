@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"The desired enabled state.","content":{"application/json":{"schema":{"required":["enabled"],"type":"object","properties":{"enabled":{"description":"Whether the extension should be active on the cluster.","type":"boolean"}},"title":"ToggleExtensionRequest"}}},"required":true}}

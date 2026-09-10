@@ -1,0 +1,69 @@
+---
+id: org-payment-method-delete
+title: "Remove a payment method."
+description: "Detaches a saved card from this organization's Stripe customer. Fails with a 409 if the payment method is in use by an active subscription — switch that subscription to another card first. Requires manage-billing."
+sidebar_label: "Remove a payment method."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "delete api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Remove a payment method."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/orgs/{orgId}/billing/payment-methods/{pmId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Detaches a saved card from this organization's Stripe customer. Fails with a 409 if the payment method is in use by an active subscription — switch that subscription to another card first. Requires manage-billing.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./org-payment-method-delete.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./org-payment-method-delete.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./org-payment-method-delete.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

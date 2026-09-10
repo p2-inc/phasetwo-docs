@@ -1314,9 +1314,23 @@ module.exports = {
         id: "openapi",
         docsPluginId: "api",
         config: {
+          // The Extensions API -- Phase Two's additions to the Keycloak Admin
+          // REST API, served from the customer's own Keycloak realm. Kept at the
+          // top of api/ so the 84 published endpoint URLs do not move.
           phasetwo: {
             specPath: "openapi.yaml", // Path to designated spec file
             outputDir: "api", // Output directory for generated .mdx docs
+            sidebarOptions: {
+              groupPathsBy: "tag",
+              categoryLinkSource: "tag",
+            },
+          },
+          // The Management API -- the Phase Two control plane, which manages
+          // clusters themselves rather than what is inside them. Different
+          // server, different credentials; see api/management-api-index.mdx.
+          management: {
+            specPath: "openapi-management.yaml",
+            outputDir: "api/management",
             sidebarOptions: {
               groupPathsBy: "tag",
               categoryLinkSource: "tag",

@@ -1,0 +1,69 @@
+---
+id: cluster-extension-create
+title: "Create an extension for a cluster."
+description: "Registers a new extension slot (provider or theme) for this cluster. This only creates the extension record; upload its jar via the extension's version sub-resource before it takes effect."
+sidebar_label: "Create an extension for a cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create an extension for a cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/extensions"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Registers a new extension slot (provider or theme) for this cluster. This only creates the extension record; upload its jar via the extension's version sub-resource before it takes effect.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

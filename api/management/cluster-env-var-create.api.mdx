@@ -1,0 +1,69 @@
+---
+id: cluster-env-var-create
+title: "Add an environment variable to a cluster."
+description: "Adds a custom environment variable to the cluster and restarts the Keycloak deployment to apply it. Only custom (non-reserved) SPI configuration variables are allowed. Fails with a 409 if a restart is already in progress."
+sidebar_label: "Add an environment variable to a cluster."
+hide_title: true
+hide_table_of_contents: true
+api: eJztWP9uI7cRfhViUyB3grRyD/0nviaAo7g9I73YsJxcgNiwqF1KYm5FbkiudYosoA/RJ+yT9Jvh7molW06L5q+iAS5Yk0POr2++GWqTBDn3yelPiTIP2lmzVCYMHqTTcloon9z1k1z5zOkyaGuS0+Qsz72QIqt8sEvROSSaQyJYERZKZAVklBPS5MIpH6QLnje+VeussPKjyFVZ2DUfxhlZlsVa6JCKS4OPWsMrY80Ax5V7UPlrMb66EJk1Mz2vnCSTWrWwyikhi8KuVJ6Kv0hdeLHSYQFr/3TyhdAzfNR2CA3pwimZQ6ERpbNz7Pg06Se2VPHiixze1j6k8PMH6dIMR4KClFO/VLjqa5uvk9PNQYhu4OOxwMg8Jy1wIWCLzpLbOmOVw589XbBJfLZQS0lfpEg7lVOGjFyS7gdZVIoSE9algjo7/VllARtwA8YHjbThJEs/se2HxhbaTsV7uCeMDSKGhcM1+XZ0PxGVQUg90iHqzLV7SAH2//n3fwjbydPTxCzlWkyV8CqQx7WxPjht5sm2ceO4gbyfinGwcJ+ydPZhLK6kg92EKl4XULXAH2EhDazZg51TmXX5s6rjwqHmd3bFF7BiQoiPqslT6UVZSBgR1KcgrKMFCdcAiGe86yeA4eUMOTuuI3r5uT9Ul4rJ+Ob64ru/ThiktVoWeout89H1+Q1vLVRxNCxknQEGM7cuA1wom32yVZlqSXCKarAQL+0gqnUj6FDQwvkOzU1+bkh0e7fdvih1Hesk2ZLcDsvBVYoXfGmNj3h9c3LyNCfnz5VRrML/rI4OSOxF/gJiCUyygRKS9AxlpUl/rzp1joW9Eq3j+ZuVipNPLPze6F8IFjk06ZlGZu2MkfOcxc+C/N+p//+iLq9VqJyJlTmriiKSwWqhjJjQnYzRBspvEcwWuy3gZbGSaw+e8B9xDyJOhMztIgN6I3WIaQWCUg9c0LARX79DTf+/ZF8q2ZLarQlcSlS5dKA1x3OIIrgi5jVFqQQRJ4cl3u8U4EHCtjAd9y0sddnSeq4KuuM0GdZl54cbnW+HADzNIx4CPATUFlSugOwihNKfDoebTlls03IhAZ2VTbUdyioshgBWsfRDr4rZ8OFNcjjTjEBCFtBewI5UUPsmUzjrZ2hrtAz0rZwOmDKC7TNGVwtJqzj4wKu5XKdc+s3oBKc7VkVszmRV4JPI6okVEyxOxAzNBfSQVxkt9wWtDtCC5whb3K3/IEOBKR1nKo+EREPXthKV52GjsHPArR7Hrigo4mZlqU2Tu11gRXs6qpI7SvthmGWp94L7TCyvqilouI1bKq6cminnuMIz4PwBgxkTCQoBtrouo6UJ4QJttUKs15xnq/NsVGhsjnAHsaEsCAF3XckxwSyG/Ih8C0BLgHhq9uXFNyPwPZ2j/tIcFHMnDU2k00A1LRuRi2+GsfkDKdqJBy05xhPr5imCNI6DQWxUE9HOlH2SQpV/yjCwzBX9teScovRlltHAFexHSMgQY8PABeNMhsBEsJkthrjM6HyAJBo0kyHLTxDEvLQ6dqUZRmB2OXs2DnTg+4O0li/XzIvKqTAzbNDtNVtQ/73ejcjnn+SyLNRuKt3RVd1tOvwV01Qz3ZboZWbZ7pqydjge1ZPee2nkXHFHBOyepPasQqdHHtBoWjk0U47v7jICKzDaNvqGhE7R8nOaK7DZrPU7Y4AXr2KkXveboSKHOm0ghVlRGQ8r6PuZvo3liyvhKv4CdKTRvzJOfKSYqS4KqvRbc2u6xd7r0dzjbEGtxqhej/xOxUWoXfStpYwwpJAoajCIkxNu5OU+PUboj2g//gxBZgtaqT2gI2QH1BKAnEKH94paAaI5c3B17zl3li9RI9fn4xsu/w4RNQ8DFVmz0GRPDxow3/T4WQYL2M3PPmuzQVDxtPYoHsU7orZHcVU5NAslHrE6GAzafyR0w5XTFAKEJwe4nmDtPW0dVtsrcnKPLGuKfM2K2Bu+Th9ed45+tN7VN3FaoEQx5yniu0dOHqmJD1TtfQUoTdeNHsrjgPMYw9C+YzpN6W3bi3SgguTZg1/EuzTsGHccKVz4aupRNRV1rW4b2XOiiTqqZEFJjhM0LUbf6pcuZjCV84hySZJv9gNomR5hTUOEQOgRLu31UjFiXqTLyOiaSIkGuSa7hUAI1PvxqEyuasmgJJFjr0fXdGgOBRHklEqKDTrCyrh6n40R2x2/M/A7psno6ilFZjKZ3Bp0nkIMfhRXl8D778Ok4vb21ggxyGOo7okLv4wW3XcD2YrVezr/8g9X787G5zcfLu9Hf7s4/+7mHh4cikVvnorGYbJ269aMUUIccQw3mFaYLmJTAowo+dbV2TkVXytg2ok/s8BXE8KuYthkGKfjKFVHtA4lAXdhVyY+F2gi6MdHAw8xrUzzxCN7PhBl1OHnl0FuSWRuocjsSmkPNqgpVQMOEihqyu0ObH3+zQMHGcwiti+e3sCZsWv8MT1JT6j/0HAKWu00r7M8j7P6kZ94GvZND1vRZvde/Z//Ha3u4/R7yZAfRBRLniY39aD/U/PrGo32p/yUaGd9zHbEZSS02UxRTxhYtltaBhs5mgzvdqN2fLRpT994TsxQIuqFyL+6rh8pr8UxO+tFadadEQWfH9U6vnrwioKF8Fs51h43RlHHgB9au4NPfpmgwTqeOAOLluFF2e5DibgGwtP6Z8elzemMkyt6euH/bKRln3nW47VNguYyrzAXYD/eSf/9C/UhviM=
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Add an environment variable to a cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/env-vars"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Adds a custom environment variable to the cluster and restarts the Keycloak deployment to apply it. Only custom (non-reserved) SPI configuration variables are allowed. Fails with a 409 if a restart is already in progress.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-env-var-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-env-var-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-env-var-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

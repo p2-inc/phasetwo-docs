@@ -1,0 +1,69 @@
+---
+id: cluster-host-update
+title: "Change the cluster's primary hostname."
+description: "Switches the cluster's primary hostname to an already-provisioned domain: either the cluster's default `<name>.global.auth.ac` address or one of its custom domains that already has an issued TLS certificate. This does not provision a new domain — use the custom domains API to add one first. The candidate host must be reachable before the switch is applied."
+sidebar_label: "Change the cluster's primary hostname."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "put api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Change the cluster's primary hostname."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/clusters/{id}/host"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Switches the cluster's primary hostname to an already-provisioned domain: either the cluster's default `<name>.global.auth.ac` address or one of its custom domains that already has an issued TLS certificate. This does not provision a new domain — use the custom domains API to add one first. The candidate host must be reachable before the switch is applied.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-host-update.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-host-update.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-host-update.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

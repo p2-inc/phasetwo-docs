@@ -1,0 +1,128 @@
+---
+id: management-api-index
+title: Management API
+description: The Phase Two control plane API — create and configure dedicated Keycloak clusters, realms, custom domains, extensions, IP rules and billing. 73 endpoints, OAuth2 client credentials.
+sidebar_label: About this API
+sidebar_position: 0
+keywords:
+  - phase two management api
+  - keycloak cluster api
+  - keycloak provisioning api
+  - dedicated keycloak cluster
+---
+
+# Management API
+
+The API version of the Phase Two console. It manages **clusters** — the dedicated Keycloak
+instances we run for you — and everything attached to them: the realms on a cluster, its custom
+domains, the extensions and themes you upload, its environment variables, its IP allow/deny
+rules, and its billing.
+
+It does **not** manage anything inside a realm. Users, clients, groups, authentication flows and
+identity providers are the realm's business, handled by
+[Keycloak's own Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html) and
+by our [Extensions API](/api/extensions-api-index). If you are looking for
+`POST /users`, you are in the wrong reference.
+
+## What it targets
+
+Requests go to the Phase Two control plane, not to your cluster:
+
+```
+https://api.phasetwo.io/v2/...
+```
+
+That host is the same for every customer. Your clusters are identified by ID in the path, not by
+hostname — `api.phasetwo.io` is where you ask _for_ a cluster, and the cluster's own host is
+where you use it.
+
+:::info Two hosts, two jobs
+
+| Host                                            | What it serves                                                   |
+| ----------------------------------------------- | ---------------------------------------------------------------- |
+| `app.phasetwo.io`                               | The console, and the **token endpoint** you authenticate against |
+| `api.phasetwo.io`                               | This API                                                         |
+| `<cluster>.phasetwo.io` (or your custom domain) | Your Keycloak — realms, users, logins                            |
+
+Tokens are minted by the control-plane realm on the console host; the API itself lives on the
+API host. Staging substitutes `app-staging.phasetwo.io`.
+:::
+
+## Authentication
+
+An OAuth2 **client credentials** grant. In outline:
+
+1. In the console, open your team's **API Credentials** tab and create an API secret. You get a
+   client ID and a client secret; the secret is shown **once**.
+2. Exchange them for an access token at the console host.
+3. Send that token as `Authorization: Bearer <token>` to `api.phasetwo.io`.
+
+```bash
+TOKEN=$(curl -s -X POST \
+  https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \
+  -d grant_type=client_credentials \
+  -d client_id="$PHASETWO_CLIENT_ID" \
+  -d client_secret="$PHASETWO_CLIENT_SECRET" | jq -r .access_token)
+
+curl -s https://api.phasetwo.io/v2/clusters -H "Authorization: Bearer $TOKEN"
+```
+
+What a token may do is governed by the **organization roles granted to its API secret**, not by
+OAuth scopes. A secret created with only view roles gets 403s on writes, which is the intended
+way to hand a read-only credential to a monitoring job.
+
+The [API keys guide](/docs/management-api/api-keys) covers creation, rotation, least privilege
+and the failure modes in full.
+
+## What is here
+
+73 endpoints in nine groups.
+
+| Group                                                          | Endpoints | What it covers                                                                                                                   |
+| -------------------------------------------------------------- | --------: | -------------------------------------------------------------------------------------------------------------------------------- |
+| [Clusters](/api/management/clusters)                           |        17 | Create, inspect and delete clusters; regions, name availability, metrics, restart and upgrade status, primary hostname, checkout |
+| [Cluster Extensions](/api/management/extensions)               |        19 | Upload custom providers and themes, manage versions, trigger the reconcile/restart                                               |
+| [Billing](/api/management/billing)                             |         9 | Subscriptions, payment methods, billing contacts, Stripe portal sessions                                                         |
+| [Deployments](/api/management/deployments)                     |         7 | Realms on a cluster, addressed directly by deployment ID; console and app links, token exchange                                  |
+| [Organizations](/api/management/orgs)                          |         6 | The teams that own clusters, and their API secrets                                                                               |
+| [Custom Domains](/api/management/customer-domains)             |         5 | Attach a hostname, read its DNS records and certificate status                                                                   |
+| [Environment Variables](/api/management/environment-variables) |         5 | Custom SPI configuration on a cluster                                                                                            |
+| [IP Rules](/api/management/ip-rules)                           |         3 | Admin and realm endpoint allow/deny lists                                                                                        |
+| [Logs](/api/management/logs)                                   |         2 | List log files and get a temporary download URL                                                                                  |
+
+## Conventions worth knowing before you start
+
+**Operation IDs are `{resource}.{operation}`.** `cluster.list`, `cluster.create`,
+`cluster.domain.detail`, `org.apiSecret.create`. The shape mirrors the URL hierarchy, so an ID
+tells you where the endpoint sits without looking it up. Generated clients derive method names
+from these.
+
+**Provisioning is asynchronous.** `cluster.create` returns before the cluster exists. Poll
+`cluster.detail` and watch `status` — `BILLING_SETUP` → `PROVISIONING` → `ACTIVE` is the happy
+path. A cluster is not usable until `ACTIVE`.
+
+**Some changes restart Keycloak.** Adding an environment variable or reconciling extensions
+restarts the cluster's Keycloak. The API rejects a second such change while one is in flight with
+a 409; `cluster.restartStatus.detail` tells you when it is safe to proceed.
+
+**Deleting a cluster is not immediate.** Unless it never completed billing setup, delete moves it
+to `PENDING_DELETION` and teardown happens at the end of the billing cycle. It bills until then,
+and **the name stays reserved** — so a create-destroy-recreate loop under one name will fail.
+
+**Custom domains need DNS you create yourself.** `cluster.domain.create` returns the records to
+add at your DNS provider. The certificate is only issued once they resolve, and only then can the
+domain become the cluster's primary host.
+
+**Tier limits are enforced server-side** and surface as 409s — realms, themes, extensions,
+domains and IP rules all have per-tier caps.
+
+**Errors are Keycloak's errors.** 401 means the token is absent, expired or malformed. 403 means
+the token is fine but the API secret lacks the organization role. If a call that should work
+returns 403, check the secret's roles before anything else.
+
+## Before you write a client
+
+There is a [Terraform provider](/docs/management-api/terraform) generated from this spec that
+already handles the asynchronous provisioning, the restart serialization and the destroy
+semantics described above. For infrastructure-shaped work it is substantially less code than
+driving the API directly.

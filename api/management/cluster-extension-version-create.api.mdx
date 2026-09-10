@@ -1,0 +1,69 @@
+---
+id: cluster-extension-version-create
+title: "Create a new extension version."
+description: "Registers a new version of a Keycloak-version-dependent extension for a target major version. This only creates the version record; use the returned version's upload URL to upload its jar."
+sidebar_label: "Create a new extension version."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a new extension version."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/extensions/{extensionId}/versions"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Registers a new version of a Keycloak-version-dependent extension for a target major version. This only creates the version record; use the returned version's upload URL to upload its jar.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-version-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-version-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-version-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

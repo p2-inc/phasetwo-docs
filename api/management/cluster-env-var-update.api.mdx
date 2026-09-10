@@ -1,0 +1,69 @@
+---
+id: cluster-env-var-update
+title: "Update an environment variable."
+description: "Updates the name and/or value of a custom environment variable and restarts the Keycloak deployment to apply it. Fails with a 409 if a restart is already in progress."
+sidebar_label: "Update an environment variable."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "put api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Update an environment variable."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/clusters/{id}/env-vars/{envVariableId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Updates the name and/or value of a custom environment variable and restarts the Keycloak deployment to apply it. Fails with a 409 if a restart is already in progress.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-env-var-update.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-env-var-update.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-env-var-update.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

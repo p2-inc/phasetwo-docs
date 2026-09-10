@@ -4,6 +4,16 @@
       "anchor": "https://phasetwo.io",
       "service-desc": [
         {
+          "href": "https://phasetwo.io/openapi-management.yaml",
+          "type": "application/yaml",
+          "title": "Phase Two Cluster Management API (OpenAPI 3, YAML)"
+        },
+        {
+          "href": "https://phasetwo.io/openapi-management.json",
+          "type": "application/json",
+          "title": "Phase Two Cluster Management API (OpenAPI 3, JSON)"
+        },
+        {
           "href": "https://phasetwo.io/openapi.yaml",
           "type": "application/yaml",
           "title": "Phase Two Admin REST API (OpenAPI 3, YAML)"
@@ -16,9 +26,14 @@
       ],
       "service-doc": [
         {
-          "href": "https://phasetwo.io/docs/api/",
+          "href": "https://phasetwo.io/api/management-api-index",
           "type": "text/html",
-          "title": "Phase Two API reference"
+          "title": "Phase Two Management API reference"
+        },
+        {
+          "href": "https://phasetwo.io/api/extensions-api-index",
+          "type": "text/html",
+          "title": "Phase Two Extensions API reference"
         }
       ]
     }

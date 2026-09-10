@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"required":["link"],"type":"object","properties":{"message":{"description":"Human-readable message to show while redirecting.","type":"string"},"link":{"description":"URL to redirect the browser to. Single-use and short-lived.","type":"string"}},"title":"RedirectLink"}}}}}}
