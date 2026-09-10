@@ -13,6 +13,8 @@ Custom domains let you use your own domain name to access your Keycloak instance
 
 Serving [app association files](#app-association-files) on those domains requires Premium or Enterprise.
 
+On Enterprise, a domain can be a [wildcard](#wildcard-domains), which serves every subdomain beneath it from a single entry.
+
 :::tip Don't have a cluster yet?
 Every new cluster starts with a **30-day free trial** — no charge until it ends, cancel any time. [Start for free](https://dash.phasetwo.io/clusters/create), or see the [pricing page](/pricing) for what each plan includes.
 :::
@@ -47,6 +49,80 @@ If you fail to setup your DNS records within 48 hours, the request will expire a
   <figcaption>Record timeout.</figcaption>
 </figure>
 
+## Wildcard domains
+
+If you give each of your own customers a branded login URL — `customer1.sso.yourdomain.com`, `customer2.sso.yourdomain.com`, and so on — you do not need a custom domain for each one. A single wildcard domain serves all of them.
+
+Enter `*.sso.yourdomain.com` in the same **Add a custom domain** field. It counts as one of your custom domains, however many subdomains you go on to serve. Available on Enterprise.
+
+### The two records you need
+
+A wildcard needs exactly two DNS records, and that is true whether you serve five subdomains or five thousand:
+
+| Purpose    | Type    | Name                         | Value                            |
+| ---------- | ------- | ---------------------------- | -------------------------------- |
+| Validation | `CNAME` | `_<hash>.sso.yourdomain.com` | the value shown in the Dashboard |
+| Vanity     | `CNAME` | `*.sso.yourdomain.com`       | `{cluster_name}.global.auth.ac`  |
+
+The Dashboard shows you the exact values, as it does for any domain. Note that the validation record sits _beside_ your subdomains rather than beneath any of them — that is what makes this work.
+
+### Do not add records for individual subdomains
+
+This is the one thing worth getting right. Once the wildcard is in place, **do not create a CNAME for individual subdomains.** It looks harmless and it is not:
+
+- It is redundant. The wildcard already resolves every subdomain beneath it.
+- It creates a node in your DNS, which stops the wildcard resolving anything _below_ that name.
+- It makes that exact name impossible to certify, permanently. A certificate for `customer1.sso.yourdomain.com` needs a validation record _beneath_ that name, while routing it needs a CNAME _at_ that name — and DNS does not allow records beneath a CNAME.
+
+If you are moving from per-customer records to a wildcard, the migration is to **remove** those records, not to add to them.
+
+### Serving the parent domain too
+
+A wildcard never covers its own parent: `*.sso.yourdomain.com` serves `customer1.sso.yourdomain.com` but not the bare `sso.yourdomain.com`. If you want that name to serve a login page as well, add it in the Dashboard as a second custom domain. It counts as one more of your allowance.
+
+To be clear about how this differs from the warning above: adding a record **at** the parent is expected and safe. What breaks a wildcard is adding a record at a name **beneath** it, alongside the subdomains it serves.
+
+This is the one domain that does not follow the two-record pattern, in two ways.
+
+**You do not need a new validation record.** A wildcard and its parent are validated by the same record — the one already in your zone for `*.sso.yourdomain.com`. Nothing to add, and the certificate is normally issued straight away rather than waiting on DNS.
+
+**Route it with an `ALIAS` record, not a `CNAME`.** This is the part worth reading twice, because a `CNAME` here does real damage:
+
+| Purpose    | Type                  | Name                 | Value                           |
+| ---------- | --------------------- | -------------------- | ------------------------------- |
+| Validation | —                     | already in your zone | —                               |
+| Vanity     | `ALIAS` (not `CNAME`) | `sso.yourdomain.com` | `{cluster_name}.global.auth.ac` |
+
+The reason is that `sso.yourdomain.com` already has records underneath it — the wildcard itself, and the validation record. DNS does not allow a `CNAME` to coexist with anything below it: a `CNAME` at a name hides every record beneath that name. Add one here and **every subdomain stops resolving, and the certificate can no longer renew.** Neither failure points back at the record you just added, which is what makes it an expensive mistake.
+
+An `ALIAS` record avoids this. It resolves to addresses at the name itself instead of pointing at another name, so nothing beneath it is hidden. Providers give it different names — `ALIAS`, `ANAME`, or "CNAME flattening" — but they behave the same way here, and many support it on a subdomain like this one.
+
+If your DNS provider has no equivalent, delegate `sso.yourdomain.com` as its own zone (with `NS` records) to one that does, and keep the wildcard and validation records there. Do not point an `A` record at addresses you have looked up yourself — the addresses serving your domain change without notice, and a hardcoded one will fail silently later.
+
+One quirk to expect: an `ALIAS` is resolved by your DNS provider rather than by your visitor's, so the parent domain may be served from a different location than the subdomains are. It is a small difference in latency and nothing more.
+
+### Limits
+
+**A wildcard covers exactly one level.** `*.sso.yourdomain.com` serves `customer.sso.yourdomain.com`, but not `customer.team.sso.yourdomain.com`.
+
+Be aware of how that fails, because it is worse than a plain error. DNS wildcards _do_ match multi-level names, so `customer.team.sso.yourdomain.com` resolves. Our edge accepts the name and routes it. The request reaches your Keycloak and is answered. The only thing that stops it is the certificate, which covers one level and does not match that hostname — and a certificate mismatch is what browsers present as a full-page "your connection is not private" warning, on the login page itself.
+
+So the shape to avoid does not announce itself as a misconfiguration; it looks like a working URL right up to the point a user is told the site may be impersonating you. If you generate these URLs from customer names, validate that each produces a **single label with no dots** before handing it out.
+
+**A wildcard does not cover its own parent.** `*.sso.yourdomain.com` does not serve `sso.yourdomain.com`. You can add that as a domain of its own — see [Serving the parent domain too](#serving-the-parent-domain-too), which is the one case with different DNS.
+
+**App association files are not available on a wildcard domain.** [Those files](#app-association-files) are fetched from the exact hostname a credential was saved under, so they have to be published per hostname. Use a specific custom domain if you need them.
+
+### Each subdomain is its own issuer
+
+Signing in at `customer1.sso.yourdomain.com` produces tokens whose `iss` claim is `https://customer1.sso.yourdomain.com/realms/<realm>`. Every subdomain has a different one.
+
+If your application validates tokens against a single hardcoded issuer, it will reject them all. Either discover the OpenID configuration per tenant, or accept the issuer belonging to the subdomain the user signed in on. This is the most common thing to catch people out, and it is worth checking before you hand the first URL to a customer.
+
+### Sessions are per subdomain
+
+Cookies are scoped to the hostname, so a session on one subdomain is not shared with another, even though they are the same realm and the same Keycloak. That is usually what you want when the subdomains represent different tenants — just don't expect single sign-on to carry across them.
+
 ## App association files
 
 If you have a mobile app, your custom domain can publish the files iOS and Android use to link the domain to that app. This is what lets a password manager autofill a saved password inside your app — and, later, lets a passkey created on your login page be used from it.
@@ -55,11 +131,11 @@ Available on Premium and Enterprise plans, managed under **Clusters > Cluster > 
 
 Three things can be served:
 
-| Path | Purpose |
-| --- | --- |
-| `/.well-known/apple-app-site-association` | Links the domain to your iOS app |
-| `/.well-known/assetlinks.json` | Links the domain to your Android app |
-| `/.well-known/change-password` | Where password managers send someone to change their password |
+| Path                                      | Purpose                                                       |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `/.well-known/apple-app-site-association` | Links the domain to your iOS app                              |
+| `/.well-known/assetlinks.json`            | Links the domain to your Android app                          |
+| `/.well-known/change-password`            | Where password managers send someone to change their password |
 
 ### Why they must live on this domain
 
