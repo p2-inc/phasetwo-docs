@@ -167,19 +167,78 @@ applied value in state and cannot detect a change made outside Terraform.
 ## Configuring what is inside the realm
 
 The provider stops at the realm boundary — it creates realms, not the clients and identity
-providers in them. Hand off to a Keycloak provider pointed at the cluster:
+providers in them. That division mirrors the two APIs: `phasetwo_*` resources are the
+[Management API](/api/management-api-index), and everything inside a realm is Keycloak's own API
+plus our [Extensions API](/api/extensions-api-index).
 
-```hcl
-provider "keycloak" {
-  url       = phasetwo_cluster.main.host
-  client_id = "admin-cli"
-  # ...
+To manage what is inside a realm, hand off to the
+[Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) with a
+credential scoped to that realm. Create one with
+[`deployment.credential.create`](/api/management/deployments):
+
+```bash
+curl -s -X POST \
+  "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"description": "terraform, ci pipeline"}'
+```
+
+```json
+{
+  "client_id": "terraform-9f3c1a2b",
+  "client_secret": "…",
+  "server_url": "https://my-cluster.phasetwo.io",
+  "realm": "production",
+  "description": "terraform, ci pipeline"
 }
 ```
 
-That division mirrors the two APIs: `phasetwo_*` resources are the
-[Management API](/api/management-api-index), and everything inside a realm is Keycloak's own API
-plus our [Extensions API](/api/extensions-api-index).
+Everything the Keycloak provider needs is in that response:
+
+```hcl
+provider "keycloak" {
+  url           = "https://my-cluster.phasetwo.io"
+  realm         = "production"
+  client_id     = "terraform-9f3c1a2b"
+  client_secret = var.keycloak_client_secret
+}
+```
+
+:::caution The secret is shown once
+
+It is not stored and cannot be read back. If you lose it, revoke the credential and create
+another. `deployment.credential.list` returns the credentials that exist and what they are for,
+but never their secrets.
+
+:::
+
+### Create one credential per holder
+
+Each credential is independently revocable, so a credential per pipeline, per environment or per
+engineer means a leak costs you one revocation rather than a rotation everywhere:
+
+```bash
+# list what exists
+curl -s "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials" \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# revoke one
+curl -s -X DELETE \
+  "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials/terraform-9f3c1a2b" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Revoking deletes the client from the realm, so it takes effect immediately — any Terraform run
+still holding it starts failing to authenticate rather than quietly continuing.
+
+### Keep it out of state, and out of git
+
+The Keycloak provider writes `client_secret` into `terraform.tfstate` in plain text. That is true
+of any provider credential, but it is worth saying plainly because the state file travels: treat
+the state backend as holding a realm-admin credential, and give it the access controls that
+implies. Use a remote backend with encryption and restricted reads, pass the secret through a
+variable rather than committing it, and do not reuse one credential across environments.
 
 ## Local development
 
