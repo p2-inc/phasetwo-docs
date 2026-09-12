@@ -1,0 +1,69 @@
+---
+id: cluster-env-var-list
+title: "List environment variables for a cluster."
+description: "Returns the custom environment variables configured for this cluster's Keycloak deployment."
+sidebar_label: "List environment variables for a cluster."
+hide_title: true
+hide_table_of_contents: true
+api: eJzVWGtv4zYW/SuEukATwY/BfPRsF8imQSfotAliT2eBSTCiJdpmI5MqSdn1uv7vey5JyfIj2Q87C7QFppH5uLyPc8+95DZxfG6T0edEqJU0Wi2Fcv0VN5JPS2GTp15SCJsbWTmpVTJKHoSrjbLMLQTLa+v0knV2snYny7WayXltRMFm2mC9xFiJHcJ8a9mPYpOXmj+zQlSl3tDeQdJLdCUMp5NuC5wVlw9wwC/cDEppHdYYYSutLJQbbZO3b97Qn0Mdb84qFLQQjRJ0HHR0WEQSeFWVMvdnD3+1JGab2Hwhlpy+3KYSEMyN4Rvsk04s7em5V695hFnhmFaM/3cvGPFbLeE4CossMKD4UuDPipc1/fXaPPUarfT0V5GTZypD/nMyuAY7TzT8qORvtWCywElyJoVheuadck7jQdIeYZ2Rap7soioncn9pjKTps/uC7i9v9PMDFuAFzEjFZnVZwmPlhq0XQrGMZGYMMMrGk4fbn3/I3sGZ2fjm+uFmkgUBNMvLNd9YtuT2GXLgcSN4wbgqWM4Vm4ZATGvHlFjBAUZAR3wVZ9UOA8dav9dr77X2TETdnJPQS3hZ3s0QyJdFBAcADcfSWju9VawqOZziF73bm42phSi9v64+jdk9N4gA0MXGJIRx7FSIbm42lYM7qmaedBWqXhLGwjEYCEI70GrNcNKV4jC1mtBNaOnuabd7ddWDqJC4GPApluz8f4Bso4/1PgroCqCX5KaKu8VBRjhTi95pZjYR20F3yFto4o+58FlBIkbJMKadHW5lsRsC8ERzFgusMKtGgdqUWLtwrrKj4XDLK/leW7cbVAsO2Kz1QOrh6m1yzIr39RTswa7ub9kC6wdsQkTDlVbglJJNsZl9fPiwZ0KsHPiMbojWU5A/LMBtxuvSEeVU8uS0DIOZl4WML+qchnuMRvsWdA5HhNn4Y8B+guVICJcvTpI95j+Y0GqkIWmPAe4ALFsDMBtdQ2X9LFQXMUGrzoHJE4XzxH9R7KkPee0WQyRmubRDK8rZOaded3QKHqVQenUbRyN71wZsjHqk37HaCnCGN70Q03pOivUYftGIT4O93aAUpMeBLIRFacc2oAcPieIkQh1zjqNUnYtSdTZK1QtRmhAwZCitFokQtEIAyDAYyEo9R57jg1bckzfZZK2b2PU8x9HUPohLLLchhjzPhbXnQln5UFYHoXyitMhr+Hbj80LLIr8uJTx3jTSk6sFLypgnCvrZyXGURms60saUucGbL8hsc1oTSE5hcXf7/TVqKO1j+X4jmxuOET4HS8L8NN17PU0H7G7qiD55s/P2e+AO2x1AJQ1bSe5dl2kzHwDXYz83wP+4Q9Fp+5IerQKSfs8XXM09gJYNvLoeZnB+1qQBnPs6+KGq07kuhzhHyaKPiCqU9KEXlQ3YRxug6mlPALvaHmaxz20RoePpzOMGwiEmAHlW6nUA8VmX00kfD5L3f9OaeDXHBEkPVP86Sr5W1COI/wQhb/Lprxn6r6D9MQR2VNNn2p8ZG4U9iV2H6sx+4orPhbcMxHwCg6sa/TXiA7PbdShhnuH2wogAUbva9rop/SPUhYK6fEw2Y71O823ZRbDuste08gWOA7R6iD+uChZa0Pe5C0aP3d4zU/svQIor+W+PHxuIeSrLkvz5qB5Vl+nTlG4hRpfU4CmRpr43YLcumtjemvzyJdy+wli/zzxQIdEP44yioB9Bf/x0jucLGokW0BbSA8dS8I1AX20F9V/w5szAVNKmddlVgdrBHm7GE18gO1WovdgBjIB8KUmfFCfgVpEi27wG3sxvvmFUKq03OYaFOjz0pNgt1UrDliK6R6O0F3I2Awamm66HRyG9wiYqaAgeVsSuhTzX954LB1PD37q1bR/StAdtZRlyqU1tS22z78eMwMFok4U/JZT/vVfStGkSwCtkzR+se8f8g3VbFXYR9L3EeNtbXOzPxDgE9Pv99h/Ju2+rFUsvYmNxmUJEdsTDWRiTR2MkI5Jp3HQug5vNL8yRaTdgkI3zyJkKEAeLyhDLdToZtCuarbV5brk3iuyxSubPR93oBejyoPO5DJ5vKSvQFValKdCAJAgDkaBfqRwZazqLhiKBc9oVOFmootLATLhC7fEu6c7kW6RzSqBzp04Q5YAbXCJC8wkvsWXbSI8gLhwRIQl7tDqk5thQ4somi8ZewByXr5gdYLMFmRPeHVrvM7ruCEs3VFH4C9wdrXx7WG60L284uSlkgPwL9ZGq4bWvaySMQBkLIZUxz51dwiIPRm2bHKpVIeJKJ/gSl9WQEp14IGaOT327TQq9UFVDcDrVVDq7r8+eCTqqRRePyDNZlj0qRLpk/X+x+zvw0tdpVNjj46NirF8EV32hNuS7oNGXriPbZXFOFt/97f791fhm8unuy/WH25ufJ19gwfGyYM3p0nDVjmY9qrGIvTsuyUg2T+uhqbAso+BrE6MzYv8U4CjD/u4X/CMjxhMeNrhqlvHqGTwaXUlPCgu9VuExRYPleuFJJWC/WRNiVHhwfqLUaBBO7yaFpiVzjYPUnoAPYAMmFhFwWAG2oNjuwdbzyYCNHswstAb+ioXaFqr728GbwRt6dqnAmSh/1CrEJ4EPEvlw/qUxIKXzrHfQMmz3r3z/58fL2MA6dApD/1hDlvgL8TY+QnxunjTp2WHkXznadwjckRb+Xvk52W7pwQAt2W5Hw+ACQ7ewp/1tNDwoSUvfRTKaAaDiFbsvHuL7ySV7Sc/mhVNt2ofGUYLPZ7EJDzI7XPWSheAgAn96mLgCI1Wus+XkHfXgReaHm0my2/0HkCP8hQ==
+sidebar_class_name: "get api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List environment variables for a cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/clusters/{id}/env-vars"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns the custom environment variables configured for this cluster's Keycloak deployment.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-env-var-list.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-env-var-list.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-env-var-list.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

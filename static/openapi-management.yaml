@@ -1,0 +1,3054 @@
+---
+openapi: 3.0.3
+info:
+  title: Phase Two Cluster Management API
+  description: |-
+    Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.
+
+    This is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.
+
+    ## Hosts
+
+    Two hostnames are involved, and both differ by environment: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.
+
+    | Environment | Console host (tokens) | API host (operations) |
+    |---|---|---|
+    | Production *(default)* | `app.phasetwo.io` | `api.phasetwo.io` |
+    | Staging | `app-staging.phasetwo.io` | `api-staging.phasetwo.io` |
+
+    Everything below defaults to production. To work against staging, pick `api-staging` (or `app-staging`) in the server selector **and** select the `oidcClientCredentialsStaging` security scheme -- the token endpoint is a separate field that the server selector cannot retarget. The two must match: a token minted in one environment is not valid in the other.
+
+    ## Authentication
+
+    Every request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:
+
+    ```
+    curl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \
+      -d grant_type=client_credentials \
+      -d client_id=$PHASETWO_CLIENT_ID \
+      -d client_secret=$PHASETWO_CLIENT_SECRET
+    ```
+
+    Send the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.
+
+    What a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.
+  version: 2.0.0
+servers:
+- url: "https://{apiHost}.phasetwo.io/v2"
+  description: Public API host. The canonical base URL for this API.
+  variables:
+    apiHost:
+      default: api
+      description: "`api` for production, `api-staging` for staging. Must match the\
+        \ environment of the console host that issued your token."
+      enum:
+      - api
+      - api-staging
+- url: "https://{consoleHost}.phasetwo.io/auth/realms/self/v2"
+  description: "Console host. The path the API host rewrites to; useful for debugging,\
+    \ or for an environment where the API host is not yet served."
+  variables:
+    consoleHost:
+      default: app
+      description: "`app` for production, `app-staging` for staging. This is the same\
+        \ host you use to log into the Phase Two console, and the host that mints\
+        \ your access token."
+      enum:
+      - app
+      - app-staging
+security:
+- oidcClientCredentials: []
+- oidcClientCredentialsStaging: []
+tags:
+- name: orgs
+  description: Organizations and their API secrets.
+- name: billing
+  description: "Subscriptions, payment methods, billing contacts, and Stripe billing\
+    \ portal sessions."
+- name: clusters
+  description: Dedicated Keycloak cluster lifecycle and configuration.
+- name: deployments
+  description: Deployments (realms) running on a dedicated cluster.
+- name: customer-domains
+  description: Custom hostnames for a dedicated cluster.
+- name: extensions
+  description: "Custom Keycloak extensions (providers, themes) for a dedicated cluster."
+- name: environment-variables
+  description: Custom environment variables for a dedicated cluster.
+- name: ip-rules
+  description: IP allow/deny rules for a dedicated cluster.
+- name: logs
+  description: Log access for a dedicated cluster.
+paths:
+  /clusters:
+    get:
+      tags:
+      - clusters
+      summary: List your dedicated clusters.
+      description: Returns the dedicated clusters belonging to organizations the authenticated
+        API client has access to. Archived clusters are excluded.
+      operationId: cluster.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cluster"
+    post:
+      tags:
+      - clusters
+      summary: Create a dedicated cluster.
+      description: |-
+        Starts creation of a dedicated cluster for an organization. Provisioning begins once payment is settled, and the response tells you what is needed to get there — exactly one of three shapes:
+
+        - `link` set: redirect the browser to this Stripe Checkout URL to complete payment setup. This is what you get whenever `payment_method_id` is omitted.
+        - `cluster` set: an existing `payment_method_id` was charged successfully and the cluster is created; no further action is needed.
+        - `requires_action` true, with `client_secret` and `cluster_id`: the payment method needs additional authentication (3DS/SCA). Complete the returned PaymentIntent client secret inline with Stripe.js; the cluster already exists and provisions once payment confirms.
+      operationId: cluster.create
+      requestBody:
+        description: The cluster to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DedicatedClusterRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClusterCreationResult"
+  /clusters/name-available:
+    get:
+      tags:
+      - clusters
+      summary: Check whether a cluster name is available.
+      description: "Validates a candidate name for a new dedicated cluster and reports\
+        \ whether it is available (well-formed, not reserved, and not already in use)."
+      operationId: cluster.nameAvailability.check
+      parameters:
+      - name: name
+        in: query
+        description: Candidate cluster name to check.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NameAvailability"
+  /clusters/regions:
+    get:
+      tags:
+      - clusters
+      summary: List regions available for dedicated clusters.
+      description: Returns the AWS regions a new dedicated cluster can be provisioned
+        into.
+      operationId: cluster.region.list
+      responses:
+        "200":
+          description: Regions available for dedicated clusters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Region"
+  /clusters/{id}:
+    get:
+      tags:
+      - clusters
+      summary: Get a dedicated cluster by ID.
+      description: Returns details about a single dedicated cluster.
+      operationId: cluster.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cluster"
+    delete:
+      tags:
+      - clusters
+      summary: Remove a dedicated cluster.
+      description: Schedules a dedicated cluster for deletion at the end of the current
+        billing cycle (clusters that never completed billing setup are removed immediately).
+        This cannot be undone.
+      operationId: cluster.delete
+      responses:
+        "204":
+          description: Cluster removed or scheduled for removal.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/billing:
+    get:
+      tags:
+      - clusters
+      summary: Get subscription and billing information for a dedicated cluster.
+      description: Returns the Stripe subscription backing this cluster's billing.
+      operationId: cluster.subscription.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+    post:
+      tags:
+      - clusters
+      summary: Create a Stripe billing portal session link for a cluster.
+      description: Deprecated. Use `org.billingPortalSession.create` instead.
+      operationId: cluster.billingSession.create
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedirectLink"
+      deprecated: true
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/checkout:
+    post:
+      tags:
+      - clusters
+      summary: "Restore billing for a cluster that is not currently paid for. Returns\
+        \ a browser link: the existing subscription's open invoice when paying it\
+        \ repairs the subscription, otherwise a fresh Stripe checkout for a new subscription."
+      operationId: cluster.checkout.resume
+      requestBody:
+        description: Optional price/billing-period override for the resumed checkout.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumeCheckoutRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedirectLink"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/deployments:
+    get:
+      tags:
+      - clusters
+      summary: List deployments for a dedicated cluster.
+      description: Returns the deployments (realms) running on this cluster.
+      operationId: cluster.deployment.list
+      parameters:
+      - name: search
+        in: query
+        description: Filter deployments by name substring.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deployment"
+    post:
+      tags:
+      - clusters
+      summary: Create a deployment for a dedicated cluster.
+      description: "Creates a new, empty deployment (Keycloak realm) on this cluster.\
+        \ The cluster must be ACTIVE, and the number of deployments is limited by\
+        \ the cluster's tier. To create a deployment from an existing realm export,\
+        \ use the import operation instead."
+      operationId: cluster.deployment.create
+      requestBody:
+        description: The deployment to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterDeploymentRequest"
+        required: true
+      responses:
+        "201":
+          description: "Deployment created. The response has no body; `Location` holds\
+            \ the new deployment's URL, whose last path segment is its ID."
+          headers:
+            Location:
+              description: URL of the created deployment.
+              style: simple
+              schema:
+                type: string
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/deployments/import:
+    post:
+      tags:
+      - clusters
+      summary: Create a deployment from a realm export.
+      description: "Creates a new deployment on this cluster from an exported Keycloak\
+        \ realm JSON file. The realm is imported asynchronously; poll the returned\
+        \ deployment until its state leaves PENDING. Importing users is not supported\
+        \ — the file must not contain a `users` array. The cluster must be ACTIVE,\
+        \ and the number of deployments is limited by the cluster's tier."
+      operationId: cluster.deployment.import
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              - deployment-name
+              type: object
+              properties:
+                file:
+                  format: binary
+                  description: The exported realm JSON file to import.
+                deployment-name:
+                  description: Name for the new deployment.
+        required: true
+      responses:
+        "201":
+          description: "Deployment created; import started. The response has no body;\
+            \ `Location` holds the new deployment's URL, whose last path segment is\
+            \ its ID."
+          headers:
+            Location:
+              description: URL of the created deployment.
+              style: simple
+              schema:
+                type: string
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/deployments/name-available:
+    get:
+      tags:
+      - clusters
+      summary: Check whether a deployment name is available on a cluster.
+      description: "Validates a candidate name for a new deployment on this cluster\
+        \ and reports whether it is available (well-formed, not reserved, and not\
+        \ already in use on this cluster)."
+      operationId: cluster.deployment.nameAvailability.check
+      parameters:
+      - name: name
+        in: query
+        description: Candidate deployment name to check.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NameAvailability"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/domains:
+    get:
+      tags:
+      - customer-domains
+      summary: List custom domains for a cluster.
+      description: Returns the custom hostnames configured for this dedicated cluster.
+      operationId: cluster.domain.list
+      responses:
+        "200":
+          description: Custom domains for the cluster.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerDomain"
+    post:
+      tags:
+      - customer-domains
+      summary: Add a custom domain to a cluster.
+      description: Registers a custom hostname for this dedicated cluster and starts
+        DNS/TLS provisioning for it. Check the domain's status via the returned resource
+        until its certificate is issued before using it as the cluster's primary hostname.
+      operationId: cluster.domain.create
+      requestBody:
+        description: The custom domain to add.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterDomain"
+        required: true
+      responses:
+        "200":
+          description: Custom domain created; provisioning started. `domain.domainRecords`
+            holds the DNS records to create for validation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDomainValidation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/domains/{domainId}:
+    get:
+      tags:
+      - customer-domains
+      summary: Get a custom domain by ID.
+      description: Returns details about a single custom domain configured for a cluster.
+      operationId: cluster.domain.detail
+      responses:
+        "200":
+          description: The custom domain.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDomain"
+    delete:
+      tags:
+      - customer-domains
+      summary: Remove a custom domain by ID.
+      description: "Deletes a custom domain from the cluster. If it is currently the\
+        \ cluster's primary hostname, switch the primary hostname away from it first."
+      operationId: cluster.domain.delete
+      responses:
+        "204":
+          description: Custom domain removed.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: domainId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/domains/{domainId}/status:
+    get:
+      tags:
+      - customer-domains
+      summary: Get a custom domain's provisioning status.
+      description: "Returns the DNS validation and TLS certificate status of a custom\
+        \ domain, along with the DNS records to create if validation is still pending."
+      operationId: cluster.domain.status.detail
+      responses:
+        "200":
+          description: The custom domain's status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerDomainValidation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: domainId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/env-vars:
+    get:
+      tags:
+      - environment-variables
+      summary: List environment variables for a cluster.
+      description: Returns the custom environment variables configured for this cluster's
+        Keycloak deployment.
+      operationId: cluster.envVar.list
+      responses:
+        "200":
+          description: Environment variables for the cluster.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EnvironmentVariableRepresentation"
+    post:
+      tags:
+      - environment-variables
+      summary: Add an environment variable to a cluster.
+      description: Adds a custom environment variable to the cluster and restarts
+        the Keycloak deployment to apply it. Only custom (non-reserved) SPI configuration
+        variables are allowed. Fails with a 409 if a restart is already in progress.
+      operationId: cluster.envVar.create
+      requestBody:
+        description: The environment variable to add.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnvironmentVariableRequest"
+        required: true
+      responses:
+        "200":
+          description: Environment variable created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentVariableRepresentation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/env-vars/{envVariableId}:
+    get:
+      tags:
+      - environment-variables
+      summary: Get an environment variable by ID.
+      description: Returns details about a single custom environment variable.
+      operationId: cluster.envVar.detail
+      responses:
+        "200":
+          description: The environment variable.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentVariableRepresentation"
+    put:
+      tags:
+      - environment-variables
+      summary: Update an environment variable.
+      description: Updates the name and/or value of a custom environment variable
+        and restarts the Keycloak deployment to apply it. Fails with a 409 if a restart
+        is already in progress.
+      operationId: cluster.envVar.update
+      requestBody:
+        description: The new name/value for the environment variable.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnvironmentVariableRequest"
+        required: true
+      responses:
+        "200":
+          description: Environment variable updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentVariableRepresentation"
+    delete:
+      tags:
+      - environment-variables
+      summary: Remove an environment variable.
+      description: Deletes a custom environment variable and restarts the Keycloak
+        deployment to apply the change. Fails with a 409 if a restart is already in
+        progress.
+      operationId: cluster.envVar.delete
+      parameters:
+      - name: envVariableId
+        in: path
+        description: ID of the environment variable.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Environment variable removed.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: envVariableId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions:
+    get:
+      tags:
+      - extensions
+      summary: List extensions for a cluster.
+      description: "Returns the custom extensions (providers, themes) configured for\
+        \ this cluster, optionally filtered by type."
+      operationId: cluster.extension.list
+      parameters:
+      - name: type
+        in: query
+        description: Only return extensions of this type.
+        schema:
+          $ref: "#/components/schemas/ResourceType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Extension"
+    post:
+      tags:
+      - extensions
+      summary: Create an extension for a cluster.
+      description: Registers a new extension slot (provider or theme) for this cluster.
+        This only creates the extension record; upload its jar via the extension's
+        version sub-resource before it takes effect.
+      operationId: cluster.extension.create
+      requestBody:
+        description: The extension to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionRequest"
+        required: true
+      responses:
+        "201":
+          description: "Extension created. The response has no body; `Location` holds\
+            \ the new extension's URL, whose last path segment is its ID."
+          headers:
+            Location:
+              description: URL of the created extension.
+              style: simple
+              schema:
+                type: string
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/cluster-update:
+    post:
+      tags:
+      - extensions
+      summary: Restart a cluster to apply extension changes.
+      description: Reconciles this cluster's configured extensions onto its running
+        Keycloak deployment and restarts it to pick up the changes. Fails with a 409
+        if a restart is already in progress for this cluster.
+      operationId: cluster.extension.reconcile
+      responses:
+        "202":
+          description: Restart accepted.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/keycloak-versions:
+    get:
+      tags:
+      - extensions
+      summary: List Keycloak major versions supported for extensions.
+      description: Returns the Keycloak major versions that a version-dependent extension
+        may target.
+      operationId: cluster.extension.keycloakVersion.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  format: int32
+                  type: integer
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}:
+    get:
+      tags:
+      - extensions
+      summary: Get an extension by ID.
+      operationId: cluster.extension.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Extension"
+    put:
+      tags:
+      - extensions
+      summary: Enable or disable an extension.
+      description: Toggles whether an extension is active. Disabling does not delete
+        its versions.
+      operationId: cluster.extension.update
+      requestBody:
+        description: The desired enabled state.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleExtensionRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Extension"
+    delete:
+      tags:
+      - extensions
+      summary: Remove an extension by ID.
+      description: Deletes an extension and all of its versions.
+      operationId: cluster.extension.delete
+      responses:
+        "204":
+          description: Extension removed.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/standalone:
+    post:
+      tags:
+      - extensions
+      summary: Create an upload URL for a standalone extension.
+      description: "Creates the extension's single (version-independent) version and\
+        \ returns a presigned S3 URL to upload its jar to. After uploading, call the\
+        \ extension's `confirm` operation to finalize it."
+      operationId: cluster.extension.standalone.uploadUrl.create
+      requestBody:
+        description: Label for the new version.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionVersionUploadUrlRequest"
+        required: true
+      responses:
+        "200":
+          description: The presigned upload target. PUT the jar to `url`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUrl"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/standalone/confirm:
+    put:
+      tags:
+      - extensions
+      summary: Confirm a standalone extension upload.
+      description: "Verifies the jar was uploaded to the presigned URL and records\
+        \ its location on the extension version, making it available for deployment."
+      operationId: cluster.extension.standalone.confirm
+      requestBody:
+        description: The S3 resource key the jar was uploaded to.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionVersionLocationValidationRequest"
+        required: true
+      responses:
+        "200":
+          description: The confirmed extension version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions:
+    post:
+      tags:
+      - extensions
+      summary: Create a new extension version.
+      description: Registers a new version of a Keycloak-version-dependent extension
+        for a target major version. This only creates the version record; use the
+        returned version's upload URL to upload its jar.
+      operationId: cluster.extension.version.create
+      requestBody:
+        description: The version to create.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionVersionRequest"
+        required: true
+      responses:
+        "200":
+          description: The created extension version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}:
+    delete:
+      tags:
+      - extensions
+      summary: Remove an extension version by ID.
+      operationId: cluster.extension.version.delete
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Extension version removed.
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}/confirm:
+    put:
+      tags:
+      - extensions
+      summary: Confirm an extension version upload.
+      description: "Verifies the jar was uploaded to the presigned URL and records\
+        \ its location on the version. If extension scanning is enabled for the cluster,\
+        \ this also queues a security scan of the jar."
+      operationId: cluster.extension.version.confirm
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The S3 resource key the jar was uploaded to.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionVersionLocationValidationRequest"
+        required: true
+      responses:
+        "200":
+          description: The confirmed extension version.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}/upload-url:
+    post:
+      tags:
+      - extensions
+      summary: Create an upload URL for an extension version.
+      description: "Returns a presigned S3 URL to upload the version's jar to. After\
+        \ uploading, call the version's `confirm` operation to finalize it."
+      operationId: cluster.extension.version.uploadUrl.create
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Label for the upload.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtensionVersionUploadUrlRequest"
+        required: true
+      responses:
+        "200":
+          description: The presigned upload target. PUT the jar to `url`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUrl"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}/validate:
+    put:
+      tags:
+      - extensions
+      summary: Approve or reject an extension version.
+      description: "Sets whether an extension version is considered valid for deployment.\
+        \ If the version's security scan result requires justification, approving\
+        \ it requires a `reason`."
+      operationId: cluster.extension.version.validate
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: "The desired valid/invalid state and, if approving over a scan\
+          \ finding, a reason."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ToggleExtensionVersionValidRequest"
+        required: true
+      responses:
+        "200":
+          description: "The extension version, with its new valid state."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/well-known:
+    get:
+      tags:
+      - extensions
+      summary: Get app association file state for a custom domain.
+      description: "Returns each well-known file, whether it has been uploaded, and\
+        \ the public URL the operating system will fetch."
+      operationId: cluster.wellKnown.get
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellKnown"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/well-known/change-password:
+    put:
+      tags:
+      - extensions
+      summary: Set the change-password redirect for a custom domain.
+      description: "Password managers fetch /.well-known/change-password to offer\
+        \ a \"change password\" action. Send a null or empty url to clear it, which\
+        \ returns the path to 404 — spec-safe, and simply means the site does not\
+        \ advertise the convention."
+      operationId: cluster.wellKnown.changePassword.set
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WellKnown"
+      responses:
+        "200":
+          description: Redirect target updated. Returns the domain's well-known state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellKnown"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/well-known/{file}:
+    delete:
+      tags:
+      - extensions
+      summary: Remove an app association file from a custom domain.
+      operationId: cluster.wellKnown.delete
+      parameters:
+      - name: file
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: File removed. Returns the domain's well-known state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellKnown"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/well-known/{file}/confirm:
+    put:
+      tags:
+      - extensions
+      summary: Validate and publish an uploaded app association file.
+      description: "Checks the uploaded object parses as JSON and has the shape the\
+        \ operating system expects, forces its content type, and records it against\
+        \ the domain."
+      operationId: cluster.wellKnown.confirm
+      parameters:
+      - name: file
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: File published. Returns the domain's well-known state.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellKnown"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/well-known/{file}/upload-url:
+    post:
+      tags:
+      - extensions
+      summary: Create an upload URL for an app association file.
+      description: "Returns a short-lived presigned PUT URL. Upload the file to it,\
+        \ then call confirm to validate and publish it."
+      operationId: cluster.wellKnown.uploadUrl.create
+      parameters:
+      - name: file
+        in: path
+        description: apple-app-site-association or assetlinks.json
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The presigned upload target. PUT the file to `url`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUrl"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/host:
+    put:
+      tags:
+      - clusters
+      summary: Change the cluster's primary hostname.
+      description: "Switches the cluster's primary hostname to an already-provisioned\
+        \ domain: either the cluster's default `<name>.global.auth.ac` address or\
+        \ one of its custom domains that already has an issued TLS certificate. This\
+        \ does not provision a new domain — use the custom domains API to add one\
+        \ first. The candidate host must be reachable before the switch is applied."
+      operationId: cluster.host.update
+      requestBody:
+        description: The domain to switch to.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClusterDomain"
+        required: true
+      responses:
+        "200":
+          description: Primary hostname updated. Returns the cluster with its new
+            `host`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cluster"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/ip-rules:
+    get:
+      tags:
+      - ip-rules
+      summary: List IP rules for a cluster.
+      description: Returns the IP allow/deny rules configured for this cluster's admin
+        console and realm endpoints.
+      operationId: cluster.ipRule.list
+      responses:
+        "200":
+          description: IP rules for the cluster.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IpRulesRepresentation"
+    post:
+      tags:
+      - ip-rules
+      summary: Replace IP rules for a cluster.
+      description: "Sets the admin-allow, realm-allow, and realm-block IP rule lists\
+        \ for this cluster. Each category you include entirely replaces the existing\
+        \ rules in that category (rules not in the new list are removed; new addresses\
+        \ are added). Omit a category to leave it unchanged. The total number of rules\
+        \ is limited by the cluster's tier."
+      operationId: cluster.ipRule.update
+      requestBody:
+        description: "IP rule lists to apply, by category."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IpRestrictionsRequest"
+        required: true
+      responses:
+        "200":
+          description: Updated IP rules for the cluster.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IpRulesRepresentation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/ip-rules/{ipRuleId}:
+    get:
+      tags:
+      - ip-rules
+      summary: Get an IP rule by ID.
+      description: Returns details about a single IP rule.
+      operationId: cluster.ipRule.detail
+      responses:
+        "200":
+          description: The IP rule.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IpRuleRepresentation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: ipRuleId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/logs:
+    get:
+      tags:
+      - logs
+      summary: List log files for a cluster.
+      description: "Returns log files for this cluster within an optional date range,\
+        \ paginated by `start`/`max`."
+      operationId: cluster.log.list
+      parameters:
+      - name: from
+        in: query
+        description: ISO-8601 instant; only include logs at or after this time.
+        schema:
+          type: string
+      - name: max
+        in: query
+        description: Maximum number of log files to return.
+        schema:
+          format: int32
+          default: 20
+          type: integer
+      - name: start
+        in: query
+        description: "Offset into the result set, for pagination."
+        schema:
+          format: int32
+          default: 0
+          type: integer
+      - name: to
+        in: query
+        description: ISO-8601 instant; only include logs at or before this time.
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Log files matching the query.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LogFile"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/logs/{path}:
+    get:
+      tags:
+      - logs
+      summary: Get a cluster log file.
+      description: "Returns a log file's metadata along with a temporary, presigned\
+        \ URL to download its contents."
+      operationId: cluster.log.detail
+      parameters:
+      - name: path
+        in: path
+        description: "Path of the log file, as returned by the list operation."
+        required: true
+        schema:
+          type: string
+      - name: minutes
+        in: query
+        description: How many minutes the presigned download URL remains valid.
+        schema:
+          format: int32
+          default: 5
+          type: integer
+      responses:
+        "200":
+          description: "The log file, with a temporary access URL."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogFile"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/metrics:
+    get:
+      tags:
+      - clusters
+      summary: Get health metrics for a dedicated cluster.
+      operationId: cluster.metrics.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metrics"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/restart-status:
+    get:
+      tags:
+      - clusters
+      summary: Check whether a cluster restart is in progress.
+      description: "Configuration changes (environment variables, extensions) restart\
+        \ the cluster's Keycloak deployment to take effect; use this to poll until\
+        \ a restart completes before making another change."
+      operationId: cluster.restartStatus.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RestartStatus"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/systeminfo:
+    get:
+      tags:
+      - clusters
+      summary: Get system info for a dedicated cluster.
+      description: "Returns the cluster's Keycloak server info (version, build time,\
+        \ etc). Only available while the cluster is ACTIVE."
+      operationId: cluster.systemInfo.detail
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SystemInfoRepresentation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /deployments/{id}:
+    get:
+      tags:
+      - deployments
+      summary: Get a deployment by ID.
+      description: Returns details about a single deployment (realm).
+      operationId: deployment.detail
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+    put:
+      tags:
+      - deployments
+      summary: Update a deployment by ID.
+      description: Updates mutable settings of a deployment. Only the owner may update
+        it.
+      operationId: deployment.update
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Deployment fields to update.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Deployment"
+        required: true
+      responses:
+        "204":
+          description: Deployment updated.
+    delete:
+      tags:
+      - deployments
+      summary: Remove a deployment by ID.
+      description: Permanently deletes a deployment (realm). Only the owner may delete
+        it.
+      operationId: deployment.delete
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Deployment removed.
+  /deployments/{id}/app-link:
+    post:
+      tags:
+      - deployments
+      summary: Create an app link for a deployment.
+      description: Authenticates the deployment's admin user against the given client
+        and redirect URI (e.g. to jump into an admin portal or IdP wizard already
+        signed in) and returns a single-use link.
+      operationId: deployment.appLink.create
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Client and redirect URI to authenticate against.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppLinkRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsoleLink"
+  /deployments/{id}/console-link:
+    post:
+      tags:
+      - deployments
+      summary: Create an admin console link for a deployment.
+      description: Creates a single-use link that signs the caller into this deployment's
+        Keycloak admin console.
+      operationId: deployment.consoleLink.create
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsoleLink"
+  /deployments/{id}/metrics:
+    get:
+      tags:
+      - deployments
+      summary: Get metrics for a deployment by ID.
+      operationId: deployment.metrics.detail
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metrics"
+  /deployments/{id}/token:
+    post:
+      tags:
+      - deployments
+      summary: Exchange a token for a deployment access token.
+      description: "Exchanges the caller's access token for one scoped to this deployment's\
+        \ Keycloak instance, for use when calling that deployment's own admin API\
+        \ directly."
+      operationId: deployment.token.create
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+  /orgs:
+    get:
+      tags:
+      - orgs
+      summary: List your organizations.
+      description: "Returns the organizations the authenticated API client belongs\
+        \ to, along with the roles held in each."
+      operationId: org.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Org"
+  /orgs/{orgId}/billing/contacts:
+    get:
+      tags:
+      - billing
+      summary: List billing contacts for this organization.
+      description: "Returns the users designated to receive billing-related notifications\
+        \ (e.g. payment failures, upcoming renewals) for this organization."
+      operationId: org.billingContact.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BillingContact"
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/contacts/{userId}:
+    post:
+      tags:
+      - billing
+      summary: Add a billing contact.
+      description: Designates an existing user as a billing contact for this organization.
+        The user must already hold the organization's billing management role. Requires
+        manage-billing.
+      operationId: org.billingContact.create
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user to add as a billing contact.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Billing contact added.
+    delete:
+      tags:
+      - billing
+      summary: Remove a billing contact.
+      description: Removes a user's billing-contact designation for this organization.
+        Requires manage-billing.
+      operationId: org.billingContact.delete
+      parameters:
+      - name: userId
+        in: path
+        description: ID of the user to remove as a billing contact.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Billing contact removed.
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/payment-methods:
+    get:
+      tags:
+      - billing
+      summary: List payment methods for this organization.
+      description: Returns the saved card payment methods on this organization's Stripe
+        customer. Each entry indicates whether it is the customer's default and whether
+        it is currently in use by an active subscription (a payment method in use
+        cannot be removed). Empty if the organization has no Stripe customer yet.
+      operationId: org.paymentMethod.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentMethod"
+    post:
+      tags:
+      - billing
+      summary: Create a Stripe Checkout link to add a payment method.
+      description: "Creates a Stripe Checkout session in setup mode, which collects\
+        \ and saves a card against this organization's Stripe customer without charging\
+        \ it. Redirect the browser to the returned link; Stripe returns the user to\
+        \ your `redirect_uri` with a `payment_method_setup=success` or `payment_method_setup=cancelled`\
+        \ query parameter appended. Requires manage-billing."
+      operationId: org.paymentMethod.setupSession.create
+      requestBody:
+        description: Where Stripe should return the user after the setup flow. `redirect_uri`
+          is required.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedirectRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedirectLink"
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/payment-methods/{pmId}:
+    delete:
+      tags:
+      - billing
+      summary: Remove a payment method.
+      description: Detaches a saved card from this organization's Stripe customer.
+        Fails with a 409 if the payment method is in use by an active subscription
+        — switch that subscription to another card first. Requires manage-billing.
+      operationId: org.paymentMethod.delete
+      parameters:
+      - name: pmId
+        in: path
+        description: ID of the payment method.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Payment method removed.
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/payment-methods/{pmId}/default:
+    post:
+      tags:
+      - billing
+      summary: Set this organization's default payment method.
+      description: Makes the given payment method the default for this organization's
+        future invoices. The payment method must already belong to this organization.
+        Requires manage-billing.
+      operationId: org.paymentMethod.setDefault
+      parameters:
+      - name: pmId
+        in: path
+        description: ID of the payment method.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Default payment method updated.
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/portal:
+    post:
+      tags:
+      - billing
+      summary: Create a Stripe billing portal session link.
+      description: "Creates a one-time link to the organization's Stripe billing portal,\
+        \ where the organization's billing contacts can update payment methods, view\
+        \ invoices, and manage subscriptions. The link is single-use and expires shortly\
+        \ after creation. Requires manage-billing."
+      operationId: org.billingPortalSession.create
+      requestBody:
+        description: Optional redirect URI Stripe returns the user to after they leave
+          the billing portal.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedirectRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedirectLink"
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/billing/subscriptions:
+    get:
+      tags:
+      - billing
+      summary: List subscriptions for this organization.
+      description: Returns the Stripe subscriptions billed to this organization. Empty
+        if the organization has no Stripe customer yet.
+      operationId: org.subscription.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/secrets:
+    get:
+      tags:
+      - orgs
+      summary: List API secrets for this organization.
+      description: Returns the API secrets (OIDC client-credentials clients) created
+        for this organization. Client secrets are never returned after creation; this
+        listing always masks them.
+      operationId: org.apiSecret.list
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Secret"
+    post:
+      tags:
+      - orgs
+      summary: Create an API secret for this organization.
+      description: "Creates a new OIDC client-credentials client for this organization,\
+        \ with the alias and roles you specify. Use the returned client ID and client\
+        \ secret with the OAuth2 client credentials grant to obtain access tokens\
+        \ for this API — see the API's top-level authentication description. The client\
+        \ secret is returned only in this response and cannot be retrieved again;\
+        \ store it securely. Each organization may have at most 10 API secrets."
+      operationId: org.apiSecret.create
+      requestBody:
+        description: Alias and roles for the new API secret.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecretRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Secret"
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/secrets/count:
+    get:
+      tags:
+      - orgs
+      summary: Count API secrets for this organization.
+      description: "Returns how many API secrets this organization currently has,\
+        \ for comparing against the per-organization maximum without fetching the\
+        \ full listing."
+      operationId: org.apiSecret.count
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                format: int64
+                type: integer
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+  /orgs/{orgId}/secrets/{secretId}:
+    get:
+      tags:
+      - orgs
+      summary: Get an API secret.
+      description: "Returns a single API secret for this organization. As with the\
+        \ listing, the client secret is always masked."
+      operationId: org.apiSecret.detail
+      parameters:
+      - name: secretId
+        in: path
+        description: ID of the API secret.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Secret"
+    delete:
+      tags:
+      - orgs
+      summary: Remove an API secret.
+      description: Deletes an API secret for this organization. Any access tokens
+        already issued to it remain valid until they expire; new tokens can no longer
+        be requested with it.
+      operationId: org.apiSecret.delete
+      parameters:
+      - name: secretId
+        in: path
+        description: ID of the API secret.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: API secret removed.
+    parameters:
+    - name: orgId
+      in: path
+      description: ID of the organization.
+      required: true
+      schema:
+        type: string
+components:
+  schemas:
+    AppLinkRequest:
+      required:
+      - client_id
+      - redirect_uri
+      type: object
+      properties:
+        client_id:
+          description: Client ID the generated link authenticates the deployment's
+            admin user against.
+          type: string
+        redirect_uri:
+          description: URI to redirect to after login. Must be a valid redirect URI
+            for the given client.
+          type: string
+    BillingContact:
+      required:
+      - id
+      - username
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the user.
+          type: string
+        username:
+          description: Username of the billing contact.
+          type: string
+        email:
+          description: Email address billing notifications are sent to.
+          type: string
+        firstName:
+          description: "Given name of the billing contact, when set."
+          type: string
+        lastName:
+          description: "Family name of the billing contact, when set."
+          type: string
+    BillingPeriod:
+      enum:
+      - monthly
+      - annual
+      type: string
+    CertificateStatusMapping:
+      description: TLS certificate status of a custom domain.
+      enum:
+      - PENDING_VALIDATION
+      - ISSUED
+      - INACTIVE
+      - EXPIRED
+      - VALIDATION_TIMED_OUT
+      - REVOKED
+      - FAILED
+      - NOT_FOUND
+      type: string
+    Cluster:
+      required:
+      - id
+      - name
+      - host
+      - region
+      - status
+      - tier
+      - resource_limits
+      - created_at
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the cluster.
+          type: string
+        name:
+          description: "Cluster name, unique across Phase Two."
+          type: string
+        host:
+          description: Base URL of the cluster's Keycloak instance.
+          type: string
+        region:
+          description: Region the cluster is provisioned in.
+          required:
+          - name
+          - provider
+          - region
+          type: object
+          properties:
+            name:
+              description: "Region identifier, usable as the `region` argument when\
+                \ creating a cluster."
+              type: string
+            provider:
+              description: Cloud provider hosting this region.
+              type: string
+            region:
+              description: Provider-specific region code.
+              type: string
+        domain:
+          description: "Custom domain recorded at provision time, when one was given.\
+            \ This is not the live hostname — use `cluster.host.update` to change\
+            \ which domain the cluster serves."
+          type: string
+        status:
+          description: Lifecycle state. A cluster is only usable in `ACTIVE`; `PENDING_DELETION`
+            and `ARCHIVED` are terminal.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/ClusterState"
+        owner:
+          description: ID of the organization that owns the cluster.
+          type: string
+        variant:
+          description: "`DEDICATED` when the cluster has an owning organization, `SHARED`\
+            \ otherwise."
+          type: string
+        tier:
+          description: "Subscription tier, which determines the cluster's resource\
+            \ limits."
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/Tier"
+        resource_limits:
+          description: "`STANDARD`, or `CUSTOM` when the cluster has been exempted\
+            \ from tier count limits."
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/ResourceLimits"
+        created_at:
+          format: int64
+          description: "When the cluster was created, as epoch milliseconds."
+          type: integer
+    ClusterCreationResult:
+      required:
+      - requires_action
+      type: object
+      properties:
+        link:
+          description: Stripe Checkout URL to redirect the browser to. Present when
+            no `payment_method_id` was supplied.
+          type: object
+          allOf:
+          - $ref: "#/components/schemas/RedirectLink"
+        cluster:
+          description: The created cluster. Present when an existing payment method
+            was charged successfully.
+          type: object
+          allOf:
+          - $ref: "#/components/schemas/Cluster"
+        requires_action:
+          description: True when the payment method needs additional authentication
+            (3DS/SCA) before the cluster can provision. Complete `client_secret` inline
+            with Stripe.js.
+          type: boolean
+        client_secret:
+          description: Stripe PaymentIntent client secret to confirm inline. Present
+            only when `requires_action` is true.
+          type: string
+        cluster_id:
+          description: ID of the already-created cluster awaiting payment confirmation.
+            Present only when `requires_action` is true.
+          type: string
+    ClusterDeploymentRequest:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          description: Name for the deployment (becomes the Keycloak realm name).
+            Max 255 characters and must not be a reserved name; lowercased automatically.
+          type: string
+    ClusterDomain:
+      required:
+      - host
+      type: object
+      properties:
+        host:
+          description: "The custom hostname, e.g. `auth.example.com`."
+          type: string
+    ClusterState:
+      description: Lifecycle state of a dedicated cluster.
+      enum:
+      - BILLING_SETUP
+      - PENDING_PAYMENT
+      - PROVISIONING
+      - SETUP_EXCEPTION
+      - ACTIVE
+      - DISABLED
+      - BILLING_REQUIRED
+      - PENDING_DELETION
+      - ARCHIVED
+      type: string
+    ConsoleLink:
+      required:
+      - user_id
+      - link
+      - expiration_seconds
+      type: object
+      properties:
+        user_id:
+          description: ID of the user the link authenticates as.
+          type: string
+        link:
+          description: Single-use login URL.
+          type: string
+        expiration_seconds:
+          format: int32
+          description: "How long the link remains valid, in seconds."
+          type: integer
+    CustomerDomain:
+      description: A custom hostname configured for a dedicated cluster.
+      required:
+      - id
+      - type
+      - domain
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the custom domain.
+          type: string
+        type:
+          description: What the hostname is used for.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/DomainType"
+        domain:
+          description: "The custom hostname, e.g. `auth.example.com`."
+          type: string
+        organizationId:
+          description: ID of the organization that owns the cluster.
+          type: string
+        createdAt:
+          format: int64
+          description: "When the domain was added, as epoch milliseconds."
+          type: integer
+        domainRecords:
+          description: DNS records to create in order to validate the domain and issue
+            its certificate. Empty once validation has completed.
+          type: array
+          items:
+            $ref: "#/components/schemas/DomainRecord"
+    CustomerDomainValidation:
+      description: DNS validation and TLS certificate status of a custom domain. The
+        domain is only usable as a cluster's primary hostname once `certificateStatus`
+        is `ISSUED`.
+      required:
+      - status
+      - certificateStatus
+      - domain
+      type: object
+      properties:
+        status:
+          description: DNS validation status.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/DomainStatusMapping"
+        certificateStatus:
+          description: TLS certificate status.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/CertificateStatusMapping"
+        domain:
+          description: "The domain, including the DNS records still to create if validation\
+            \ is pending."
+          type: object
+          allOf:
+          - $ref: "#/components/schemas/CustomerDomain"
+    DedicatedClusterRequest:
+      required:
+      - name
+      - region
+      - org_id
+      type: object
+      properties:
+        name:
+          description: "Name for the cluster. Max 63 characters, lowercase letters\
+            \ only, not a reserved name, and unique across Phase Two. Forms the default\
+            \ hostname `<name>.global.auth.ac`."
+          type: string
+        region:
+          description: Region to provision the cluster in. Must be one of the values
+            returned by `cluster.region.list`.
+          type: string
+        domain:
+          description: Custom domain to associate with the cluster at creation. Must
+            be a valid domain name.
+          type: string
+        price_id:
+          description: "Deprecated. Explicit Stripe price ID. When set, `tier` and\
+            \ `billing_period` are not required."
+          type: string
+          deprecated: true
+        tier:
+          description: "Subscription tier, which determines the cluster's resource\
+            \ limits. Required unless `price_id` is set."
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/Tier"
+        billing_period:
+          description: Billing period. Required unless `price_id` is set. Starter
+            is only available monthly.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/BillingPeriod"
+        org_id:
+          description: ID of the organization that will own and be billed for the
+            cluster.
+          type: string
+        payment_method_id:
+          description: "ID of an existing payment method on the organization's Stripe\
+            \ customer to charge immediately. When omitted, the response instead returns\
+            \ a Stripe Checkout link."
+          type: string
+    Deployment:
+      required:
+      - id
+      - name
+      - state
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the deployment.
+          type: string
+        name:
+          description: "Deployment name, which is also its Keycloak realm name."
+          type: string
+        display_name:
+          description: "Human-readable deployment name, when one is set."
+          type: string
+        org_id:
+          description: ID of the organization that owns the deployment.
+          type: string
+        region:
+          description: Region of the cluster hosting this deployment.
+          type: string
+        state:
+          description: "Lifecycle state. A newly created or imported deployment starts\
+            \ in `PENDING`; poll until it reaches `ACTIVE`, or read `stateError` if\
+            \ it lands in `FAILED`."
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/DeploymentState"
+        cluster:
+          description: The cluster this deployment runs on.
+          type: object
+          allOf:
+          - $ref: "#/components/schemas/Cluster"
+        created_by_user_id:
+          description: ID of the user who created the deployment.
+          type: string
+        created_at:
+          format: int64
+          description: "When the deployment was created, as epoch milliseconds."
+          type: integer
+        tags:
+          description: Tags applied to the deployment.
+          type: array
+          items:
+            type: string
+        stateError:
+          description: "Why the deployment last failed, when it is in a failed state."
+          type: string
+    DeploymentState:
+      description: Lifecycle state of a deployment (realm).
+      enum:
+      - PENDING
+      - ACTIVE
+      - DISABLED
+      - FAILED
+      type: string
+    DomainRecord:
+      description: A single DNS record to create for domain validation.
+      required:
+      - type
+      - name
+      - value
+      type: object
+      properties:
+        type:
+          description: Record type.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/DomainRecordType"
+        name:
+          description: Record name (the left-hand side).
+          type: string
+        value:
+          description: Record value (the right-hand side).
+          type: string
+    DomainRecordType:
+      description: DNS record type.
+      enum:
+      - A
+      - AAAA
+      - CNAME
+      - MX
+      - NS
+      - SRV
+      - TXT
+      type: string
+    DomainStatusMapping:
+      description: DNS validation status of a custom domain.
+      enum:
+      - PENDING_VALIDATION
+      - SUCCESS
+      - FAILED
+      - NOT_FOUND
+      type: string
+    DomainType:
+      description: What a custom hostname is used for.
+      enum:
+      - WEB
+      - MAIL
+      type: string
+    EndpointType:
+      description: Which endpoints an IP rule governs. `ADMIN` covers the cluster's
+        admin console; `REALMS` covers its realm endpoints.
+      enum:
+      - ADMIN
+      - REALMS
+      type: string
+    EnvironmentVariableRepresentation:
+      description: A custom environment variable set on a cluster's Keycloak deployment.
+      required:
+      - id
+      - name
+      - value
+      - type
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the environment variable.
+          type: string
+        name:
+          description: Variable name.
+          type: string
+        value:
+          description: Variable value. Returned in full only when `type` is `STRING`;
+            a `SECRET` value is always masked on read and can be set but never retrieved.
+          type: string
+        type:
+          description: How the value is stored.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/EnvironmentVariableType"
+    EnvironmentVariableRequest:
+      required:
+      - name
+      - value
+      type: object
+      properties:
+        name:
+          description: Variable name. Must not start with `KC_` unless it starts with
+            `KC_SPI_` — only custom SPI configuration may be set.
+          type: string
+        value:
+          description: Variable value. Stored in AWS Parameter Store rather than on
+            the cluster record.
+          type: string
+        type:
+          description: How the value is stored — as plain text or as a secret.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/EnvironmentVariableType"
+    EnvironmentVariableType:
+      description: How the variable's value is stored. `STRING` is a plain value;
+        `SECRET` is held in AWS Parameter Store as an encrypted parameter.
+      enum:
+      - STRING
+      - SECRET
+      type: string
+    Extension:
+      required:
+      - id
+      - name
+      - enabled
+      - resourceType
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the extension.
+          type: string
+        name:
+          description: "Extension name, unique within the cluster."
+          type: string
+        enabled:
+          description: Whether the extension is active on the cluster.
+          type: boolean
+        created_at:
+          format: int64
+          description: "When the extension was created, as epoch milliseconds."
+          type: integer
+        versions:
+          description: Uploaded versions of this extension. A version-independent
+            extension has at most one.
+          type: array
+          items:
+            $ref: "#/components/schemas/ExtensionVersion"
+        resourceType:
+          description: What kind of resource this is — determines whether versions
+            are Keycloak-version-dependent.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/ResourceType"
+    ExtensionRequest:
+      required:
+      - name
+      - resourceType
+      type: object
+      properties:
+        name:
+          description: "Name for the extension. Max 63 characters, lowercase letters\
+            \ only, no special characters."
+          type: string
+        resourceType:
+          description: What kind of resource this is — determines whether versions
+            are Keycloak-version-dependent.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/ResourceType"
+    ExtensionVersion:
+      required:
+      - id
+      - valid
+      - scan_state
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the extension version.
+          type: string
+        valid:
+          description: "Whether this version is approved for deployment. This is the\
+            \ human approval decision, not the scanner's verdict — see `scan_state`."
+          type: boolean
+        label:
+          description: Label recorded when the jar was uploaded.
+          type: string
+        resourceKey:
+          description: S3 object key of the uploaded jar. Absent until an upload is
+            confirmed.
+          type: string
+        keycloakMajorVersion:
+          format: int32
+          description: Keycloak major version this version targets. Absent for version-independent
+            extensions.
+          type: integer
+        scan_state:
+          description: "Result of the security scan: `UNSCANNED`, `SCANNING`, `PASS`,\
+            \ `WARN`, `BLOCK` or `ERROR`. Never absent."
+          type: string
+        risk_score:
+          format: int32
+          description: Risk score from 0-100 reported by the scan. Absent until a
+            scan has completed.
+          type: integer
+        report_location:
+          description: "Location of the full scan report, when one exists."
+          type: string
+        scanned_at:
+          format: int64
+          description: "When the version was last scanned, as epoch milliseconds."
+          type: integer
+        scanner_version:
+          description: Version of the scanner that produced the result.
+          type: string
+        override_by:
+          description: ID of the user who approved this version despite the scan not
+            passing. Cleared when the approval is withdrawn.
+          type: string
+        override_reason:
+          description: Justification recorded with that approval.
+          type: string
+        created_at:
+          format: int64
+          description: "When the version was created, as epoch milliseconds."
+          type: integer
+    ExtensionVersionLocationValidationRequest:
+      required:
+      - resource_key
+      type: object
+      properties:
+        resource_key:
+          description: "S3 object key the jar was uploaded to, as returned when the\
+            \ upload URL was created."
+          type: string
+    ExtensionVersionRequest:
+      required:
+      - keycloak_major_version
+      type: object
+      properties:
+        keycloak_major_version:
+          format: int32
+          description: Keycloak major version this version targets. Must be one of
+            the values returned by `cluster.extension.keycloakVersion.list`.
+          type: integer
+    ExtensionVersionUploadUrlRequest:
+      type: object
+      properties:
+        label:
+          description: "Human-readable label recorded against the uploaded version,\
+            \ e.g. a release tag."
+          type: string
+    IpRestrictionsRequest:
+      type: object
+      properties:
+        adminAllowedIpRules:
+          description: Addresses allowed to reach the cluster's admin endpoints. Replaces
+            the existing admin-allow list entirely; omit to leave it unchanged.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRule"
+        realmAllowedIpRules:
+          description: Addresses allowed to reach the cluster's realm endpoints. Replaces
+            the existing realm-allow list entirely; omit to leave it unchanged.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRule"
+        realmBlockedIpRules:
+          description: Addresses blocked from reaching the cluster's realm endpoints.
+            Replaces the existing realm-block list entirely; omit to leave it unchanged.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRule"
+    IpRule:
+      required:
+      - alias
+      - address
+      type: object
+      properties:
+        alias:
+          description: Human-readable label for the rule.
+          type: string
+        address:
+          description: "IPv4 address or CIDR block, e.g. `203.0.113.4/32`."
+          type: string
+    IpRuleRepresentation:
+      description: A single IP allow/deny rule on a cluster.
+      required:
+      - id
+      - alias
+      - address
+      - endpointType
+      - allowDeny
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the rule.
+          type: string
+        alias:
+          description: Human-readable label for the rule.
+          type: string
+        address:
+          description: IP address or CIDR block the rule matches.
+          type: string
+        endpointType:
+          description: Which endpoints the rule governs.
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/EndpointType"
+        allowDeny:
+          description: "`true` when the rule allows the address, `false` when it blocks\
+            \ it."
+          type: boolean
+        evaluationOrder:
+          format: int32
+          description: Order in which the rule is evaluated within its category.
+          type: integer
+        createdAt:
+          format: int64
+          description: "When the rule was created, as epoch milliseconds."
+          type: integer
+    IpRulesRepresentation:
+      description: "A cluster's IP allow/deny rules, grouped by category."
+      required:
+      - adminAllowedIpRules
+      - realmAllowedIpRules
+      - realmBlockedIpRules
+      type: object
+      properties:
+        adminAllowedIpRules:
+          description: Addresses allowed to reach the admin console.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRuleRepresentation"
+        realmAllowedIpRules:
+          description: Addresses allowed to reach the realm endpoints.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRuleRepresentation"
+        realmBlockedIpRules:
+          description: Addresses blocked from reaching the realm endpoints.
+          type: array
+          items:
+            $ref: "#/components/schemas/IpRuleRepresentation"
+    LogFile:
+      required:
+      - file_name
+      type: object
+      properties:
+        file_name:
+          description: Path of the log file. Pass this to `cluster.log.detail` to
+            obtain a download URL.
+          type: string
+        last_modified:
+          format: int64
+          description: "When the log file was last written, as epoch milliseconds."
+          type: integer
+        size:
+          format: int64
+          description: Size of the log file in bytes.
+          type: integer
+        temp_url:
+          description: "Presigned download URL. Only populated by `cluster.log.detail`,\
+            \ not by the listing."
+          type: string
+    Metrics:
+      required:
+      - name
+      - healthy
+      type: object
+      properties:
+        name:
+          description: Name of the cluster or deployment these metrics describe.
+          type: string
+        counts:
+          description: "Named counters, e.g. users and clients. May be empty."
+          type: object
+          additionalProperties:
+            format: int64
+            type: integer
+        healthy:
+          description: Whether the target is currently considered healthy.
+          type: boolean
+    NameAvailability:
+      required:
+      - name
+      - available
+      type: object
+      properties:
+        name:
+          description: "The name that was checked, lowercased."
+          type: string
+        available:
+          description: "Whether the name is well-formed, not reserved, and not already\
+            \ taken."
+          type: boolean
+        recommendation:
+          description: "An available alternative, when one is suggested."
+          type: string
+    Org:
+      required:
+      - id
+      - name
+      - roles
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the organization.
+          type: string
+        name:
+          description: "Organization name, unique within the realm."
+          type: string
+        display_name:
+          description: "Human-readable organization name, when one is set."
+          type: string
+        roles:
+          description: Roles the authenticated caller holds in this organization.
+          type: array
+          items:
+            type: string
+    PaymentMethod:
+      required:
+      - id
+      - type
+      - is_default
+      - in_use_by_active_subscription
+      type: object
+      properties:
+        id:
+          description: Stripe payment method ID. Pass this as `payment_method_id`
+            when creating a cluster.
+          type: string
+        type:
+          description: Payment method type. Only `card` is currently supported.
+          type: string
+        brand:
+          description: "Card brand, e.g. `visa`, `mastercard`."
+          type: string
+        last4:
+          description: Last four digits of the card number.
+          type: string
+        exp_month:
+          format: int64
+          description: "Card expiry month, 1-12."
+          type: integer
+        exp_year:
+          format: int64
+          description: "Card expiry year, four digits."
+          type: integer
+        is_default:
+          description: Whether this is the customer's default payment method for future
+            invoices.
+          type: boolean
+        in_use_by_active_subscription:
+          description: Whether an active subscription is currently billed to this
+            payment method. Such a payment method cannot be removed until the subscription
+            is moved to another card.
+          type: boolean
+        in_use_by:
+          description: "Names of the clusters whose active subscription is billed\
+            \ to this payment method. May be empty even when in_use_by_active_subscription\
+            \ is true, if the subscription isn't tied to a cluster."
+          type: array
+          items:
+            type: string
+    PresignedUrl:
+      description: "A short-lived, presigned S3 target to upload an extension jar\
+        \ to."
+      required:
+      - url
+      - method
+      - resourceKey
+      type: object
+      properties:
+        url:
+          description: Presigned URL to upload the jar to.
+          type: string
+        method:
+          description: "HTTP method to use for the upload, e.g. `PUT`."
+          type: string
+        resourceKey:
+          description: S3 resource key the jar will land at. Pass this back to the
+            matching `confirm` operation.
+          type: string
+    RedirectLink:
+      required:
+      - link
+      type: object
+      properties:
+        message:
+          description: Human-readable message to show while redirecting.
+          type: string
+        link:
+          description: URL to redirect the browser to. Single-use and short-lived.
+          type: string
+    RedirectRequest:
+      type: object
+      properties:
+        redirect_uri:
+          description: URI Stripe returns the user to when they leave the hosted flow.
+          type: string
+    Region:
+      description: A region a cluster can be provisioned in.
+      required:
+      - name
+      - provider
+      - region
+      type: object
+      properties:
+        name:
+          description: "Region identifier, usable as the `region` argument when creating\
+            \ a cluster."
+          type: string
+        provider:
+          description: Cloud provider hosting this region.
+          type: string
+        region:
+          description: Provider-specific region code.
+          type: string
+    ResourceLimits:
+      enum:
+      - standard
+      - custom
+      type: string
+    ResourceType:
+      description: Kind of custom resource an extension holds. `THEME` and `EXTENSION`
+        are tied to a Keycloak major version and use the versioned upload flow; `PASSWORD_BLACKLIST`
+        and `WELL_KNOWN` are version-independent and use the standalone upload flow.
+      enum:
+      - THEME
+      - EXTENSION
+      - PASSWORD_BLACKLIST
+      - WELL_KNOWN
+      type: string
+    RestartStatus:
+      required:
+      - restart_in_progress
+      type: object
+      properties:
+        restart_in_progress:
+          description: Whether a restart workflow is currently running for this cluster.
+            Configuration changes are rejected with a 409 while true.
+          type: boolean
+    ResumeCheckoutRequest:
+      type: object
+      properties:
+        price_id:
+          description: "Deprecated. Explicit Stripe price ID, overriding the price\
+            \ derived from the cluster's stored tier."
+          type: string
+          deprecated: true
+        billing_period:
+          description: "Billing period for premium/enterprise clusters. Ignored for\
+            \ starter, which is monthly-only. Defaults to monthly."
+          type: string
+          allOf:
+          - $ref: "#/components/schemas/BillingPeriod"
+    Secret:
+      required:
+      - id
+      - name
+      - client_id
+      - client_secret
+      - roles
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the API secret.
+          type: string
+        name:
+          description: Name given to the API secret when it was created.
+          type: string
+        client_id:
+          description: OAuth2 client ID to use with the client credentials grant.
+          type: string
+        client_secret:
+          description: OAuth2 client secret. Returned in full only when the secret
+            is first created; always masked as `********` on subsequent reads.
+          type: string
+        roles:
+          description: Organization roles granted to this secret's service account.
+          type: array
+          items:
+            type: string
+        created_at:
+          format: int64
+          type: integer
+        created_by:
+          type: string
+    SecretRequest:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          description: "Name for the API secret. Max 32 characters, lowercase letters\
+            \ only. Must be unique within the organization."
+          type: string
+        roles:
+          description: Organization roles to grant the secret's service account. The
+            calling user must already hold every role listed. Omit for a secret with
+            no organization roles.
+          type: array
+          items:
+            type: string
+    Subscription:
+      required:
+      - id
+      - status
+      type: object
+      properties:
+        id:
+          description: Stripe subscription ID.
+          type: string
+        customer_id:
+          description: Stripe customer ID the subscription is billed to.
+          type: string
+        start_date:
+          format: int64
+          description: "When the subscription began, as epoch milliseconds."
+          type: integer
+        end_date:
+          format: int64
+          description: "When the subscription ended or is scheduled to end, as epoch\
+            \ milliseconds. Absent while it remains open-ended."
+          type: integer
+        current_period_start:
+          format: int64
+          description: "Start of the period currently being billed, as epoch milliseconds."
+          type: integer
+        current_period_end:
+          format: int64
+          description: "End of the period currently being billed — the next renewal\
+            \ or cancellation date, as epoch milliseconds."
+          type: integer
+        status:
+          description: "Stripe subscription status, e.g. `trialing`, `active`, `past_due`,\
+            \ `canceled`, `incomplete`."
+          type: string
+        description:
+          description: Description of the subscribed plan.
+          type: string
+        open_invoice:
+          description: "True when the subscription is delinquent but repairable: it\
+            \ has an open invoice whose payment restores service, so billing can be\
+            \ fixed without starting a new subscription. Absent otherwise."
+          type: boolean
+        open_invoice_amount_due:
+          format: int64
+          description: "Amount remaining on the open invoice, in the smallest currency\
+            \ unit (e.g. cents). Present only when `open_invoice` is true."
+          type: integer
+    SystemInfoRepresentation:
+      type: object
+      properties:
+        version:
+          type: string
+        serverTime:
+          type: string
+        uptime:
+          type: string
+        uptimeMillis:
+          format: int64
+          type: integer
+        javaVersion:
+          type: string
+        javaVendor:
+          type: string
+        javaVm:
+          type: string
+        javaVmVersion:
+          type: string
+        javaRuntime:
+          type: string
+        javaHome:
+          type: string
+        osName:
+          type: string
+        osArchitecture:
+          type: string
+        osVersion:
+          type: string
+        fileEncoding:
+          type: string
+        userName:
+          type: string
+        userDir:
+          type: string
+        userTimezone:
+          type: string
+        userLocale:
+          type: string
+    Tier:
+      enum:
+      - starter
+      - premium
+      - enterprise
+      type: string
+    ToggleExtensionRequest:
+      required:
+      - enabled
+      type: object
+      properties:
+        enabled:
+          description: Whether the extension should be active on the cluster.
+          type: boolean
+    ToggleExtensionVersionValidRequest:
+      required:
+      - valid
+      type: object
+      properties:
+        valid:
+          description: Whether this version is approved for deployment.
+          type: boolean
+        reason:
+          description: Justification for approving a version whose scan did not pass.
+            Required when setting `valid` to true and the version's `scan_state` is
+            not `PASS`; ignored otherwise.
+          type: string
+    TokenResponse:
+      required:
+      - base_url
+      - access_token
+      - token_type
+      type: object
+      properties:
+        base_url:
+          description: Base URL of the deployment's Keycloak instance to call with
+            this token.
+          type: string
+        access_token:
+          description: Access token scoped to the deployment.
+          type: string
+        token_type:
+          description: "Token type, always `Bearer`."
+          type: string
+        expires_in:
+          format: int64
+          description: Token lifetime in seconds.
+          type: integer
+        scope:
+          description: Scopes granted to the token.
+          type: string
+    WellKnown:
+      type: object
+      properties:
+        domain:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: "#/components/schemas/WellKnownFile"
+        change_password_url:
+          type: string
+        propagation_seconds:
+          format: int32
+          type: integer
+    WellKnownFile:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        uploaded:
+          type: boolean
+        resource_key:
+          type: string
+  securitySchemes:
+    oidcClientCredentials:
+      type: oauth2
+      description: "OIDC client credentials grant against **production**. Obtain a\
+        \ client ID/secret pair via the `org.apiSecret.create` operation, then exchange\
+        \ them for an access token at `https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token`.\
+        \ Use the scheme whose environment matches the server you selected."
+      flows:
+        clientCredentials:
+          tokenUrl: https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token
+          scopes: {}
+    oidcClientCredentialsStaging:
+      type: oauth2
+      description: "OIDC client credentials grant against **staging**. Obtain a client\
+        \ ID/secret pair via the `org.apiSecret.create` operation, then exchange them\
+        \ for an access token at `https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token`.\
+        \ Use the scheme whose environment matches the server you selected."
+      flows:
+        clientCredentials:
+          tokenUrl: https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token
+          scopes: {}

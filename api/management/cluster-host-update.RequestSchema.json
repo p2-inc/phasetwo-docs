@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"The domain to switch to.","content":{"application/json":{"schema":{"required":["host"],"type":"object","properties":{"host":{"description":"The custom hostname, e.g. `auth.example.com`.","type":"string"}},"title":"ClusterDomain"}}},"required":true}}

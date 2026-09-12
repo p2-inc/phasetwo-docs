@@ -1,0 +1,69 @@
+---
+id: cluster-extension-standalone-upload-url-create
+title: "Create an upload URL for a standalone extension."
+description: "Creates the extension's single (version-independent) version and returns a presigned S3 URL to upload its jar to. After uploading, call the extension's `confirm` operation to finalize it."
+sidebar_label: "Create an upload URL for a standalone extension."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create an upload URL for a standalone extension."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/extensions/{extensionId}/standalone"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates the extension's single (version-independent) version and returns a presigned S3 URL to upload its jar to. After uploading, call the extension's `confirm` operation to finalize it.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-standalone-upload-url-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-standalone-upload-url-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-standalone-upload-url-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

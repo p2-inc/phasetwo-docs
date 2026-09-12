@@ -1,0 +1,69 @@
+---
+id: cluster-domain-create
+title: "Add a custom domain to a cluster."
+description: "Registers a custom hostname for this dedicated cluster and starts DNS/TLS provisioning for it. Check the domain's status via the returned resource until its certificate is issued before using it as the cluster's primary hostname."
+sidebar_label: "Add a custom domain to a cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Add a custom domain to a cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/domains"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Registers a custom hostname for this dedicated cluster and starts DNS/TLS provisioning for it. Check the domain's status via the returned resource until its certificate is issued before using it as the cluster's primary hostname.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-domain-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-domain-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-domain-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

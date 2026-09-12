@@ -1,0 +1,69 @@
+---
+id: cluster-deployment-create
+title: "Create a deployment for a dedicated cluster."
+description: "Creates a new, empty deployment (Keycloak realm) on this cluster. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier. To create a deployment from an existing realm export, use the import operation instead."
+sidebar_label: "Create a deployment for a dedicated cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a deployment for a dedicated cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/deployments"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new, empty deployment (Keycloak realm) on this cluster. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier. To create a deployment from an existing realm export, use the import operation instead.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-deployment-create.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-deployment-create.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-deployment-create.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

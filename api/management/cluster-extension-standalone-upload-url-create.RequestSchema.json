@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"Label for the new version.","content":{"application/json":{"schema":{"type":"object","properties":{"label":{"description":"Human-readable label recorded against the uploaded version, e.g. a release tag.","type":"string"}},"title":"ExtensionVersionUploadUrlRequest"}}},"required":true}}

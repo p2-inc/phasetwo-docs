@@ -1,0 +1,69 @@
+---
+id: cluster-name-availability-check
+title: "Check whether a cluster name is available."
+description: "Validates a candidate name for a new dedicated cluster and reports whether it is available (well-formed, not reserved, and not already in use)."
+sidebar_label: "Check whether a cluster name is available."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check whether a cluster name is available."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/clusters/name-available"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Validates a candidate name for a new dedicated cluster and reports whether it is available (well-formed, not reserved, and not already in use).
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-name-availability-check.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-name-availability-check.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-name-availability-check.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

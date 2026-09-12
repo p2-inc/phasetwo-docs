@@ -1,0 +1,69 @@
+---
+id: cluster-restart-status-detail
+title: "Check whether a cluster restart is in progress."
+description: "Configuration changes (environment variables, extensions) restart the cluster's Keycloak deployment to take effect; use this to poll until a restart completes before making another change."
+sidebar_label: "Check whether a cluster restart is in progress."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Check whether a cluster restart is in progress."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/clusters/{id}/restart-status"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Configuration changes (environment variables, extensions) restart the cluster's Keycloak deployment to take effect; use this to poll until a restart completes before making another change.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-restart-status-detail.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-restart-status-detail.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-restart-status-detail.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

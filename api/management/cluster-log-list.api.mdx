@@ -1,0 +1,69 @@
+---
+id: cluster-log-list
+title: "List log files for a cluster."
+description: "Returns log files for this cluster within an optional date range, paginated by `start`/`max`."
+sidebar_label: "List log files for a cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"List log files for a cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/clusters/{id}/logs"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns log files for this cluster within an optional date range, paginated by `start`/`max`.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-log-list.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-log-list.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-log-list.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

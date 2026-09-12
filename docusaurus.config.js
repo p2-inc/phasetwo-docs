@@ -454,7 +454,7 @@ module.exports = {
               label: "Docs",
             },
             {
-              to: "api/phase-two-admin-rest-api",
+              to: "api/",
               activeBasePath: "api",
               label: "API",
             },
@@ -488,10 +488,14 @@ module.exports = {
                     icon: "doc",
                   },
                   {
-                    to: "api/phase-two-admin-rest-api",
+                    // The section root, not the Extensions API's generated intro:
+                    // /api/ now forks into the Management API and the Extensions
+                    // API, and the fork page is what explains which one a reader
+                    // wants.
+                    to: "api/",
                     activeBasePath: "api",
                     label: "API",
-                    sub: "Phase Two Admin REST API",
+                    sub: "Phase Two Management and Extensions APIs",
                     icon: "api",
                   },
                   {
@@ -975,7 +979,7 @@ module.exports = {
             },
             {
               label: "API",
-              to: "api/phase-two-admin-rest-api",
+              to: "api/",
             },
             {
               label: "JWT Decoder",
@@ -1314,9 +1318,23 @@ module.exports = {
         id: "openapi",
         docsPluginId: "api",
         config: {
+          // The Extensions API -- Phase Two's additions to the Keycloak Admin
+          // REST API, served from the customer's own Keycloak realm. Kept at the
+          // top of api/ so the 84 published endpoint URLs do not move.
           phasetwo: {
             specPath: "openapi.yaml", // Path to designated spec file
             outputDir: "api", // Output directory for generated .mdx docs
+            sidebarOptions: {
+              groupPathsBy: "tag",
+              categoryLinkSource: "tag",
+            },
+          },
+          // The Management API -- the Phase Two control plane, which manages
+          // clusters themselves rather than what is inside them. Different
+          // server, different credentials; see api/management-api-index.mdx.
+          management: {
+            specPath: "openapi-management.yaml",
+            outputDir: "api/management",
             sidebarOptions: {
               groupPathsBy: "tag",
               categoryLinkSource: "tag",

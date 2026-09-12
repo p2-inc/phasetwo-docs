@@ -1,0 +1,1 @@
+{"responses":{"201":{"description":"Extension created. The response has no body; `Location` holds the new extension's URL, whose last path segment is its ID.","headers":{"Location":{"description":"URL of the created extension.","style":"simple","schema":{"type":"string"}}}}}}

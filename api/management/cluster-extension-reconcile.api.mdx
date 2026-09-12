@@ -1,0 +1,69 @@
+---
+id: cluster-extension-reconcile
+title: "Restart a cluster to apply extension changes."
+description: "Reconciles this cluster's configured extensions onto its running Keycloak deployment and restarts it to pick up the changes. Fails with a 409 if a restart is already in progress for this cluster."
+sidebar_label: "Restart a cluster to apply extension changes."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Restart a cluster to apply extension changes."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/extensions/cluster-update"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Reconciles this cluster's configured extensions onto its running Keycloak deployment and restarts it to pick up the changes. Fails with a 409 if a restart is already in progress for this cluster.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-reconcile.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-reconcile.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-reconcile.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
