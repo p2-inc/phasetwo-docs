@@ -87,10 +87,15 @@ server under the same authentication. The
 
 Both are generated from OpenAPI 3 documents, which are also what generate these pages:
 
-| API        | YAML                                                   | JSON                                                   |
-| ---------- | ------------------------------------------------------ | ------------------------------------------------------ |
-| Management | [`/openapi-management.yaml`](/openapi-management.yaml) | [`/openapi-management.json`](/openapi-management.json) |
-| Extensions | [`/openapi.yaml`](/openapi.yaml)                       | [`/openapi.json`](/openapi.json)                       |
+{/* pathname:// on the spec links is required, not stylistic. A plain /openapi.yaml
+is treated by the MDX loader as a file asset, rewritten to a hashed
+/assets/files/... path, and then given a trailing slash by trailingSlash: true --
+which 404s. pathname:// opts out of both the asset pipeline and the router. */}
+
+| API        | YAML                                                              | JSON                                                              |
+| ---------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Management | [`/openapi-management.yaml`](pathname:///openapi-management.yaml) | [`/openapi-management.json`](pathname:///openapi-management.json) |
+| Extensions | [`/openapi.yaml`](pathname:///openapi.yaml)                       | [`/openapi.json`](pathname:///openapi.json)                       |
 
 {/* The api-catalog link is absolute on purpose: the broken-link checker appends a
 trailing slash to extensionless internal paths, which would not resolve to the

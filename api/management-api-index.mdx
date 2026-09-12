@@ -45,7 +45,12 @@ where you use it.
 | `<cluster>.phasetwo.io` (or your custom domain) | Your Keycloak — realms, users, logins                            |
 
 Tokens are minted by the control-plane realm on the console host; the API itself lives on the
-API host. Staging substitutes `app-staging.phasetwo.io`.
+API host. Staging mirrors both: `app-staging.phasetwo.io` and `api-staging.phasetwo.io`.
+
+The two must match — a token minted on one environment's console host is not valid against the
+other's API host. In the explorer below that means picking `api-staging` in the server selector
+**and** the `oidcClientCredentialsStaging` security scheme, because `tokenUrl` is a separate
+field that the server selector cannot retarget.
 :::
 
 ## Authentication

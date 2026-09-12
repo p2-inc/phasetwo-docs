@@ -2,25 +2,34 @@
   "openapi" : "3.0.3",
   "info" : {
     "title" : "Phase Two Cluster Management API",
-    "description" : "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Two hostnames\n\n| | Host | Purpose |\n|---|---|---|\n| Token endpoint | `app.phasetwo.io` | Mint an access token (and log into the console) |\n| API | `api.phasetwo.io` | Every operation in this reference |\n\nTokens are issued by the control-plane realm on the console host; the API itself is served from the API host. Staging substitutes `app-staging.phasetwo.io`.\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
-    "version" : "1.0.0"
+    "description" : "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Hosts\n\nTwo hostnames are involved, and both differ by environment: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.\n\n| Environment | Console host (tokens) | API host (operations) |\n|---|---|---|\n| Production *(default)* | `app.phasetwo.io` | `api.phasetwo.io` |\n| Staging | `app-staging.phasetwo.io` | `api-staging.phasetwo.io` |\n\nEverything below defaults to production. To work against staging, pick `api-staging` (or `app-staging`) in the server selector **and** select the `oidcClientCredentialsStaging` security scheme -- the token endpoint is a separate field that the server selector cannot retarget. The two must match: a token minted in one environment is not valid in the other.\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
+    "version" : "2.0.0"
   },
   "servers" : [ {
-    "url" : "https://{environment}.phasetwo.io/auth/realms/self/v2",
-    "description" : "Console host. The path the API host rewrites to, and what resolves today.",
+    "url" : "https://{apiHost}.phasetwo.io/v2",
+    "description" : "Public API host. The canonical base URL for this API.",
     "variables" : {
-      "environment" : {
-        "default" : "app",
-        "description" : "`app` for production, `app-staging` for staging. This is the same host you use to log into the Phase Two console.",
-        "enum" : [ "app", "app-staging" ]
+      "apiHost" : {
+        "default" : "api",
+        "description" : "`api` for production, `api-staging` for staging. Must match the environment of the console host that issued your token.",
+        "enum" : [ "api", "api-staging" ]
       }
     }
   }, {
-    "url" : "https://api.phasetwo.io/v2",
-    "description" : "Public API host. Preferred once available in your environment."
+    "url" : "https://{consoleHost}.phasetwo.io/auth/realms/self/v2",
+    "description" : "Console host. The path the API host rewrites to; useful for debugging, or for an environment where the API host is not yet served.",
+    "variables" : {
+      "consoleHost" : {
+        "default" : "app",
+        "description" : "`app` for production, `app-staging` for staging. This is the same host you use to log into the Phase Two console, and the host that mints your access token.",
+        "enum" : [ "app", "app-staging" ]
+      }
+    }
   } ],
   "security" : [ {
     "oidcClientCredentials" : [ ]
+  }, {
+    "oidcClientCredentialsStaging" : [ ]
   } ],
   "tags" : [ {
     "name" : "orgs",
@@ -244,7 +253,7 @@
     "/clusters/{id}/checkout" : {
       "post" : {
         "tags" : [ "clusters" ],
-        "summary" : "Resume Stripe checkout for a cluster whose billing setup was not completed. Returns a link to complete payment setup within a browser.",
+        "summary" : "Restore billing for a cluster that is not currently paid for. Returns a browser link: the existing subscription's open invoice when paying it repairs the subscription, otherwise a fresh Stripe checkout for a new subscription.",
         "operationId" : "cluster.checkout.resume",
         "requestBody" : {
           "description" : "Optional price/billing-period override for the resumed checkout.",
@@ -3495,6 +3504,15 @@
           "description" : {
             "description" : "Description of the subscribed plan.",
             "type" : "string"
+          },
+          "open_invoice" : {
+            "description" : "True when the subscription is delinquent but repairable: it has an open invoice whose payment restores service, so billing can be fixed without starting a new subscription. Absent otherwise.",
+            "type" : "boolean"
+          },
+          "open_invoice_amount_due" : {
+            "format" : "int64",
+            "description" : "Amount remaining on the open invoice, in the smallest currency unit (e.g. cents). Present only when `open_invoice` is true.",
+            "type" : "integer"
           }
         }
       },
@@ -3655,10 +3673,20 @@
     "securitySchemes" : {
       "oidcClientCredentials" : {
         "type" : "oauth2",
-        "description" : "OIDC client credentials grant. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at your realm's `/protocol/openid-connect/token` endpoint.",
+        "description" : "OIDC client credentials grant against **production**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.",
         "flows" : {
           "clientCredentials" : {
             "tokenUrl" : "https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token",
+            "scopes" : { }
+          }
+        }
+      },
+      "oidcClientCredentialsStaging" : {
+        "type" : "oauth2",
+        "description" : "OIDC client credentials grant against **staging**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.",
+        "flows" : {
+          "clientCredentials" : {
+            "tokenUrl" : "https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token",
             "scopes" : { }
           }
         }

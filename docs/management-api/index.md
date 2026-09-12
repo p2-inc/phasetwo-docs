@@ -59,7 +59,9 @@ This trips people up more than anything else, so it is worth internalising early
 You authenticate against `app.` and then call `api.`. Two different hosts in the same script is
 unusual enough that it is worth a comment where you write it down.
 
-Staging is `app-staging.phasetwo.io`.
+Staging mirrors this with `app-staging.phasetwo.io` and `api-staging.phasetwo.io`. The two
+must match: a token minted on one environment's console host is not valid on the other's API
+host.
 
 ## What you can automate
 

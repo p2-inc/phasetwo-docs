@@ -454,7 +454,7 @@ module.exports = {
               label: "Docs",
             },
             {
-              to: "api/phase-two-admin-rest-api",
+              to: "api/",
               activeBasePath: "api",
               label: "API",
             },
@@ -488,10 +488,14 @@ module.exports = {
                     icon: "doc",
                   },
                   {
-                    to: "api/phase-two-admin-rest-api",
+                    // The section root, not the Extensions API's generated intro:
+                    // /api/ now forks into the Management API and the Extensions
+                    // API, and the fork page is what explains which one a reader
+                    // wants.
+                    to: "api/",
                     activeBasePath: "api",
                     label: "API",
-                    sub: "Phase Two Admin REST API",
+                    sub: "Phase Two Management and Extensions APIs",
                     icon: "api",
                   },
                   {
@@ -975,7 +979,7 @@ module.exports = {
             },
             {
               label: "API",
-              to: "api/phase-two-admin-rest-api",
+              to: "api/",
             },
             {
               label: "JWT Decoder",

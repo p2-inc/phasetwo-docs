@@ -174,7 +174,7 @@ module.exports = [
       {
         "type": "doc",
         "id": "management/cluster-checkout-resume",
-        "label": "Resume Stripe checkout for a cluster whose billing setup was not completed. Returns a link to complete payment setup within a browser",
+        "label": "Restore billing for a cluster that is not currently paid for. Returns a browser link: the existing subscription's open invoice when paying it repairs the subscription, otherwise a fresh Stripe checkout for a new subscription",
         "className": "api-method post"
       },
       {

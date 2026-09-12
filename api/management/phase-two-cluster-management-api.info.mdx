@@ -16,7 +16,7 @@ import Export from "@theme/ApiExplorer/Export";
 
 <span
   className={"theme-doc-version-badge badge badge--secondary"}
-  children={"Version: 1.0.0"}
+  children={"Version: 2.0.0"}
 >
 </span>
 
@@ -33,14 +33,16 @@ Automate management of your Phase Two hosted Keycloak clusters: dedicated cluste
 
 This is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.
 
-## Two hostnames
+## Hosts
 
-| | Host | Purpose |
+Two hostnames are involved, and both differ by environment: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.
+
+| Environment | Console host (tokens) | API host (operations) |
 |---|---|---|
-| Token endpoint | `app.phasetwo.io` | Mint an access token (and log into the console) |
-| API | `api.phasetwo.io` | Every operation in this reference |
+| Production *(default)* | `app.phasetwo.io` | `api.phasetwo.io` |
+| Staging | `app-staging.phasetwo.io` | `api-staging.phasetwo.io` |
 
-Tokens are issued by the control-plane realm on the console host; the API itself is served from the API host. Staging substitutes `app-staging.phasetwo.io`.
+Everything below defaults to production. To work against staging, pick `api-staging` (or `app-staging`) in the server selector **and** select the `oidcClientCredentialsStaging` security scheme -- the token endpoint is a separate field that the server selector cannot retarget. The two must match: a token minted in one environment is not valid in the other.
 
 ## Authentication
 
@@ -75,7 +77,7 @@ What a token can do is governed by the organization roles granted to its API sec
     >
       
       
-      OIDC client credentials grant. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at your realm's `/protocol/openid-connect/token` endpoint.
+      OIDC client credentials grant against **production**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.
       
       <div>
         <table>
@@ -92,6 +94,39 @@ What a token can do is governed by the organization roles granted to its API sec
               </th><td>
                 <div>
                   Token URL: https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token
+                </div><span>
+                  Scopes:
+                </span><ul>
+                  
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </TabItem><TabItem
+      label={"OAuth 2.0: oidcClientCredentialsStaging"}
+      value={"oidcClientCredentialsStaging"}
+    >
+      
+      
+      OIDC client credentials grant against **staging**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.
+      
+      <div>
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                Security Scheme Type:
+              </th><td>
+                oauth2
+              </td>
+            </tr><tr>
+              <th>
+                OAuth Flow (clientCredentials):
+              </th><td>
+                <div>
+                  Token URL: https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token
                 </div><span>
                   Scopes:
                 </span><ul>
