@@ -167,19 +167,165 @@ applied value in state and cannot detect a change made outside Terraform.
 ## Configuring what is inside the realm
 
 The provider stops at the realm boundary — it creates realms, not the clients and identity
-providers in them. Hand off to a Keycloak provider pointed at the cluster:
+providers in them. That division mirrors the two APIs: `phasetwo_*` resources are the
+[Management API](/api/management-api-index), and everything inside a realm is Keycloak's own API
+plus our [Extensions API](/api/extensions-api-index).
 
-```hcl
-provider "keycloak" {
-  url       = phasetwo_cluster.main.host
-  client_id = "admin-cli"
-  # ...
+To manage what is inside a realm, hand off to the
+[Keycloak provider](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs) with a
+credential scoped to that realm. Create one with
+[`deployment.credential.create`](/api/management/deployments):
+
+```bash
+curl -s -X POST \
+  "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "terraform", "description": "terraform, ci pipeline"}'
+```
+
+```json
+{
+  "client_id": "api-terraform-9f3c1a2b",
+  "client_secret": "…",
+  "name": "terraform",
+  "description": "terraform, ci pipeline",
+  "roles": ["realm-admin"],
+  "server_url": "https://my-cluster.phasetwo.io",
+  "realm": "production"
 }
 ```
 
-That division mirrors the two APIs: `phasetwo_*` resources are the
-[Management API](/api/management-api-index), and everything inside a realm is Keycloak's own API
-plus our [Extensions API](/api/extensions-api-index).
+Everything the Keycloak provider needs is in that response:
+
+```hcl
+provider "keycloak" {
+  url           = "https://my-cluster.phasetwo.io"
+  realm         = "production"
+  client_id     = "api-terraform-9f3c1a2b"
+  client_secret = var.keycloak_client_secret
+  initial_login = false
+}
+```
+
+:::caution `initial_login = false` is not optional here
+
+By default the Keycloak provider authenticates when Terraform *configures* it, which happens during
+`terraform plan` — before anything has been created. If the same configuration also creates the
+cluster, plan fails against a cluster that does not exist yet:
+
+```
+Error: error initializing keycloak provider
+failed to perform initial login to Keycloak: ... 401 Unauthorized
+```
+
+`initial_login = false` defers the login until the provider first has to act on a resource, by
+which point the cluster is up. The trade is that a wrong credential is no longer caught at plan
+time — it surfaces during apply.
+
+:::
+
+:::caution The secret is shown once
+
+It is not stored and cannot be read back. If you lose it, revoke the credential and create
+another. `deployment.credential.list` returns the credentials that exist and what they are for,
+but never their secrets.
+
+:::
+
+### This manual step is going away
+
+Creating the credential out of band is interim. A `phasetwo_realm_credential` resource is planned,
+which removes the manual step entirely — one `terraform apply` creates the cluster, the realm, the
+credential, and then uses that credential to configure inside the realm:
+
+```hcl
+resource "phasetwo_realm_credential" "terraform" {
+  deployment_id = phasetwo_realm.production.id
+  name          = "terraform"
+  description   = "terraform"
+  # roles       = ["realm-admin"]   # the default
+}
+
+provider "keycloak" {
+  url           = phasetwo_realm_credential.terraform.server_url
+  realm         = phasetwo_realm_credential.terraform.realm
+  client_id     = phasetwo_realm_credential.terraform.client_id
+  client_secret = phasetwo_realm_credential.terraform.client_secret
+  initial_login = false
+}
+```
+
+Configuring a provider from a resource created in the same apply is usually a dead end in Terraform,
+which is why this is worth spelling out: with `initial_login = false` it works, including
+`terraform destroy` ordering. Until the resource ships, the steps above are the way to do it.
+
+### Grant only the roles you need
+
+`roles` takes `realm-management` client roles and defaults to `["realm-admin"]` — full
+administrative access to the realm, which is what the Keycloak provider generally needs because it
+manages realms, clients, users, groups, roles, identity providers and authentication flows.
+
+Not everything needs that. A credential that only reads should only be able to read:
+
+```bash
+curl -s -X POST \
+  "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "audit", "roles": ["view-users", "view-realm", "view-events"]}'
+```
+
+The available roles are the ones Keycloak defines on the realm's `realm-management` client:
+
+| | |
+| --- | --- |
+| **Read** | `view-realm` `view-users` `view-clients` `view-events` `view-identity-providers` `view-authorization` `view-organizations` |
+| **Write** | `manage-realm` `manage-users` `manage-clients` `manage-events` `manage-identity-providers` `manage-authorization` `manage-organizations` `create-client` |
+| **Query** | `query-users` `query-clients` `query-groups` `query-realms` `query-organizations` |
+| **Other** | `impersonation` |
+| **Everything** | `realm-admin` — a composite of all of the above |
+
+`deployment.credential.list` reports the roles each existing credential currently holds, so you can
+answer "what can this thing actually do?" without going to the Keycloak console.
+
+:::caution Too narrow fails partway through, not up front
+
+Terraform discovers a missing role when it makes the call that needs it, so an under-privileged
+credential surfaces as a 403 in the middle of an apply — with some resources already created. If
+you are narrowing roles for a Terraform credential, work out the set on a throwaway realm first.
+
+A role name that does not exist is rejected outright with a 400 rather than granted as nothing, so
+typos fail immediately rather than becoming this problem.
+
+:::
+
+### Create one credential per holder
+
+Each credential is independently revocable, so a credential per pipeline, per environment or per
+engineer means a leak costs you one revocation rather than a rotation everywhere:
+
+```bash
+# list what exists
+curl -s "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials" \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# revoke one
+curl -s -X DELETE \
+  "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials/api-terraform-9f3c1a2b" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Revoking deletes the client from the realm, so it takes effect immediately — any Terraform run
+still holding it starts failing to authenticate rather than quietly continuing.
+
+### Keep it out of state, and out of git
+
+The Keycloak provider writes `client_secret` into `terraform.tfstate` in plain text. That is true
+of any provider credential, but it is worth saying plainly because the state file travels: treat
+the state backend as holding a realm-admin credential, and give it the access controls that
+implies. Use a remote backend with encryption and restricted reads, pass the secret through a
+variable rather than committing it, and do not reuse one credential across environments.
 
 ## Local development
 
