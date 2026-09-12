@@ -202,8 +202,26 @@ provider "keycloak" {
   realm         = "production"
   client_id     = "terraform-9f3c1a2b"
   client_secret = var.keycloak_client_secret
+  initial_login = false
 }
 ```
+
+:::caution `initial_login = false` is not optional here
+
+By default the Keycloak provider authenticates when Terraform *configures* it, which happens during
+`terraform plan` — before anything has been created. If the same configuration also creates the
+cluster, plan fails against a cluster that does not exist yet:
+
+```
+Error: error initializing keycloak provider
+failed to perform initial login to Keycloak: ... 401 Unauthorized
+```
+
+`initial_login = false` defers the login until the provider first has to act on a resource, by
+which point the cluster is up. The trade is that a wrong credential is no longer caught at plan
+time — it surfaces during apply.
+
+:::
 
 :::caution The secret is shown once
 
@@ -212,6 +230,31 @@ another. `deployment.credential.list` returns the credentials that exist and wha
 but never their secrets.
 
 :::
+
+### This manual step is going away
+
+Creating the credential out of band is interim. A `phasetwo_realm_credential` resource is planned,
+which removes the manual step entirely — one `terraform apply` creates the cluster, the realm, the
+credential, and then uses that credential to configure inside the realm:
+
+```hcl
+resource "phasetwo_realm_credential" "terraform" {
+  deployment_id = phasetwo_realm.production.id
+  description   = "terraform"
+}
+
+provider "keycloak" {
+  url           = phasetwo_realm_credential.terraform.server_url
+  realm         = phasetwo_realm_credential.terraform.realm
+  client_id     = phasetwo_realm_credential.terraform.client_id
+  client_secret = phasetwo_realm_credential.terraform.client_secret
+  initial_login = false
+}
+```
+
+Configuring a provider from a resource created in the same apply is usually a dead end in Terraform,
+which is why this is worth spelling out: with `initial_login = false` it works, including
+`terraform destroy` ordering. Until the resource ships, the steps above are the way to do it.
 
 ### Create one credential per holder
 
