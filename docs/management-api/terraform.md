@@ -240,32 +240,69 @@ credentials that exist and what they can do, without their secrets.
 
 :::
 
-### This manual step is going away
+### Doing it in one apply
 
-Creating the credential out of band is interim. A `phasetwo_realm_credential` resource is planned,
-which removes the manual step entirely — one `terraform apply` creates the cluster, the realm, the
-credential, and then uses that credential to configure inside the realm:
+The curl steps above are for when you are not using the Phase Two provider. With it, the whole thing
+is declarative — one `terraform apply` creates the cluster, the realm and the credential, then uses
+that credential to configure inside the realm:
 
 ```hcl
+resource "phasetwo_realm" "production" {
+  cluster_id = phasetwo_cluster.main.id
+  name       = "production"
+}
+
 resource "phasetwo_realm_credential" "terraform" {
-  deployment_id = phasetwo_realm.production.id
-  name          = "terraform"
-  description   = "terraform"
-  # roles       = ["realm-admin"]   # the default
+  realm_id = phasetwo_realm.production.id
+  name     = "terraform"
+  # roles  = ["realm-admin"]   # the default
+}
+
+ephemeral "phasetwo_realm_credential_secret" "terraform" {
+  realm_id  = phasetwo_realm.production.id
+  client_id = phasetwo_realm_credential.terraform.client_id
 }
 
 provider "keycloak" {
   url           = phasetwo_realm_credential.terraform.server_url
   realm         = phasetwo_realm_credential.terraform.realm
   client_id     = phasetwo_realm_credential.terraform.client_id
-  client_secret = phasetwo_realm_credential.terraform.client_secret
+  client_secret = ephemeral.phasetwo_realm_credential_secret.terraform.client_secret
   initial_login = false
 }
 ```
 
-Configuring a provider from a resource created in the same apply is usually a dead end in Terraform,
-which is why this is worth spelling out: with `initial_login = false` it works, including
-`terraform destroy` ordering. Until the resource ships, the steps above are the way to do it.
+Two things in there are doing more work than they look like they are.
+
+**`ephemeral` keeps the secret out of your state file.** Terraform writes every resource attribute
+to `terraform.tfstate`, so a credential exposed as an attribute ends up in a file that is very often
+unencrypted and sitting in an object store — and this one holds `realm-admin` on your realm.
+[Ephemeral resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral) are
+never written to state or plan files, so the secret exists only for the duration of the run. That is
+why `phasetwo_realm_credential` has **no** `client_secret` attribute: it would quietly undo the
+whole arrangement.
+
+This works because Phase Two keeps no copy of the secret and reads it from your realm on demand, and
+because reading does not rotate it — so fetching it on every apply does not invalidate the
+credential you are using. Ephemeral resources need Terraform 1.10 or later.
+
+**`initial_login = false` is not optional.** Configuring a provider from a resource created in the
+same apply is usually a dead end in Terraform, and there are two separate reasons why. The provider
+config referencing a not-yet-created value is the obvious one. The subtler one is that the Keycloak
+provider authenticates when Terraform *configures* it, which happens during `plan` — against a
+cluster that does not exist yet:
+
+```
+Error: error initializing keycloak provider
+failed to perform initial login to Keycloak: ... 401 Unauthorized
+```
+
+`initial_login = false` defers that login until the provider first has to act on a resource, by
+which point the cluster is up. With it, the single apply works end to end, and `terraform destroy`
+orders correctly too — Terraform infers the dependency through the provider block and tears down the
+realm's contents before the credential they were configured from.
+
+The trade is that a wrong credential is no longer caught at plan time; it surfaces during apply.
 
 ### Grant only the roles you need
 
