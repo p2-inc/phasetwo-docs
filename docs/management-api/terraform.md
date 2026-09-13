@@ -225,11 +225,18 @@ time — it surfaces during apply.
 
 :::
 
-:::caution The secret is shown once
+:::tip Fetch the secret, don't store it
 
-It is not stored and cannot be read back. If you lose it, revoke the credential and create
-another. `deployment.credential.list` returns the credentials that exist and what they are for,
-but never their secrets.
+Phase Two keeps no copy of the secret, but it is not lost: `deployment.credential.secret.read`
+returns it from your realm, and reading does not rotate it.
+
+```bash
+curl -s "https://api.phasetwo.io/v2/deployments/$DEPLOYMENT_ID/credentials/api-terraform-9f3c1a2b/secret" \
+  -H "Authorization: Bearer $TOKEN" | jq -r .client_secret
+```
+
+Prefer fetching it when you need it over writing it down. `deployment.credential.list` returns the
+credentials that exist and what they can do, without their secrets.
 
 :::
 
@@ -321,11 +328,17 @@ still holding it starts failing to authenticate rather than quietly continuing.
 
 ### Keep it out of state, and out of git
 
-The Keycloak provider writes `client_secret` into `terraform.tfstate` in plain text. That is true
-of any provider credential, but it is worth saying plainly because the state file travels: treat
-the state backend as holding a realm-admin credential, and give it the access controls that
-implies. Use a remote backend with encryption and restricted reads, pass the secret through a
-variable rather than committing it, and do not reuse one credential across environments.
+The Keycloak provider writes `client_secret` into `terraform.tfstate` in plain text. That is true of
+any provider credential, but it is worth saying plainly because the state file travels: treat the
+state backend as holding a realm-admin credential, and give it the access controls that implies. Use
+a remote backend with encryption and restricted reads, pass the secret through a variable rather
+than committing it, and do not reuse one credential across environments.
+
+Because the secret can be read back on demand, the better answer is not to put it in state at all.
+Terraform 1.10's [ephemeral resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral)
+are never written to state or plan files, so a secret fetched into one exists only for the duration
+of the run. The Phase Two provider will expose the credential secret that way — see
+[terraform-provider-phasetwo#6](https://github.com/p2-inc/terraform-provider-phasetwo/issues/6).
 
 ## Local development
 
