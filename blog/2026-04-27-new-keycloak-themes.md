@@ -1,5 +1,5 @@
 ---
-title: "A New Keycloak Theme Experience: Login, Admin, Account, and Email"
+title: "Keycloak Themes: Custom Login, Admin, Account, and Email"
 slug: new-keycloak-themes
 date: 2026-04-27
 authors: [jpatzer]
@@ -14,14 +14,34 @@ tags:
     organizations,
     branding,
   ]
-description: We rebuilt our Keycloak themes from the ground up using Keycloakify and shadcn/ui—delivering a modern login experience, a richer admin console, a polished account portal, and fully branded emails, all configurable at runtime without redeployment.
+description: "Keycloak has four theme types: login, admin, account and email. Here is how we rebuilt all four on Keycloakify, and how to brand Keycloak themes at runtime."
+keywords:
+  [
+    keycloak themes,
+    keycloak theme,
+    keycloak login theme,
+    keycloak custom theme,
+    keycloak theming,
+    keycloakify,
+  ]
+image: /blog/new-keycloak-themes/login.png
 ---
 
-Keycloak theming has always been a pain point. The default themes that come with Keycloak leave a lot to be desired stylistically and cannot be customized easily. We have maintained our own set of disparate custom themes for the login, email and admin consoles but that has led to a maintenance nightmare and a disjointed user experience.
+Keycloak has exactly four theme types you can set on a realm: **login**, **account**, **admin**, and **email**. Each one is its own directory of templates, message bundles and static assets, packaged into a JAR and dropped into the server's `providers/` directory. That is the whole extension point. It is also why custom Keycloak themes tend to become a standing maintenance cost: your templates are copies of upstream files, and upstream moves every release.
 
-We've completely rebuilt our bundled Keycloak themes. What used to live as a tangle of custom pages inside a forked Keycloak repository is now a first-class [Keycloakify](https://www.keycloakify.dev/)-based React application that ships four themes: **login**, **admin**, **account**, and **email**. The result is faster to maintain, far more capable, and dramatically better out of the box for the organizations using Phase Two today.
+We've completely rebuilt our bundled [Keycloak themes](/extensions/themes/). What used to live as a tangle of custom pages inside a forked Keycloak repository is now a first-class [Keycloakify](https://www.keycloakify.dev/)-based React application that ships all four: **login**, **admin**, **account**, and **email**. The result is faster to maintain, far more capable, and dramatically better out of the box for the organizations using Phase Two today.
 
-Starting now, **all Phase Two containers ship with this theme bundled**. Any realm you create through the [Phase Two Dashboard](https://dash.phasetwo.io/) automatically gets the new login, admin, account, and email themes active—no configuration required. The first time a user hits your login page or receives an email from your realm, it already looks good.
+**Switching themes is four realm fields.** Set them in **Realm settings → Themes** in the admin console, or from the CLI. Verified against Keycloak 26.7.3:
+
+```bash
+kcadm.sh update realms/<your-realm> \
+  -s loginTheme=phasetwo-ui \
+  -s accountTheme=phasetwo-ui \
+  -s adminTheme=phasetwo-ui \
+  -s emailTheme=phasetwo-ui
+```
+
+Starting now, **all Phase Two containers ship with this theme bundled**. Any realm you create through the [Phase Two Dashboard](https://dash.phasetwo.io/) automatically gets the new login, admin, account, and email themes active, with no configuration required. The first time a user hits your login page or receives an email from your realm, it already looks good.
 
 <!-- truncate -->
 
@@ -48,8 +68,8 @@ If you want to start trying it now, grab our latest image from [Quay.io](https:/
 
 The new theme, called `phasetwo-ui`, is a React application built with:
 
-- **Keycloakify 11** — bridges React components to Keycloak's theme SPI, handles JAR packaging automatically
-- **shadcn/ui + Tailwind CSS 4** — modern, composable component library for the login and account themes
+- **Keycloakify 11** — bridges React components to Keycloak's theme SPI, handles JAR packaging automatically. We are [sponsors of the project](/blog/phasetwo-keycloakify-partnership/)
+- **shadcn/ui + Tailwind CSS 4** — modern, composable component library for the login and account themes. If you want to build your own rather than use ours, start from our [shadcn Keycloak theme starter](/blog/shadcn-keycloak-theme/)
 - **PatternFly 5** — used in the admin and account console to avoid a complete rewrite of those complex interfaces while still allowing us to inject our own styles and components
 - **Vite** — fast builds and hot module replacement during development
 - **Storybook** — isolated component development and visual testing
@@ -74,7 +94,7 @@ The bigger story is runtime configurability. Every visual element of the login p
 
 ![Login Theme Customized](/blog/new-keycloak-themes/login-theme-customized.png)
 
-These attributes are served through a dynamic `/realms/<realm>/assets/css/login.css` endpoint that the Java SPI generates on the fly, mapping realm attributes to the right CSS variables.
+These attributes are served through a dynamic `/realms/<realm>/assets/css/login.css` endpoint that the Java SPI generates on the fly, mapping realm attributes to the right CSS variables. Every attribute, including the dark-mode overrides, is listed in the [UI customization docs](/docs/getting-started/customizing-ui). The earlier attribute-based approach this grew out of is described in [How to customize login pages](/blog/customizing-login-pages/).
 
 Dark mode is supported. Language switching is built in. Fallback logos handle the case where a custom logo URL fails to load.
 
@@ -118,7 +138,7 @@ The account theme wraps Keycloak's standard account management UI in the same vi
 
 The default Keycloak email templates are plain text in a minimal HTML shell. They get the job done, but they don't reflect well on the product they're sending from. Our new email theme replaces that with a professional, fully branded layout—clean typography, your logo embedded directly in the message, a structured content area with appropriate padding and shadow, and a configurable footer. All coupled with an in-page preview experience. Emails from your realm will look like they came from a real product from day one.
 
-For realms created through the Phase Two Dashboard, this is now the default. No setup required.
+For realms created through the Phase Two Dashboard, this is now the default. No setup required. For the template-by-template detail, see [How to customize email templates in Keycloak](/blog/customizing-email-templates/).
 
 ![Email Theme](/blog/new-keycloak-themes/email-theme-configuration.png)
 
@@ -146,7 +166,7 @@ We also get proper tooling for the first time: Storybook for developing componen
 
 **Self-hosted with the Phase Two image** — the theme is included in the [Phase Two Keycloak image](https://quay.io/repository/phasetwo/phasetwo-keycloak). Pull the latest image and select `phasetwo-ui` in your realm theme settings.
 
-**Self-hosted with your own Keycloak** — build and install from the open source [keycloak-themes](https://github.com/p2-inc/keycloak-themes) repository:
+**Self-hosted with your own Keycloak** — the [Keycloak themes](/extensions/themes/) extension is open source and works on stock Keycloak. Build and install it from the [keycloak-themes](https://github.com/p2-inc/keycloak-themes) repository:
 
 ```bash
 mvn clean install -DskipTests
@@ -173,6 +193,6 @@ For email themes, we're adding more template variables and making it easier to c
 
 If you have feedback or run into anything, open an issue on [GitHub](https://github.com/p2-inc/keycloak-themes) or [drop us a line](https://phasetwo.io/contact).
 
-## Need help customizing your Keycloak experience?
+## Where to start
 
-Whether you're trying to match your brand exactly, integrate a custom identity flow, or just figure out where to start—we're happy to help. [Reach out to us](https://phasetwo.io/contact) and we'll point you in the right direction.
+The theme is open source: start with the [keycloak-themes](https://github.com/p2-inc/keycloak-themes) repository, or read what the [Keycloak themes](/extensions/themes/) extension covers before you build your own. If you would rather not run any of it yourself, our [managed Keycloak](/hosting/dedicated-clusters/) clusters ship it by default.
