@@ -47,6 +47,7 @@ More framework-by-framework guides are next. *(Coming soon.)*
 2. [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
 3. [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)
 4. [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)
+5. [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/)
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 

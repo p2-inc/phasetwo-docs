@@ -37,6 +37,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Sessions and tokens",
+      link: { type: "generated-index" },
+      items: ["sessions/timeouts"],
+    },
+    {
+      type: "category",
       label: "Mobile apps",
       link: { type: "generated-index" },
       items: ["mobile-apps/app-association-files"],
