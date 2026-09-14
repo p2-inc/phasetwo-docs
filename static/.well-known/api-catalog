@@ -1,0 +1,26 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://phasetwo.io",
+      "service-desc": [
+        {
+          "href": "https://phasetwo.io/openapi.yaml",
+          "type": "application/yaml",
+          "title": "Phase Two Admin REST API (OpenAPI 3, YAML)"
+        },
+        {
+          "href": "https://phasetwo.io/openapi.json",
+          "type": "application/json",
+          "title": "Phase Two Admin REST API (OpenAPI 3, JSON)"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://phasetwo.io/docs/api/",
+          "type": "text/html",
+          "title": "Phase Two API reference"
+        }
+      ]
+    }
+  ]
+}

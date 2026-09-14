@@ -36,4 +36,9 @@ Go to your cluster's page > Config tab > Keycloak features.
 
 ### Applying Changes
 
-After adding or removing environment variables, the Phase Two team will review and apply the changes to your cluster.
+Environment variable changes are applied automatically. Adding, updating, or removing a variable stores the new value and then starts a cluster restart so the change takes effect — there is no manual step on the Phase Two side.
+
+Because the change requires a restart, note that:
+
+- Only one restart runs against a cluster at a time. If a restart is already in flight — including one started by a [cluster resource refresh](./resources.md#deploying-resources-to-the-cluster) — your change is stored but the restart is deferred until the in-flight one finishes.
+- If you are making several environment variable changes at once, expect them to be applied in sequence rather than in a single restart.

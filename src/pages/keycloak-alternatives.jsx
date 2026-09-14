@@ -2,6 +2,7 @@ import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 import React from "react";
+import Section from "../components/Section";
 import Icon from "../components/comparison/Icon";
 
 const SITE = "https://phasetwo.io";
@@ -148,7 +149,7 @@ export default function KeycloakAlternatives() {
         </section>
 
         {/* Hub table */}
-        <section className="section" id="compare" style={{ background: "var(--bg)" }}>
+        <Section className="section" id="compare" style={{ background: "var(--bg)" }}>
           <div className="wrap">
             <div className="head" style={{ textAlign: "center", marginBottom: 40 }}>
               <div className="eyebrow" style={{ marginBottom: 16 }}><span className="dot"></span>Compare Keycloak</div>
@@ -187,7 +188,7 @@ export default function KeycloakAlternatives() {
               <Link to="/blog/open-source-iam/" className="link-arrow" style={{ justifyContent: "center" }}>Read the open-source IAM overview <Icon name="arrow-right" size={15} /></Link>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Vendor card grid */}
         <section className="section-sm" style={{ background: "var(--bg-2)", borderTop: "1px solid var(--line)" }}>

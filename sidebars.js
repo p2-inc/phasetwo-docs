@@ -46,6 +46,8 @@ module.exports = {
         "self-service/resources",
         "self-service/restrictions",
         "self-service/environment-variables",
+        "self-service/backups-and-data-retention",
+        "self-service/upgrades",
       ],
     },
     {
@@ -59,7 +61,6 @@ module.exports = {
           id: "securing-applications/native-apps",
           label: "Native - iOS/Android/macOS",
         },
-        "securing-applications/springboot",
         "securing-applications/javascript",
         "securing-applications/react",
         "securing-applications/next",

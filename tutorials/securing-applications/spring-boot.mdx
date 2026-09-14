@@ -1,0 +1,654 @@
+---
+id: spring-boot
+title: "Spring Boot Keycloak Authentication: Tested Example"
+description: A tested Spring Boot Keycloak authentication example — resource server config, realm role mapping, audience validation, Docker, and every 401 explained.
+keywords:
+  - spring boot keycloak authentication example
+  - keycloak spring boot docker
+  - spring boot resource server keycloak 401
+  - keycloak spring security oauth2
+  - spring boot keycloak roles
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Spring Boot Keycloak Authentication: Tested Example
+
+A Spring Boot application authenticates against Keycloak by acting as an **OAuth2 resource
+server**: it validates the JWT access token in the `Authorization` header locally, against
+the realm's public keys. There is no Keycloak adapter and no Keycloak dependency. Three
+things get you there:
+
+1. Add `spring-boot-starter-oauth2-resource-server`.
+2. Point `spring.security.oauth2.resourceserver.jwt.issuer-uri` at your realm.
+3. Map Keycloak's `realm_access.roles` claim onto Spring authorities — **Spring does not do
+   this for you**, and skipping it is why `@PreAuthorize("hasRole('…')")` returns 403 on a
+   token that plainly contains the role.
+
+Steps 1 and 2 are in Spring's reference docs. Step 3, the audience claim that makes valid
+tokens 401, the two ways Docker breaks the issuer, and the 60-second window in which
+Spring accepts expired tokens are not. That is what the rest of this page is.
+
+:::info Tested against
+Keycloak **26.7.3**, Spring Boot **4.1.1** (Spring Security 7.1.1), Java 17, on the realm
+built below — and the Spring Boot 3.x variant re-run on **3.5.16**. Every command, error
+string, HTTP status and measured number on this page is copied from an actual run.
+:::
+
+## What you'll build
+
+A `demo` realm and an API on port 8081 with three endpoints, plus the exact command that
+proves each one behaves:
+
+| Endpoint | No token | Token, no `api-user` role | Token with `api-user` |
+|---|---|---|---|
+| `GET /api/public` | 200 | 200 | 200 |
+| `GET /api/me` | 401 | 200 | 200 |
+| `GET /api/reports` | 401 | **403** | 200 |
+
+That 401-vs-403 split is the whole point. A 401 means *we do not believe your token*; a 403
+means *we believe it and you still may not*. Confusing the two costs people hours.
+
+## Prerequisites
+
+Java 17 or newer, Maven, and a Keycloak instance. If you don't have one,
+[run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/) or paste this:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+## Step 1 — Two clients, not one
+
+The single most common mistake here is registering one Keycloak client and using it for
+both the frontend and the API. Register two, because they are different things:
+
+| Client | What it is | Settings |
+|---|---|---|
+| `spring-client` | The app that **obtains** tokens (your SPA, mobile app, or curl) | Public, standard flow on |
+| `spring-api` | The Spring Boot API that **receives** them | Confidential, standard flow off — it never logs anyone in |
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+$K create realms -s realm=demo -s enabled=true
+
+$K create clients -r demo -s clientId=spring-client -s publicClient=true \
+  -s 'redirectUris=["http://localhost:5173/*"]' \
+  -s 'webOrigins=["http://localhost:5173"]' \
+  -s directAccessGrantsEnabled=true
+
+$K create clients -r demo -s clientId=spring-api \
+  -s publicClient=false -s standardFlowEnabled=false
+
+$K create roles -r demo -s name=api-user
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+$K add-roles -r demo --uusername alice --rolename api-user
+```
+
+In the admin console the equivalent is **Clients → Create client** twice (turn off *Client
+authentication* for `spring-client`, on for `spring-api`, and clear *Standard flow* on
+`spring-api`), then **Realm roles → Create role** and **Users → Create user → Role mapping**.
+
+Grab a token. `grant_type=password` is a tutorial shortcut — it is discouraged in OAuth 2.1
+and your real frontend uses the authorization code flow with PKCE — but the token it
+returns is identical, and it saves a browser round trip on every test below:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=spring-client -d username=alice -d password=s3cret \
+  -d grant_type=password -d scope=openid > /tmp/t.json
+AT=$(jq -r .access_token /tmp/t.json)
+```
+
+If that fails, [get your first token](/tutorials/getting-started/your-first-token/) walks
+every error the token endpoint returns.
+
+## Step 2 — The project
+
+Two dependencies. Note there is no Keycloak dependency of any kind. Keycloak announced the
+deprecation of its Java adapters in
+[Keycloak 19](https://www.keycloak.org/2022/02/adapter-deprecation), shipped them for the
+last time in 24, and
+[removed the Spring and Spring Boot adapters in 25](https://www.keycloak.org/docs/latest/release_notes/index.html#most-of-java-adapters-removed).
+Spring Security's own resource server support is the replacement, and it is the only
+supported route on a current Keycloak.
+
+```xml
+<parent>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-parent</artifactId>
+  <version>4.1.1</version>
+</parent>
+
+<dependencies>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+  </dependency>
+</dependencies>
+```
+
+The security configuration is one bean:
+
+```java
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+
+  @Bean
+  SecurityFilterChain api(HttpSecurity http) throws Exception {
+    return http
+        .authorizeHttpRequests(a -> a
+            .requestMatchers("/api/public").permitAll()
+            .anyRequest().authenticated())
+        .oauth2ResourceServer(o -> o.jwt(jwt -> {}))
+        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .csrf(c -> c.disable())
+        .build();
+  }
+}
+```
+
+`STATELESS` and disabling CSRF are correct **for a bearer-token API and nothing else**. There
+is no session to fix to and no cookie to forge, so CSRF protection has nothing to protect. If
+this same application also serves cookie-authenticated pages, do not copy those two lines.
+
+The controller:
+
+```java
+@RestController
+public class ApiController {
+
+  @GetMapping("/api/public")
+  public Map<String, String> open() {
+    return Map.of("message", "no token needed");
+  }
+
+  @GetMapping("/api/me")
+  public Map<String, Object> me(@AuthenticationPrincipal Jwt jwt) {
+    return Map.of("sub", jwt.getSubject(),
+        "username", jwt.getClaimAsString("preferred_username"),
+        "aud", jwt.getAudience());
+  }
+
+  @GetMapping("/api/whoami")
+  public Map<String, Object> whoami(Authentication auth) {
+    return Map.of("name", auth.getName(),
+        "authorities", auth.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority).sorted().toList());
+  }
+
+  @GetMapping("/api/reports")
+  @PreAuthorize("hasRole('api-user')")
+  public Map<String, String> reports() {
+    return Map.of("message", "you have the api-user realm role");
+  }
+}
+```
+
+`/api/whoami` is not decoration. It prints what Spring actually derived from the token, and
+it is the fastest way to end an argument about a 403.
+
+## Step 3 — The configuration that works, and why
+
+```yaml
+server:
+  port: 8081
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER:http://localhost:8080/realms/demo}
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:${KEYCLOAK_ISSUER:http://localhost:8080/realms/demo}/protocol/openid-connect/certs}
+          audiences: [spring-api]
+          principal-claim-name: preferred_username
+          authority-prefix: "ROLE_"
+          authorities-claim-expressions:
+            - "[realm_access][roles]"
+            - "[resource_access]['spring-api'][roles]"
+```
+
+Two of those settings get you a working decoder. The other four each exist to fix a
+specific, reproducible failure. Here is each one.
+
+### `principal-claim-name` — otherwise your logs say nothing
+
+By default Spring uses the `sub` claim, so `auth.getName()` is a UUID. With
+`preferred_username` it is `alice`. Every audit log you write downstream depends on this.
+Keep keying your *data* on `sub` — usernames are editable — but log the human name.
+
+### `authorities-claim-expressions` — the 403
+
+Start the app without those two lines and call `/api/whoami` with alice's token:
+
+```json
+{
+  "name": "00cee80e-8392-4c21-aa91-b5d47960f8c7",
+  "authorities": ["FACTOR_BEARER", "SCOPE_email", "SCOPE_openid", "SCOPE_profile"]
+}
+```
+
+Her token contains `"realm_access": {"roles": ["api-user", …]}`. Spring turned **none** of it
+into an authority. It reads the `scope` claim and stops. So:
+
+```
+$ curl -i -H "Authorization: Bearer $AT" http://localhost:8081/api/reports
+HTTP/1.1 403
+WWW-Authenticate: Bearer error="insufficient_scope",
+  error_description="The request requires higher privileges than provided by the access token."
+```
+
+That is not a Keycloak problem. `realm_access` is not a standard OIDC claim, so Spring has no
+reason to guess at it. With the two expressions in place:
+
+```json
+{
+  "name": "alice",
+  "authorities": ["FACTOR_BEARER", "ROLE_api-user", "ROLE_default-roles-demo",
+                  "ROLE_offline_access", "ROLE_uma_authorization"]
+}
+```
+
+and `/api/reports` returns 200. Two things about that expression syntax cost real debugging
+time, because both fail **silently** — no error, no warning, just zero authorities and a 403:
+
+- **The SpEL root is the claims map, not the `Jwt`.** So it is `[realm_access][roles]`, with
+  brackets. Write the natural-looking `realm_access.roles` and you get nothing at all.
+- **A client ID containing a hyphen must be quoted.** `[resource_access][spring-api][roles]`
+  parses `spring-api` as *subtraction of two properties* and silently resolves to nothing.
+  Verified: after giving alice a `spring-api` client role `reports-admin`
+  (`$K add-roles -r demo --uusername alice --cclientid spring-api --rolename reports-admin`),
+  the unquoted form left `ROLE_reports-admin` out of her authorities entirely; quoted as
+  `['spring-api']`, it appeared.
+
+`ROLE_` matters too: `hasRole('api-user')` looks for the authority `ROLE_api-user`, while
+`hasAuthority('api-user')` looks for `api-user`. Pick one convention and set
+`authority-prefix` to match it.
+
+Which of the two expressions you actually need depends on how you modelled access. Realm
+roles (`realm_access`) are global to the realm and land in every token; client roles
+(`resource_access.<clientId>`) are scoped to one application and only appear when that
+client is in scope. If several services share a realm, client roles keep
+`api-user` in one service from meaning `api-user` in another — see
+[Keycloak as an IAM system](/docs/keycloak/iam) for how the pieces relate. Keeping both
+expressions costs nothing; a missing one costs a 403.
+
+:::warning On Spring Boot 3.x, `authorities-claim-expressions` does not exist
+It was added in Spring Boot 4. Boot 3.x has only `authorities-claim-name`, which reads a
+**flat** claim and so cannot reach into `realm_access.roles`. On 3.x you need a converter:
+
+```java
+@Component
+public class KeycloakJwtAuthenticationConverter
+    implements Converter<Jwt, AbstractAuthenticationToken> {
+
+  private final JwtGrantedAuthoritiesConverter scopes = new JwtGrantedAuthoritiesConverter();
+
+  @Override
+  public AbstractAuthenticationToken convert(Jwt jwt) {
+    Collection<GrantedAuthority> authorities = new ArrayList<>(scopes.convert(jwt));
+    Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
+    if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
+      roles.forEach(r -> authorities.add(new SimpleGrantedAuthority("ROLE_" + r)));
+    }
+    return new JwtAuthenticationToken(
+        jwt, authorities, jwt.getClaimAsString("preferred_username"));
+  }
+}
+```
+
+Wire it with `o.jwt(jwt -> jwt.jwtAuthenticationConverter(converter))` and keep
+`audiences`, which does exist on 3.x. Verified on Spring Boot **3.5.16**: alice's
+authorities came back as `["ROLE_api-user", "ROLE_default-roles-demo", "ROLE_offline_access",
+"ROLE_uma_authorization", "SCOPE_email", "SCOPE_openid", "SCOPE_profile"]`, `/api/reports`
+returned 200 for her and **403** for role-less Bob.
+
+The same converter works on Boot 4 if you would rather keep the mapping in Java, with one
+wrinkle: constructing `JwtAuthenticationToken` by hand drops the `FACTOR_BEARER` authority
+that Spring Security 7 adds automatically. Harmless unless you use it in an authorization
+rule.
+:::
+
+### `audiences` — the 401 on a token that is obviously fine
+
+Decode a Keycloak access token and look at `aud`:
+
+```json
+{ "iss": "http://localhost:8080/realms/demo", "aud": "account", "azp": "spring-client" }
+```
+
+`account`. Not `spring-api`. **Keycloak does not put your API in the audience unless you tell
+it to.** Turn on audience validation and a perfectly valid token is rejected:
+
+```
+HTTP/1.1 401
+WWW-Authenticate: Bearer error="invalid_token",
+  error_description="An error occurred while attempting to decode the Jwt: The aud claim is not valid"
+```
+
+This is the 401 that looks least like a configuration error, because nothing about the
+token is wrong — it is signed, unexpired, and from the right realm. The fix is on the
+Keycloak side, and specifically on the client that **issues** the token, not the one that
+receives it:
+
+```bash
+CID=$($K get clients -r demo -q clientId=spring-client \
+  --fields id --format csv --noquotes)
+
+$K create clients/$CID/protocol-mappers/models -r demo \
+  -s name=spring-api-audience \
+  -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=spring-api' \
+  -s 'config."access.token.claim"=true'
+```
+
+Console path: **Clients → spring-client → Client scopes → spring-client-dedicated →
+Configure a new mapper → Audience**, *Included Client Audience* `spring-api`, *Add to access
+token* on. Request a new token and `aud` becomes `["spring-api", "account"]`; the request
+returns 200. `account` stays, which is fine — your check is that your client ID is *present*,
+not that it is alone. Keycloak's
+[Audience support](https://www.keycloak.org/docs/latest/server_admin/index.html#audience-support)
+explains why this is on by design.
+
+You could leave `audiences` out and the token would be accepted. Don't. Without it, any token
+your realm issued to any client is valid at your API, including tokens minted for a
+completely different application.
+
+## Step 4 — Verify it worked
+
+```bash
+mvn spring-boot:run
+```
+
+```bash
+# 1. public route, no token
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/api/public          # 200
+# 2. protected route, no token
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8081/api/me              # 401
+# 3. protected route, alice
+curl -s -H "Authorization: Bearer $AT" http://localhost:8081/api/me
+# {"username":"alice","aud":["spring-api","account"],"sub":"00cee80e-8392-…"}
+# 4. role-gated route, alice
+curl -s -H "Authorization: Bearer $AT" http://localhost:8081/api/reports
+# {"message":"you have the api-user realm role"}
+```
+
+Then the negative case that proves authorization is real. Add a user with no roles and
+confirm 403 rather than 401:
+
+```bash
+$K create users -r demo -s username=bob -s enabled=true -s email=bob@example.com \
+  -s emailVerified=true -s firstName=Bob -s lastName=Example
+$K set-password -r demo --username bob --new-password s3cret
+```
+
+Bob's authorities come back without `ROLE_api-user`, and `/api/reports` gives him a
+`403 insufficient_scope`. If Bob gets 200, your `@PreAuthorize` is not being applied —
+check that `@EnableMethodSecurity` is present.
+
+## Step 5 — Both of them in Docker
+
+Running Keycloak and a Spring Boot API as containers breaks in two distinct ways, and they
+produce different errors. Both come from one fact: **`iss` in the token is the URL the
+*client* used to get it, and that is not the URL your container uses to reach Keycloak.**
+
+**Failure 1 — the API cannot reach the issuer.** You containerise the app and leave
+`issuer-uri: http://localhost:8080/realms/demo`. Inside the container, `localhost` is the
+container. Note what this looks like: the app **starts perfectly**, then fails on the first
+authenticated request, because Spring Boot resolves the decoder lazily.
+
+```
+INFO  Started ApiApplication in 3.711 seconds
+ERROR Servlet.service() for servlet [dispatcherServlet] threw exception
+Caused by: java.lang.IllegalArgumentException: Unable to resolve the Configuration with the
+provided Issuer of "http://localhost:8080/realms/demo"
+```
+
+The 401 that reaches the caller has no `error=` in `WWW-Authenticate` at all — just
+`Bearer resource_metadata="…"`. **A 401 with no error description means the decoder was never
+built.** Check the server log, not the token.
+
+**Failure 2 — the API can reach the issuer, but the token disagrees.** You fix it to
+`issuer-uri: http://keycloak:8080/realms/demo`. Now discovery works and validation fails,
+because the token a browser obtained says `iss: http://localhost:8080/realms/demo`:
+
+```
+HTTP/1.1 401
+WWW-Authenticate: Bearer error="invalid_token",
+  error_description="An error occurred while attempting to decode the Jwt: The iss claim is not valid"
+```
+
+There are two fixes and it is worth knowing both:
+
+| Fix | What you do | Use it when |
+|---|---|---|
+| **Split the URLs** | `issuer-uri` = the public URL (validated against `iss`); `jwk-set-uri` = the internal URL (actually fetched) | Local development and compose, where the browser and the API genuinely reach Keycloak at different addresses |
+| **Pin the hostname** | Set `KC_HOSTNAME` on Keycloak so it advertises one issuer to everyone | Production, where Keycloak has a real public hostname |
+
+The split is what the `application.yml` above does, and it is safe: setting `jwk-set-uri`
+skips discovery but **does not** disable issuer checking. Verified — with `jwk-set-uri`
+pointing at a reachable Keycloak and `issuer-uri` set to `http://wrong.example/realms/demo`,
+a valid token still fails with `The iss claim is not valid`.
+
+For the pinned-hostname option, `KC_HOSTNAME` plus
+`KC_HOSTNAME_BACKCHANNEL_DYNAMIC=false` makes Keycloak advertise one issuer to everyone,
+whichever address they connected on. Confirmed by starting Keycloak with a fixed
+`KC_HOSTNAME`, then fetching the discovery document from the host on a **different** port —
+it still returned the configured hostname as `issuer`, not the one in the request. That is
+the right answer in production, where Keycloak has a real public hostname and everything
+should be using it. See Keycloak's
+[hostname configuration guide](https://www.keycloak.org/server/hostname) for the
+`hostname`, `hostname-admin` and backchannel options.
+
+A compose file using the split, which comes up clean and passes all four checks above:
+
+```yaml
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.3
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./realm-demo.json:/opt/keycloak/data/import/realm-demo.json:ro
+    ports: ["8080:8080"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'",
+        ]
+      interval: 5s
+      retries: 30
+
+  api:
+    build: .
+    environment:
+      # iss in the token is the URL the browser used — validate against that
+      KEYCLOAK_ISSUER: http://localhost:8080/realms/demo
+      # but fetch the keys over the compose network, where localhost is this container
+      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/demo/protocol/openid-connect/certs
+    ports: ["8081:8081"]
+    depends_on:
+      keycloak: { condition: service_healthy }
+```
+
+Two details worth copying. The healthcheck hits `/health/ready` on the **management port
+9000**, not 8080, and needs `KC_HEALTH_ENABLED=true` — Keycloak 26 moved health and metrics
+off the main port. And it uses bash's `/dev/tcp` rather than curl, because the Keycloak image
+has no shell utilities to speak of. Without a healthcheck the API starts first, gets a
+connection refused on the JWKS fetch, and 401s until you restart it.
+
+`realm-demo.json` is the whole realm as one importable file — realm, both clients, the
+audience mapper, the role, and alice:
+
+```json
+{
+  "realm": "demo",
+  "enabled": true,
+  "roles": { "realm": [{ "name": "api-user" }] },
+  "clients": [
+    {
+      "clientId": "spring-api",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false
+    },
+    {
+      "clientId": "spring-client",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "protocolMappers": [
+        {
+          "name": "spring-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "spring-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "alice@example.com",
+      "firstName": "Alice",
+      "lastName": "Example",
+      "credentials": [{ "type": "password", "value": "s3cret" }],
+      "realmRoles": ["api-user"]
+    }
+  ]
+}
+```
+
+`--import-realm` is for development and CI, not deployment. Keycloak
+[skips the import entirely if the realm already exists](https://www.keycloak.org/server/importExport),
+so it is not a way to apply configuration changes — and this file has a password in it.
+
+## What this costs at runtime
+
+Two things people worry about, measured on the setup above.
+
+**Keycloak is not in the request path.** Validation is a local signature check against cached
+keys. With Keycloak's access log on, **500 authenticated API calls produced exactly one
+request** to `/realms/demo/protocol/openid-connect/certs`:
+
+```
+"GET /realms/demo/protocol/openid-connect/certs HTTP/1.1" 200 2909
+```
+
+If you see that line once per API request, your `JwtDecoder` is being rebuilt per request —
+almost always a decoder constructed inside a filter or a `@Bean` that isn't one.
+
+**Key rotation needs no restart.** Adding a second RS256 provider at a higher priority makes
+Keycloak sign with a new `kid`. With the app left running, a token signed by the **new** key
+returned 200, and a token signed by the **old** key — still published in the JWKS as a
+passive key — also returned 200. Spring refetched the key set when it saw an unknown `kid`.
+Rotation only breaks if you remove the old key while tokens signed by it are still alive.
+
+## The 60-second window nobody mentions
+
+Set the realm's access token lifespan to 10 seconds, take a token, and keep calling:
+
+| Time relative to `exp` | Result |
+|---|---|
+| `exp + 0s` | 200 |
+| `exp + 15s` | 200 |
+| `exp + 45s` | 200 |
+| `exp + 65s` | 401 `Jwt expired at 2026-09-07T07:58:10Z` |
+
+**Spring Security's default clock skew is 60 seconds.** Your token's real lifetime is Keycloak's
+`accessTokenLifespan` plus a minute. That default exists for good reason — servers whose
+clocks differ by a second or two would otherwise reject valid tokens — but if you shortened
+token lifetimes deliberately, you did not get what you think you did. There is no property
+for it; you need a decoder bean:
+
+```java
+@Bean
+JwtDecoder jwtDecoder(
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri,
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}") String issuer,
+    @Value("${app.audience}") String audience) {
+
+  NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+  decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+      new JwtTimestampValidator(Duration.ofSeconds(5)),
+      new JwtIssuerValidator(issuer),
+      new JwtClaimValidator<List<String>>(
+          JwtClaimNames.AUD, aud -> aud != null && aud.contains(audience))));
+  return decoder;
+}
+```
+
+Measured with that in place: accepted at `exp + 4s`, `401` at `exp + 8s`. Note that owning the
+decoder means you now own issuer and audience validation too — that is why both validators are
+listed explicitly, and why `spring.security.oauth2.resourceserver.jwt.audiences` comes out of
+`application.yml` when you do this. Run 5 seconds only if you actually control clock sync;
+otherwise NTP first.
+
+## Every 401 and 403, and what it means
+
+Read the `error_description` in the `WWW-Authenticate` response header. It names the cause
+precisely, and this table covers everything the setup above produced:
+
+| Status and `error_description` | Cause | Fix |
+|---|---|---|
+| `401`, **no `error=` at all** | The `JwtDecoder` could not be built — issuer unreachable — or there was no `Bearer` header | Read the server log; check `issuer-uri` from *inside* the container |
+| `401` `The aud claim is not valid` | No audience mapper on the issuing client, **or** you sent an ID token instead of an access token | Add the `oidc-audience-mapper`; check `typ` is `Bearer` |
+| `401` `The iss claim is not valid` | `issuer-uri` ≠ the token's `iss`, usually a Docker hostname difference | Split `issuer-uri` / `jwk-set-uri`, or set `KC_HOSTNAME` |
+| `401` `Malformed token` | The header value is not a JWT — commonly `Bearer undefined` from a frontend | Fix the caller |
+| `401` `Signed JWT rejected: Another algorithm expected, or no matching key(s) found` | The token came from a **different realm** | Check the realm in both `iss` and `issuer-uri` |
+| `401` `Jwt expired at <timestamp>` | Genuinely expired, past the skew | Refresh the token |
+| `403` `insufficient_scope` | Authenticated fine; the required authority is missing | `/api/whoami` — if roles are absent, your claim mapping is wrong |
+
+Two more that produce no error because nothing is wrong: the `Bearer` scheme is
+case-insensitive, so `Authorization: bearer <token>` returns 200; and an unquoted hyphenated
+client ID in a claim expression yields a 403 with no diagnostic anywhere.
+
+## Next steps
+
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+  — every claim in the token this API just validated, including the `aud` trap from the
+  token's side.
+- [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — algorithm
+  pinning, storage, and what not to put in a token.
+- [Decoding a JWT](/tutorials/jwts/decoding-jwt-structure/) — the wire format, if you want to
+  see what the signature check is actually checking. Paste one into the
+  [JWT decoder](/tools/jwt-decoder/) while you read.
+- Pairing this with an Angular front end:
+  [securing an Angular and Spring Boot application](/blog/secure-spring-boot).
+- Official references, which say what each option does:
+  [Spring Security OAuth2 resource server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+  and Keycloak's
+  [audience support](https://www.keycloak.org/docs/latest/server_admin/index.html#audience-support)
+  and [protocol mappers](https://www.keycloak.org/docs/latest/server_admin/index.html#_protocol-mappers).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

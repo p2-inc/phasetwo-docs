@@ -35,7 +35,7 @@ Keycloak, being an open-source IAM solution, offers startups a significant advan
 
 3. **Community Support**: The vibrant open-source community surrounding Keycloak provides startups with access to a wealth of resources, including documentation, forums, and community-contributed extensions. This extensive support network ensures timely resolution of issues and continuous improvement of the platform, all at no additional cost to startups.
 
-4. **Expertise**: Using an open-source solution means adopting that code base in a manner of speaking. Your team must build expertise in the code base and the capabilities of the tool in addition to all the protocols that come with IAM. That includes things like setting up authentication flows, configuring [organizations](/product/organizations/), or [performing upgrades](/support#upgrades).
+4. **Expertise**: Using an open-source solution means adopting that code base in a manner of speaking. Your team must build expertise in the code base and the capabilities of the tool in addition to all the protocols that come with IAM. That includes things like setting up authentication flows, configuring [organizations](/product/organizations/), or [performing upgrades](/support/zero-downtime-upgrades/).
 
 ### Predatory Nature of SaaS Solutions like Auth0 and WorkOS
 

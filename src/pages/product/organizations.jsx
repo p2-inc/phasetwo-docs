@@ -3,6 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PAGE_META = {
@@ -146,7 +147,7 @@ function Organizations() {
         </section>
 
         {/* Top Features */}
-        <section id="top-features" className="subpage-section texture-plus">
+        <Section id="top-features" className="subpage-section texture-plus">
           <div className="p2-content">
             <SectionHeading title={TOP_FEATURES.title} intro={TOP_FEATURES.intro} />
 
@@ -165,7 +166,7 @@ function Organizations() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* CTA */}
         <Cta

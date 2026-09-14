@@ -1,22 +1,92 @@
 ---
 id: about
-title: About Us
+title: About Phase Two
+description: Phase Two builds and hosts Keycloak. We maintain the open-source extensions that add organizations, SCIM, webhooks and magic links to Keycloak, and we run it in production for companies that would rather not.
+keywords:
+  - about phase two
+  - phase two keycloak
+  - managed keycloak company
+  - keycloak experts
 ---
 
-## Mission
+# About Phase Two
 
-Phase Two is dedicated to help SaaS companies accelerate time-to-market and enterprise adoption. We build products that allow you to rapidly integrating the features you need to access new customers and new markets.
+We build and run [Keycloak](/docs/keycloak/). That is the whole company.
+
+Keycloak is the most capable open-source identity server there is, and it is also famously
+difficult to operate and extend. We do both: we maintain a set of open-source extensions that
+add the features SaaS products need, and we run Keycloak in production for teams that would
+rather spend their engineering time elsewhere.
+
+## What we actually do
+
+**[Hosted Keycloak](/hosting/).** Dedicated clusters running upstream Keycloak plus our
+extensions, with upgrades, backups and monitoring handled. Not a fork, and not a
+Keycloak-inspired product — the same Keycloak you would run yourself, which is what makes
+leaving possible.
+
+**[Keycloak support](/support/).** For teams already self-hosting: version upgrades, custom
+extension work, and production escalation.
+
+**[Open-source extensions](/extensions/).** Built from real use cases and battle-hardened with our customers. Free to use whether you host with us or not. This
+is the part we are best known for, and it exists because we needed it first.
+
+| Extension | What it adds |
+|---|---|
+| [Organizations](/extensions/organizations/) | Multi-tenant organizations with their own members, roles, domains and identity providers |
+| [Magic links](/extensions/magic-link/) | Passwordless email login as a first-class authenticator |
+| [Events and webhooks](/extensions/events/) | Durable event storage and outbound webhooks, with delivery inspection |
+| [Admin portal](/extensions/admin-portal/) | A delegated admin surface your customers can use without access to your Keycloak |
+| [IdP wizard](/extensions/idp-wizard/) | Guided SSO setup, so your customer's IT team can connect their own identity provider |
+| [Themes](/extensions/themes/) | A modern, brandable replacement for the default login screens |
+| [User migration](/extensions/user-migration/) | Move users in from another identity provider without forcing a password reset |
+
+We also maintain organization SCIM directory sync, a Redis/Valkey cache provider and a KMS-backed key
+provider. It is all on [GitHub](https://github.com/p2-inc), and we contribute upstream to
+Keycloak itself.
+
+## Proof, rather than adjectives
+
+- **SOC 2 Type II** and **ISO/IEC 27001** certified.
+- **Official CockroachDB partner** — which matters if you need Keycloak to survive a region
+  going away.
+- We present at **KeyConf** and **Keycloak DevDay**, and our engineers answer Keycloak
+  questions in public, because that is where we learned it.
+- Pricing is [published](/pricing/hosting/), including the parts that usually say "contact
+  us".
 
 ## Story
 
-Phase Two was founded in 2019 by software veterans with over 60 combined years of experience building consumer and enterprise software products. The founders had just completed building the first version of a product for an early-stage SaaS startup. We realized that over 60% of the first 18 months was spent building features and functionality that were not the core competency the company sought to test in the marketplace.
+Phase Two was founded in 2019 by software veterans with over 60 combined years building
+consumer and enterprise products. The founders had just finished the first version of a
+product for an early-stage SaaS company, and realised that more than 60% of the first 18
+months had gone into features that were not what the company was trying to test in the
+market. Authentication, SSO, user management and tenancy are table stakes for an enterprise
+buyer and a distraction for everyone building toward one.
 
-Following several months of market testing and investigation, we released a prototype based on the Keycloak open source identity and access management tool, and Phase Two was born. Since then, we've expanded our toolchain to serve software engineers at companies building products for both cloud and on-prem distribution.
+After several months of market testing we shipped a prototype built on Keycloak, and Phase
+Two came out of it. Since then the toolchain has grown to serve engineers shipping software
+for both cloud and on-premise distribution.
 
 ## Team
 
-While we were founded in Seattle, Washington, the Phase Two team is now a remote, globally distributed group of individuals that are passionate about helping software engineers succeed. We are a company built by engineers, for engineers, and love to apply engineering principles to everything we do.
+We were founded in Seattle and are now a remote, globally distributed team — a company built
+by engineers for engineers, which mostly means we would rather show you the configuration.
+
+### Leadership
+
+- **GR Patil** — co-founder and CEO. Working on Keycloak for 10+ years. Previously a founder
+  at BrightRoll (acquired by Yahoo!) and an early engineer at Twitter.
+- **Jeff Patzer** — co-founder and COO. A long-time contributor to Keycloak and its
+  open-source extension ecosystem; previously an engineering director at a major CDN.
+
+We are [hiring](/company/careers/) when the right seat is open.
 
 ## Contact
 
-Feel free to reach out with [bugs and feature requests](https://github.com/p2-inc/phasetwo/issues), or [email us](mailto:support@phasetwo.io) with questions and comments. Prefer snail mail? You can reach us at [140 Lakeside Ave, Suite A49, Seattle, WA 98122](https://goo.gl/maps/69ypGd4U3Z8Tkirg7).
+Bugs and feature requests go to
+[GitHub issues](https://github.com/p2-inc/phasetwo/issues), where they are read by the people
+who wrote the code. For anything else, [email us](mailto:support@phasetwo.io) or use the
+[contact form](/contact/).
+
+Prefer paper? [140 Lakeside Ave, Suite A49, Seattle, WA 98122](https://goo.gl/maps/69ypGd4U3Z8Tkirg7).

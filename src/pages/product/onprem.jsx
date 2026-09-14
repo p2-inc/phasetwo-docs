@@ -3,6 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PAGE_META = {
@@ -147,7 +148,7 @@ export default function OnPrem() {
         </section>
 
         {/* Deploy where needed */}
-        <section id="deploy-where-needed" className="subpage-section texture-plus">
+        <Section id="deploy-where-needed" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={DEPLOY_WHERE_NEEDED.title} intro={DEPLOY_WHERE_NEEDED.intro} />
 
@@ -163,7 +164,7 @@ export default function OnPrem() {
               ))}
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Expert management */}
         <section className="subpage-section texture-plus">

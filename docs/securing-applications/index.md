@@ -12,6 +12,12 @@ Confused? We will also use this category as a place to provide language and fram
 
 ### Guides
 
+Framework how-tos are being consolidated into our
+[Keycloak tutorials](/tutorials/), which teach open-source Keycloak and work on any
+deployment — start with the
+[Spring Boot resource server tutorial](/tutorials/securing-applications/spring-boot/).
+The guides below are the Phase Two-specific setup.
+
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';
 import {useCurrentSidebarCategory} from '@docusaurus/theme-common';

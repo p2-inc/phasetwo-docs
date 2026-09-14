@@ -3,6 +3,7 @@ import Layout from "@theme/Layout";
 import React from "react";
 import CardWithIcon from "../../components/CardWithIcon";
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 import CompareKeycloakBlock from "../../components/CompareKeycloakBlock";
 import IconQuestionMarkCircle from "@site/static/img/icon-question-mark-circle.svg";
@@ -68,7 +69,7 @@ export default function OpenSourceVsCommercialOffering() {
         </section>
 
         {/* Tradeoffs (no texture) */}
-        <section id="tradeoffs" className="subpage-section">
+        <Section id="tradeoffs" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="subpage-section-heading">
               <h2 className="text-white">The Trade-offs: What Open Source Doesn't Hand You</h2>
@@ -135,7 +136,7 @@ export default function OpenSourceVsCommercialOffering() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Why Keycloak anyway (with texture) */}
         <section className="subpage-section texture-plus">

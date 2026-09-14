@@ -1,5 +1,13 @@
 module.exports = {
   api: [
+    // Hand-written section root. Serves at /api/ via `slug: /` in its frontmatter,
+    // which is what stops /api/ from 404ing while 84 endpoint pages sit under it.
+    // This file is NOT generated -- `regen-api-docs` deletes api/sidebar.ts and
+    // leaves this one alone -- so the entry survives a spec regeneration.
+    {
+      type: "doc",
+      id: "api-index",
+    },
     {
       type: "doc",
       id: "phase-two-admin-rest-api",

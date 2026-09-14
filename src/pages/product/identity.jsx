@@ -3,6 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 
 const PAGE_META = {
   title: "Identity Provider",
@@ -136,7 +137,7 @@ function Identity() {
         </section>
 
         {/* Features */}
-        <section id="features" className="subpage-section">
+        <Section id="features" className="subpage-section">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={FEATURES.title} intro={FEATURES.intro} />
 
@@ -175,7 +176,7 @@ function Identity() {
               .
             </p>
           </div>
-        </section>
+        </Section>
       </main>
     </Layout>
   );

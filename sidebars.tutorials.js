@@ -18,9 +18,12 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Sessions and tokens",
+      label: "Securing applications",
       link: { type: "generated-index" },
-      items: ["sessions/timeouts"],
+      items: [
+        "securing-applications/validating-tokens",
+        "securing-applications/spring-boot",
+      ],
     },
     {
       type: "category",
@@ -31,6 +34,18 @@ module.exports = {
         "jwts/jwt-benefits-drawbacks",
         "jwts/jwt-security-best-practices",
       ],
+    },
+    {
+      type: "category",
+      label: "Sessions and tokens",
+      link: { type: "generated-index" },
+      items: ["sessions/timeouts"],
+    },
+    {
+      type: "category",
+      label: "Mobile apps",
+      link: { type: "generated-index" },
+      items: ["mobile-apps/app-association-files"],
     },
   ],
 };

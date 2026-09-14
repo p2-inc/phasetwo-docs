@@ -10,6 +10,12 @@ Phase Two has built an audit logging system that is used by default internally. 
 The Phase Two audit logging system is also available to the customer to add their system's actions and events. A single [API](api) method with a simple event format allows flexibility in storing context about the action or event. 
 Both Phase Two and customer events are available in the administrative application to be searched, filtered and exported for external consumption.
 
+## Do I need to enable events?
+
+No. On a hosted cluster, access, administrative, and system events are captured automatically and delivered to the Phase Two platform, where they are available in the dashboard. You do not need to turn on event storage in your realm's settings for this to happen, and the realm-level event expiration setting does not limit what Phase Two retains.
+
+You only need to configure something in your realm if you want events pushed to *your* systems as they happen. In that case, enable the [webhook event listener](webhooks) and register an endpoint.
+
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';
 import {useCurrentSidebarCategory} from '@docusaurus/theme-common';

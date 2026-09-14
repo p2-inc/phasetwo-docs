@@ -99,7 +99,7 @@ const features = [
 
 export const KeycloakSupportPackages = () => {
   return (
-    <div className={styles.planSupport} id="experts">
+    <div className={styles.planSupport}>
       <div className={styles.plan}>
         <div className={`${styles.tableThemeWrapper} pt-8`}>
           <table className={styles.tableTheme}>

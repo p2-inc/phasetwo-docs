@@ -1,0 +1,605 @@
+---
+id: validating-tokens
+title: Validating Keycloak Tokens in Any Backend
+description: How to verify a Keycloak access token in your backend — the full check order, JWKS caching, key rotation, and when introspection is the only option that works.
+keywords:
+  - how to verify keycloak access token on backend
+  - keycloak token introspection vs local validation
+  - keycloak jwks endpoint
+  - keycloak validate jwt
+  - keycloak public key rotation
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Validating Keycloak Tokens in Any Backend
+
+To verify a Keycloak access token on your backend, do these seven things in this order, and
+reject the request if any of them fails:
+
+1. **Parse** the JWT and read `kid` and `alg` from the header — nothing else, yet.
+2. **Pin the algorithm.** Accept only `RS256` (whatever your realm signs with). Never take
+   `alg` from the token.
+3. **Get the public key** whose `kid` matches, from
+   `/realms/<realm>/protocol/openid-connect/certs`, out of an in-process cache.
+4. **Verify the signature** with that key.
+5. **Check `iss`** equals your configured issuer, by exact string comparison.
+6. **Check `aud`** contains your API's client ID.
+7. **Check `exp`** (and `nbf`, if present) with a small clock-skew allowance, and check
+   `typ` is `Bearer` so an ID token cannot be used as an API credential.
+
+Steps 3 and 4 are local: no call to Keycloak per request. The alternative — asking
+Keycloak about every token via the introspection endpoint — is about **55× slower** on the
+same machine and puts your API's traffic on Keycloak's critical path. Measurements, the
+cases where you have to do it anyway, and the two failures that take down a working
+deployment are below.
+
+:::info Tested against
+Keycloak **26.7.3** in a container, PyJWT **2.13.0**, `jose` **6.2.12** (Node 22),
+`coreos/go-oidc` **3.21.0** (Go 1.24), `nimbus-jose-jwt` **10.5** (JDK 17). Every command,
+every error string, and every number below is copied from a real run against that setup.
+:::
+
+## What you'll build
+
+A validator that accepts a real access token and rejects everything else — an ID token, a
+refresh token, an expired token, a forged one, and a token from the wrong issuer — plus a
+JWKS cache that survives a key rotation without a redeploy.
+
+## Prerequisites
+
+A Keycloak realm with a client that receives tokens. If you don't have one:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+$K create realms -s realm=demo -s enabled=true
+
+# the frontend, which requests tokens
+$K create clients -r demo -s clientId=demo-app -s publicClient=true \
+  -s directAccessGrantsEnabled=true
+
+# your API, which validates them
+$K create clients -r demo -s clientId=demo-api \
+  -s publicClient=false -s standardFlowEnabled=false -s secret=api-secret
+
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+
+# put your API in the audience of tokens the frontend gets
+CID=$($K get clients -r demo -q clientId=demo-app --fields id --format csv --noquotes)
+$K create clients/$CID/protocol-mappers/models -r demo \
+  -s name=demo-api-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=demo-api' \
+  -s 'config."access.token.claim"=true'
+```
+
+That last mapper is not optional. Without it `aud` is `account`, your step-6 check fails,
+and a perfectly valid token gets a 401 from a perfectly correct API.
+[Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+walks through that trap and every claim in the payload; this page assumes you have read it
+and starts at the validation.
+
+Get a token to test with:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=alice -d password=s3cret \
+  -d grant_type=password -d scope=openid > /tmp/t.json
+jq -r .access_token /tmp/t.json > /tmp/at.txt
+```
+
+## Step 1 — Take exactly two values from discovery
+
+Your validator needs the issuer and the JWKS URL, and both come from one document:
+
+```bash
+curl -s http://localhost:8080/realms/demo/.well-known/openid-configuration \
+  | jq '{issuer, jwks_uri}'
+```
+
+```json
+{
+  "issuer": "http://localhost:8080/realms/demo",
+  "jwks_uri": "http://localhost:8080/realms/demo/protocol/openid-connect/certs"
+}
+```
+
+Fetch discovery once at startup; hard-code the discovery URL, not the endpoints under it.
+Configure the expected issuer explicitly as well — reading it from the same document you
+trust for keys means you are not really checking anything.
+
+## Step 2 — Implement the seven checks
+
+Four runtimes, same seven checks. All four were run against the realm above.
+
+### Python — PyJWT
+
+```python
+# pip install "pyjwt[crypto]"        (tested with PyJWT 2.13.0)
+import jwt
+from jwt import PyJWKClient
+
+ISSUER = "http://localhost:8080/realms/demo"
+JWKS_URL = f"{ISSUER}/protocol/openid-connect/certs"
+AUDIENCE = "demo-api"
+
+jwks = PyJWKClient(JWKS_URL, cache_keys=True, lifespan=600)
+
+def validate(token):
+    key = jwks.get_signing_key_from_jwt(token).key
+    claims = jwt.decode(
+        token, key,
+        algorithms=["RS256"],          # pinned; never read from the header
+        audience=AUDIENCE,
+        issuer=ISSUER,
+        leeway=30,                     # clock skew allowance, in seconds
+        options={"require": ["exp", "iat", "iss", "aud", "sub"]},
+    )
+    if claims.get("typ") != "Bearer":
+        raise jwt.InvalidTokenError(f"not an access token: typ={claims.get('typ')}")
+    return claims
+```
+
+### Node — `jose`
+
+```js
+// npm i jose                          (tested with jose 6.2.12)
+import { createRemoteJWKSet, jwtVerify } from 'jose'
+
+const ISSUER = 'http://localhost:8080/realms/demo'
+const JWKS = createRemoteJWKSet(new URL(`${ISSUER}/protocol/openid-connect/certs`))
+
+export async function validate(token) {
+  const { payload } = await jwtVerify(token, JWKS, {
+    issuer: ISSUER,
+    audience: 'demo-api',
+    algorithms: ['RS256'],
+    clockTolerance: 30,
+    requiredClaims: ['exp', 'iat', 'iss', 'aud', 'sub'],
+  })
+  if (payload.typ !== 'Bearer') throw new Error(`not an access token: typ=${payload.typ}`)
+  return payload
+}
+```
+
+### Go — `coreos/go-oidc`
+
+```go
+// go get github.com/coreos/go-oidc/v3/oidc   (tested with v3.21.0)
+provider, err := oidc.NewProvider(ctx, "http://localhost:8080/realms/demo")
+if err != nil {
+    return err
+}
+verifier := provider.VerifierContext(ctx, &oidc.Config{
+    ClientID:             "demo-api", // checked against aud
+    SupportedSigningAlgs: []string{oidc.RS256},
+})
+
+tok, err := verifier.Verify(ctx, accessToken) // signature, iss, aud, exp
+```
+
+`oidc.NewProvider` reads discovery and gives you a `RemoteKeySet` that caches. `Verify`
+checks the signature, the pinned algorithm, `iss`, `aud` and `exp`. It does not check `typ` —
+read that off the claims yourself with `tok.Claims(&c)`.
+
+### Java — Nimbus (what Spring Security uses underneath)
+
+```java
+// com.nimbusds:nimbus-jose-jwt:10.5
+JWKSource<SecurityContext> jwks = JWKSourceBuilder
+    .create(new URL(ISSUER + "/protocol/openid-connect/certs"))
+    .build();
+
+ConfigurableJWTProcessor<SecurityContext> p = new DefaultJWTProcessor<>();
+p.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwks));
+p.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
+    "demo-api",                                                   // aud
+    new JWTClaimsSet.Builder().issuer(ISSUER).build(),            // iss
+    new HashSet<>(Arrays.asList("sub", "iat", "exp", "aud", "iss"))));
+
+JWTClaimsSet claims = p.process(accessToken, null);
+```
+
+In Spring Boot you would normally set `spring.security.oauth2.resourceserver.jwt.issuer-uri`
+and let `NimbusJwtDecoder` build this for you. If you do, **add the audience check
+yourself** — Spring Security's documented defaults are signature, `exp`, `nbf` and `iss`
+with a 60-second clock skew, and
+[`aud` is not among them](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+unless you set the `audiences` property. That is step 6 of the list at the top of this page,
+and it is the one that silently does nothing.
+
+## Step 3 — Verify it rejects what it should
+
+Run the Python validator against all three tokens from the same response:
+
+```
+access token :  VALID  sub=4a6fcce6-f12d-446f-9eb6-9ccb0bdb1548  aud=['demo-api', 'account']  typ=Bearer
+id token     :  REJECT InvalidAudienceError: Audience doesn't match
+refresh token:  REJECT PyJWKClientError: Unable to find a signing key that matches: "421831eb-8f0e-44c6-903d-db0299b61b88"
+```
+
+Those two rejections are the two mistakes people make. The ID token fails because its `aud`
+is the *frontend*, not your API — it is proof to a browser that a login happened, not an API
+credential. The refresh token fails because it is signed `HS512` with a secret only Keycloak
+holds; its `kid` will never be in the JWKS, because you are never meant to read it. (The
+Node validator rejects the same refresh token one step earlier, on the pinned algorithm:
+`ERR_JOSE_ALG_NOT_ALLOWED`. Either is a correct rejection.)
+
+Remember that error string — "unable to find a signing key that matches" is also exactly what
+a stale JWKS cache looks like after a key rotation.
+
+## The number that decides local vs introspection
+
+Same machine, same token, 200 iterations each, Keycloak on loopback with no network in the
+way — which is the most flattering possible setting for anything that calls Keycloak:
+
+| Approach | Median | p95 |
+|---|---|---|
+| Local verification, JWKS cached | **0.09 ms** | 0.12 ms |
+| Local verification, JWKS fetched per request | 4.45 ms | 7.29 ms |
+| Introspection endpoint | 4.92 ms | 9.15 ms |
+
+The middle row is the interesting one. **An uncached JWKS fetch costs the same as
+introspection**, because it is the same thing: an HTTP round trip to Keycloak on every
+request. Get the caching wrong and you have paid introspection's price while keeping none of
+its benefits — no revocation checking, no opaque-token support, nothing.
+
+So the caching is not a detail. It is the entire reason local validation is fast.
+
+## Why HTTP caching will not save you
+
+The obvious move is to let the HTTP layer handle it. Look at what Keycloak sends:
+
+```bash
+curl -s -D - -o /dev/null \
+  http://localhost:8080/realms/demo/protocol/openid-connect/certs | head -4
+```
+
+```
+HTTP/1.1 200 OK
+content-length: 2909
+Cache-Control: no-cache
+Content-Type: application/json
+```
+
+`Cache-Control: no-cache`, no `ETag`, no `max-age`. Any well-behaved HTTP cache, proxy or
+`fetch` wrapper in front of that endpoint will refetch every time. **JWKS caching has to
+happen in your JWT library, in process.** All four libraries above do it; the question is
+what happens on a cache miss.
+
+## The unknown-`kid` refetch, and why it is a hole
+
+Every one of these libraries refetches the JWKS when a token's `kid` is not in the cache.
+That is correct — it is what makes rotation work without a restart. It also means an
+*unauthenticated* caller can make your API hit Keycloak by sending a token with a `kid` you
+have never seen. Nothing about the token has to be valid; the signature check happens after
+the key lookup.
+
+We sent 25 tokens with random `kid` values and counted requests to the certs endpoint:
+
+| Library | JWKS fetches for 25 unknown `kid`s | Behaviour |
+|---|---|---|
+| `jose` 6.2.12 (`createRemoteJWKSet`) | **0** | Cooldown between refreshes, default 30 s |
+| `nimbus-jose-jwt` 10.5 (`JWKSourceBuilder`) | **1** | Rate-limited, then `RateLimitReachedException` |
+| PyJWT 2.13.0 (`PyJWKClient`) | **25** | One fetch per unknown `kid`, no cooldown |
+| `coreos/go-oidc` 3.21.0 (`RemoteKeySet`) | **25** | One fetch per unknown `kid`, no cooldown |
+
+PyJWT 2.7.0 behaves identically to 2.13.0 here, so this is not a version you can upgrade out
+of. If your stack is in the bottom half of that table, put the cooldown in yourself:
+
+```python
+import time
+
+class CooldownJWKClient(PyJWKClient):
+    """PyJWKClient refetches the JWKS for every unknown kid. Add a cooldown so a stream of
+    tokens with bogus kids cannot become a stream of requests to Keycloak."""
+    def __init__(self, *a, cooldown=30.0, **kw):
+        super().__init__(*a, **kw)
+        self._cooldown = cooldown
+        self._last = 0.0
+
+    def fetch_data(self):
+        now = time.monotonic()
+        if now - self._last < self._cooldown:
+            raise jwt.PyJWKClientError("JWKS refresh suppressed by cooldown")
+        self._last = now
+        return super().fetch_data()
+```
+
+Same 25 requests, with the wrapper:
+
+```
+25 unknown kids -> 1 JWKS fetches; last: PyJWKClientError: JWKS refresh suppressed by cooldown
+```
+
+Be honest about the cost of that, because it is real. With `cooldown=5`, immediately after a
+key rotation:
+
+```
+warm kid:          MKU2nJGtFZf4s5AqL55AXSJ9P2a5pIUurGaejIYpzt4
+post-rotation kid: OOigBfJXHEgV0lvfNCdP2TqRi5HPni8Jw2dwSQY5YVY
+immediately after rotation: PyJWKClientError: JWKS refresh suppressed by cooldown
+after the cooldown expires: resolved OOigBfJXHEgV0lvfNCdP2TqRi5HPni8Jw2dwSQY5YVY
+```
+
+A cooldown of *n* seconds means up to *n* seconds of 401s for tokens signed by a brand-new
+key. 30 seconds is a reasonable trade against an unbounded refetch loop; several minutes is
+not. Whatever you pick, the next section makes the window survivable.
+
+## Rotate keys without an outage
+
+Keycloak publishes every signing key it still accepts, so rotation is additive. Create a new
+provider with a higher priority — do not edit the old one:
+
+```bash
+RID=$($K get realms/demo --fields id --format csv --noquotes)
+$K create components -r demo -s name=rsa-2026-09 \
+  -s providerId=rsa-generated \
+  -s providerType=org.keycloak.keys.KeyProvider \
+  -s parentId=$RID \
+  -s 'config.priority=["200"]' -s 'config.algorithm=["RS256"]'
+```
+
+`parentId` is the realm's **internal id**, not its name. Pass `demo` and `kcadm` cheerfully
+creates a component attached to nothing: no error, no new key, and a rotation you think
+happened but did not.
+
+Both keys are now in the JWKS, and new tokens use the higher-priority one:
+
+```bash
+curl -s http://localhost:8080/realms/demo/protocol/openid-connect/certs \
+  | jq '[.keys[] | select(.use=="sig") | .kid]'
+```
+
+```json
+[
+  "dATl7BrEKGctTHlqsjxZQJSbFTCA7vt0glprXYukvjo",
+  "MKU2nJGtFZf4s5AqL55AXSJ9P2a5pIUurGaejIYpzt4"
+]
+```
+
+Tokens signed by the old key keep validating, because the old key is still published. That is
+the whole trick. Retiring the old key then has three states plus deletion, and only one of
+them is a safe next step:
+
+| Key provider state | `kcadm` config | In the JWKS? | Signs new tokens? | Old tokens |
+|---|---|---|---|---|
+| Active | default | yes | yes, if highest priority | valid |
+| **Passive** | `config.active=["false"]` | **yes** | no | **still valid** |
+| Disabled | `config.enabled=["false"]` | no | no | **rejected immediately** |
+| Deleted | `delete components/<id>` | no | no | **rejected immediately** |
+
+Verified on 26.7.3 — with the provider set passive, `kcadm get keys` reports status
+`PASSIVE`, the `kid` is still served, and new tokens come back signed by the other key. Set
+`enabled=false` and the `kid` disappears from the JWKS; a token issued 30 seconds earlier
+then fails with:
+
+```
+REJECT PyJWKClientError: Unable to find a signing key that matches: "Bmonufv6QwWtf3T9A6sGMr0Jm8C7yIQExQssZfoJBj0"
+```
+
+**The safe sequence:** add the new provider at a higher priority → mark the old one passive →
+wait longer than the access-token lifespan (300 seconds by default in a fresh realm) plus
+your JWKS cache TTL → disable, then delete. Keycloak's own guidance is to
+[rotate keys](https://www.keycloak.org/docs/latest/server_admin/index.html#rotating-keys)
+every three to six months and delete the old key one to two months later; what it does not
+say is that the ordering above is what makes the delete a non-event.
+
+## When you actually need introspection
+
+Local validation cannot see a session end. Measured: issue a token, log the session out, then
+check the same token both ways.
+
+```
+before logout: local = accepted | introspect active = True
+after  logout: local = accepted | introspect active = False
+```
+
+The locally-validated token stays accepted until `exp` — up to 300 seconds of authorization
+that the user has already revoked. That is a design decision, not a bug, and for most APIs
+five minutes is a fine trade for a 55× latency difference. When it isn't, the choice is:
+
+| | Local verification | Introspection |
+|---|---|---|
+| Per-request cost | 0.09 ms, no network | 4.92 ms and a Keycloak round trip |
+| Keycloak load | one JWKS fetch per cache TTL | scales 1:1 with your API traffic |
+| Sees logout / revocation | no, valid until `exp` | yes, immediately |
+| Needs client credentials | no | yes, and the client must be in `aud` |
+| Works if Keycloak is down | yes | no |
+| Works on opaque (non-JWT) tokens | no | yes |
+| Works on lightweight access tokens | not fully — see below | yes |
+
+Two patterns beat picking one: validate locally on every request and introspect only on
+state-changing operations, or validate locally and shorten the access-token lifespan until
+the revocation window is acceptable. Cutting the lifespan costs you a token refresh, not a
+round trip per request.
+
+If you do introspect, note that the introspecting client must appear in the token's `aud`,
+or Keycloak answers `{"active": false}` for a perfectly valid token with no explanation.
+That failure and its fix are covered in
+[Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/).
+
+## Two things that break a working deployment
+
+### `iss` changes when the hostname does
+
+By default a dev-mode Keycloak derives the issuer from the request. Same server, same realm,
+different `iss`:
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/realms/demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=alice -d password=s3cret -d grant_type=password \
+  | jq -r .access_token | jq -R 'split(".")|.[1]|@base64d|fromjson|.iss'
+```
+
+```
+http://127.0.0.1:8080/realms/demo
+```
+
+```
+REJECT InvalidIssuerError: Invalid issuer
+```
+
+Send a `Host: auth.example.com` header and the token comes back with
+`"iss": "http://auth.example.com/realms/demo"`. In Kubernetes, where the browser reaches
+Keycloak through an ingress and your backend reaches it through a service name, this failure
+looks like nothing is wrong: the token is real, the signature verifies, and `iss` does not
+match what your validator was configured with.
+
+Pin the hostname. With `KC_HOSTNAME=https://auth.example.com`, discovery reports the same
+issuer no matter which name the request arrived on — including `Host: evil.example.com`:
+
+```json
+{ "issuer": "https://auth.example.com/realms/master" }
+```
+
+That creates a second problem, because now `jwks_uri` also points at the public URL, which
+your in-cluster backend may not be able to reach. Add `KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true`
+and you get both halves right:
+
+```json
+{
+  "issuer": "https://auth.example.com/realms/master",
+  "jwks_uri": "http://localhost:8082/realms/master/protocol/openid-connect/certs",
+  "authorization_endpoint": "https://auth.example.com/realms/master/protocol/openid-connect/auth"
+}
+```
+
+The issuer stays fixed — so `iss` validation works everywhere — while the backchannel
+endpoints follow the address the request came in on. Both flags are documented in the
+[hostname guide](https://www.keycloak.org/server/hostname).
+
+### Lightweight access tokens remove the claims you validate
+
+Keycloak can issue a stripped-down access token per client. Turn it on and the payload is
+this, in full:
+
+```json
+{
+  "exp": 1788765960,
+  "iat": 1788765660,
+  "jti": "onltro:74e690d1-d5a2-96ef-4f00-7fe353859106",
+  "iss": "http://localhost:8080/realms/demo",
+  "typ": "Bearer",
+  "azp": "demo-app",
+  "sid": "nuW9j32RYU70j26tmSRu2gHD",
+  "scope": "openid email profile"
+}
+```
+
+756 bytes instead of 1,366 — and no `aud`, no `sub`, no `realm_access`. A correct validator
+rejects it:
+
+```
+REJECT MissingRequiredClaimError: Token is missing the "aud" claim
+```
+
+Setting `config."lightweight.claim"=true` on the audience mapper brings `aud` back. `sub`
+does not come back, and `userinfo` will not help you:
+
+```
+HTTP 401
+WWW-Authenticate: Bearer realm="demo", error="invalid_token",
+  error_description="Lightweight access token not allowed for userinfo endpoint"
+```
+
+Introspection does — it re-expands the token server-side, returning `sub`, `username` and
+`realm_access` for the same lightweight token. So: **if a client uses lightweight access
+tokens, that client's API cannot identify the user locally, and introspection stops being
+optional.** Decide this per client, deliberately, and mark every mapper your API depends on
+as included in lightweight tokens.
+
+## Do not accept the token's own `alg`
+
+The classic forgery is to re-sign a token as `HS256` using the realm's *public* key as the
+HMAC secret, betting that the verifier will read `alg` from the header and use whatever key
+it has. We built exactly that token — same `kid`, `sub` changed to `attacker`, an `admin`
+role added — and pointed the validators at it.
+
+PyJWT 2.13.0, handed the forged token twice — once with `HS256` in the allowed list and the
+public-key PEM as the verification key, once with the algorithm pinned:
+
+```
+algorithms=['RS256','HS256'], PEM key: rejected InvalidKeyError: The specified key is an asymmetric key or x509 certificate and should not be used as an HMAC secret.
+algorithms=['RS256'] only: rejected InvalidAlgorithmError: The specified alg value is not allowed
+```
+
+`jose` 6.2.12, on the same forged token and on an `alg: none` variant:
+
+```
+{} rejected ERR_JOSE_NOT_SUPPORTED - Unsupported "alg" value for a JSON Web Key Set
+{"algorithms":["RS256"]} rejected ERR_JOSE_ALG_NOT_ALLOWED - "alg" (Algorithm) Header Parameter value not allowed
+alg:none rejected ERR_JOSE_NOT_SUPPORTED - Unsupported "alg" value for a JSON Web Key Set
+```
+
+Neither library could be talked into it in any configuration we tried, and PyJWT will not
+even let you *sign* with a PEM public key as an HMAC secret. That is good library design,
+not a reason to skip the check — pin `algorithms` explicitly, because it costs one argument
+and it is the difference between "my library happened to stop this" and "my code stops
+this."
+[JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) covers the rest
+of this family of attacks.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `Audience doesn't match` on a real token | no audience mapper, or you are being sent an ID token | add the `oidc-audience-mapper`; check `typ` |
+| `Invalid issuer` in staging or Kubernetes only | issuer derived from the request hostname | set `KC_HOSTNAME`, plus `KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true` |
+| `Unable to find a signing key that matches` | key deleted or disabled too early, or a refresh token was sent to your API | keep the old provider passive for longer than the token lifespan |
+| `Missing the "aud" claim` after a client change | lightweight access tokens enabled | mark the mapper `lightweight.claim=true`, or introspect |
+| `{"active": false}` from introspection on a valid token | introspecting client is not in the token's `aud` | add your API to the audience |
+| Keycloak CPU climbing with API traffic | no JWKS cache, or no cooldown on unknown `kid` | cache in-process; add a refresh cooldown |
+
+## Verify you got it right
+
+Point your validator at each of these. All six must behave as stated:
+
+1. A fresh access token for your API → **accepted**.
+2. The ID token from the same response → **rejected** (`aud` is the frontend).
+3. The refresh token → **rejected** (unknown `kid`; it is `HS512`).
+4. A token from another realm, or the same realm reached by a different hostname →
+   **rejected** (`iss`).
+5. A token that has expired → **rejected**, and your API returns `401` with a
+   `WWW-Authenticate: Bearer error="invalid_token"` header, not `403` and not `500`. Set the
+   realm's Access Token Lifespan to 5 seconds (`kcadm update realms/demo -s
+   accessTokenLifespan=5`) and you get this in well under a minute:
+   `ExpiredSignatureError: Signature has expired`.
+6. 25 requests carrying tokens with random `kid` values → **at most one** request to
+   Keycloak's certs endpoint.
+
+A backend that passes 1–5 is validating correctly. One that also passes 6 will still be
+validating correctly when someone points a scanner at it.
+
+## Next steps
+
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+  — every claim in the payload, and the `aud` mapper in detail.
+- [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
+  — what you are actually parsing in step 1.
+- [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — storage,
+  lifetimes, and what never belongs in a token.
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) —
+  if the container above is your first one.
+- [Securing applications](/docs/securing-applications/) — framework-specific guides and a
+  list of OIDC libraries per language.
+- Paste a token into the [JWT decoder](/tools/jwt-decoder/) while you debug; it runs in your
+  browser and the token is never sent anywhere.
+- Official reference:
+  [validating access tokens](https://www.keycloak.org/securing-apps/oidc-layers) and
+  [rotating keys](https://www.keycloak.org/docs/latest/server_admin/index.html#rotating-keys).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

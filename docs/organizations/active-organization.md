@@ -190,7 +190,7 @@ Now, let's assume the standard user is malicious and knows a little about Keyclo
 ## Case with user read only attributes
 
 If you have defined the pattern `org.ro.*` as read-only as it was recommended in the
-[important note](#important-note-attribute_mode), the user can't modify this attribute.
+[important note](#important-note-attribute_mode-before-v24x), the user can't modify this attribute.
 
 They will get a `400 BAD REQUEST` response instead.
 

@@ -3,6 +3,7 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 
 import CardWithImage from "../../components/CardWithImage";
+import Section from "../../components/Section";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
 
 const PAGE_META = {
@@ -130,7 +131,7 @@ export default function CockroachDb() {
         </section>
 
         {/* Enterprise database */}
-        <section id="enterprise-database" className="subpage-section texture-plus">
+        <Section id="enterprise-database" className="subpage-section texture-plus">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <SectionHeading title={ENTERPRISE_DATABASE.title} intro={ENTERPRISE_DATABASE.intro} />
 
@@ -160,7 +161,7 @@ export default function CockroachDb() {
               </div>
             </div>
           </div>
-        </section>
+        </Section>
 
         {/* Body large note */}
         <section className="subpage-section">
