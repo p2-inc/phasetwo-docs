@@ -1,0 +1,422 @@
+---
+id: custom-flows
+title: Build a Custom Keycloak Authentication Flow
+description: Build a Keycloak custom authentication flow with conditional execution — the requirement model, a tested kcadm sequence, and the five ways it silently breaks.
+keywords:
+  - keycloak custom authentication flow
+  - keycloak conditional authentication
+  - keycloak conditional otp
+  - keycloak authentication flow requirement
+  - keycloak step up authentication flow
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Build a Custom Keycloak Authentication Flow
+
+A Keycloak custom authentication flow is a copy of a built-in flow with your own executions
+added to it. Four steps, always in this order:
+
+1. **Copy** a built-in flow — built-in flows are read-only, so you cannot edit `browser`.
+2. **Add** a subflow and put your executions inside it. Every execution arrives `DISABLED`.
+3. **Set the requirement** on the subflow and on each execution — `REQUIRED`,
+   `ALTERNATIVE`, `CONDITIONAL`, or `DISABLED`.
+4. **Bind** the copy as the realm's browser flow.
+
+The part that trips people up is step 3. This page builds a working conditional flow —
+users holding one role must present a TOTP code, everyone else logs in with a password —
+and then shows the five ways the requirement model fails silently, with the output from
+each.
+
+:::info Tested against
+Keycloak **26.7.3**, `start-dev`, H2 dev database. Every command, every error message, and
+every login result below is copied from an actual run. The
+[official reference for authentication flows](https://www.keycloak.org/docs/latest/server_admin/index.html#_authentication-flows)
+documents what each requirement means; this page is about what to set and what breaks.
+:::
+
+## The requirement model in four rules
+
+Keycloak walks a flow top to bottom, one nesting level at a time. At each level:
+
+| Requirement | What Keycloak does |
+|---|---|
+| `REQUIRED` | Must succeed. If it fails, the whole flow fails. |
+| `ALTERNATIVE` | One of the alternatives at this level must succeed — **but only if no `REQUIRED` exists at the same level**. |
+| `CONDITIONAL` | Subflows only. Evaluate the condition executions inside it; if they all pass, run the rest of the subflow. Otherwise skip it. |
+| `DISABLED` | Skipped. |
+
+The second row is the rule that costs people a weekend:
+
+:::danger One `REQUIRED` at a level disables every `ALTERNATIVE` at that level
+It is not an error, there is no warning, and the flow still works — it just stops doing what
+you meant. The top level of the `browser` flow is `Cookie` (ALTERNATIVE),
+`Identity Provider Redirector` (ALTERNATIVE), and `forms` (ALTERNATIVE). Flip `forms` to
+`REQUIRED` and `Cookie` never runs, which means single sign-on stops working. Measured on
+26.7.3, same cookie jar, second app visit:
+
+```
+forms = ALTERNATIVE   ->  SSO revisit: immediate code (Cookie authenticator ran)
+forms = REQUIRED      ->  SSO revisit: login form again
+```
+:::
+
+`CONDITIONAL` is only offered on subflows. You can check what is legal for any execution
+without guessing — the API tells you:
+
+```bash
+kcadm.sh get 'authentication/flows/browser/executions' -r master \
+  --fields displayName,requirement,requirementChoices
+```
+
+```json
+{
+  "requirement" : "REQUIRED",
+  "displayName" : "Username Password Form",
+  "requirementChoices" : [ "REQUIRED" ]
+}, {
+  "requirement" : "CONDITIONAL",
+  "displayName" : "Browser - Conditional 2FA",
+  "requirementChoices" : [ "REQUIRED", "ALTERNATIVE", "DISABLED", "CONDITIONAL" ]
+}, {
+  "requirement" : "REQUIRED",
+  "displayName" : "Condition - user configured",
+  "requirementChoices" : [ "REQUIRED", "DISABLED" ]
+}
+```
+
+Condition executions accept `REQUIRED` or `DISABLED` and nothing else. A condition set to
+`DISABLED` is not "off" in the sense you want — see the failure modes below.
+
+## What we are building
+
+Two classes of user in one realm:
+
+- **alice** — no special role. Password only.
+- **bob** — holds `finance-admin`. Must present a TOTP code, and is forced to enrol one if
+  he has not.
+
+Single sign-on keeps working for both.
+
+## Step 0 — a realm you can break
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+Everything below runs `kcadm.sh` inside that container. Two shell helpers do the repetitive
+work — the second one matters, and the section after it explains why.
+
+```bash
+kc() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kc config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+# set_requirement <url-encoded flow alias> <execution display name> <requirement>
+set_requirement() {
+  kc get "authentication/flows/$1/executions" -r demo \
+    | jq -c --arg n "$2" --arg r "$3" '.[] | select(.displayName==$n) | .requirement=$r' \
+    | kc update "authentication/flows/$1/executions" -r demo -f -
+}
+```
+
+Realm, client, role, and two users:
+
+```bash
+kc create realms -s realm=demo -s enabled=true
+kc create clients -r demo -s clientId=demo-app -s publicClient=true \
+  -s 'redirectUris=["http://localhost:9090/*"]' -s standardFlowEnabled=true
+kc create roles -r demo -s name=finance-admin
+
+for u in alice bob; do
+  kc create users -r demo -s username=$u -s enabled=true -s emailVerified=true \
+    -s firstName=$u -s lastName=Tester -s email=$u@example.com
+  kc set-password -r demo --username $u --new-password "$u-pw"
+done
+kc add-roles -r demo --uusername bob --rolename finance-admin
+```
+
+Set `firstName`, `lastName`, and `email` at creation. Leave them out and your first login
+stops at `execution=VERIFY_PROFILE` instead of reaching your flow, which looks exactly like
+a broken flow.
+
+## Step 1 — copy the built-in flow
+
+You cannot add anything to `browser`, `direct grant`, `registration`, `reset credentials`,
+`first broker login`, `clients`, or `docker auth`:
+
+```bash
+kc create 'authentication/flows/browser/executions/flow' -r demo \
+  -s alias=nope -s type=basic-flow
+```
+
+```
+It is illegal to add sub-flow to a built in flow
+```
+
+Copy it instead. The copy is yours, including every subflow, renamed with your prefix:
+
+```bash
+kc create authentication/flows/browser/copy -r demo -s newName="demo browser"
+```
+
+```
+Created new copy with id '1710c4be-9b5c-44be-a6a2-f27f1cecc3c0'
+```
+
+## Step 2 — add a subflow in the right place
+
+Put it inside `demo browser forms`, not at the top level. Top level is where `Cookie` and
+the identity-provider redirector live; a 2FA subflow belongs after the password form, which
+is one level down.
+
+```bash
+kc create 'authentication/flows/demo%20browser%20forms/executions/flow' -r demo \
+  -s alias="finance step-up" -s type=basic-flow \
+  -s description="Force OTP for finance-admin"
+
+COND=$(kc create 'authentication/flows/finance%20step-up/executions/execution' -r demo \
+  -s provider=conditional-user-role -i)
+kc create 'authentication/flows/finance%20step-up/executions/execution' -r demo \
+  -s provider=auth-otp-form -i > /dev/null
+```
+
+Spaces in a flow alias must be `%20` in the path. `-i` prints just the new id, which you
+need for the condition's config in step 4.
+
+## Step 3 — set the requirements
+
+Everything you just created is `DISABLED`. Nothing you added runs yet, and nothing says so:
+
+```bash
+kc get 'authentication/flows/finance%20step-up/executions' -r demo \
+  | jq -r '.[] | "\(.requirement)\t\(.displayName)"'
+```
+
+```
+DISABLED	Condition - user role
+DISABLED	OTP Form
+```
+
+Three requirements to set — the subflow, the condition, the authenticator:
+
+```bash
+set_requirement 'demo%20browser%20forms' 'finance step-up'        CONDITIONAL
+set_requirement 'finance%20step-up'      'Condition - user role'  REQUIRED
+set_requirement 'finance%20step-up'      'OTP Form'               REQUIRED
+```
+
+:::warning Do not update a requirement with `-s requirement=...`
+`kcadm update .../executions` against a collection endpoint fails outright:
+
+```
+HTTP request error: Cannot deserialize value of type `ObjectNode` from Array value
+```
+
+The obvious fix — add `-n` to skip the read-modify-merge — sends a partial representation,
+and Keycloak fills the missing `priority` with `0`. The execution jumps to the top of its
+level. Measured: three `-n` updates moved the `finance step-up` subflow from priority 21 to
+priority 0, putting a conditional 2FA subflow **before** the username/password form that
+establishes who the user is.
+
+Send the whole execution object back instead — that is what `set_requirement` above does,
+and priorities survive:
+
+```
+1 pri=10 REQUIRED     Username Password Form
+1 pri=21 CONDITIONAL  finance step-up
+2 pri=0  REQUIRED     Condition - user role
+2 pri=1  REQUIRED     OTP Form
+```
+:::
+
+## Step 4 — configure the condition
+
+A condition with no config matches nothing, which reads as "my conditional flow never
+fires":
+
+```bash
+kc create "authentication/executions/$COND/config" -r demo \
+  -s alias=require-finance-admin \
+  -s 'config.condUserRole=finance-admin' \
+  -s 'config.negate=false'
+```
+
+Every condition's config keys are discoverable rather than memorised:
+
+```bash
+kc get authentication/config-description/conditional-user-role -r demo
+```
+
+```json
+{
+  "name" : "Condition - user role",
+  "helpText" : "Flow is executed only if user has the given role.",
+  "properties" : [ { "name" : "condUserRole", ... }, { "name" : "negate", ... } ]
+}
+```
+
+## Step 5 — disable the built-in 2FA subflow
+
+The copied flow already contains `demo browser Browser - Conditional 2FA`, holding its own
+`OTP Form`. Leave it enabled next to yours and a user who has TOTP enrolled types a code
+twice — once for each subflow. Measured on 26.7.3, driving the real login forms with `curl`:
+
+| `Browser - Conditional 2FA` | OTP prompts for bob |
+|---|---|
+| `CONDITIONAL` (as copied) | **2** |
+| `DISABLED` | **1** |
+
+```bash
+set_requirement 'demo%20browser%20forms' 'demo browser Browser - Conditional 2FA' DISABLED
+```
+
+This is also the moment to understand what the built-in subflow was doing. Its gate is
+`Condition - user configured`, whose help text is *"Executes the current flow only if
+authenticators are configured"*. That means the stock browser flow can only offer 2FA to
+people who already set it up — **it can never enforce it**. Our subflow deliberately has no
+such condition, which is why bob gets pushed into enrolment.
+
+## Step 6 — bind it
+
+```bash
+kc update realms/demo -s browserFlow="demo browser"
+```
+
+Until you do this the flow exists and does nothing. And once you have done it, the flow is
+in use and cannot be deleted:
+
+```
+ERROR [org.keycloak.services.error.KeycloakErrorHandler] Uncaught server error:
+org.keycloak.models.ModelException: Cannot remove authentication flow, it is currently in use
+```
+
+Rebind the realm to `browser` first, then delete.
+
+## Verify it works
+
+The flow tree, top to bottom:
+
+```bash
+kc get 'authentication/flows/demo%20browser/executions' -r demo \
+  | jq -r '.[] | "\(.level) pri=\(.priority) \(.requirement)\t\(.displayName)"'
+```
+
+```
+0 pri=10 ALTERNATIVE   Cookie
+0 pri=25 ALTERNATIVE   Identity Provider Redirector
+0 pri=30 ALTERNATIVE   demo browser forms
+1 pri=10 REQUIRED      Username Password Form
+1 pri=20 DISABLED      demo browser Browser - Conditional 2FA
+1 pri=21 CONDITIONAL   finance step-up
+2 pri=0  REQUIRED      Condition - user role
+2 pri=1  REQUIRED      OTP Form
+```
+
+Then check the three behaviours that actually matter. Open
+`http://localhost:8080/realms/demo/protocol/openid-connect/auth?client_id=demo-app&redirect_uri=http%3A%2F%2Flocalhost%3A9090%2Fcb&response_type=code&scope=openid`
+in a browser, or drive it with `curl`:
+
+| Who | Expected | Observed on 26.7.3 |
+|---|---|---|
+| alice / `alice-pw` | password only | redirect to `http://localhost:9090/cb?...&code=…`, 0 OTP prompts |
+| bob / `bob-pw`, no TOTP yet | forced enrolment | redirect to `login-actions/required-action?execution=CONFIGURE_TOTP` |
+| bob / `bob-pw`, TOTP enrolled | one code | authenticated after 1 OTP prompt |
+| alice, second app, same browser | silent SSO | immediate `code=…`, no login form |
+
+If alice sees an OTP prompt, your condition is unconfigured. If bob does not, the subflow or
+the `OTP Form` inside it is still `DISABLED`.
+
+## Which condition to use
+
+Every condition shipped in 26.7.3, straight from `authentication/config-description/<id>`:
+
+| Provider | Fires when | Config keys |
+|---|---|---|
+| `conditional-user-role` | User has the given role | `condUserRole`, `negate` |
+| `conditional-user-attribute` | User attribute exists and matches | `attribute_name`, `attribute_expected_value`, `include_group_attributes`, `not`, `regex` |
+| `conditional-user-configured` | The authenticators in this subflow are already configured for the user | — |
+| `conditional-credential` | A given credential type was (or was not) used already in this authentication | `credentials`, `included` |
+| `conditional-client-scope` | The requesting client has a given client scope | `client_scope`, `negate` |
+| `conditional-level-of-authentication` | The requested LOA is at or above a level and not yet satisfied | `loa-condition-level`, `loa-max-age` |
+| `conditional-sub-flow-executed` | Another named subflow did (or did not) run | `flow_to_check`, `check_result` |
+
+Two of these are worth knowing before you reach for a custom SPI:
+
+- **`conditional-level-of-authentication`** is the one to use when the *application* decides
+  how much authentication it wants, per request, rather than the realm deciding per user. It
+  is the basis of step-up authentication via the `acr_values` parameter.
+- **`conditional-sub-flow-executed`** lets a later subflow branch on what an earlier one
+  did, which is how you avoid re-prompting for a factor the user already gave you.
+
+## Five ways this fails silently
+
+Every one of these leaves a flow that loads, saves, and logs people in. None logs a warning.
+
+**1. A `CONDITIONAL` subflow with no condition inside it is skipped entirely.** Not "runs
+unconditionally" — skipped. We built one containing only a `REQUIRED` OTP Form, and alice
+authenticated with no prompt at all. `docker logs kc | grep -i conditional` produced nothing.
+Setting the only condition to `DISABLED` has the same effect, which makes "disable the
+condition to test the flow" a trap.
+
+**2. New executions are `DISABLED`.** Both commands in step 2 report
+`Created new execution with id …` and then do nothing until step 3. If you build a flow in
+the admin console you will notice, because the requirement radio buttons are in front of
+you. Building it from `kcadm` you will not.
+
+**3. One `REQUIRED` kills the `ALTERNATIVE`s beside it.** Covered above: the usual casualty
+is `Cookie` at the top level, and the symptom is that SSO "randomly stopped working" for
+every application in the realm.
+
+**4. Two conditional 2FA subflows means two prompts.** Adding your own subflow next to the
+copied `Browser - Conditional 2FA` doubled the OTP prompt for an enrolled user. Either
+disable the built-in one or put your condition inside it — do not run both.
+
+**5. `-n` on an execution update silently reorders your flow.** `priority` is absent from the
+partial body, Keycloak stores `0`, and the execution moves to the front of its level. Worth
+re-reading the tree after every change; the `jq` one-liner above is the cheapest way.
+
+<details>
+<summary><b>The same thing in the admin console</b></summary>
+
+1. **Authentication** → **Flows** → row menu on `browser` → **Duplicate** → name it
+   `demo browser`.
+2. On the `demo browser forms` row, **+** → **Add sub-flow** → `finance step-up`.
+3. On the new subflow row, **+** → **Add condition** → **Condition - user role**, then
+   **+** → **Add step** → **OTP Form**.
+4. Set the three requirement radio buttons: subflow **Conditional**, condition **Required**,
+   OTP Form **Required**.
+5. Gear icon on the condition → set **User role** to `finance-admin` → **Save**.
+6. Set `Browser - Conditional 2FA` to **Disabled**.
+7. **Action** → **Bind flow** → **Browser flow**.
+
+The console sets `priority` from the row order, so the `-n` problem in step 3 does not exist
+here. The `DISABLED`-by-default problem does not either. Everything else on this page does.
+
+</details>
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  if the `kcadm.sh` calls above were unfamiliar.
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) —
+  the container this page assumes.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — what your API should do with the token this flow issues.
+- [Understanding flows](/docs/authentication/understanding-flows/) and
+  [complex flows](/docs/authentication/complex-flows/) — worked examples that combine social
+  login, enterprise IdPs, and 2FA in one flow.
+- Official reference:
+  [authentication flows](https://www.keycloak.org/docs/latest/server_admin/index.html#_authentication-flows)
+  for what each option means, and
+  [Authentication SPI](https://www.keycloak.org/docs/latest/server_development/index.html#_auth_spi)
+  when no built-in condition fits and you need to write one.
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
