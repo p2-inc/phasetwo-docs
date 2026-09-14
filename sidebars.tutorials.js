@@ -27,6 +27,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Authentication",
+      link: { type: "generated-index" },
+      items: ["authentication/totp-mfa"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [

@@ -1,0 +1,632 @@
+---
+id: totp-mfa
+title: Set Up TOTP Multi-Factor Authentication in Keycloak
+description: Turn on Keycloak MFA with TOTP for every user, including existing ones — the OTP policy, the two flow changes that actually enforce it, and what silently breaks.
+keywords:
+  - keycloak mfa
+  - keycloak multi factor authentication
+  - keycloak 2fa
+  - does keycloak support mfa
+  - keycloak totp setup
+  - keycloak otp policy
+difficulty: intermediate
+time: 25 minutes
+keycloak_version: "26.7.3"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Set Up TOTP Multi-Factor Authentication in Keycloak
+
+Keycloak supports MFA out of the box, but **a stock realm does not enforce it**. The default
+browser flow only asks for a one-time password from users who have already enrolled one, so
+turning on Keycloak MFA is four steps, in this order:
+
+1. Set the realm's **OTP Policy** (Authentication → Policies → OTP Policy).
+2. **Copy** the built-in `browser` flow — never edit a built-in flow in place.
+3. In the copy, inside the **Browser - Conditional 2FA** sub-flow, set
+   **Condition - user configured** to *Disabled* and **OTP Form** to *Required*.
+4. **Bind** the copy as the realm's browser flow.
+
+Step 3 is the one that matters and the one the official documentation does not spell out.
+Without it, every user who has never set up an authenticator app keeps logging in with a
+password alone — and the admin console gives you no warning that this is happening.
+
+:::info Tested against
+Keycloak **26.7.3** in a container (`quay.io/keycloak/keycloak:26.7.3 start-dev`). Every
+command, every output, every default value and every measured window below is copied from a
+real run against that server on 2026-09-14.
+:::
+
+## What you'll build
+
+A realm where **every** user — including accounts that existed before you changed anything —
+is forced to enrol a TOTP authenticator at their next login and to enter a code on every
+login after that. Plus the verification that proves it, and the four ways this configuration
+silently fails.
+
+## Prerequisites
+
+A running Keycloak and an admin login:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.3 start-dev
+```
+
+If that container is your first one, start with
+[Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/).
+
+Every CLI step below uses `kcadm.sh` from inside the container. Define it once:
+
+```bash
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+```
+Logging into http://localhost:8080 as user admin of realm master
+```
+
+A realm, a client and a user to test with — see
+[your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) for
+what each of these is:
+
+```bash
+kcadm create realms -s realm=prod -s enabled=true
+kcadm create clients -r prod -s clientId=demo-app -s publicClient=true \
+  -s directAccessGrantsEnabled=true \
+  -s 'redirectUris=["http://localhost:5173/*"]'
+kcadm create users -r prod -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+kcadm set-password -r prod --username alice --new-password s3cret
+```
+
+`directAccessGrantsEnabled` is on so we can test with `curl`. Section
+[*The direct grant does not get MFA*](#the-direct-grant-does-not-get-mfa) explains why you
+must turn it back off afterwards.
+
+## Step 0 — prove the default is not MFA
+
+Before changing anything, ask Keycloak for a token with nothing but a password:
+
+```bash
+curl -s -d client_id=demo-app -d grant_type=password \
+  -d username=alice -d password=s3cret \
+  http://localhost:8080/realms/prod/protocol/openid-connect/token
+```
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5…",
+  "expires_in": 300,
+  "token_type": "Bearer",
+  "scope": "profile email"
+}
+```
+
+A token, from a password. That is the starting position of every Keycloak realm: MFA is
+*available*, not *required*. The `Browser - Conditional 2FA` sub-flow is present in the
+default browser flow and it contains **Condition - user configured**, which means *run this
+sub-flow only if the user already has a second factor*. Nobody has one yet, so nobody is
+asked for one.
+
+## Step 1 — set the OTP policy
+
+The policy controls what the QR code tells the authenticator app to do. Set it **before**
+anyone enrols, because changing it later does not migrate existing credentials (see
+[troubleshooting](#changing-the-otp-policy-does-not-change-existing-credentials)).
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+**Authentication** → **Policies** tab → **OTP Policy** sub-tab. Set the values, then **Save**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm update realms/prod \
+  -s otpPolicyType=totp \
+  -s otpPolicyAlgorithm=HmacSHA256 \
+  -s otpPolicyDigits=6 \
+  -s otpPolicyPeriod=30 \
+  -s otpPolicyLookAheadWindow=1 \
+  -s otpPolicyCodeReusable=false
+
+kcadm get realms/prod --fields otpPolicyType,otpPolicyAlgorithm,otpPolicyDigits,otpPolicyPeriod,otpPolicyLookAheadWindow,otpPolicyCodeReusable
+```
+
+```json
+{
+  "otpPolicyType" : "totp",
+  "otpPolicyAlgorithm" : "HmacSHA256",
+  "otpPolicyDigits" : 6,
+  "otpPolicyLookAheadWindow" : 1,
+  "otpPolicyPeriod" : 30,
+  "otpPolicyCodeReusable" : false
+}
+```
+
+</details>
+
+### What to set each option to
+
+These are the defaults a fresh 26.7.3 realm ships with, and what we'd actually set them to:
+
+| Console label | API field | Default | Set it to | Why |
+|---|---|---|---|---|
+| OTP type | `otpPolicyType` | `totp` | `totp` | HOTP's counter drifts, needs a DB write per login, and a stolen code stays valid indefinitely |
+| OTP hash algorithm | `otpPolicyAlgorithm` | `HmacSHA1` | `HmacSHA256`, with the caveat below | Costs nothing server-side, and is only changeable before anyone enrols |
+| Number of digits | `otpPolicyDigits` | `6` | `6` | The console offers only 6 or 8, and the acceptance window below moves the security needle far more than two digits |
+| OTP token period | `otpPolicyPeriod` | `30` | `30` | Anything else breaks apps that assume RFC 6238's default |
+| Look around window | `otpPolicyLookAheadWindow` | `1` | `1` | See the measured table below |
+| Reusable token | `otpPolicyCodeReusable` | `false` | `false` | `true` lets a code phished 20 seconds ago still work |
+
+On `HmacSHA256`: the server side works. We seeded a SHA-256 credential and authenticated with
+a SHA-256 code against 26.7.3, and it was accepted. What we did **not** test is authenticator
+apps — Keycloak puts `algorithm=SHA256` in the `otpauth://` URI behind the QR code, and an app
+that ignores that parameter and computes SHA-1 anyway will generate codes that never validate,
+with no error message that says why. Enrol one test user on each authenticator app your users
+actually use before you roll SHA-256 out, or stay on the `HmacSHA1` default, which every app
+implements.
+
+Two naming traps: the console calls it **Look around window** while the API field is still
+`otpPolicyLookAheadWindow`, and the console's **Reusable token** is `otpPolicyCodeReusable`.
+Searching for the console label in the Admin REST API docs finds nothing.
+
+The Admin REST API also does **no validation** on these fields. The console rejects a digit
+count other than 6 or 8 and a period outside 1 second–2 minutes; the API takes whatever you
+send:
+
+```bash
+kcadm update realms/prod -s otpPolicyPeriod=300 -s otpPolicyDigits=7
+kcadm get realms/prod --fields otpPolicyPeriod,otpPolicyDigits
+```
+
+```json
+{
+  "otpPolicyDigits" : 7,
+  "otpPolicyPeriod" : 300
+}
+```
+
+No error. You have just generated QR codes that most authenticator apps cannot read. If you
+configure realms from Terraform or a script, validate these two values yourself.
+
+```bash
+kcadm update realms/prod -s otpPolicyPeriod=30 -s otpPolicyDigits=6
+```
+
+## Step 2 — decide how users enrol
+
+There are two mechanisms and they do genuinely different things. Picking the wrong one is
+the most common reason an "MFA rollout" leaves half the user base on passwords.
+
+| | Required action as default | Flow change (steps 3–4) |
+|---|---|---|
+| Where | Authentication → Required actions → **Configure OTP** → *Set as default action* | Browser flow's `Browser - Conditional 2FA` sub-flow |
+| Applies to | **New users only** | **Every user**, existing accounts included |
+| Users already in the realm | Unaffected — they keep logging in with a password | Forced to enrol at next login |
+| Users created after you turn it on | Enrolment queued the moment the account is created | Forced to enrol at next login |
+| Can a user skip it | No | No |
+| Good for | A realm you are creating now | A realm that already has users — i.e. every real rollout |
+
+The required action is worth verifying, because the scope surprises people. Turn it on:
+
+```bash
+kcadm update authentication/required-actions/CONFIGURE_TOTP -r prod \
+  -s enabled=true -s defaultAction=true
+
+kcadm create users -r prod -s username=newbie -s enabled=true \
+  -s firstName=New -s lastName=User -s email=newbie@example.com -s emailVerified=true
+
+kcadm get users -r prod -q username=newbie --fields username,requiredActions
+kcadm get users -r prod -q username=alice  --fields username,requiredActions
+```
+
+```json
+[ {
+  "username" : "newbie",
+  "requiredActions" : [ "CONFIGURE_TOTP" ]
+} ]
+[ {
+  "username" : "alice",
+  "requiredActions" : [ ]
+} ]
+```
+
+`newbie` will be asked to enrol. `alice`, who already existed, will not. If your realm has
+users in it, the required action alone is not an MFA rollout — it is an MFA rollout for
+people who haven't signed up yet.
+
+## Step 3 — require OTP for everyone
+
+### Copy the flow first
+
+Keycloak will let you edit the built-in `browser` flow. Don't. A copy is independently
+versionable, can be unbound in one command if a rollout goes wrong, and survives an upgrade
+that touches the built-in definitions.
+
+```bash
+kcadm create authentication/flows/browser/copy -r prod -s newName=browser-mfa
+```
+
+```
+Created new copy with id 'bec4338e-6b41-41a4-a43c-afbd3136db6e'
+```
+
+Copying renames every sub-flow with the new flow's name as a prefix:
+`Browser - Conditional 2FA` becomes `browser-mfa Browser - Conditional 2FA`. Any script that
+matches sub-flows by exact name breaks here.
+
+### Change exactly two executions
+
+Inside `browser-mfa Browser - Conditional 2FA`:
+
+| Execution | Was | Set to | Effect |
+|---|---|---|---|
+| Condition - user configured | Required | **Disabled** | Stop skipping the sub-flow for users with no second factor |
+| Condition - credential | Required | *leave alone* | Keeps the sub-flow conditional — see the warning below |
+| OTP Form | Alternative | **Required** | A user with no OTP credential is sent to enrolment instead of past it |
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Authentication** → **Flows** → **browser-mfa**.
+2. Find the **browser-mfa Browser - Conditional 2FA** sub-flow, nested under **forms**.
+3. On its **Condition - user configured** row, select **Disabled**.
+4. On its **OTP Form** row, select **Required**.
+
+There are **two** rows called *Condition - user configured* in this flow. The other one
+belongs to `Browser - Conditional Organization` near the top. Changing that one does nothing
+for MFA and will break organization-based login. Check which sub-flow the row is indented
+under before you touch it.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+Execution IDs are generated per realm, so look them up rather than hard-coding them. Save
+this as `require-otp.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+REALM="${1:?usage: require-otp.sh <realm> [flow]}"
+FLOW="${2:-browser-mfa}"
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+EXECS=$(kcadm get "authentication/flows/$FLOW/executions" -r "$REALM")
+
+# the "Condition - user configured" inside the Conditional 2FA sub-flow,
+# not the one inside Conditional Organization
+COND_ID=$(jq -r '. as $a
+  | (to_entries | map(select(.value.displayName | endswith("Browser - Conditional 2FA"))) | .[0].key) as $i
+  | [$a[$i+1:][] | select(.providerId=="conditional-user-configured")][0].id' <<<"$EXECS")
+OTP_ID=$(jq -r 'first(.[] | select(.providerId=="auth-otp-form") | .id)' <<<"$EXECS")
+
+echo "{\"id\":\"$COND_ID\",\"requirement\":\"DISABLED\"}" \
+  | kcadm update "authentication/flows/$FLOW/executions" -r "$REALM" -n -f -
+echo "{\"id\":\"$OTP_ID\",\"requirement\":\"REQUIRED\"}" \
+  | kcadm update "authentication/flows/$FLOW/executions" -r "$REALM" -n -f -
+
+kcadm get "authentication/flows/$FLOW/executions" -r "$REALM" --fields displayName,requirement \
+  | jq -r '.[] | select(.displayName | test("Conditional 2FA|user configured|credential|OTP Form|Username Password"))
+           | "  \(.displayName): \(.requirement)"'
+```
+
+```bash
+bash require-otp.sh prod browser-mfa
+```
+
+```
+  Condition - user configured: REQUIRED
+  Username Password Form: REQUIRED
+  browser-mfa Browser - Conditional 2FA: CONDITIONAL
+  Condition - user configured: DISABLED
+  OTP Form: REQUIRED
+  Condition - credential: REQUIRED
+```
+
+The first `Condition - user configured: REQUIRED` is the organization sub-flow's, untouched,
+exactly as it should be.
+
+The `-n` (`--no-merge`) flag and `-f -` are both required. `kcadm update … -s id=… -s
+requirement=…` fails on this endpoint, because kcadm tries to GET the current state first
+and this endpoint returns an array:
+
+```
+HTTP request error: Cannot deserialize value of type
+`com.fasterxml.jackson.databind.node.ObjectNode` from Array value (token `JsonToken.START_ARRAY`)
+```
+
+</details>
+
+:::warning Do not also disable `Condition - credential`
+It looks like leftover scaffolding. It is not: in 26.x it carries
+`credentials: webauthn-passwordless`, which is what lets Keycloak skip the second factor when
+the *first* factor was a passwordless passkey.
+
+More importantly, **a conditional sub-flow with no enabled conditions is skipped entirely**,
+not executed. Disable both conditions and the sub-flow containing your `Required` OTP Form
+never runs — Keycloak completes the login and redirects the user to the application with an
+authorization code. We tested it: the console still shows *OTP Form: Required*, and a user with
+no second factor gets straight in on a password. This is the quietest way to ship an MFA
+configuration that does nothing.
+:::
+
+### Bind the copy
+
+Nothing has changed for users until the realm points at the new flow.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+**Authentication** → **Flows** → the **browser-mfa** row's kebab menu → **Bind flow** →
+**Browser flow** → **Save**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm update realms/prod -s browserFlow=browser-mfa
+kcadm get realms/prod --fields browserFlow
+```
+
+```json
+{
+  "browserFlow" : "browser-mfa"
+}
+```
+
+To roll back, bind `browser` again. One command, no data loss — which is the reason for the
+copy.
+
+</details>
+
+## Step 4 — verify it worked
+
+Not "log in and you should see a QR code". Drive the login endpoint and check where the
+server sends you.
+
+```bash
+AUTH="http://localhost:8080/realms/prod/protocol/openid-connect/auth?client_id=demo-app&response_type=code&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcb&state=xyz"
+
+curl -s -c cj.txt "$AUTH" -o login.html
+ACTION=$(grep -o 'action="[^"]*"' login.html | head -1 | sed 's/action="//;s/"$//;s/&amp;/\&/g')
+
+curl -s -b cj.txt -c cj.txt -L -D hdr.txt \
+  -d "username=alice" -d "password=s3cret" -d "credentialId=" "$ACTION" -o step2.html
+
+grep -i '^location:' hdr.txt | tail -1
+grep -o 'name="totp"\|name="userLabel"\|data:image/png' step2.html | sort -u
+```
+
+```
+Location: http://localhost:8080/realms/prod/login-actions/required-action?execution=CONFIGURE_TOTP&client_id=demo-app&tab_id=ADBGjFPI5iY&client_data=…
+data:image/png
+name="totp"
+name="userLabel"
+```
+
+`execution=CONFIGURE_TOTP` is the proof. `alice` existed before any of this, has no OTP
+credential and no required action on her account, and Keycloak is nonetheless refusing to
+complete her login until she enrols. The `data:image/png` is the QR code and `name="totp"` is
+the field she confirms it with.
+
+Run the same block against a realm where step 3 was skipped and the final `Location:` is your
+application's redirect URI instead. That difference is the whole test, and it is worth keeping
+as a smoke check — it is the only way to catch an MFA configuration that has silently stopped
+being enforced.
+
+## How long a TOTP code is actually valid
+
+"Look around window" is the setting people change when users complain about codes being
+rejected, usually without knowing what they are trading away. A window of `W` accepts the
+current time step and `W` steps either side — `2W + 1` codes, each `otpPolicyPeriod` seconds
+long. Measured on 26.7.3 with a 30-second period, by submitting codes generated at a known
+offset from server time:
+
+| Look around window | Time steps accepted | Codes valid at once | Wall-clock validity | Odds a random 6-digit guess works |
+|---|---|---|---|---|
+| 1 *(default)* | −1, 0, +1 | 3 | 90 s | 3 in 1,000,000 |
+| 2 | −2 … +2 | 5 | 150 s | 5 in 1,000,000 |
+| 3 | −3 … +3 | 7 | 210 s | 7 in 1,000,000 |
+
+At `W = 1`, a code generated one step ago and one step ahead were both accepted, and codes
+two steps out were both rejected. At `W = 3`, exactly −3 to +3 were accepted. This matches
+what the
+[Keycloak documentation](https://www.keycloak.org/docs/latest/server_admin/index.html#one-time-password-otp-policies)
+states about the 90-second window at the default, and it is worth knowing the shape: raising
+the window is not "a bit more tolerance", it linearly multiplies both the guessing surface
+and the replay window.
+
+Leave it at 1 and fix the clock instead. If users genuinely cannot keep time, raise it to 2
+and turn on [brute force detection](/docs/security/brute-force-detection/), which is off by
+default and is what actually bounds the guessing.
+
+Code reuse is separate and is off by default. A code accepted once is rejected on its second
+use *by that user*, even though it is still inside its valid window — verified. The same code
+from a different user's authenticator is unaffected, because the rejection is per credential,
+not global.
+
+## Troubleshooting
+
+### Users are never asked for a code
+
+The single most common cause is that only the required action was enabled. It applies to new
+users only. Check an affected account:
+
+```bash
+kcadm get users -r prod -q username=alice --fields username,requiredActions
+```
+
+An empty `requiredActions` on an existing user means the required action never touched them.
+Do step 3.
+
+The second cause is a flow that was edited but never bound. `kcadm get realms/prod --fields
+browserFlow` must name your copy, not `browser`.
+
+The third is the conditional sub-flow being skipped because it has no enabled conditions —
+see the warning in step 3.
+
+### Backfilling existing users instead of changing the flow
+
+If you would rather queue enrolment per user than change the flow, the required action can be
+set directly. This works, but you have to re-run it for every user created before the next
+time you remember to:
+
+```bash
+kcadm get users -r prod --fields id -q max=10000 \
+  | jq -r '.[].id' \
+  | while read id; do
+      kcadm update "users/$id" -r prod -s 'requiredActions=["CONFIGURE_TOTP"]' </dev/null
+    done
+```
+
+Two details in that loop are not optional, and both fail quietly:
+
+- **`-q max=10000`.** `kcadm get users` returns **100** users and no warning that there are
+  more. In a realm we loaded with 114 users, the unqualified call returned exactly 100 —
+  so the sweep would have left 14 accounts on password-only and told you it succeeded.
+- **`</dev/null`.** The `kcadm` helper at the top of this page is `docker exec -i`, and
+  `-i` makes the inner command read the same standard input the loop is consuming. Without
+  the redirect, the first `update` swallows the rest of the id list and the loop runs
+  **once**. We reproduced this on a four-user realm: one `update`, three users untouched,
+  exit status 0.
+
+The flow change is a standing rule; this is a one-off sweep that is only ever as complete as
+the last time you ran it. Prefer the flow change.
+
+### <a id="the-direct-grant-does-not-get-mfa"></a>The direct grant does not get MFA
+
+The browser flow is not the only way into a realm. With `browser-mfa` bound and enforcing OTP,
+the resource-owner password grant still issues tokens for a password alone:
+
+```bash
+curl -s -d client_id=demo-app -d grant_type=password \
+  -d username=alice -d password=s3cret \
+  http://localhost:8080/realms/prod/protocol/openid-connect/token
+```
+
+```json
+{"access_token":"eyJhbGciOiJSUzI1NiIsInR5…","expires_in":300,"token_type":"Bearer","scope":"profile email"}
+```
+
+That is a complete MFA bypass for any client with **Direct access grants** enabled, and a
+stock client has it on. It is a separate flow (`direct grant`) with its own conditional OTP
+sub-flow, and no browser-flow change touches it.
+
+The fix is not to patch the direct grant flow — it has no way to present an enrolment screen,
+so a user with no OTP credential simply cannot authenticate through it. Turn the grant off:
+
+```bash
+CID=$(kcadm get clients -r prod -q clientId=demo-app --fields id | jq -r '.[0].id')
+kcadm update "clients/$CID" -r prod -s directAccessGrantsEnabled=false
+
+curl -s -d client_id=demo-app -d grant_type=password \
+  -d username=alice -d password=s3cret \
+  http://localhost:8080/realms/prod/protocol/openid-connect/token
+```
+
+```json
+{"error":"unauthorized_client","error_description":"Client not allowed for direct access grants"}
+```
+
+The password grant is discouraged in OAuth 2.1 regardless. Browser apps should use the
+authorization code flow with PKCE; machine clients should use the client credentials grant.
+Audit the whole realm before you call an MFA rollout done:
+
+```bash
+kcadm get clients -r prod --fields clientId,directAccessGrantsEnabled \
+  | jq -r '.[] | select(.directAccessGrantsEnabled) | .clientId'
+```
+
+```
+admin-cli
+```
+
+`admin-cli` is expected and must stay on — it is the client `kcadm.sh` itself authenticates
+with. Anything else in that list is a client your users can log into with a password and no
+second factor.
+
+### <a id="changing-the-otp-policy-does-not-change-existing-credentials"></a>Changing the OTP policy does not change existing credentials
+
+Each enrolled credential stores its own `credentialData`. The realm policy is only used to
+build the QR code at enrolment time. Change the policy afterwards and already-enrolled users
+keep validating against the settings they enrolled with — we changed a realm from
+`HmacSHA1`/6 digits/30 s to `HmacSHA256`/8 digits/60 s and a credential enrolled under the
+old policy kept authenticating unchanged.
+
+This is usually what you want — it means a policy change cannot lock everyone out — but it
+also means **you cannot roll out a stronger hash by editing the policy**. Existing users have
+to delete and re-enrol their credential. Decide the policy before you enrol anyone.
+
+### "Invalid authenticator code" on every attempt
+
+In order of likelihood:
+
+1. **Server clock drift.** TOTP hashes the current time; the look-around window only absorbs
+   ±30 seconds at the default. Check the server's clock before touching the policy — a
+   container on a suspended laptop is the classic case.
+2. **The code was already used.** `otpPolicyCodeReusable` is `false`, so a code entered
+   twice — a double-submitted form, a retried request — fails the second time even though it
+   is still inside its window.
+3. **The policy changed after enrolment.** See above. The user's app is generating codes
+   under the old rules; delete the credential and re-enrol.
+
+### A user lost their authenticator
+
+Delete the credential and queue re-enrolment. Two commands, and it is the entire help-desk
+runbook:
+
+```bash
+USER_ID=$(kcadm get users -r prod -q username=alice --fields id | jq -r '.[0].id')
+CRED=$(kcadm get "users/$USER_ID/credentials" -r prod | jq -r 'first(.[]|select(.type=="otp")|.id)')
+
+kcadm delete "users/$USER_ID/credentials/$CRED" -r prod
+kcadm update "users/$USER_ID" -r prod -s 'requiredActions=["CONFIGURE_TOTP"]'
+```
+
+At their next login the user gets the enrolment screen again.
+
+To avoid the call entirely, point users at `/realms/prod/account/` → **Account security** →
+**Signing in**, where they can re-register an authenticator themselves. Backup codes take one
+more step than people expect: the **Recovery Authentication Codes** required action already
+ships enabled, so users can generate codes from that page today — but the
+**Recovery Authentication Code Form** in the browser flow ships **Disabled**, so Keycloak will
+not accept them at login until you set it to *Alternative* in your `browser-mfa` copy.
+
+## Next steps
+
+- [Passkeys and WebAuthn in Keycloak](/blog/webauthn-keycloak/) — the second factor that
+  isn't phishable, and the reason `Condition - credential` is in that sub-flow.
+- [One-time passwords](/docs/authentication/otps/) — the console walkthrough of OTP setup,
+  including the required-action screens.
+- [Complex authentication flows](/docs/authentication/complex-flows/) — combining OTP with
+  other methods in a single flow.
+- [Brute force detection](/docs/security/brute-force-detection/) — off by default, and what
+  bounds code guessing once MFA is on.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  if the setup in the prerequisites went past too fast.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — what your API should check before it trusts any of this.
+- More [Keycloak tutorials](/tutorials/) across authentication, authorization and operations.
+- Official reference:
+  [OTP policies](https://www.keycloak.org/docs/latest/server_admin/index.html#one-time-password-otp-policies)
+  and
+  [conditional flow examples](https://www.keycloak.org/docs/latest/server_admin/index.html#_conditional-2fa-otp-default).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
