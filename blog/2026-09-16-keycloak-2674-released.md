@@ -4,11 +4,11 @@ title: "Keycloak 26.7.4: 6 CVEs, Two Unauthenticated DoS"
 date: 2026-09-16
 authors: [gpatil]
 tags: [keycloak, release, security, upgrades]
-description: Keycloak 26.7.4 fixes six CVEs, four rated high. Upgrade this week if your login or SAML endpoints face the internet — two are unauthenticated DoS.
+description: Keycloak 26.7.4 fixes six CVEs, five rated high. Upgrade this week if your login or SAML endpoints face the internet — two are unauthenticated DoS.
 keywords: [keycloak 26.7.4, keycloak release, keycloak news, keycloak security update]
 ---
 
-**Bottom line: upgrade this week if your login page or SAML endpoints are reachable from the internet, or if you run stateless mode on MySQL/MariaDB. Otherwise take it in your normal cycle.** Keycloak 26.7.4 fixes six CVEs — four published as high, one medium, and one with no advisory anywhere yet. Two of them let an unauthenticated attacker exhaust memory and crash the server by hitting endpoints that are open by definition. One breaking change, in Authorization Services URI matching.
+**Bottom line: upgrade this week if your login page or SAML endpoints are reachable from the internet, or if you run stateless mode on MySQL/MariaDB. Otherwise take it in your normal cycle.** Keycloak 26.7.4 fixes six CVEs — five published as high, one medium. Two of them let an unauthenticated attacker exhaust memory and crash the server by hitting endpoints that are open by definition. One breaking change, in Authorization Services URI matching.
 
 <!-- truncate -->
 
@@ -34,11 +34,11 @@ Counted from the release notes: six security bullets, six distinct CVE identifie
 | [CVE-2026-18212](https://nvd.nist.gov/vuln/detail/CVE-2026-18212) / [GHSA-wgrv-cjmx-4vfw](https://github.com/advisories/GHSA-wgrv-cjmx-4vfw) | high 7.5 | SAML DEFLATE helpers leak native zlib memory |
 | [CVE-2026-17526](https://nvd.nist.gov/vuln/detail/CVE-2026-17526) / [GHSA-j7cq-x5cp-qpcx](https://github.com/advisories/GHSA-j7cq-x5cp-qpcx) | high 7.2 | The `impersonation` role can impersonate a realm administrator |
 | [CVE-2026-19607](https://nvd.nist.gov/vuln/detail/CVE-2026-19607) / [GHSA-h87q-rx56-87wm](https://github.com/advisories/GHSA-h87q-rx56-87wm) | medium 5.3 | Brokered username collision locks the legitimate user out |
-| [CVE-2026-90997](https://nvd.nist.gov/vuln/detail/CVE-2026-90997) / none | **unrated** | MySQL/MariaDB row counts make replay gates accept reused artifacts |
+| CVE-2026-90997 / [GHSA-xpwp-2pcm-8xq3](https://github.com/keycloak/keycloak/security/advisories/GHSA-xpwp-2pcm-8xq3) | high 7.4 | MySQL/MariaDB row counts make replay gates accept reused artifacts |
 
 **CVE-2026-79651 (high, 7.5) has the broadest exposure here.** The theme localization endpoints accept arbitrary locale tags from unauthenticated requests and cache them permanently in memory, with no bound. If anyone on the internet can load your login page, they can send unique locale tags until the process dies. There is no configuration that opts you out.
 
-**CVE-2026-90997 has no advisory published, so it carries no severity** — nothing in the [GitHub advisory database](https://github.com/advisories), no NVD record, checked 16 September. The upstream issue [#52834](https://github.com/keycloak/keycloak/issues/52834) is labelled `severity/high` and describes replay protection failing outright in stateless mode on MySQL/MariaDB: a used JWT client assertion (`private_key_jwt`), DPoP proof, or non-reusable TOTP code is accepted again. If that is your configuration, treat it seriously and read the issue rather than waiting for a rating.
+**CVE-2026-90997 (high, 7.4) was published late**, several hours after the other five, as [GHSA-xpwp-2pcm-8xq3](https://github.com/keycloak/keycloak/security/advisories/GHSA-xpwp-2pcm-8xq3). In stateless mode on MySQL or MariaDB, a row-count semantics mismatch between the driver and Keycloak's logic breaks replay protection: an attacker who has intercepted a single-use artifact — a JWT client assertion (`private_key_jwt`), a DPoP proof, or a TOTP code — can replay it against the token endpoint or the login flow. The interception requirement is what holds the score to 7.4 rather than higher. If you cannot take 26.7.4 immediately, the advisory's workaround is to disable the stateless feature. Note that the advisory is not in the [global advisory database](https://github.com/advisories) or NVD yet, so only the Keycloak-repository link above resolves.
 
 **CVE-2026-74909 (high, 8.1) needs the policy enforcer**, not plain OIDC. Percent-encoded semicolons still slipped past matrix-parameter stripping — an incomplete-fix follow-up — so an authenticated user could dress a URL up until it matched a permissive resource such as a catch-all `/*`. It drives the breaking change below.
 
@@ -46,7 +46,7 @@ Counted from the release notes: six security bullets, six distinct CVE identifie
 
 ## If you run 26.6, 26.5 or 26.4
 
-The advisories list no affected or patched versions at all — the `vulnerabilities` array is empty on all five. The upstream issues carry `release/` labels instead, and the commits are visible in the branch diffs. Verified 16 September:
+Five of the six advisories list no affected or patched versions at all — their `vulnerabilities` array is empty. The upstream issues carry `release/` labels instead, and the commits are visible in the branch diffs. Verified 16 September:
 
 | Branch | Newest release | Newest tag | These fixes | Runnable image |
 |---|---|---|---|---|
@@ -55,7 +55,7 @@ The advisories list no affected or patched versions at all — the `vulnerabilit
 | 26.5 | 26.5.7 | 26.5.7 (April) | **none** | — |
 | 26.4 | 26.4.7 (Dec 2025) | 26.4.16 (7 Sep) | five — **not** CVE-2026-90997 | `quay.io/phasetwo/keycloak:26.4.16` |
 
-Keycloak tags backports without publishing a GitHub release, so 26.6.7 and 26.4.16 exist and carry five of these six fixes even though nothing announced them — we publish [container images](/extensions/containers/) for both. The row-count fix landed on 15 September, after those tags were cut, so it is on 26.7 only. That branch is also the only one with stateless mode: there is no stateless-mode code in the 26.6.7 or 26.4.16 trees, which is consistent with 26.6 and 26.4 being out of scope for CVE-2026-90997 rather than unfixed.
+Keycloak tags backports without publishing a GitHub release, so 26.6.7 and 26.4.16 exist and carry five of these six fixes even though nothing announced them — we publish [container images](/extensions/containers/) for both. The row-count fix landed on 15 September, after those tags were cut, so it is on 26.7 only. That branch is also the only one with stateless mode: there is no stateless-mode code in the 26.6.7 or 26.4.16 trees. The late advisory settles it — GHSA-xpwp-2pcm-8xq3 is the one here that does publish a range, `>= 26.7.0, < 26.7.4` on `org.keycloak:keycloak-model-jpa`, so 26.6 and 26.4 are out of scope rather than unfixed.
 
 **If you are on 26.5, there is no patch and there will not be one.** Upstream has moved the branch to `archive/release/26.5`; `release/26.4`, `release/26.6` and `release/26.7` are the live ones. Plan the move to 26.7.
 
