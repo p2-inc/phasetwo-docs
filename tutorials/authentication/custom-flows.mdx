@@ -401,6 +401,48 @@ here. The `DISABLED`-by-default problem does not either. Everything else on this
 
 </details>
 
+## Doing this safely in production
+
+Everything on this page mutates a live flow one call at a time. That is fine on a throwaway
+realm, and it is the wrong shape for a realm that is serving logins. Adding an execution,
+setting its requirement, and attaching its config are three separate commits against a flow
+that is already bound — so there is a window, as long as it takes you to run the next
+command, in which real users authenticate against a flow nobody designed. Some of those
+intermediate states fail closed: a `CONDITIONAL` subflow whose condition has not been
+configured yet, a `REQUIRED` OTP form added before its authenticator config.
+
+The safe way to ship a flow change is to not edit a bound flow at all — build the whole tree,
+apply it in one transaction, and move the binding onto it. Phase Two maintains
+[`keycloak-atomic-auth-flows`](https://github.com/p2-inc/keycloak-atomic-auth-flows), an
+Apache 2.0 Keycloak extension that does exactly that. It adds one realm admin endpoint that
+takes the flows, the authenticator configs, and every binding as a single payload:
+
+```
+POST /admin/realms/{realm}/authentication-flow/import[?force=true]
+```
+
+Three properties are what make it a production tool rather than a convenience:
+
+- **One transaction.** Flows, configs, executions, and bindings all apply together. Any
+  failure — a dangling subflow reference, an unknown client — rolls the whole import back.
+  There is no half-applied flow.
+- **Content-addressed, never mutated.** Flow aliases are prefixed with a hash of the payload,
+  so an import creates a new independently-bindable tree and then moves the binding. The flow
+  that was serving traffic a moment ago is untouched and still there, which makes rollback a
+  re-bind rather than a reconstruction.
+- **Idempotent.** Re-posting an identical tree returns `409` instead of duplicating it, so a
+  pipeline can run the import on every deploy. The flow tree becomes a config-as-code
+  artifact you review as a diff.
+
+It also lets you bind a new flow as a *per-client* override first, so the change is live and
+exercisable against one staging client while every other client keeps using the current flow.
+
+Read the announcement —
+[Atomic authentication flow updates for Keycloak, built with Gusto](/blog/keycloak-atomic-auth-flows/)
+— for the design and a worked config-as-code toolchain. It was built with
+[Gusto](https://gusto.com/) and ran in their production environment for almost a year before
+being open-sourced.
+
 ## Next steps
 
 - [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
@@ -417,6 +459,9 @@ here. The `DISABLED`-by-default problem does not either. Everything else on this
   for what each option means, and
   [Authentication SPI](https://www.keycloak.org/docs/latest/server_development/index.html#_auth_spi)
   when no built-in condition fits and you need to write one.
+- [`keycloak-atomic-auth-flows`](https://github.com/p2-inc/keycloak-atomic-auth-flows) —
+  Apache 2.0 extension for applying a whole flow tree in one transaction, and the
+  [post explaining why](/blog/keycloak-atomic-auth-flows/).
 - Clean up: `docker rm -f kc`.
 
 <ProductionNote />
