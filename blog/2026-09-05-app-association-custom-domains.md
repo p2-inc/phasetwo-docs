@@ -4,7 +4,7 @@ title: "Keycloak Custom Domains Can Now Serve App Association Files"
 date: 2026-09-05
 authors: [jpatzer]
 tags: [keycloak, custom-domains, passkeys, mobile, autofill]
-description: Phase Two custom domains can now serve apple-app-site-association, assetlinks.json and a change-password redirect, so mobile apps can autofill saved passwords and share passkeys with a Keycloak login page.
+description: Phase Two custom domains can now serve apple-app-site-association and assetlinks.json, so mobile apps can autofill saved passwords and share passkeys with a Keycloak login page.
 keywords:
   - keycloak mobile app autofill
   - apple-app-site-association keycloak
@@ -36,17 +36,16 @@ The result was a silent failure. Autofill never appeared, nothing logged an erro
 
 ## What we changed
 
-Phase Two custom domains now serve three things at the root of the domain:
+Phase Two custom domains now serve two files at the root of the domain:
 
 | Path | Purpose |
 | --- | --- |
 | `/.well-known/apple-app-site-association` | Links the domain to your iOS app |
 | `/.well-known/assetlinks.json` | Links the domain to your Android app |
-| `/.well-known/change-password` | Where password managers send someone to change their password |
 
 They are served at the edge rather than by the cluster, which has a few consequences worth knowing. Uploads apply in minutes instead of needing a restart, so correcting a fingerprint is not a deployment event. They keep serving during a cluster restart, which matters because a failed fetch gets cached by Apple for hours. And each domain on a cluster gets its own content, which is what makes this work for white-label products where every tenant has a different app.
 
-Everything else under `/.well-known/` still returns 404 — deliberately. The change-password specification relies on an unknown well-known URL *not* returning 200, and a catch-all would quietly break how password managers detect support.
+Everything else under `/.well-known/` still returns 404 — deliberately. The change-password specification relies on an unknown well-known URL *not* returning 200, and a catch-all would quietly break how password managers detect support. That includes `/.well-known/change-password` itself for now, which is spec-valid — password managers fall back to their default behavior — with a configurable per-domain redirect on the roadmap.
 
 ## Why we think this belongs in the platform
 

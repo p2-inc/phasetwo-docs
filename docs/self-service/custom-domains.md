@@ -129,13 +129,12 @@ If you have a mobile app, your custom domain can publish the files iOS and Andro
 
 Available on Premium and Enterprise plans, managed under **Clusters > Cluster > Config > Resources**.
 
-Three things can be served:
+Two files can be served:
 
-| Path                                      | Purpose                                                       |
-| ----------------------------------------- | ------------------------------------------------------------- |
-| `/.well-known/apple-app-site-association` | Links the domain to your iOS app                              |
-| `/.well-known/assetlinks.json`            | Links the domain to your Android app                          |
-| `/.well-known/change-password`            | Where password managers send someone to change their password |
+| Path                                      | Purpose                              |
+| ----------------------------------------- | ------------------------------------ |
+| `/.well-known/apple-app-site-association` | Links the domain to your iOS app     |
+| `/.well-known/assetlinks.json`            | Links the domain to your Android app |
 
 ### Why they must live on this domain
 
@@ -159,11 +158,9 @@ The file is validated when you upload it. Uploads are rejected if they are not v
 
 Changes reach the edge within about five minutes. **No deploy or cluster restart is needed**, unlike themes and extensions.
 
-### Setting the change-password redirect
+### The change-password path
 
-Password managers look for `/.well-known/change-password` to offer a "Change password" action on a saved entry, and when they flag a credential as compromised.
-
-Enter the URL you want people sent to. It must be an `https` URL on the same domain — for example your account console, or an app-initiated password update. Leaving it empty means the path returns a `404`, which is valid: password managers simply treat the site as not advertising the convention.
+Password managers also look for `/.well-known/change-password` to offer a "Change password" action on a saved entry, and when they flag a credential as compromised. On Phase Two custom domains this path currently returns a `404`, which is valid: password managers simply treat the site as not advertising the convention and fall back to their default behavior. A configurable per-domain redirect is planned and will appear in the same dashboard panel.
 
 ### Verifying
 
