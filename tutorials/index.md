@@ -44,9 +44,10 @@ More framework-by-framework guides are next. *(Coming soon.)*
 **Adding a second factor** — turn MFA on for everyone, not just the people who opt in:
 
 1. [Set up TOTP multi-factor authentication](/tutorials/authentication/totp-mfa/)
-2. [Passkeys and WebAuthn with Keycloak](/blog/webauthn-keycloak/)
+2. [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/)
+3. [Passkeys and WebAuthn with Keycloak](/blog/webauthn-keycloak/)
 
-Custom flows, step-up authentication, and passwordless login are next. *(Coming soon.)*
+Step-up authentication and passwordless login are next. *(Coming soon.)*
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 

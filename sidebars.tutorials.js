@@ -29,7 +29,7 @@ module.exports = {
       type: "category",
       label: "Authentication",
       link: { type: "generated-index" },
-      items: ["authentication/totp-mfa"],
+      items: ["authentication/totp-mfa", "authentication/custom-flows"],
     },
     {
       type: "category",
