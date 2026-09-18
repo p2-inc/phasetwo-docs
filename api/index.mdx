@@ -25,7 +25,7 @@ so start with the table.
 | **Host**        | `api.phasetwo.io`                            | `<your-cluster-host>`                       |
 | **Credential**  | An **API secret** from the Phase Two console | A Keycloak token from your realm            |
 | **Exists when** | You have a Phase Two account                 | You run Phase Two's Keycloak build          |
-| **Endpoints**   | 73                                           | 84                                          |
+| **Endpoints**   | 82                                           | 84                                          |
 
 ## The distinction in one paragraph
 
@@ -108,4 +108,5 @@ documents.
 Use them to generate a client, drive contract tests, or load into an HTTP client. For the
 Management API specifically, we already publish a
 [Terraform provider](/docs/management-api/terraform) generated from the spec, so check that
-before writing your own client.
+before writing your own client — though it is experimental at `0.1.0`, so treat it as suitable for
+test environments for now.

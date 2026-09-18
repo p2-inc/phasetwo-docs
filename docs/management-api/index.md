@@ -20,12 +20,12 @@ This section is the **guide**. If you want the endpoint-by-endpoint reference, t
 
 ## Start here
 
-|                                                          |                                                                                                             |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [**API keys**](/docs/management-api/api-keys)            | Create an API secret, exchange it for a token, and make your first call. Start here.                        |
-| [**Automation recipes**](/docs/management-api/recipes)   | Worked end-to-end examples: provision a cluster, onboard a tenant, add a custom domain, rotate credentials. |
-| [**Terraform provider**](/docs/management-api/terraform) | Manage the same resources declaratively instead of scripting the API.                                       |
-| [**API reference**](/api/management-api-index)           | All 73 endpoints, with schemas and try-it.                                                                  |
+|                                                          |                                                                                                                  |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [**API keys**](/docs/management-api/api-keys)            | Create an API secret, exchange it for a token, and make your first call. Start here.                             |
+| [**Automation recipes**](/docs/management-api/recipes)   | Worked end-to-end examples: provision a cluster, onboard a tenant, add a custom domain, rotate credentials.      |
+| [**Terraform provider**](/docs/management-api/terraform) | Manage the same resources declaratively instead of scripting the API. **Experimental — test environments only.** |
+| [**API reference**](/api/management-api-index)           | All 82 endpoints, with schemas and try-it.                                                                       |
 
 ## What this API is not
 

@@ -2,7 +2,7 @@
 id: terraform
 title: Terraform provider
 sidebar_label: Terraform provider
-description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider.
+description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider. Experimental — test environments only.
 keywords:
   - phasetwo terraform provider
   - keycloak terraform
@@ -16,6 +16,16 @@ The [`p2-inc/phasetwo`](https://registry.terraform.io/providers/p2-inc/phasetwo)
 the same resources as the [Management API](/api/management-api-index), declaratively. Its API
 client is generated from the same OpenAPI spec that generates the reference, so the two stay in
 step.
+
+:::caution Experimental — test environments only
+
+The provider is at `0.1.0` and should be pointed at **test or staging environments only** for now.
+Resource and attribute shapes may still change in backwards-incompatible ways, and what it manages
+is real, billable infrastructure: replacing a `phasetwo_cluster` destroys it and every realm on it,
+and destroying one keeps billing and holds the name until the end of the billing cycle. Pin an
+exact version while it is at `0.x`.
+
+:::
 
 For anything resource-shaped — a cluster and the realms, domains and rules on it — this is less
 code than driving the API, and it handles the parts that are tedious to get right by hand:
@@ -97,19 +107,23 @@ makes the API return a Stripe Checkout link, and Terraform cannot open a browser
 
 ## What it manages
 
-| Resource                                | Manages                                          |
-| --------------------------------------- | ------------------------------------------------ |
-| `phasetwo_cluster`                      | A dedicated cluster                              |
-| `phasetwo_realm`                        | A realm (deployment) on a cluster                |
-| `phasetwo_cluster_domain`               | A custom hostname, and the DNS records to create |
-| `phasetwo_cluster_primary_host`         | Which domain the cluster serves on               |
-| `phasetwo_cluster_ip_rules`             | Admin and realm IP allow/deny lists              |
-| `phasetwo_cluster_environment_variable` | A custom SPI environment variable                |
-| `phasetwo_cluster_extension`            | A custom provider or theme                       |
-| `phasetwo_cluster_extension_version`    | A per-Keycloak-version build of one              |
+| Resource                                | Manages                                            |
+| --------------------------------------- | -------------------------------------------------- |
+| `phasetwo_cluster`                      | A dedicated cluster                                |
+| `phasetwo_realm`                        | A realm (deployment) on a cluster                  |
+| `phasetwo_cluster_domain`               | A custom hostname, and the DNS records to create   |
+| `phasetwo_cluster_primary_host`         | Which domain the cluster serves on                 |
+| `phasetwo_cluster_ip_rules`             | Admin and realm IP allow/deny lists                |
+| `phasetwo_cluster_environment_variable` | A custom SPI environment variable                  |
+| `phasetwo_cluster_extension`            | A custom provider or theme                         |
+| `phasetwo_cluster_extension_version`    | A per-Keycloak-version build of one                |
+| `phasetwo_realm_credential`             | A service-account client for administering a realm |
 
 Data sources: `phasetwo_organization`, `phasetwo_organizations`, `phasetwo_payment_method`,
 `phasetwo_cluster`, `phasetwo_realm`, `phasetwo_regions`.
+
+Ephemeral resources: `phasetwo_realm_credential_secret` — reads a realm credential's secret without
+writing it to state. See [Configuring what is inside the realm](#configuring-what-is-inside-the-realm).
 
 ## Custom domains take two applies
 
@@ -191,16 +205,16 @@ curl -s -X POST \
   "name": "terraform",
   "description": "terraform, ci pipeline",
   "roles": ["realm-admin"],
-  "server_url": "https://my-cluster.phasetwo.io",
+  "server_url": "https://acme-prod.global.auth.ac",
   "realm": "production"
 }
 ```
 
-Everything the Keycloak provider needs is in that response:
+Everything the Keycloak provider needs is in that response. **Use `server_url` as given rather than building the URL yourself** — some clusters serve Keycloak at the domain root and others under `/auth`, and the response already accounts for which:
 
 ```hcl
 provider "keycloak" {
-  url           = "https://my-cluster.phasetwo.io"
+  url           = "https://acme-prod.global.auth.ac"
   realm         = "production"
   client_id     = "api-terraform-9f3c1a2b"
   client_secret = var.keycloak_client_secret
@@ -210,7 +224,7 @@ provider "keycloak" {
 
 :::caution `initial_login = false` is not optional here
 
-By default the Keycloak provider authenticates when Terraform *configures* it, which happens during
+By default the Keycloak provider authenticates when Terraform _configures_ it, which happens during
 `terraform plan` — before anything has been created. If the same configuration also creates the
 cluster, plan fails against a cluster that does not exist yet:
 
@@ -289,7 +303,7 @@ credential you are using. Ephemeral resources need Terraform 1.10 or later.
 **`initial_login = false` is not optional.** Configuring a provider from a resource created in the
 same apply is usually a dead end in Terraform, and there are two separate reasons why. The provider
 config referencing a not-yet-created value is the obvious one. The subtler one is that the Keycloak
-provider authenticates when Terraform *configures* it, which happens during `plan` — against a
+provider authenticates when Terraform _configures_ it, which happens during `plan` — against a
 cluster that does not exist yet:
 
 ```
@@ -322,13 +336,13 @@ curl -s -X POST \
 
 The available roles are the ones Keycloak defines on the realm's `realm-management` client:
 
-| | |
-| --- | --- |
-| **Read** | `view-realm` `view-users` `view-clients` `view-events` `view-identity-providers` `view-authorization` `view-organizations` |
-| **Write** | `manage-realm` `manage-users` `manage-clients` `manage-events` `manage-identity-providers` `manage-authorization` `manage-organizations` `create-client` |
-| **Query** | `query-users` `query-clients` `query-groups` `query-realms` `query-organizations` |
-| **Other** | `impersonation` |
-| **Everything** | `realm-admin` — a composite of all of the above |
+|                |                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Read**       | `view-realm` `view-users` `view-clients` `view-events` `view-identity-providers` `view-authorization` `view-organizations`                               |
+| **Write**      | `manage-realm` `manage-users` `manage-clients` `manage-events` `manage-identity-providers` `manage-authorization` `manage-organizations` `create-client` |
+| **Query**      | `query-users` `query-clients` `query-groups` `query-realms` `query-organizations`                                                                        |
+| **Other**      | `impersonation`                                                                                                                                          |
+| **Everything** | `realm-admin` — a composite of all of the above                                                                                                          |
 
 `deployment.credential.list` reports the roles each existing credential currently holds, so you can
 answer "what can this thing actually do?" without going to the Keycloak console.
@@ -372,10 +386,12 @@ a remote backend with encryption and restricted reads, pass the secret through a
 than committing it, and do not reuse one credential across environments.
 
 Because the secret can be read back on demand, the better answer is not to put it in state at all.
-Terraform 1.10's [ephemeral resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral)
-are never written to state or plan files, so a secret fetched into one exists only for the duration
-of the run. The Phase Two provider will expose the credential secret that way — see
-[terraform-provider-phasetwo#6](https://github.com/p2-inc/terraform-provider-phasetwo/issues/6).
+`phasetwo_realm_credential` has no `client_secret` attribute for exactly this reason — read it
+through the `phasetwo_realm_credential_secret` ephemeral resource shown in
+[Doing it in one apply](#doing-it-in-one-apply) instead.
+[Ephemeral resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral) are
+never written to state or plan files, so the secret exists only for the duration of the run. They
+need Terraform 1.10 or later.
 
 ## Local development
 

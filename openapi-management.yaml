@@ -873,6 +873,48 @@ paths:
       required: true
       schema:
         type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}/admin-block:
+    put:
+      tags:
+      - extensions
+      summary: Block or unblock an extension version.
+      description: "Stops an extension version being deployed to any cluster, or lifts\
+        \ an existing block. A blocked version is never copied during a cluster reconcile,\
+        \ whatever its `valid` flag or scan state says. Requires the `manage-clusters`\
+        \ role on the `cluster-management` client."
+      operationId: cluster.extension.version.adminBlock
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: "Whether to block the version, and why if so."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminBlockExtensionVersionRequest"
+        required: true
+      responses:
+        "200":
+          description: "The extension version, with its new block state."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
   /clusters/{id}/extensions/{extensionId}/versions/{versionId}/confirm:
     put:
       tags:
@@ -903,6 +945,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExtensionVersion"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    - name: extensionId
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/extensions/{extensionId}/versions/{versionId}/report:
+    get:
+      tags:
+      - extensions
+      summary: Read the security scan report for an extension version.
+      description: "Returns the extension checker's full report as written by the\
+        \ scanner: the verdict, the risk score and every individual finding. Requires\
+        \ the `manage-clusters` role on the `cluster-management` client."
+      operationId: cluster.extension.version.report
+      parameters:
+      - name: versionId
+        in: path
+        description: ID of the extension version.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "The scan report, verbatim as the checker wrote it."
+          content:
+            application/json: {}
+        "404":
+          description: "No version with that id, or no report has been written for\
+            \ it."
     parameters:
     - name: id
       in: path
@@ -1383,7 +1460,8 @@ paths:
       - clusters
       summary: Get system info for a dedicated cluster.
       description: "Returns the cluster's Keycloak server info (version, build time,\
-        \ etc). Only available while the cluster is ACTIVE."
+        \ etc) plus its Phase Two release build tag (issue #538). Only available while\
+        \ the cluster is ACTIVE."
       operationId: cluster.systemInfo.detail
       responses:
         "200":
@@ -1391,7 +1469,75 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SystemInfoRepresentation"
+                $ref: "#/components/schemas/ClusterSystemInfoRepresentation"
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/telemetry-export:
+    get:
+      tags:
+      - clusters
+      summary: Get telemetry export configuration.
+      description: Returns the cluster's telemetry export configuration. The bearer
+        token is never returned; tokenSet indicates whether one is stored.
+      operationId: cluster.telemetryExport.detail
+      responses:
+        "200":
+          description: Telemetry export configuration
+        "401":
+          description: Insufficient permissions
+    put:
+      tags:
+      - clusters
+      summary: Update telemetry export configuration.
+      description: Stores the configuration and publishes or withdraws the cluster's
+        gateway config. Omit token to leave the stored one unchanged. Rejects settings
+        the pipeline cannot honour rather than silently ignoring them.
+      operationId: cluster.telemetryExport.update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TelemetryExport"
+      responses:
+        "200":
+          description: Updated telemetry export configuration
+        "400":
+          description: "Invalid endpoint, token or unsupported setting"
+        "401":
+          description: Insufficient permissions
+        "503":
+          description: Saved but could not be published
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  /clusters/{id}/telemetry-export/validate-endpoint:
+    get:
+      tags:
+      - clusters
+      summary: Validate a telemetry export endpoint.
+      description: "Checks an endpoint without saving, so the caller can offer feedback\
+        \ before committing. Changes nothing. Resolution happens again at publish\
+        \ time, since validating once is defeated by DNS rebinding."
+      operationId: cluster.telemetryExport.endpoint.validate
+      parameters:
+      - name: endpoint
+        in: query
+        description: Candidate OTLP endpoint to check.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Validation outcome
+        "401":
+          description: Insufficient permissions
     parameters:
     - name: id
       in: path
@@ -1512,6 +1658,120 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ConsoleLink"
+  /deployments/{id}/credentials:
+    get:
+      tags:
+      - deployments
+      summary: List admin credentials for a deployment.
+      description: "Lists the credentials created for this deployment, with the `realm-management`\
+        \ roles each one currently holds. Secrets are not included; read one back\
+        \ individually with `deployment.credential.secret.read`."
+      operationId: deployment.credential.list
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Credentials for the deployment.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeploymentCredential"
+    post:
+      tags:
+      - deployments
+      summary: Create an admin credential for a deployment.
+      description: "Creates a service account client on the deployment's realm for\
+        \ administering that realm directly -- with the Keycloak Terraform provider,\
+        \ a provisioning script, an audit integration, or anything else that speaks\
+        \ Keycloak's admin API. Grants the `realm-management` roles given in `roles`,\
+        \ defaulting to `realm-admin`. The secret is included in this response, and\
+        \ can be read again later with `deployment.credential.secret.read`. See the\
+        \ read-back details on that method. Create a separate credential per holder\
+        \ so they can be revoked independently."
+      operationId: deployment.credential.create
+      parameters:
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: "Name, note and roles for the new credential. All optional."
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeploymentCredentialRequest"
+      responses:
+        "200":
+          description: "The new credential, including its secret."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentCredential"
+  /deployments/{id}/credentials/{clientId}:
+    delete:
+      tags:
+      - deployments
+      summary: Revoke an admin credential for a deployment.
+      description: "Deletes the client from the deployment's realm, immediately invalidating\
+        \ the credential. Only credentials created through this API can be revoked\
+        \ here."
+      operationId: deployment.credential.delete
+      parameters:
+      - name: clientId
+        in: path
+        description: Client ID of the credential to revoke.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Credential revoked.
+  /deployments/{id}/credentials/{clientId}/secret:
+    get:
+      tags:
+      - deployments
+      summary: Read an admin credential's secret.
+      description: "Returns the credential including its client secret, read from\
+        \ the deployment's realm. Phase Two keeps no copy; this asks the realm, which\
+        \ is where the secret lives. Reading does not rotate it, so a tool can fetch\
+        \ it on each run instead of persisting it -- which for Terraform means keeping\
+        \ it out of `terraform.tfstate`."
+      operationId: deployment.credential.secret.read
+      parameters:
+      - name: clientId
+        in: path
+        description: Client ID of the credential to read.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "The credential, including its secret."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentCredential"
   /deployments/{id}/metrics:
     get:
       tags:
@@ -1920,6 +2180,19 @@ paths:
         type: string
 components:
   schemas:
+    AdminBlockExtensionVersionRequest:
+      required:
+      - blocked
+      type: object
+      properties:
+        blocked:
+          description: "True to block this version from being deployed to any cluster,\
+            \ false to lift an existing block."
+          type: boolean
+        reason:
+          description: Why this version is being blocked. Required when `blocked`
+            is true; ignored otherwise.
+          type: string
     AppLinkRequest:
       required:
       - client_id
@@ -2105,6 +2378,51 @@ components:
       - PENDING_DELETION
       - ARCHIVED
       type: string
+    ClusterSystemInfoRepresentation:
+      type: object
+      properties:
+        version:
+          type: string
+        serverTime:
+          type: string
+        uptime:
+          type: string
+        uptimeMillis:
+          format: int64
+          type: integer
+        javaVersion:
+          type: string
+        javaVendor:
+          type: string
+        javaVm:
+          type: string
+        javaVmVersion:
+          type: string
+        javaRuntime:
+          type: string
+        javaHome:
+          type: string
+        osName:
+          type: string
+        osArchitecture:
+          type: string
+        osVersion:
+          type: string
+        fileEncoding:
+          type: string
+        userName:
+          type: string
+        userDir:
+          type: string
+        userTimezone:
+          type: string
+        userLocale:
+          type: string
+        buildTag:
+          description: "This cluster's Phase Two release build tag (e.g. `26.6.6.1787589931`),\
+            \ or `untagged` for a pre-phasetwo-containers#176 image. Null if the cluster's\
+            \ serverinfo couldn't be fetched."
+          type: string
     ConsoleLink:
       required:
       - user_id
@@ -2275,6 +2593,68 @@ components:
         stateError:
           description: "Why the deployment last failed, when it is in a failed state."
           type: string
+    DeploymentCredential:
+      required:
+      - client_id
+      - roles
+      - server_url
+      - realm
+      type: object
+      properties:
+        client_id:
+          description: Client ID to authenticate with.
+          type: string
+        client_secret:
+          description: "Client secret to authenticate with. Returned on create and\
+            \ by `deployment.credential.secret.read`, which reads it from the realm\
+            \ rather than from us -- Phase Two keeps no copy. Reading does not rotate\
+            \ it, so prefer fetching it when needed over storing it."
+          type: string
+        name:
+          description: "Name this credential was created with, echoed back from the\
+            \ client ID."
+          type: string
+        description:
+          description: "Free-text note recorded on the client, to tell credentials\
+            \ apart."
+          type: string
+        roles:
+          description: "`realm-management` roles granted to this credential. On create\
+            \ this is what was actually granted, which is worth checking against what\
+            \ you asked for."
+          type: array
+          items:
+            type: string
+        server_url:
+          description: Base URL of the deployment's Keycloak instance.
+          type: string
+        realm:
+          description: Realm this credential administers.
+          type: string
+    DeploymentCredentialRequest:
+      type: object
+      properties:
+        name:
+          description: "Short name for this credential, included in the generated\
+            \ client ID so it is recognisable in the realm's client list, e.g. `terraform`\
+            \ produces `api-terraform-9f3c1a2b`. Lower-case letters, digits and hyphens,\
+            \ up to 48 characters. Optional."
+          type: string
+        description:
+          description: "Free-text note recorded on the client so credentials can be\
+            \ told apart later, e.g. which pipeline or workstation holds it. Optional,\
+            \ but revoking the right one later is much easier with it."
+          type: string
+        roles:
+          description: "`realm-management` client roles to grant, e.g. `[\"view-users\"\
+            , \"view-realm\"]`. Defaults to `[\"realm-admin\"]`, which is full administrative\
+            \ access to the realm and what the Keycloak Terraform provider generally\
+            \ needs. Narrow this where you can: a credential that only reads should\
+            \ only be able to read. Roles that do not exist are rejected rather than\
+            \ quietly skipped."
+          type: array
+          items:
+            type: string
     DeploymentState:
       description: Lifecycle state of a deployment (realm).
       enum:
@@ -2485,6 +2865,22 @@ components:
         override_reason:
           description: Justification recorded with that approval.
           type: string
+        admin_blocked:
+          description: "Whether Phase Two staff have blocked this version. A blocked\
+            \ version is never copied to the cluster, regardless of its `valid` flag\
+            \ or scan state."
+          type: boolean
+        admin_blocked_by:
+          description: ID of the staff user who blocked it; absent when not blocked.
+          type: string
+        admin_blocked_reason:
+          description: Why it was blocked; absent when not blocked.
+          type: string
+        admin_blocked_at:
+          format: int64
+          description: "When it was blocked, as epoch milliseconds; absent when not\
+            \ blocked."
+          type: integer
         created_at:
           format: int64
           description: "When the version was created, as epoch milliseconds."
@@ -2915,45 +3311,30 @@ components:
           description: "Amount remaining on the open invoice, in the smallest currency\
             \ unit (e.g. cents). Present only when `open_invoice` is true."
           type: integer
-    SystemInfoRepresentation:
+    TelemetryExport:
       type: object
       properties:
-        version:
+        enabled:
+          type: boolean
+        endpoint:
           type: string
-        serverTime:
+        protocol:
           type: string
-        uptime:
+        signals:
+          type: array
+          items:
+            type: string
+        loggerScope:
           type: string
-        uptimeMillis:
-          format: int64
-          type: integer
-        javaVersion:
+        token:
           type: string
-        javaVendor:
+        tokenSet:
+          type: boolean
+        lastDeliveryAt:
+          format: date
           type: string
-        javaVm:
-          type: string
-        javaVmVersion:
-          type: string
-        javaRuntime:
-          type: string
-        javaHome:
-          type: string
-        osName:
-          type: string
-        osArchitecture:
-          type: string
-        osVersion:
-          type: string
-        fileEncoding:
-          type: string
-        userName:
-          type: string
-        userDir:
-          type: string
-        userTimezone:
-          type: string
-        userLocale:
+          example: 2022-03-10
+        lastError:
           type: string
     Tier:
       enum:
