@@ -36,7 +36,10 @@ So this feature is deliberately not another view. It is a pipe.
 
 ## What it looks like
 
-Open **Logs → Export** on your cluster, enter an HTTPS OTLP endpoint and a bearer token, and save.
+<figure>
+  <img src="/blog/2026-09-18-log-export-setup.png" alt="The Logs Export setup screen in the Phase Two Keycloak dashboard." />
+  <figcaption>Open **Logs → Export** on your cluster, enter an HTTPS OTLP endpoint and a bearer token, and save.</figcaption>
+</figure>
 
 That's the feature. Configuration is data in the control plane, so there is no ticket to file, no Terraform to apply, and nothing on your cluster restarts when you change it. A change takes a couple of minutes to reach the exporter — not instant, and we'd rather say so than round it down.
 
