@@ -174,4 +174,4 @@ remaining token lifetime and check the audit log for what it did.
 - [Automation recipes](/docs/management-api/recipes) — provision a cluster, onboard a tenant,
   attach a domain
 - [Terraform provider](/docs/management-api/terraform) — the declarative route
-- [API reference](/api/management-api-index) — all 73 endpoints
+- [API reference](/api/management-api-index) — all 82 endpoints

@@ -224,6 +224,24 @@ module.exports = [
         "id": "management/cluster-system-info-detail",
         "label": "Get system info for a dedicated cluster",
         "className": "api-method get"
+      },
+      {
+        "type": "doc",
+        "id": "management/cluster-telemetry-export-detail",
+        "label": "Get telemetry export configuration",
+        "className": "api-method get"
+      },
+      {
+        "type": "doc",
+        "id": "management/cluster-telemetry-export-update",
+        "label": "Update telemetry export configuration",
+        "className": "api-method put"
+      },
+      {
+        "type": "doc",
+        "id": "management/cluster-telemetry-export-endpoint-validate",
+        "label": "Validate a telemetry export endpoint",
+        "className": "api-method get"
       }
     ]
   },
@@ -264,6 +282,30 @@ module.exports = [
         "id": "management/deployment-console-link-create",
         "label": "Create an admin console link for a deployment",
         "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-credential-list",
+        "label": "List admin credentials for a deployment",
+        "className": "api-method get"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-credential-create",
+        "label": "Create an admin credential for a deployment",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-credential-delete",
+        "label": "Revoke an admin credential for a deployment",
+        "className": "api-method delete"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-credential-secret-read",
+        "label": "Read an admin credential's secret",
+        "className": "api-method get"
       },
       {
         "type": "doc",
@@ -395,9 +437,21 @@ module.exports = [
       },
       {
         "type": "doc",
+        "id": "management/cluster-extension-version-admin-block",
+        "label": "Block or unblock an extension version",
+        "className": "api-method put"
+      },
+      {
+        "type": "doc",
         "id": "management/cluster-extension-version-confirm",
         "label": "Confirm an extension version upload",
         "className": "api-method put"
+      },
+      {
+        "type": "doc",
+        "id": "management/cluster-extension-version-report",
+        "label": "Read the security scan report for an extension version",
+        "className": "api-method get"
       },
       {
         "type": "doc",

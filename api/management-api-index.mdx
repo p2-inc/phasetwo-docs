@@ -1,7 +1,7 @@
 ---
 id: management-api-index
 title: Management API
-description: The Phase Two control plane API — create and configure dedicated Keycloak clusters, realms, custom domains, extensions, IP rules and billing. 73 endpoints, OAuth2 client credentials.
+description: The Phase Two control plane API — create and configure dedicated Keycloak clusters, realms, custom domains, extensions, IP rules and billing. 82 endpoints, OAuth2 client credentials.
 sidebar_label: About this API
 sidebar_position: 0
 keywords:
@@ -81,19 +81,19 @@ and the failure modes in full.
 
 ## What is here
 
-73 endpoints in nine groups.
+82 endpoints in nine groups.
 
-| Group                                                          | Endpoints | What it covers                                                                                                                   |
-| -------------------------------------------------------------- | --------: | -------------------------------------------------------------------------------------------------------------------------------- |
-| [Clusters](/api/management/clusters)                           |        17 | Create, inspect and delete clusters; regions, name availability, metrics, restart and upgrade status, primary hostname, checkout |
-| [Cluster Extensions](/api/management/extensions)               |        19 | Upload custom providers and themes, manage versions, trigger the reconcile/restart                                               |
-| [Billing](/api/management/billing)                             |         9 | Subscriptions, payment methods, billing contacts, Stripe portal sessions                                                         |
-| [Deployments](/api/management/deployments)                     |         7 | Realms on a cluster, addressed directly by deployment ID; console and app links, token exchange                                  |
-| [Organizations](/api/management/orgs)                          |         6 | The teams that own clusters, and their API secrets                                                                               |
-| [Custom Domains](/api/management/customer-domains)             |         5 | Attach a hostname, read its DNS records and certificate status                                                                   |
-| [Environment Variables](/api/management/environment-variables) |         5 | Custom SPI configuration on a cluster                                                                                            |
-| [IP Rules](/api/management/ip-rules)                           |         3 | Admin and realm endpoint allow/deny lists                                                                                        |
-| [Logs](/api/management/logs)                                   |         2 | List log files and get a temporary download URL                                                                                  |
+| Group                                                          | Endpoints | What it covers                                                                                                                                     |
+| -------------------------------------------------------------- | --------: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Clusters](/api/management/clusters)                           |        20 | Create, inspect and delete clusters; regions, name availability, metrics, restart and upgrade status, primary hostname, checkout, telemetry export |
+| [Cluster Extensions](/api/management/extensions)               |        21 | Upload custom providers and themes, manage versions, read the security scan report, trigger the reconcile/restart                                  |
+| [Billing](/api/management/billing)                             |         9 | Subscriptions, payment methods, billing contacts, Stripe portal sessions                                                                           |
+| [Deployments](/api/management/deployments)                     |        11 | Realms on a cluster, addressed directly by deployment ID; console and app links, token exchange, per-realm admin credentials                       |
+| [Organizations](/api/management/orgs)                          |         6 | The teams that own clusters, and their API secrets                                                                                                 |
+| [Custom Domains](/api/management/customer-domains)             |         5 | Attach a hostname, read its DNS records and certificate status                                                                                     |
+| [Environment Variables](/api/management/environment-variables) |         5 | Custom SPI configuration on a cluster                                                                                                              |
+| [IP Rules](/api/management/ip-rules)                           |         3 | Admin and realm endpoint allow/deny lists                                                                                                          |
+| [Logs](/api/management/logs)                                   |         2 | List log files and get a temporary download URL                                                                                                    |
 
 ## Conventions worth knowing before you start
 
