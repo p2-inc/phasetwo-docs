@@ -1,0 +1,1 @@
+{"title":"Body","body":{"description":"Where Stripe should return the user after the setup flow. `redirect_uri` is required.","content":{"application/json":{"schema":{"type":"object","properties":{"redirect_uri":{"description":"URI Stripe returns the user to when they leave the hosted flow.","type":"string"}},"title":"RedirectRequest"}}},"required":true}}

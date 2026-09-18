@@ -12,9 +12,10 @@
     "clean": "rm -rf node_modules pnpm-lock.yaml package-lock.json dist dist_keycloak",
     "gen-api-docs": "docusaurus gen-api-docs all",
     "clean-api-docs": "docusaurus clean-api-docs all",
-    "regen-api-docs": "npm run clean-api-docs && npm run gen-api-docs && rm api/sidebar.ts",
+    "regen-api-docs": "pnpm clean-api-docs && pnpm gen-api-docs && rm -f api/sidebar.ts && pnpm gen-api-mgmt-sidebar",
     "fmt": "prettier --write \"**/*.{js,jsx,ts,tsx,css,md,mdx,json}\" --ignore-path .gitignore",
-    "fmt:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,md,mdx,json}\" --ignore-path .gitignore"
+    "fmt:check": "prettier --check \"**/*.{js,jsx,ts,tsx,css,md,mdx,json}\" --ignore-path .gitignore",
+    "gen-api-mgmt-sidebar": "node scripts/gen-management-sidebar.mjs"
   },
   "dependencies": {
     "@docsearch/core": "4.5.0",

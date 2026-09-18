@@ -72,6 +72,19 @@ module.exports = {
       ],
     },
     {
+      // The control-plane API: managing clusters themselves. Distinct from
+      // "API + Access" below, which is about tokens and service accounts on a
+      // customer's own realm.
+      type: "category",
+      label: "Management API",
+      link: { type: "doc", id: "management-api/index" },
+      items: [
+        "management-api/api-keys",
+        "management-api/recipes",
+        "management-api/terraform",
+      ],
+    },
+    {
       type: "category",
       label: "API + Access",
       link: { type: "doc", id: "api/index" },

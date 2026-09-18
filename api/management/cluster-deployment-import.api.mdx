@@ -1,0 +1,69 @@
+---
+id: cluster-deployment-import
+title: "Create a deployment from a realm export."
+description: "Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported — the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier."
+sidebar_label: "Create a deployment from a realm export."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Create a deployment from a realm export."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/clusters/{id}/deployments/import"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported — the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-deployment-import.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-deployment-import.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-deployment-import.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

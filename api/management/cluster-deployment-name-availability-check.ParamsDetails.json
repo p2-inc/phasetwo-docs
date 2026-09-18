@@ -1,0 +1,1 @@
+{"parameters":[{"name":"name","in":"query","description":"Candidate deployment name to check.","required":true,"schema":{"type":"string"}},{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]}

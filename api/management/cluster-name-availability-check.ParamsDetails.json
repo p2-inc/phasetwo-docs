@@ -1,0 +1,1 @@
+{"parameters":[{"name":"name","in":"query","description":"Candidate cluster name to check.","required":true,"schema":{"type":"string"}}]}
