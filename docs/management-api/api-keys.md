@@ -17,6 +17,14 @@ It is an OIDC client with the client credentials grant enabled: you get a client
 secret, you exchange them for a short-lived access token, and you send that token as a bearer
 header.
 
+:::caution Experimental
+
+API credentials and the Management API they authenticate to are experimental and unsupported. The
+API surface may still change. Use them against test environments rather than production workloads
+for now — the console shows the same notice on the **API Credentials** tab.
+
+:::
+
 There is no long-lived "API key" header. If you have used APIs where a single static key goes in
 every request, the difference here is one extra step — a token exchange — in return for tokens
 that expire on their own.

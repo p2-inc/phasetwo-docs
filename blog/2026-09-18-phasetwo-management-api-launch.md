@@ -32,8 +32,9 @@ Three things shipped together, because none of them is much use alone: the **Man
 **API credentials** that authenticate to it, and a **Terraform provider** generated from the same
 spec.
 
-The API and API credentials are generally available. The Terraform provider is **experimental at
-`0.1.0`** — point it at a test environment, not production, until it settles.
+All three are **experimental** for now. The console marks API credentials as such, and the
+Terraform provider is at `0.1.0`. Point them at test environments rather than production while the
+surface settles.
 
 <!--truncate-->
 
