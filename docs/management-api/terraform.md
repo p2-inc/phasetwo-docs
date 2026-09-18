@@ -2,7 +2,7 @@
 id: terraform
 title: Terraform provider
 sidebar_label: Terraform provider
-description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider.
+description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/terraform-provider-phasetwo Terraform provider.
 keywords:
   - phasetwo terraform provider
   - keycloak terraform
@@ -12,7 +12,7 @@ keywords:
 
 # Terraform provider
 
-The [`p2-inc/phasetwo`](https://registry.terraform.io/providers/p2-inc/phasetwo) provider manages
+The [`p2-inc/terraform-provider-phasetwo`](https://registry.terraform.io/providers/p2-inc/terraform-provider-phasetwo) provider manages
 the same resources as the [Management API](/api/management-api-index), declaratively. Its API
 client is generated from the same OpenAPI spec that generates the reference, so the two stay in
 step.
@@ -28,7 +28,7 @@ semantics.
 terraform {
   required_providers {
     phasetwo = {
-      source  = "p2-inc/phasetwo"
+      source  = "p2-inc/terraform-provider-phasetwo"
       version = "~> 0.1"
     }
   }
@@ -397,5 +397,5 @@ provider "phasetwo" {
 ## Reference
 
 Full schema for every resource and data source is on the
-[Terraform Registry](https://registry.terraform.io/providers/p2-inc/phasetwo/latest/docs). The
+[Terraform Registry](https://registry.terraform.io/providers/p2-inc/terraform-provider-phasetwo/latest/docs). The
 source is at [p2-inc/terraform-provider-phasetwo](https://github.com/p2-inc/terraform-provider-phasetwo).
