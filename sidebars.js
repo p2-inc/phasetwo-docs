@@ -41,7 +41,11 @@ module.exports = {
           type: "category",
           label: "Observability",
           link: { type: "doc", id: "self-service/observability" },
-          items: ["self-service/metrics", "self-service/logs"],
+          items: [
+            "self-service/metrics",
+            "self-service/logs",
+            "self-service/telemetry-export",
+          ],
         },
         "self-service/resources",
         "self-service/restrictions",
