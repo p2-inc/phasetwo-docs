@@ -200,7 +200,7 @@ curl -s -X POST \
 }
 ```
 
-Everything the Keycloak provider needs is in that response:
+Everything the Keycloak provider needs is in that response. **Use `server_url` as given rather than building the URL yourself** — some clusters serve Keycloak at the domain root and others under `/auth`, and the response already accounts for which:
 
 ```hcl
 provider "keycloak" {
