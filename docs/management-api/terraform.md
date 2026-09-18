@@ -2,7 +2,7 @@
 id: terraform
 title: Terraform provider
 sidebar_label: Terraform provider
-description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider.
+description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider. Experimental — test environments only.
 keywords:
   - phasetwo terraform provider
   - keycloak terraform
@@ -16,6 +16,16 @@ The [`p2-inc/phasetwo`](https://registry.terraform.io/providers/p2-inc/phasetwo)
 the same resources as the [Management API](/api/management-api-index), declaratively. Its API
 client is generated from the same OpenAPI spec that generates the reference, so the two stay in
 step.
+
+:::caution Experimental — test environments only
+
+The provider is at `0.1.0` and should be pointed at **test or staging environments only** for now.
+Resource and attribute shapes may still change in backwards-incompatible ways, and what it manages
+is real, billable infrastructure: replacing a `phasetwo_cluster` destroys it and every realm on it,
+and destroying one keeps billing and holds the name until the end of the billing cycle. Pin an
+exact version while it is at `0.x`.
+
+:::
 
 For anything resource-shaped — a cluster and the realms, domains and rules on it — this is less
 code than driving the API, and it handles the parts that are tedious to get right by hand:
