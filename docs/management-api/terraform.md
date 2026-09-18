@@ -195,7 +195,7 @@ curl -s -X POST \
   "name": "terraform",
   "description": "terraform, ci pipeline",
   "roles": ["realm-admin"],
-  "server_url": "https://my-cluster.phasetwo.io",
+  "server_url": "https://acme-prod.global.auth.ac",
   "realm": "production"
 }
 ```
@@ -204,7 +204,7 @@ Everything the Keycloak provider needs is in that response:
 
 ```hcl
 provider "keycloak" {
-  url           = "https://my-cluster.phasetwo.io"
+  url           = "https://acme-prod.global.auth.ac"
   realm         = "production"
   client_id     = "api-terraform-9f3c1a2b"
   client_secret = var.keycloak_client_secret
