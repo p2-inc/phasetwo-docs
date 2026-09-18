@@ -2,7 +2,6 @@
 title: "Keycloak Clusters as Code: The Phase Two Management API, API Credentials and Terraform Provider"
 slug: phasetwo-management-api
 date: 2026-09-18
-draft: true
 authors: [gpatil]
 tags:
   [
