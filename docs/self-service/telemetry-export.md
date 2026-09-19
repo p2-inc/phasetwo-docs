@@ -7,13 +7,15 @@ Stream your dedicated cluster's Keycloak logs and authentication events to **you
 
 This is for teams who already run an observability stack and want Keycloak data alongside everything else — correlated with application traces, retained under their own policy, queried with their own tools.
 
+**Available on Enterprise.** Your logs and events keep working exactly as they are — upgrading adds the ability to stream them to a destination you operate. [Compare plans](/pricing) or change your plan from **Clusters > Cluster > Config > Subscription**.
+
 :::caution Experimental
-Telemetry Export is **experimental and unsupported**. The record shape, the attribute names, and the configuration options may change in a backwards-incompatible way. Do not build production alerting or compliance reporting on it yet, and tell us at [support@phasetwo.io](mailto:support@phasetwo.io) if you want to try it — it is not enabled on every account.
+Telemetry Export is **experimental and unsupported**. The record shape, the attribute names, and the configuration options may change in a backwards-incompatible way. Do not build production alerting or compliance reporting on it yet, and tell us at [support@phasetwo.io](mailto:support@phasetwo.io) if you want to try it — it is not enabled on every account, even on Enterprise.
 :::
 
 ## What you need
 
-- A **dedicated cluster**. Export is not available on shared or Starter clusters.
+- An **Enterprise dedicated cluster**. The **Logs → Export** page shows an upgrade note on Starter and Premium, and the API refuses the request with a `403`.
 - An **HTTPS OTLP logs endpoint**, reachable from the public internet, with a certificate signed by a public CA. Certificates are verified — a self-signed certificate will not work.
 - A **bearer token** for that endpoint.
 
@@ -135,6 +137,7 @@ The **Delivery status** panel on the export page does not yet report live delive
 
 These are real and deliberate. All of them are things we expect to change.
 
+- **Enterprise only.** Not available on Starter or Premium.
 - **Logs and events are all or nothing.** You cannot export events without logs, or the reverse.
 - **Scope is Keycloak only.** JVM and container internals are never exported and cannot be requested.
 - **Logs signal only.** No metrics, no traces. Keycloak does not emit traces, and metrics export is separate work.

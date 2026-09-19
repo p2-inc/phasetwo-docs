@@ -15,10 +15,10 @@ tags:
     keycloak,
     dedicated-clusters,
   ]
-description: Telemetry Export streams your dedicated cluster's Keycloak logs and authentication events to your own observability system over OTLP. Experimental, and available now on request.
+description: Telemetry Export streams your Enterprise cluster's Keycloak logs and authentication events to your own observability system over OTLP. Experimental, and available now on request.
 ---
 
-We're shipping an experimental **Telemetry Export** for dedicated Keycloak clusters. Point it at your own OTLP endpoint and your cluster's Keycloak logs and authentication events start arriving in whatever you already run — OpenSearch, Datadog, Grafana, SigNoz, Elastic, or your own OpenTelemetry Collector.
+We're shipping an experimental **Telemetry Export** for Enterprise Keycloak clusters. Point it at your own OTLP endpoint and your cluster's Keycloak logs and authentication events start arriving in whatever you already run — OpenSearch, Datadog, Grafana, SigNoz, Elastic, or your own OpenTelemetry Collector.
 
 No agent to install, no log shipper to configure, and nothing to run on your side except the collector you already have.
 
@@ -35,6 +35,10 @@ That is a fair complaint, and it isn't one a better dashboard fixes. If your inc
 So this feature is deliberately not another view. It is a pipe.
 
 ## What it looks like
+
+:::info Available on Enterprise
+Telemetry Export is part of the **Enterprise** tier. On Starter and Premium the **Logs → Export** page shows an upgrade note instead. [Compare plans](/pricing) or change your plan from **Clusters > Cluster > Config > Subscription**.
+:::
 
 <figure>
   <img src="/blog/2026-09-18-log-export-setup.png" alt="The Logs Export setup screen in the Phase Two Keycloak dashboard." />
@@ -81,6 +85,7 @@ If an endpoint stays down long enough for that queue to fill, the oldest records
 
 Concretely:
 
+- **Enterprise only.** Not available on Starter or Premium.
 - **The attribute names and record shape may change** in a backwards-incompatible way. If you build dashboards on `keycloak.event.type` today, expect to revisit them.
 - **Logs and events are all or nothing.** You cannot take events without logs yet.
 - **Logs only.** No metrics, no traces.
@@ -91,7 +96,9 @@ The pipeline itself is running in all our production regions and delivering. The
 
 ## Try it
 
-Telemetry Export is not enabled on every account yet. If you want it turned on for a dedicated cluster, email [support@phasetwo.io](mailto:support@phasetwo.io) and tell us what you're sending it to — the backend you name genuinely shapes what we build next, particularly around per-signal selection and attribute mapping.
+Telemetry Export is not enabled on every account yet, even on Enterprise. If you want it turned on for an Enterprise cluster, email [support@phasetwo.io](mailto:support@phasetwo.io) and tell us what you're sending it to — the backend you name genuinely shapes what we build next, particularly around per-signal selection and attribute mapping.
+
+On Starter or Premium and want to try it? Tell us that too. We would rather hear the use case than have you assume the answer is no.
 
 The full reference, including every attribute, the delivery semantics, and the endpoint requirements, is in [Telemetry Export](/docs/self-service/telemetry-export).
 

@@ -175,7 +175,7 @@ If no files appear, widen the time range first and then confirm that you are loo
 
 Everything above is read in the dashboard. If you would rather have this data in the observability
 stack you already run, [Telemetry Export](./telemetry-export.md) streams your cluster's Keycloak
-logs and events to your own OTLP endpoint. It is experimental.
+logs and events to your own OTLP endpoint. It is available on Enterprise, and experimental.
 
 ## Access notes
 
