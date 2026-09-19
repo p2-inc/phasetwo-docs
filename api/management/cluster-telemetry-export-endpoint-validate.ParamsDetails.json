@@ -1,0 +1,1 @@
+{"parameters":[{"name":"endpoint","in":"query","description":"Candidate OTLP endpoint to check.","required":true,"schema":{"type":"string"}},{"name":"id","in":"path","required":true,"schema":{"type":"string"}}]}

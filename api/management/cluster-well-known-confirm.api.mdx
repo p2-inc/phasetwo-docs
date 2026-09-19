@@ -1,0 +1,69 @@
+---
+id: cluster-well-known-confirm
+title: "Validate and publish an uploaded app association file."
+description: "Checks the uploaded object parses as JSON and has the shape the operating system expects, forces its content type, and records it against the domain."
+sidebar_label: "Validate and publish an uploaded app association file."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "put api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Validate and publish an uploaded app association file."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/clusters/{id}/extensions/{extensionId}/well-known/{file}/confirm"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Checks the uploaded object parses as JSON and has the shape the operating system expects, forces its content type, and records it against the domain.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-well-known-confirm.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-well-known-confirm.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-well-known-confirm.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

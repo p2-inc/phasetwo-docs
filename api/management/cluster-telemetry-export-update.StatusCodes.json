@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Updated telemetry export configuration"},"400":{"description":"Invalid endpoint, token or unsupported setting"},"401":{"description":"Insufficient permissions"},"503":{"description":"Saved but could not be published"}}}

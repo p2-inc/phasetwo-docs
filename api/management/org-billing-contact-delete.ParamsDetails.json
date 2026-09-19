@@ -1,0 +1,1 @@
+{"parameters":[{"name":"userId","in":"path","description":"ID of the user to remove as a billing contact.","required":true,"schema":{"type":"string"}},{"name":"orgId","in":"path","description":"ID of the organization.","required":true,"schema":{"type":"string"}}]}

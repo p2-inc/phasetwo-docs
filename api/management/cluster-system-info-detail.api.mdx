@@ -1,0 +1,69 @@
+---
+id: cluster-system-info-detail
+title: "Get system info for a dedicated cluster."
+description: "Returns the cluster's Keycloak server info (version, build time, etc) plus its Phase Two release build tag (issue #538). Only available while the cluster is ACTIVE."
+sidebar_label: "Get system info for a dedicated cluster."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "get api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Get system info for a dedicated cluster."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"get"}
+  path={"/clusters/{id}/systeminfo"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Returns the cluster's Keycloak server info (version, build time, etc) plus its Phase Two release build tag (issue #538). Only available while the cluster is ACTIVE.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-system-info-detail.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-system-info-detail.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-system-info-detail.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

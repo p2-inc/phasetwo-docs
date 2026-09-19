@@ -1,0 +1,15 @@
+# Prettier rewrites MDX expression comments -- {/* ... */} becomes {/_ ... _/},
+# because it parses the asterisks as emphasis. That is not a style change: the
+# result fails to compile, so `pnpm fmt` breaks the build on any MDX file
+# carrying one. Until that is fixed upstream, keep those files out.
+#
+# The repo is a long way from prettier-clean overall (hundreds of files), so
+# `fmt` is not run wholesale today -- but this at least makes the failure
+# impossible rather than merely unlikely.
+api/index.mdx
+
+# Generated from the OpenAPI specs by `pnpm regen-api-docs`; reformatting them
+# only produces churn that the next regeneration discards.
+api/*.api.mdx
+api/*.info.mdx
+api/management/

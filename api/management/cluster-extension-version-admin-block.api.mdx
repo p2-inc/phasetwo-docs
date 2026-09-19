@@ -1,0 +1,69 @@
+---
+id: cluster-extension-version-admin-block
+title: "Block or unblock an extension version."
+description: "Stops an extension version being deployed to any cluster, or lifts an existing block. A blocked version is never copied during a cluster reconcile, whatever its `valid` flag or scan state says. Requires the `manage-clusters` role on the `cluster-management` client."
+sidebar_label: "Block or unblock an extension version."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "put api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Block or unblock an extension version."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"put"}
+  path={"/clusters/{id}/extensions/{extensionId}/versions/{versionId}/admin-block"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Stops an extension version being deployed to any cluster, or lifts an existing block. A blocked version is never copied during a cluster reconcile, whatever its `valid` flag or scan state says. Requires the `manage-clusters` role on the `cluster-management` client.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-extension-version-admin-block.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-extension-version-admin-block.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-extension-version-admin-block.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

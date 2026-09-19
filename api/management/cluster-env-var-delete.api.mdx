@@ -1,0 +1,69 @@
+---
+id: cluster-env-var-delete
+title: "Remove an environment variable."
+description: "Deletes a custom environment variable and restarts the Keycloak deployment to apply the change. Fails with a 409 if a restart is already in progress."
+sidebar_label: "Remove an environment variable."
+hide_title: true
+hide_table_of_contents: true
+api: eJzVWG1vI7cR/iuDTYHYC70cDvlStSlwsVXE6CU2bF9T4GycqF1KIrwityRXrurov/cZkiutXnwJkvuQfrC1yx2S8/LMM0O+ZF7MXTb6mEm9UtbopdS+vxJWiWklXfbYy0rpCqtqr4zORtmlrKSXjgQVjfNmSZ151M4joUuy0nlhvSO/kPQPuS4qI56olHVl1kHaGxJ1Xa2DQLEQei4H9HehKkfPyi+wxTdv/kxqhoe0FilsXFkpyjUpTbU1c3xxg6yXmVpawTpeldCyqKCctAMo909hB2VQGlK1sGKJR8smv2QaL5COUkFzzO5lig2thV9kh9ZfXZKZBX1Pmc16WPnvRlkJJbxtZC9zxUIuRTZ6yfy65s2ct0rPs82mt91fHW766xd5ZGFXG+0QLHx/++Yb/tnXenwqRFYuzUqWA9Ykg08Whh3X8RQ0GWXD5Ek3fFHlZgirGRx42/PZBhOctKvWr42tMHfhfe1Gw+GLqNX3xvnNoF4IJ/2zGSgzXL098u5NM61UQe9urmgB+QHdMzCENloVoqIpJtOH2/c0MxYxABYgyT7fwRWmp82iF2aiqfDIg0e7TTA4CWsBR2VT8HCPeLQPsM3h3/g1vQzoB3iClsIXiyMEJFAUiIOBb1l7DAgGrGtkSWvTQGXzJDXrK3Wz5JSLWnU2zB43ARcH/kvLHvtQNH4xRDpUSzd0spqdcupFR6foUQ5tULd1NLDwbBVntTd/ocbJWVMF00s5beasWI/wxiNC79n9vJBW7q+FsGjjaS09BUiURxHqmHMYpfpUlOqTUapfidI9A0NF1nHIr6gVAsCGMedUZg7ywANL3LA36f7ZtLHrBe7iT7sgLiHuYgxFUYBwToWyDqGs90L5yGlRNPDtOuSFUWVxUSl47gLZjR8lKs6YRw76yY93aTWW6ax2x4QQvfnKmluqMAySY1hcX11eUBHmUbGbSHMrMCLmQmmYn+c7r+f5gK6nHh+Y/OPMq0vgDtM9QKUsrZQIrpsYOx8A13fh2wD/hJcT2nJ0j6WApP9E1ue3ZQuvrocJzp+0aQDnfh78UNWbwlRD7KNV2UdEtSz8MCw1GdAHF6Ea2FQCu8btZ3HIbZmgE+gs4AaLY5kI5FllniOIT7qcd/qwl7y/T2vm1QIfePUNc8MvoORLRT2B+A8Q8jaf/j9D/wW0P4TAhluFmQl7Kl9xsHckdhGrNf0gtJjLYBmI+QgG7xp0bogPzN7KoYQFhtstxgSI2rVt3dpWYIS6UKIi88d2rNdp7BydRevOe22TWGI7QKuH+HupHbTg5xNtCYavbsg24QmQElr9N+DHRWKeqqpifz7oB91l+jyH07w1FdWV0DLPQ29AVz6Z6LaaBuTB7SuM9fsUgIoVwzD2KEt+ifrj1XtRLHgkWcBTWA9sy8G3Eu2rk9xWwpszC1P3ut13JWoH3Y7v7kOB7FQhqDtT88YyGAH5SrE+OXZQpcxDxwsNgplffUVcKl0wOYWFG0e0wpit9MrAljK5x6C0l2o2Awam666HRzG94iQuaAjedN12Ley5fvBc3JiM3rl12z7keQ/aqirm0ja1HffioR+zEhtLXciwSyz/O6/kedskgFfYmp+p25n+TN1Whc6ivucY3/YWZ7s9MY4F+v3+9o/Xu9lWK8rPUmNxnmOJyQEPT+KYOhjjNRKZpkmnMrid/Mo3Nm0MBln7gJypBHFQUoZZrtPJoF0x9Gzs05Z705I9qlXxdNCNnoEu9zqf8+j5LWVFuoJUngMNSII4kAj6M5VjQm1n0VIkcM6zIidLXdYGmAnnrw7elazK2CKdUgKdO3eCKAfCzmVqPuElWm4b6RGWi1skSMIeo/epOTWUK1GpsrUXMMfpLmUH2GzB5hQBGVvvE5+icG4kLWXpuM5cs+Tb/XJjQnnDzm0hA+RfqY9cDS9CXePFGJSpEHIZC9zZJSz2YNK2zaFGlzJJeimWX7uUEp14IGZeTEO7zQq9UlVjcDrVVHm3q8+BCTqqJReP2DOTyeRBI9IV9f9FN9fgpS/TqNDDw4Mm6pfRVZ+4Dfk2avSp68itWPqmym//dPP9u7vx/U/Xny7eX41/vP8ECw7FojXHonfji9vxfTLrQd/J1LvjTIxkC7QemwpHEw6+sSk6I/pOgqMs/TUI/G3CjCcDbHDUrNLRM3o0uRI4dAvzzAAF6RuwHLOhbBOwlYkxKgM4f+LUaBGOdEAVYZE5Dt5W7wh4DzZgYpkABwmwBcd2B7ZeSAZMDGCm2BqEIxZqW6zubwdvBm8y9Ak1OBPlj1uFdNNwGw79h6e47v3FXqMQzmoo2P4PfPGTGl6PzmKICqY0Wx4O0C/pEuNjex3kID4Kly3tPQYP7N/+4JC1CAfTj9nLC984oKfbbHgYZGL5GPe4O86GQ12pHD+X2WgGhMvPuPDsNt3rnNMvXySdtCsNCr0Oh+qq4Tc8Psn10T0Wnyl/k26/bXP4dfPYvUq6HL8f34+zzeZ/5p1BVQ==
+sidebar_class_name: "delete api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Remove an environment variable."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/clusters/{id}/env-vars/{envVariableId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Deletes a custom environment variable and restarts the Keycloak deployment to apply the change. Fails with a 409 if a restart is already in progress.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./cluster-env-var-delete.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./cluster-env-var-delete.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./cluster-env-var-delete.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

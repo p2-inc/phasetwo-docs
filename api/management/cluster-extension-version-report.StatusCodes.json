@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"The scan report, verbatim as the checker wrote it.","content":{"application/json":{}}},"404":{"description":"No version with that id, or no report has been written for it."}}}
