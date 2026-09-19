@@ -7,6 +7,7 @@ Phase Two provides built-in observability for dedicated clusters through the sel
 
 - **[Metrics](./metrics.md)** — aggregated, charted views of authentication activity (Event Metrics) and HTTP traffic, errors, caching, and latency (Request Metrics).
 - **[Logs](./logs.md)** — interactive Cluster Logs streaming, structured Event and Request logs, and downloadable retained log files.
+- **[Telemetry Export](./telemetry-export.md)** — stream the same logs and events to your own observability system over OTLP. Enterprise, and experimental.
 
 Open the **Metrics** or **Logs** section on your cluster in the [self-service dashboard](https://dash.phasetwo.io/clusters) to get started. All views are time-range and realm filterable, and all timestamps are shown in **UTC**.
 
