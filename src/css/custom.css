@@ -346,8 +346,15 @@ div[class*="announcementBar"]:not([class*="announcementBarClose"]):not(
   z-index: 10002;
 }
 
-/* Main content wrapper */
-main {
+/*
+  Main content wrapper.
+
+  Scoped with :not(.col) so it never matches an Infima grid column. The blog
+  renders its article as <main class="col col--7"> inside a .row alongside the
+  sidebar (col--3) and the table of contents (col--2); adding page margins to
+  that flex item overflows the row and wraps the ToC below the post.
+*/
+main:not(.col) {
   position: relative;
   margin-left: var(--margin-left);
   margin-right: var(--margin-right);
