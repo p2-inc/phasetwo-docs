@@ -53,5 +53,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["mobile-apps/app-association-files"],
     },
+    {
+      type: "category",
+      label: "Workflows",
+      link: { type: "generated-index" },
+      items: ["workflows/getting-started"],
+    },
   ],
 };
