@@ -41,13 +41,14 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 More framework-by-framework guides are next. *(Coming soon.)*
 
-**Adding a second factor** — turn MFA on for everyone, not just the people who opt in:
+**Adding a second factor, or dropping the password** — turn MFA on for everyone, not just
+the people who opt in, then go passwordless:
 
 1. [Set up TOTP multi-factor authentication](/tutorials/authentication/totp-mfa/)
-2. [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/)
-3. [Passkeys and WebAuthn with Keycloak](/blog/webauthn-keycloak/)
+2. [Passkeys and WebAuthn in Keycloak](/tutorials/authentication/passkeys-webauthn/)
+3. [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/)
 
-Step-up authentication and passwordless login are next. *(Coming soon.)*
+Step-up authentication and magic links are next. *(Coming soon.)*
 
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 

@@ -29,7 +29,11 @@ module.exports = {
       type: "category",
       label: "Authentication",
       link: { type: "generated-index" },
-      items: ["authentication/totp-mfa", "authentication/custom-flows"],
+      items: [
+        "authentication/totp-mfa",
+        "authentication/passkeys-webauthn",
+        "authentication/custom-flows",
+      ],
     },
     {
       type: "category",
