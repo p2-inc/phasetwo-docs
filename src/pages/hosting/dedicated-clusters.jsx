@@ -168,10 +168,14 @@ const GLOBAL_DEPLOYMENT = {
   headline:
     "Our clusters are set up to withstand failure and outage with multi-zone and multi-region configurations. Our approach with IaC means that even if something goes horribly wrong, we can get your system back within minutes.",
   imageSrc: "/img/global-deployments.svg",
+  residency:
+    "Running in Europe? EU clusters are hosted in Frankfurt with backups in Ireland, and your users, credentials and events are never replicated outside the EU.",
+  residencyLinkLabel: "EU data residency",
+  residencyLinkHref: "/hosting/eu-data-residency/",
 };
 
 const COMPLIANCE_HEADLINE =
-  "SOC 2 Type 2 and ISO 27001 certified. GDPR compliant.";
+  "SOC 2 Type II and ISO 27001 certified, with a published GDPR Article 28 data processing agreement.";
 
 const PAGE_CTA = {
   primaryText: "Ready to Try Dedicated Clusters?",
@@ -455,6 +459,17 @@ export default function DedicatedClusters() {
                   decoding="async"
                 />
               </div>
+
+              <p className="mt-12 text-center text-gray-300">
+                {GLOBAL_DEPLOYMENT.residency}{" "}
+                <Link
+                  to={GLOBAL_DEPLOYMENT.residencyLinkHref}
+                  className="ilink"
+                >
+                  {GLOBAL_DEPLOYMENT.residencyLinkLabel}
+                </Link>
+                .
+              </p>
             </div>
           </div>
         </section>

@@ -1036,6 +1036,18 @@ module.exports = {
               to: "company/privacy",
             },
             {
+              label: "Data Processing",
+              to: "company/data-processing",
+            },
+            {
+              label: "Government Requests",
+              to: "company/government-requests",
+            },
+            {
+              label: "EU Data Residency",
+              to: "hosting/eu-data-residency",
+            },
+            {
               label: "Terms of Use",
               to: "company/terms",
             },

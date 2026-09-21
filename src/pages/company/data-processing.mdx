@@ -1,0 +1,158 @@
+---
+id: data-processing
+title: Data Processing
+description: How Phase Two processes personal data on your behalf — the Article 28 terms, where data is stored, which transfers happen and on what basis, and how to get the signature copy of the DPA.
+keywords:
+  - data processing agreement
+  - phase two dpa
+  - gdpr article 28
+  - eu data residency
+---
+
+_Last reviewed: 2026-09-21_
+
+When you run Keycloak with Phase Two, you are the **controller** of your end
+users' personal data and Phase Two is your **processor**. This page sets out what
+that means in practice: the Article 28 terms we sign, where data is stored, which
+transfers occur and on what basis, and what we ask of you in return.
+
+The signature copy of the Data Processing Agreement is available on request from
+[sales@phasetwo.io](mailto:sales@phasetwo.io) — no non-disclosure agreement
+required to read it. This page describes the same terms in plain language so your
+data protection officer can assess them without waiting on us.
+
+For the operational detail of where clusters run, see
+[EU data residency](/hosting/eu-data-residency/).
+
+## Who the parties are
+
+| Role | Entity |
+|---|---|
+| Processor, for customers in the EU and UK | Phase Two UK, Ltd — registered in England and Wales, company number 16815578, registered office 2 Leman Street, London E1W 9US |
+| Processor, for customers elsewhere | Phase Two, Inc., Seattle, Washington, United States |
+| Parent company | Phase Two, Inc. |
+
+Phase Two, Inc. acts as a subprocessor to Phase Two UK, Ltd for platform
+operations, engineering and support. That is the relationship that produces the
+transfer described under [Transfers](#transfers) below, and it is why it is named
+here rather than left implicit.
+
+## The Article 28 terms
+
+The agreement commits us to the following. Clause references are to Article 28 of
+the GDPR.
+
+**Processing only on your documented instructions** (28(3)(a)). We process your
+end users' personal data to provide the service and for no other purpose. We do
+not use it to train models, build profiles, or enrich any dataset of our own.
+
+**Confidentiality** (28(3)(b)). Everyone at Phase Two with access is under a
+written confidentiality obligation that survives the end of their engagement.
+
+**Security** (28(3)(c), Article 32). Encryption in transit and at rest, isolated
+per-customer clusters, role-based administrative access, logging of
+administrative actions, and the control set examined by our SOC 2 Type II audit
+and ISO/IEC 27001 certification. Reports are available through the
+[Trust Center](https://trust.phasetwo.io).
+
+**Subprocessors** (28(2), 28(4)). We use subprocessors, listed with the service
+each one performs in the
+[Trust Center](https://trust.phasetwo.io/subprocessors). You give general written
+authorisation for these when you accept the agreement. We notify you before
+adding or replacing one, and you may object; if we cannot resolve an objection,
+you may terminate the affected service. Every subprocessor is bound by terms no
+less protective than these.
+
+**Assistance with data subject rights** (28(3)(e)). Keycloak gives you direct
+administrative access to your own data, so access, rectification, erasure and
+portability requests are ones you can service yourself through the admin console
+and the Admin API. Where you need our help, we provide it.
+
+**Assistance with security, breach notification and impact assessments**
+(28(3)(f)). We notify you of a personal data breach affecting your data **within
+48 to 72 hours** of becoming aware of it, with the information you need to make
+your own notification. Please read that number carefully rather than assuming it:
+if you are subject to NIS2, your own early warning obligation is 24 hours, and
+our contractual window does not on its own guarantee you will meet it. Raise this
+during contracting and we will discuss what is achievable for your deployment.
+
+**Deletion or return at the end of the service** (28(3)(g)). On termination we
+return or delete your data at your choice. Deletion is carried out on request. We
+do not currently issue a formal certificate of deletion; if your risk assessment
+needs one, ask and we will address it in your contract.
+
+**Information and audit rights** (28(3)(h)). We make available the information
+needed to demonstrate compliance with Article 28 and allow for audits. In the
+normal case that is satisfied by our SOC 2 Type II report, ISO/IEC 27001
+certificate and penetration test summaries. Where a regulated customer needs more
+— DORA Article 30(3) audit and access rights, for example — we negotiate those
+terms rather than refusing them.
+
+## Where data is stored
+
+EU clusters run in **Frankfurt** (`eu-central-1`) with backups in **Ireland**
+(`eu-west-1`). Your end users' identity data — the Keycloak database, sessions,
+the event store, backups and realm signing keys — is never replicated outside the
+EU.
+
+Our own business systems, meaning the dashboard you sign in to, support ticketing
+and billing, run in the United States. The full breakdown by class of data is in
+the [data map](/hosting/eu-data-residency/#data-map).
+
+## Transfers {#transfers}
+
+Two transfers are worth stating explicitly, because a page that lists an EU region
+and stops there is not describing the whole arrangement.
+
+**EU to United Kingdom.** Your data stays in the EU; your contract is with a UK
+company. Transfers of personal data from the EU to the United Kingdom are covered
+by the European Commission's adequacy decision, renewed on 19 December 2025 and
+valid until 27 December 2031. No additional safeguard is required.
+
+**Access from the United States.** Our control plane runs in the United States
+and our engineering team is distributed globally, so administrators outside the
+EU can reach EU clusters in order to operate them. Remote access to EU data from
+a third country is itself a restricted transfer under Chapter V of the GDPR. It
+is covered by the **Standard Contractual Clauses** (Commission Implementing
+Decision (EU) 2021/914, controller-to-processor and processor-to-processor
+modules as applicable), incorporated into the Data Processing Agreement, together
+with a transfer impact assessment that we will share on request.
+
+Phase Two is **not** certified under the EU-US Data Privacy Framework, and we do
+not rely on it as a transfer mechanism. Given that the framework is currently
+under appeal before the Court of Justice of the European Union and that the
+independence of its United States oversight bodies has been questioned by the
+European Data Protection Board, we would not want to rest your compliance on it
+even if we were.
+
+The supplementary measures that apply to that access: it is limited to named
+operations roles rather than available team-wide; it is logged; the data is
+encrypted in transit and at rest with keys held in the EU; and any government
+request is handled under our
+[government requests policy](/company/government-requests/), under which we have
+received nothing to date.
+
+## What we ask of you
+
+**Keep end-user personal data out of support tickets.** Ticketing runs in the
+United States. Send us realm names, client IDs, error strings and correlation
+IDs; do not paste user records.
+
+**Configure retention.** Keycloak's event store keeps login and admin events
+until you tell it otherwise. Setting an expiry appropriate to your retention
+policy is a controller decision and yours to make. See the
+[event configuration docs](/docs/audit-logs/).
+
+**Tell us if you are in scope for NIS2 or DORA** before contracting, so the
+incident notification window and audit terms can be discussed rather than
+discovered.
+
+## Getting the documents
+
+| Document | How to get it |
+|---|---|
+| Data Processing Agreement, signature copy | [sales@phasetwo.io](mailto:sales@phasetwo.io) |
+| Standard Contractual Clauses and transfer impact assessment | On request |
+| SOC 2 Type II report, ISO/IEC 27001 certificate, penetration test summaries | [Trust Center](https://trust.phasetwo.io) |
+| Subprocessor list | [Trust Center](https://trust.phasetwo.io/subprocessors) |
+| Privacy policy | [Privacy Policy](/company/privacy/) |
