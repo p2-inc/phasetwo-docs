@@ -37,7 +37,7 @@ const atAGlance = [
   { dim: "Pricing driver", vendor: "Per-user, per-feature — advanced tiers quote-only", keycloak: "Fixed infrastructure / hosting cost, not per-user", check: true },
   { dim: "Cost predictability", vendor: "Bundles & feature tiers can balloon at scale", keycloak: "Predictable, decoupled from user growth", check: true },
   { dim: "Deployment", vendor: "Cloud / SaaS only", keycloak: "Self-hosted, your cloud, on-premise, or managed", check: true },
-  { dim: "Data residency / sovereignty", vendor: "Limited control", keycloak: "Full control over environment and data location", check: true },
+  { dim: "Data residency", vendor: "Region choice within the vendor's platform", keycloak: "Self-host anywhere, or managed in Frankfurt with EU-only backups", check: true },
   { dim: "Standards", vendor: "SAML, OpenID Connect, OAuth 2.0", keycloak: "SAML, OpenID Connect, OAuth 2.0" },
   { dim: "Extensibility", vendor: "Limited customization", keycloak: "Full source access — SPI extensions, themes, custom code", check: true },
   { dim: "Vendor lock-in", vendor: "High", keycloak: "Low — portable, standards-based", check: true },
@@ -173,6 +173,11 @@ const faqs = [
     q: "Can Keycloak be self-hosted or run on-premise?",
     a: <p>Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This flexibility is a key advantage over Okta's cloud-only model, especially for data-residency, sovereignty, and compliance requirements.</p>,
     text: "Yes. Keycloak can run on-premise, in your own cloud, or as a managed service. This flexibility is a key advantage over Okta's cloud-only model, especially for data-residency, sovereignty, and compliance requirements.",
+  },
+  {
+    q: "Where is my data stored if I use Phase Two's managed Keycloak?",
+    a: <p>Your cluster runs in Frankfurt with backups in Ireland, and your users, credentials and events are never replicated outside the EU. You contract with Phase Two UK, Ltd under a GDPR Article 28 agreement. Our parent company is US-incorporated and our control plane runs in the United States, so administrators outside the EU can reach your cluster to operate it — a restricted transfer we disclose, limit and cover contractually rather than leave unsaid. Full detail on <Link to="/hosting/eu-data-residency/" className="ilink">EU data residency</Link>.</p>,
+    text: "Your cluster runs in Frankfurt with backups in Ireland, and your users, credentials and events are never replicated outside the EU. You contract with Phase Two UK, Ltd under a GDPR Article 28 agreement. Our parent company is US-incorporated and our control plane runs in the United States, so administrators outside the EU can reach your cluster to operate it — a restricted transfer we disclose, limit and cover contractually rather than leave unsaid.",
   },
 ];
 

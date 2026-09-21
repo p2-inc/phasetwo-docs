@@ -1,3 +1,4 @@
+import Link from "@docusaurus/Link";
 import { InlineIcon } from "@iconify/react";
 import AnnualSpendChart from "./AnnualSpendChart";
 
@@ -67,7 +68,12 @@ export default function ValueHero({ onDemoClick }) {
                   icon="lucide:shield-check"
                   className="h-4 w-4 text-green-400"
                 />
-                SOC 2 Type II, ISO 27001, GDPR
+                <Link
+                  to="/hosting/eu-data-residency/"
+                  className="text-gray-400 hover:text-white"
+                >
+                  SOC 2 Type II, ISO 27001, EU data residency
+                </Link>
               </div>
               <div className="h-3 w-px bg-white/10" />
               <div className="flex items-center gap-1.5">
