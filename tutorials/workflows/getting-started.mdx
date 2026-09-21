@@ -1,0 +1,539 @@
+---
+id: getting-started
+title: "Keycloak Workflows: What They Are and Your First One"
+description: Keycloak Workflows automate realm admin tasks from YAML. Build your first one, trigger it, and learn the four ways a step fails while reporting success.
+keywords:
+  - keycloak workflows
+  - keycloak workflow yaml
+  - keycloak automate user onboarding
+  - keycloak identity lifecycle automation
+  - keycloak iga
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.4"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Workflows: What They Are and Your First One
+
+A **Keycloak workflow** is a YAML document that says: *when this happens to a user, run these
+steps — some now, some later.* It is Keycloak's built-in automation engine for realm
+administration, and since 26.6 it is a supported feature that is on by default.
+
+The whole model is three keys, and this is the workflow you will have running by the end of
+the page:
+
+```yaml
+name: Time-boxed contractor access                 # unique within the realm
+on: user-group-membership-added(/Contractors)      # the event that starts it
+steps:                                             # what to do, in order
+  - uses: grant-role
+    with:
+      role: contractor
+  - uses: disable-user
+    after: 90d                                     # this one waits
+```
+
+There is a fourth key, `if`, that narrows the match further; it has its own section below.
+
+Keycloak evaluates every workflow in the realm against every event. When `on` (and `if`, if
+present) match, it creates one **execution** bound to that user and walks the step chain.
+Steps without `after` run immediately, on a background thread. Steps with `after` are parked
+in a database table and picked up later by a scheduler.
+
+That scheduler runs **every 12 hours by default**, which is the first thing that will make you
+think workflows are broken. This page builds a working workflow, verifies it two ways, and
+then covers the failure modes — including four cases where a step does nothing at all and logs
+`completed successfully`.
+
+:::info Tested against
+
+Keycloak **26.7.4**, `start-dev`, H2 dev database, single node. Every command, log line and
+HTTP status below is copied from an actual run. The official
+[Managing workflows](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_workflows_)
+guide documents what each setting means; this page is about what to set, how to prove it ran,
+and what breaks.
+
+:::
+
+## Do you already have it?
+
+Workflows moved quickly, so the answer depends on your build. Reported by `serverinfo` on a
+stock `start-dev` container of each release:
+
+| Keycloak | `type` | `enabled` | What that means |
+|---|---|---|---|
+| 26.4.0 | `EXPERIMENTAL` | `false` | Needs `--features=workflows`, and the definition format moved afterwards |
+| 26.5.0 | `PREVIEW` | `false` | Needs `--features=workflows` |
+| 26.6.0 | `DEFAULT` | `true` | Supported, no flag |
+| 26.7.4 | `DEFAULT` | `true` | Supported, no flag |
+
+Do not trust a version table — ask the server. This is the one command worth running before
+anything else:
+
+```bash
+curl -s http://localhost:8080/admin/serverinfo \
+  -H "Authorization: Bearer $TOKEN" -H 'Accept: application/json' \
+  | jq '.features[] | select(.name == "WORKFLOWS")'
+```
+
+```json
+{
+  "name": "WORKFLOWS",
+  "label": "Workflows",
+  "type": "DEFAULT",
+  "dependencies": [],
+  "enabled": true
+}
+```
+
+`"type": "DEFAULT"` means it is a supported feature rather than a preview one, and
+`"enabled": true` means the engine is running. `enabled` is the field that decides whether
+anything you write will execute.
+
+## 1. Start a server you can actually watch
+
+The default configuration is tuned for production, where a 12-hour scheduler tick and
+warnings-only logging are correct. Both make a tutorial impossible. Start with the interval
+turned down and the engine's debug logging on:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.4 start-dev \
+  --spi-events-listener--workflow-event-listener--step-runner-task-interval=10s \
+  --log-level=info,org.keycloak.models.workflow:debug
+```
+
+The server tells you what it picked, and this line is the one to check first when a scheduled
+step never fires:
+
+```
+INFO [org.keycloak.models.workflow.WorkflowsEventListenerFactory] (main)
+  Workflow runner task scheduled: next execution at 08:03:39, then every PT10S
+```
+
+Without the SPI option that reads `then every PT12H`. Two consequences worth internalising
+before you write anything:
+
+- **`after: 5m` does not mean "in five minutes."** It means "not before five minutes, and
+  then whenever the runner next wakes up." On the default 12-hour interval, a step that comes
+  due a minute after a tick waits almost twelve hours. The `after` value is a floor, not a
+  schedule.
+- **There is a matching start-time anchor.** `--spi-events-listener--workflow-event-listener--step-runner-task-start-time=02:00`
+  pins the grid to a wall-clock time instead of to server start, so a rolling restart does not
+  drift your batch window. Use it in production; the interval alone is not enough.
+
+## 2. Create the realm, role and group
+
+```bash
+alias kc='docker exec kc /opt/keycloak/bin/kcadm.sh'
+
+kc config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+kc create realms -s realm=demo -s enabled=true
+kc create roles  -r demo -s name=contractor
+kc create groups -r demo -s name=Contractors
+```
+
+## 3. Write the workflow
+
+The scenario is a real one: a contractor gets access when they are put in the Contractors
+group, must set their own password, and is automatically de-provisioned when the engagement
+ends. Save this as `contractor-access.yaml`:
+
+```yaml
+name: Time-boxed contractor access
+on: user-group-membership-added(/Contractors)
+steps:
+  - uses: grant-role
+    with:
+      role: contractor
+  - uses: add-required-action
+    with:
+      action: UPDATE_PASSWORD
+  - uses: revoke-role
+    after: 60s
+    with:
+      role: contractor
+  - uses: disable-user
+```
+
+`after: 60s` stands in for `after: 90d` so you can watch it finish. Note that `disable-user`
+has no `after` of its own — a step following a scheduled one runs immediately after it, in the
+same pass.
+
+**In the Admin Console:** *Workflows* in the left menu, *Create workflow*, paste the YAML,
+*Save*.
+
+**From the CLI**, post it to the admin API. The endpoint accepts `application/yaml` directly,
+which is the form you want in version control:
+
+```bash
+curl -s -X POST http://localhost:8080/admin/realms/demo/workflows \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/yaml' \
+  --data-binary @contractor-access.yaml
+```
+
+```
+HTTP 201
+```
+
+It accepts `application/json` too, so `kc create workflows -r demo -f workflow.json` works if
+you would rather stay in `kcadm.sh`. Reading is where this bites: **`GET` returns YAML unless
+you ask for JSON.** The response `Content-Type` is `application/yaml;charset=UTF-8`, so
+piping a bare `curl` into `jq` fails with a parse error that looks like an auth problem. Send
+`Accept: application/json`.
+
+:::tip Two ways `$TOKEN` will waste your afternoon
+
+The `master` realm's access token lifespan is **60 seconds**, so a `$TOKEN` you exported at
+the top of a session is expired by the time you paste the third command. Re-fetch it.
+
+And fetch it from the same hostname you call the API on. A token issued by
+`http://127.0.0.1:8080` and presented to `http://localhost:8080` is rejected as `401` —
+same server, different issuer. Pick one spelling and keep it.
+
+```bash
+TOKEN=$(curl -s -d client_id=admin-cli -d username=admin -d password=admin \
+  -d grant_type=password \
+  http://localhost:8080/realms/master/protocol/openid-connect/token | jq -r .access_token)
+```
+
+:::
+
+## 4. Trigger it
+
+Create a user and put them in the group. Only the second command fires the workflow — `on`
+matches the membership event, not the creation event.
+
+```bash
+kc create users -r demo -s username=dana -s enabled=true -s email=dana@example.com
+USER_ID=$(kc get users -r demo -q username=dana --fields id | jq -r '.[0].id')
+GROUP_ID=$(kc get groups -r demo -q search=Contractors --fields id | jq -r '.[0].id')
+kc update "users/$USER_ID/groups/$GROUP_ID" -r demo -n
+```
+
+The debug log shows the whole first pass, two immediate steps and then the park:
+
+```
+Workflow 'Time-boxed contractor access' activated for resource <user-id> (execution id: <exec-id>)
+Running step grant-role on resource <user-id> (execution id: <exec-id>)
+Granting role contractor to user <user-id>
+Running step add-required-action on resource <user-id> (execution id: <exec-id>)
+Adding required action UPDATE_PASSWORD to user <user-id>
+Scheduled step revoke-role to run in 60s for resource <user-id> (execution id: <exec-id>)
+```
+
+## 5. Verify it, without reading logs
+
+The log is fine for a demo and useless for an audit. There is a better endpoint, and it is not
+in the admin guide — the Admin Console's per-user *Workflows* tab is built on it:
+
+```bash
+curl -s "http://localhost:8080/admin/realms/demo/workflows/scheduled/$USER_ID" \
+  -H "Authorization: Bearer $TOKEN" -H 'Accept: application/json' | jq .
+```
+
+```json
+[
+  {
+    "name": "Time-boxed contractor access",
+    "on": "user-group-membership-added(/Contractors)",
+    "steps": [
+      { "uses": "grant-role",          "with": { "role": "contractor" },        "status": "COMPLETED" },
+      { "uses": "add-required-action", "with": { "action": "UPDATE_PASSWORD" }, "status": "COMPLETED" },
+      { "uses": "revoke-role",         "after": "60s",
+        "scheduled-at": 1789977915793, "status": "PENDING" },
+      { "uses": "disable-user",
+        "scheduled-at": 1789977915793, "status": "PENDING" }
+    ]
+  }
+]
+```
+
+`status` per step and `scheduled-at` as epoch milliseconds is everything you need to answer
+"did it run, and when does the rest happen". Check the effect too:
+
+```bash
+kc get "users/$USER_ID/role-mappings/realm" -r demo --fields name
+kc get "users/$USER_ID" -r demo --fields username,enabled,requiredActions
+```
+
+```json
+[ { "name": "default-roles-demo" }, { "name": "contractor" } ]
+{ "username": "dana", "enabled": true, "requiredActions": [ "UPDATE_PASSWORD" ] }
+```
+
+Wait for the scheduled pass — 60 seconds plus up to one runner interval:
+
+```
+Running step revoke-role on resource <user-id> (execution id: <exec-id>)
+Revoking role contractor from user <user-id>
+Running step disable-user on resource <user-id> (execution id: <exec-id>)
+Disabling user dana (<user-id>)
+Workflow 'Time-boxed contractor access' completed for resource <user-id> (execution id: <exec-id>)
+```
+
+```json
+{ "username": "dana", "enabled": false, "requiredActions": [ "UPDATE_PASSWORD" ] }
+[ { "name": "default-roles-demo" } ]
+```
+
+Role revoked, account disabled, 64 seconds after the group membership. Now query the scheduled
+endpoint again:
+
+```json
+[]
+```
+
+**Completed executions are discarded.** Keycloak does not persist workflow history, so the
+only surviving record that any of this happened is the log line above — which is why the debug
+category matters more here than it does elsewhere.
+
+## The other trigger: `schedule`
+
+`on` is a push model — an event arrives and the engine reacts. There is also a pull model.
+Replace or supplement `on` with `schedule`, and the engine sweeps the realm on its own cadence
+instead, starting an execution for every user that satisfies `if`:
+
+```yaml
+name: Track inactive users
+schedule:
+  after: 30d
+  batch-size: 100
+steps:
+  - uses: disable-user
+```
+
+Here `after` is the interval between sweeps, not a delay before a step, and `batch-size` caps
+how many users one sweep starts executions for. Both forms can coexist in one definition, in
+which case either trigger starts an execution. The runner interval still governs the
+granularity: a sweep of `after: 30d` on a server ticking every 12 hours is evaluated twice a
+day, not continuously.
+
+:::danger A sweep with no `if` re-selects the same batch forever
+
+`batch-size` is not a cursor. Four users, `batch-size: 2`, `after: 30s`, no condition — and
+three consecutive sweeps produced six executions across **two** distinct users:
+
+```
+$ docker logs kc | grep "Workflow 'Sweep' activated" | grep -oE 'resource [0-9a-f-]+' | sort | uniq -c
+      3 resource 778fd319-b9bb-45c3-96d4-164ee0d589a8
+      3 resource c733a025-cfe3-41b9-a53e-45a34f4263dc
+```
+
+The other two users were never touched, and would not have been on the hundredth sweep either.
+A scheduled workflow needs an `if` that its own steps make false — `is-member-of`, a role the
+chain revokes, or a marker attribute set by a `set-user-attribute` step — so processed users
+drop out of the selection. Without one, `batch-size` is a hard ceiling on how much of the realm
+you will ever reach. Dormant-account cleanup and access reviews get their own pages; this is
+the thing to get right first.
+
+:::
+
+## What you can actually use
+
+The step, event and condition lists differ between builds, and keycloak.org publishes only
+the guide for `latest`. Ask your own server what it has:
+
+```bash
+curl -s http://localhost:8080/admin/serverinfo \
+  -H "Authorization: Bearer $TOKEN" -H 'Accept: application/json' \
+  | jq '.providers | {events: ."workflow-event".providers | keys,
+                      conditions: ."workflow-condition".providers | keys,
+                      steps: ."workflow-step".providers | keys}'
+```
+
+On 26.7.4 that is ten events, four conditions and fifteen steps:
+
+| | Available in 26.7.4 |
+|---|---|
+| **Events** (`on`) | `user-created` · `user-authenticated` · `user-group-membership-added` · `user-group-membership-removed` · `user-role-granted` · `user-role-revoked` · `user-federated-identity-added` · `user-federated-identity-removed` · `client-created` · `client-authenticated` |
+| **Conditions** (`if`) | `has-user-attribute` · `has-role` · `is-member-of` · `has-identity-provider-link` |
+| **User steps** | `grant-role` · `revoke-role` · `join-group` · `leave-group` · `add-required-action` · `remove-required-action` · `set-user-attribute` · `remove-user-attribute` · `unlink-user` · `notify-user` · `disable-user` · `delete-user` · `restart` |
+| **Client steps** | `disable-client` · `delete-client` |
+
+Two things this list tells you that prose does not. There is **no `user-deleted` event** —
+lifecycle automation is join and move, not leave-by-deletion. And there is **no step that calls
+an external system**; every built-in step acts on the user or client inside Keycloak. If you
+need to tell an HR system that someone was disabled, that is an event listener, not a workflow
+step.
+
+Upstream documentation also runs ahead of shipped code. An `invite-user` step is already
+written up in the Keycloak repository's `main` branch and is not in 26.7.4 — by the time you
+read this it may be in the published guide while your cluster is a release behind. The
+enumeration above is the authority for your build.
+
+## What gets validated, and what does not
+
+Creating a workflow validates the *shape* of the step chain and nothing inside it:
+
+| What you get wrong | Result |
+|---|---|
+| Unknown step name | `400` — `Could not find step provider: delete-everything` |
+| Unknown event name | `400` — `Could not find provider factory with id: user-deleted` |
+| Name already used in the realm | `400` — `Workflow name must be unique. A workflow with name '…' already exists.` |
+| Invalid value in `with:` | **`201`** |
+| Required `with:` key missing entirely | **`201`** |
+| `grant-role` naming a role that does not exist | **`201`** |
+
+So `uses: add-required-action` with `action: UPDATE_PASSWORDS` — one stray S — is accepted,
+stored, and enabled.
+
+## Four ways a step fails while reporting success
+
+This is the part worth reading twice. The built-in step providers catch their own exceptions,
+log, and return normally. The engine sees a normal return and records the step as done. All
+four of these came from one run on 26.7.4:
+
+```
+WARN  [AddRequiredActionStepProvider] Invalid required action UPDATE_PASSWORDS configured in add-required-action
+WARN  [AddRequiredActionStepProvider] Missing required configuration option {0} in add-required-action
+ERROR [RoleBasedStepProvider]         Failed to grant role to user <user-id>: java.lang.IllegalStateException: Role does-not-exist not found
+ERROR [NotifyUserStepProvider]        Failed to send notification email to user erin (erin@example.com): org.keycloak.email.EmailException: Invalid sender address 'null'.
+```
+
+And in every case, immediately after:
+
+```
+DEBUG [RunWorkflowTask] Step add-required-action completed successfully (execution id: <exec-id>)
+DEBUG [RunWorkflowTask] Workflow '<name>' completed for resource <user-id> (execution id: <exec-id>)
+```
+
+The consequences are specific and worth stating plainly:
+
+- **The chain does not abort.** The `grant-role` failure above was step 1 of 2; step 2 ran and
+  applied. A half-executed onboarding is a real state you can reach.
+- **The documented retry never engages.** Keycloak retries a step that *throws*; these do not
+  throw. The state table advances, and the step is never tried again.
+- **`status: COMPLETED` on the scheduled endpoint means "was attempted", not "worked".**
+- **`{0}` is not a typo here.** The "missing required configuration option" message ships with
+  an unsubstituted format placeholder in 26.7.4, so it never tells you *which* option. If you
+  see it, the answer is whatever the step's `with:` block is missing.
+
+The practical rule: after creating a workflow, trigger it once against a throwaway user and
+check the *effect*, not the status. Then grep for `WARN` and `ERROR` under
+`org.keycloak.models.workflow` and treat any hit as a failed deployment.
+
+## Conditions, and the trap inside them
+
+`if` narrows a workflow to users matching a condition:
+
+```yaml
+name: Gold onboarding
+on: user-created
+if: has-user-attribute(plan=gold)
+steps:
+  - uses: add-required-action
+    with:
+      action: VERIFY_EMAIL
+```
+
+Create a user with that attribute and — on a default realm — nothing happens. No required
+action, no warning, and **not a single log line even at DEBUG**. Zero occurrences of the
+workflow name in the log.
+
+The workflow is fine. The attribute was never stored. Keycloak's `Unmanaged Attributes` policy
+defaults to `Disabled`, so an attribute that is not declared in the realm's user profile is
+silently dropped at creation. Look at the user, not at the workflow:
+
+```bash
+kc get "users/$USER_ID" -r demo
+```
+
+No `attributes` key means the condition had nothing to match. Either declare the attribute in
+*Realm settings → User profile* or, for a lab realm, allow admin-written unmanaged attributes:
+
+```bash
+kc update users/profile -r demo -s 'unmanagedAttributePolicy=ADMIN_EDIT'
+```
+
+Re-create the user and the workflow activates.
+
+:::warning Do not let end users write the attributes your conditions read
+
+`ADMIN_EDIT` is the setting to use, and the reason is not tidiness. A condition like
+`has-user-attribute(plan=gold)` combined with a privileged step like `grant-role` is only as
+safe as the write permission on `plan`. If self-registration is on and the attribute is
+user-writable — either through `Unmanaged Attributes: Enabled` or a managed attribute whose
+`Who can edit` includes `User` — then anyone can register themselves into the role. The event,
+the condition and the step all target the same user, with no administrator in between.
+
+Attributes read by a condition that gates `grant-role`, `join-group` or
+`remove-required-action` must be admin-writable only.
+
+:::
+
+## Where this stops
+
+Honest limits as of 26.7.4, all of which you will hit before you hit a bug:
+
+- **Only users and clients** are workflow resources. No groups, roles or organizations.
+- **No execution history.** Completed executions vanish from the API; logs are the only trail.
+  If you need an audit record, listen for the workflow provider events from an extension.
+- **No retry ceiling.** The engine has no maximum retry count, so a step that genuinely throws
+  is re-attempted on every runner tick until someone intervenes. Worth monitoring for, given
+  that the built-in steps mostly do not throw.
+- **The Admin Console cannot edit a step chain.** In 26.7.4 it says so: *"Currently, workflows
+  can not be edited except to change the name and enabled/disabled. You can copy the workflow
+  and edit the copy."* The REST API is less restricted —
+  `PUT /admin/realms/{realm}/workflows/{id}` with a new YAML body returns `204` and replaces
+  the definition. Treat the YAML file as the source of truth and `PUT` it from CI.
+- **But you cannot restructure a chain that has parked executions.** Changing a `with:` value
+  while leaving the chain the same shape is allowed (`204`). Adding, removing or reordering a
+  step is not:
+
+  ```
+  HTTP 400
+  {"errorMessage":"Cannot change the number or order of steps when there are scheduled
+   resources for the workflow."}
+  ```
+
+  The only way through is to delete the workflow — and **deleting it silently abandons every
+  execution bound to it.** Measured: with a `disable-user` parked 60 seconds out, deleting the
+  workflow left the user enabled through every subsequent runner tick, and
+  `GET /workflows/scheduled/{userId}` returned `[]` straight away. Nothing warns you, and there
+  is no list of the users you just orphaned. Take that list *before* you delete.
+
+## Troubleshooting
+
+| Symptom | Cause | Check |
+|---|---|---|
+| Nothing happens, no log lines at all | `on` did not match, or `if` evaluated false | `grep '<workflow name>'` in the log returns nothing. Then look at the user — a missing attribute is the usual answer |
+| Immediate steps ran, scheduled ones never did | Runner interval is 12h | The `Workflow runner task scheduled … then every PT12H` line at startup |
+| Step logged `completed successfully`, nothing changed | Bad `with:` value; the provider swallowed it | `WARN`/`ERROR` from `org.keycloak.models.workflow` in the same millisecond |
+| `jq` cannot parse the workflow list | `GET` returns YAML by default | Add `Accept: application/json` |
+| `400 Workflow name must be unique` | `name` is the realm-wide key | `GET /workflows` and delete or rename |
+| `notify-user` silently sends nothing | No realm SMTP, or the user has no email | `User <name> has no email address, skipping notification` |
+
+Turn on the debug category if you have not already — it is the difference between a diagnosis
+and a guess:
+
+```
+--log-level=info,org.keycloak.models.workflow:debug
+```
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  if the `kcadm.sh` calls above were unfamiliar.
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) — the
+  container this page assumes.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) — the
+  other place Keycloak lets you compose behaviour from configuration, and the same lesson
+  about checking the effect rather than the status.
+- [Keycloak as an IAM system](/docs/keycloak/iam/) — where lifecycle automation sits relative
+  to authentication and authorization.
+- Official reference:
+  [Managing workflows](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_workflows_),
+  [Defining steps](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_steps_),
+  [Defining conditions](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_conditions_),
+  [Scheduling workflows](https://www.keycloak.org/docs/latest/server_admin/index.html#_scheduling_workflows_)
+  and
+  [Understanding the workflows engine](https://www.keycloak.org/docs/latest/server_admin/index.html#_understanding_workflows_engine_).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

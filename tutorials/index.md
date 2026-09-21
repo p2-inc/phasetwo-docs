@@ -59,6 +59,12 @@ Step-up authentication and passwordless login are next. *(Coming soon.)*
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 
+**Automating the user lifecycle** — joiners, movers and leavers without a script on a cron:
+
+1. [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+
+Onboarding, offboarding and inactivity policies build on that one. *(Coming soon.)*
+
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
 ## A note on scope
