@@ -1,7 +1,7 @@
 ---
 title: "Experimental: ship your Keycloak logs and events to your own OTLP endpoint"
 slug: telemetry-export-experimental
-date: 2026-09-18
+date: 2026-09-21
 authors: [gpatil]
 tags:
   [
@@ -41,7 +41,7 @@ Telemetry Export is part of the **Enterprise** tier. On Starter and Premium the 
 :::
 
 <figure>
-  <img src="/blog/2026-09-18-log-export-setup.png" alt="The Logs Export setup screen in the Phase Two Keycloak dashboard." />
+  <img src="/blog/2026-09-21-log-export-setup.png" alt="The Logs Export setup screen in the Phase Two Keycloak dashboard." />
   <figcaption>Open **Logs → Export** on your cluster, enter an HTTPS OTLP endpoint and a bearer token, and save.</figcaption>
 </figure>
 
