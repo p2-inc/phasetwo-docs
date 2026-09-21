@@ -1,0 +1,558 @@
+---
+id: getting-started
+title: "Keycloak SCIM API: Enable It and Connect a Client"
+description: Enable Keycloak's native SCIM 2.0 API, wire a service-account client with the right audience, and provision and deprovision a user. Tested on 26.7.4.
+keywords:
+  - keycloak scim api
+  - enable scim in keycloak
+  - keycloak scim setup
+  - keycloak scim endpoint
+  - keycloak scim configuration
+  - keycloak scim provisioning
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.4"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak SCIM API: Enable It and Connect a Client
+
+Keycloak ships a SCIM 2.0 server that lets an external identity provider create, update and
+deactivate users in a realm over a standard REST API. It is a preview feature, it is off by
+default, and turning it on takes **five steps in this order** — skip any one and you get a
+404 or a 401 with no useful explanation:
+
+1. Start the server with `--features=scim-api`.
+2. Enable the **SCIM API** toggle on the realm (`scimApiEnabled`).
+3. Create a **confidential client with a service account**.
+4. Grant that service account `manage-users` on `realm-management`.
+5. Add an **audience mapper** whose value is the SCIM base URL itself — not the client ID.
+
+Step 5 is the one that costs an afternoon, and step 2 is the one people miss. The rest of
+this page is each step with the command, the response you should see, and the exact error you
+get when it is wrong.
+
+:::info Tested against
+Keycloak **26.7.4** in a container (`quay.io/keycloak/keycloak:26.7.4 start-dev`). Every
+command, status code, JSON body and measured number below is copied from a real run against
+that server on 2026-09-21. The SCIM API is `Preview` in 26.7.x — expect the details to move.
+:::
+
+## What you'll build
+
+A realm called `scimdemo` with its SCIM API on, a `scim-client` service account that can call
+it, and a proven provisioning round trip: create a user over SCIM, watch them log in, set
+`active: false` over SCIM, and watch the same login get refused.
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_HOSTNAME=http://localhost:8080 \
+  quay.io/keycloak/keycloak:26.7.4 start-dev --features=scim-api
+```
+
+If this is your first container, start with
+[Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) and come
+back.
+
+`KC_HOSTNAME` is not decoration here. The SCIM API validates the token's `aud` claim against
+the realm's SCIM base URL as **Keycloak** computes it. Without a pinned hostname that URL
+follows whatever host the request arrived on, so a token minted through `localhost` is
+rejected when the same server is called through `127.0.0.1`. Pin it and the audience is
+deterministic.
+
+Define the CLI helper once — every command below uses it:
+
+```bash
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+## Step 1 — Turn the feature on at the server
+
+`scim-api` is a preview feature. Either `--features=scim-api` or the blanket
+`--features=preview` enables it; prefer the specific one. Confirm it took:
+
+```bash
+docker logs kc 2>&1 | grep "Preview features"
+```
+
+```
+INFO [org.keycloak.common.Profile] (main) Preview features enabled: scim-api:v1
+```
+
+If that line is missing, nothing else on this page will work.
+
+## Step 2 — Enable SCIM on the realm
+
+The server flag is necessary and not sufficient. Every realm has its own switch, and it is
+off by default.
+
+```bash
+kcadm create realms -s realm=scimdemo -s enabled=true
+kcadm update realms/scimdemo -s scimApiEnabled=true
+```
+
+In the admin console the same switch is **Realm settings → General → SCIM API**.
+
+Check which realms have it on before you go hunting for anything else:
+
+```bash
+kcadm get realms/scimdemo --fields realm,scimApiEnabled
+```
+
+```json
+{ "realm" : "scimdemo", "scimApiEnabled" : true }
+```
+
+**If you skip this step**, every SCIM request returns a plain Keycloak 404 — note that it is
+*not* a SCIM-shaped error, which is the quickest way to tell this failure from the others:
+
+```json
+{"error":"HTTP 404 Not Found"}
+```
+
+and the server log says so once, at `WARN`:
+
+```
+WARN [org.keycloak.scim.services.ScimRealmResourceFactory] SCIM API is not enabled for realm 'scimdemo'
+```
+
+Your base URL from here on is:
+
+```
+http://localhost:8080/realms/scimdemo/scim/v2
+```
+
+## Step 3 — Create the client that will call it
+
+Only confidential clients can call the SCIM endpoints. A service account with the client
+credentials grant is the normal shape, because the caller is a machine.
+
+```bash
+kcadm create clients -r scimdemo \
+  -s clientId=scim-client \
+  -s publicClient=false \
+  -s serviceAccountsEnabled=true \
+  -s standardFlowEnabled=false \
+  -s secret=scim-secret
+
+CID=$(kcadm get clients -r scimdemo -q clientId=scim-client \
+  --fields id --format csv --noquotes)
+```
+
+Turning off the standard flow is deliberate: this client never sits in a browser, so it has
+no business holding a redirect-based flow. If you are fuzzy on confidential versus public,
+[Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+covers the distinction.
+
+## Step 4 — Grant exactly the roles it needs
+
+The official documentation gives a seven-row table mapping SCIM operations to
+`realm-management` roles. In practice there are two configurations worth using, and we tested
+both:
+
+| What the client does | Roles to assign | Verified behaviour |
+|---|---|---|
+| Full provisioning (users **and** groups) | `manage-users` | `manage-users` alone was enough for every call on this page, including `/Groups` and the discovery endpoints |
+| Read-only audit or reconciliation | `view-users` | `GET /Users`, `GET /Groups` and `GET /ServiceProviderConfig` all returned `200`; `POST /Users` returned `403` |
+
+So for a provisioning integration:
+
+```bash
+kcadm add-roles -r scimdemo --uusername service-account-scim-client \
+  --cclientid realm-management --rolename manage-users
+```
+
+There is no separate "SCIM" permission. SCIM reuses the Admin REST API's permission model, so
+a service account that can already manage users through the Admin API needs nothing extra.
+
+:::caution
+A `403` from the SCIM API arrives as `{"schemas":[...],"status":"403"}` with **no `detail`
+field**. A missing role and a write against a protected admin resource (see below) are
+indistinguishable from the response body alone. Check the roles first — it is the more common
+of the two.
+:::
+
+## Step 5 — The audience mapper, and why it is the URL
+
+SCIM rejects any token whose `aud` claim does not contain the realm's SCIM base URL. Not the
+client ID, not `scim`, not a service name — the URL.
+
+```bash
+kcadm create clients/$CID/protocol-mappers/models -r scimdemo \
+  -s name=scim-audience \
+  -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.custom.audience"=http://localhost:8080/realms/scimdemo/scim/v2' \
+  -s 'config."access.token.claim"=true'
+```
+
+In the admin console: **Clients → scim-client → Client scopes → scim-client-dedicated →
+Configure a new mapper → Audience**, put the base URL in **Included Custom Audience**, and
+leave **Add to access token** on.
+
+Behind a reverse proxy, the value must be the URL **Keycloak believes it is serving**, which
+is your `hostname` configuration — not the internal address the proxy dials. This is the same
+value you pinned with `KC_HOSTNAME` in the prerequisites.
+
+Without the mapper the token is perfectly valid and the call still fails:
+
+```json
+{"schemas":["urn:ietf:params:scim:api:messages:2.0:Error"],
+ "status":"401","detail":"Invalid token audience"}
+```
+
+## Get a token and prove the wiring
+
+```bash
+TOKEN=$(curl -s -X POST \
+  http://localhost:8080/realms/scimdemo/protocol/openid-connect/token \
+  -d grant_type=client_credentials \
+  -d client_id=scim-client -d client_secret=scim-secret | jq -r .access_token)
+
+BASE=http://localhost:8080/realms/scimdemo/scim/v2
+
+curl -s "$BASE/ServiceProviderConfig" \
+  -H "Authorization: Bearer $TOKEN" -H "Accept: application/scim+json" | jq
+```
+
+`ServiceProviderConfig` is the first call any real SCIM client makes, so it doubles as your
+verification step. On 26.7.4 it answers:
+
+```json
+{
+  "patch":          { "supported": true },
+  "bulk":           { "supported": false, "maxOperations": 0, "maxPayloadSize": 0 },
+  "filter":         { "supported": true, "maxResults": 100 },
+  "changePassword": { "supported": false },
+  "sort":           { "supported": false },
+  "etag":           { "supported": false }
+}
+```
+
+Read it as a contract with your IdP:
+
+- **No bulk endpoint.** Provisioning 10,000 users is 10,000 requests. Keycloak itself is not
+  the bottleneck — 100 sequential `POST /Users` calls against this dev container took
+  **2.0 seconds** — but your IdP's sync pacing and anything rate-limiting in front of
+  Keycloak are now in the critical path.
+- **No `sort`.** `sortBy` and `sortOrder` are accepted and ignored. A client that assumes
+  stable ordering across pages will skip or repeat records.
+- **`filter` caps at 100 results.** Pagination is mandatory, not optional.
+- **No `changePassword`.** Passwords stay with the IdP, which is the correct division of
+  labour.
+
+## Provision a user
+
+```bash
+curl -s -X POST "$BASE/Users" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/scim+json" \
+  -d '{
+    "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+    "userName": "asmith",
+    "active": true,
+    "name": { "givenName": "Ann", "familyName": "Smith" },
+    "emails": [{ "value": "ann@example.com", "primary": true }]
+  }'
+```
+
+`201 Created`, and the body carries the `id`, a generated `name.formatted`, and a
+`meta.location` you can `GET` directly.
+
+**The user-profile trap.** The official example shows a create with `userName` alone and says
+that is the minimum. On a realm with the default user profile it is not — `firstName`,
+`lastName` and `email` are required, and SCIM enforces user-profile validation:
+
+```json
+{"schemas":["urn:ietf:params:scim:api:messages:2.0:Error"],
+ "status":"400","scimType":"invalidSyntax","detail":"Please specify lastName."}
+```
+
+Either send those attributes, or relax the requirement in **Realm settings → User profile**
+before you point an IdP at the endpoint. An IdP that sends only a username will fail every
+single create, and the message is easy to mistake for a client bug.
+
+Creating the same `userName` twice is handled properly:
+
+```json
+{"status":"409","scimType":"uniqueness",
+ "detail":"A resource with the same unique attribute already exists"}
+```
+
+The result is an ordinary Keycloak user — `kcadm get users -r scimdemo` returns it
+immediately, and it can log in like any other. There is no separate SCIM directory to keep in
+step.
+
+## Deprovision, and verify it actually took
+
+This is the operation SCIM exists for, so verify it rather than trusting the `200`. Give the
+user a password and confirm they can log in:
+
+```bash
+kcadm set-password -r scimdemo --username asmith --new-password 'Passw0rd!'
+kcadm update clients/$CID -r scimdemo -s directAccessGrantsEnabled=true
+
+curl -s -X POST http://localhost:8080/realms/scimdemo/protocol/openid-connect/token \
+  -d grant_type=password -d client_id=scim-client -d client_secret=scim-secret \
+  -d username=asmith -d 'password=Passw0rd!' -o /dev/null -w '%{http_code}\n'
+```
+
+```
+200
+```
+
+Now deactivate over SCIM — the way a real IdP does it, with `PATCH` and `active: false`,
+not `DELETE`:
+
+```bash
+USER_ID=$(curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode 'filter=userName eq "asmith"' | jq -r '.Resources[0].id')
+
+curl -s -X PATCH "$BASE/Users/$USER_ID" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/scim+json" \
+  -d '{
+    "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+    "Operations": [{ "op": "replace", "path": "active", "value": false }]
+  }'
+```
+
+And run the same login again:
+
+```json
+{"error":"invalid_grant","error_description":"Account disabled"}
+```
+
+`400`, immediately. The user is still returned by `GET /Users` with `"active": false`, which
+is what you want — the audit record survives, the access does not. `DELETE /Users/{id}`
+returns `204` with an empty body and really does remove the user; a subsequent `GET` gives a
+SCIM `404`. Most IdPs send the `PATCH`, not the `DELETE`.
+
+## Groups: create first, then add members
+
+Group sync is where most SCIM integrations stop, and Keycloak has one behaviour here that
+will break a naive client immediately. **You cannot create a group with members in one call:**
+
+```json
+{"status":"400","scimType":"invalidSyntax",
+ "detail":"Managing members on updates are not supported"}
+```
+
+Create the group, then `PATCH` the membership in:
+
+```bash
+GROUP_ID=$(curl -s -X POST "$BASE/Groups" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/scim+json" \
+  -d '{"schemas":["urn:ietf:params:scim:schemas:core:2.0:Group"],
+       "displayName":"engineering"}' | jq -r .id)
+
+curl -s -X PATCH "$BASE/Groups/$GROUP_ID" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/scim+json" \
+  -d "{\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],
+       \"Operations\":[{\"op\":\"add\",\"path\":\"members\",
+       \"value\":[{\"value\":\"$USER_ID\"}]}]}"
+```
+
+The second trap follows straight on: **`members` is not returned by default.** Both the
+`PATCH` response and a plain `GET /Groups/{id}` come back with `displayName` and no members
+at all, which reads exactly like a failed write. Ask for it explicitly:
+
+```bash
+curl -s "$BASE/Groups/$GROUP_ID?attributes=members" \
+  -H "Authorization: Bearer $TOKEN" | jq '.members'
+```
+
+```json
+[
+  { "value": "776aa24a-…", "display": "asmith", "type": "User" },
+  { "value": "b589ccf2-…", "display": "jdoe",   "type": "User" }
+]
+```
+
+`kcadm get groups/$GROUP_ID/members -r scimdemo` agrees. The write was fine; the
+representation was the problem. Note also that the `User` resource has no `groups` attribute
+at all — membership is readable only from the group side.
+
+## `externalId` is silently dropped until you map it
+
+An IdP uses `externalId` to remember which Keycloak user corresponds to which of its own
+records. Send it to a stock realm and you get this:
+
+```bash
+# POST /Users with "externalId": "okta-00u1a2b3c4"
+# 201 response contains:  "externalId": "okta-00u1a2b3c4"
+# a fresh GET of the same user contains:  (nothing)
+```
+
+The create response echoes the value back and it is never stored. Nothing fails, nothing
+warns, and your IdP's next reconciliation pass cannot match anybody — so it re-creates users
+it already provisioned.
+
+`externalId` is a user-profile attribute carrying a SCIM mapping annotation, and the realm
+does not ship one. Add it:
+
+```bash
+kcadm get users/profile -r scimdemo > up.json
+
+jq '.attributes += [{
+  "name": "externalId",
+  "displayName": "External ID",
+  "permissions": { "view": ["admin"], "edit": ["admin"] },
+  "annotations": { "kc.scim.schema.attribute": "externalId" },
+  "multivalued": false
+}]' up.json > up2.json
+
+docker cp up2.json kc:/tmp/up2.json
+kcadm update users/profile -r scimdemo -f /tmp/up2.json
+```
+
+In the admin console this is **Realm settings → User profile → Create attribute**, with the
+**SCIM** section set to `externalId`.
+
+Now it round-trips, and — the part that matters for reconciliation — it is filterable:
+
+```bash
+curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode 'filter=externalId eq "okta-00u1a2b3c4"' | jq '.totalResults'
+```
+
+```
+1
+```
+
+The same annotation, `kc.scim.schema.attribute`, maps any other user-profile attribute onto a
+SCIM path such as `name.middleName` or an Enterprise User field.
+
+## Token lifetime: the thing that breaks a week later
+
+Keycloak's access tokens live **300 seconds** by default. A SCIM client that speaks OAuth
+client credentials re-mints its token and never notices. Several widely deployed IdP SCIM
+connectors do not — they take a single static bearer token in a header field and use it
+forever. Point one of those at a default realm and provisioning works during setup and stops
+five minutes later.
+
+Raise the lifespan on the client, not the realm:
+
+```bash
+kcadm update clients/$CID -r scimdemo \
+  -s 'attributes."access.token.lifespan"=86400'
+```
+
+Then check what you actually got, because this silently does not do what you asked:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/scimdemo/protocol/openid-connect/token \
+  -d grant_type=client_credentials -d client_id=scim-client \
+  -d client_secret=scim-secret | jq .expires_in
+```
+
+```
+36000
+```
+
+We asked for 24 hours and got 10. **An access token cannot outlive the session it belongs
+to**, and `ssoSessionMaxLifespan` defaults to 36000 seconds. Raise that too and the client
+setting takes effect:
+
+```bash
+kcadm update realms/scimdemo -s ssoSessionMaxLifespan=2592000
+# expires_in is now 86400
+```
+
+Be honest with yourself about what that is: a bearer token valid for a day, sitting in
+another vendor's configuration screen, that can create and disable every non-admin user in
+the realm. Prefer a connector that refreshes; if you cannot have one, keep the lifespan as
+short as the connector tolerates, give the client its own realm-management roles rather than
+reusing an existing admin client, and rotate the secret on a schedule. [Keycloak session and
+token timeouts](/tutorials/sessions/timeouts/) covers how these lifespans interact more
+generally.
+
+## Troubleshooting
+
+Five responses cover almost everything that goes wrong, and each maps to exactly one missed
+step:
+
+| Response | What it means | Fix |
+|---|---|---|
+| `404` with `{"error":"HTTP 404 Not Found"}` — no SCIM `schemas` key | SCIM is not enabled **on this realm** | `kcadm update realms/<realm> -s scimApiEnabled=true` (step 2) |
+| `404` on every realm, plus no `Preview features enabled` log line | The server was started without the feature | Restart with `--features=scim-api` (step 1) |
+| `401 "Bearer token required"` | No token, an expired token, or a token whose issuer does not match the host you are calling | Re-mint the token; pin `KC_HOSTNAME` and use one base URL everywhere |
+| `401 "Invalid token audience"` | The `aud` claim lacks the SCIM base URL | Add the audience mapper with the full URL as its value (step 5) |
+| `403` with no `detail` | Either the service account lacks the role, or the target is a protected admin resource | Check `manage-users` first; then check whether the target user or group holds an admin role |
+| `400 "Please specify lastName."` | User-profile validation, not SCIM | Send the required attributes, or relax them in the realm's user profile |
+
+### Administrative users look empty, and cannot be written
+
+Keycloak protects any user or group holding an administrative role from the SCIM API
+entirely. A `GET` on one returns a deliberately minimal representation:
+
+```json
+{
+  "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+  "id": "a29f7619-…",
+  "userName": "realmadmin"
+}
+```
+
+No `name`, no `emails`, and — worth noticing — **no `active`**. `PUT`, `PATCH` and `DELETE`
+all return `403`. This is a good default: a compromised SCIM client should not be able to
+disable your administrators. It is also a reconciliation hazard, because a client that reads
+`active` to decide a user's state sees the field missing rather than `true`. Keep
+administrators out of the SCIM-synced population and this never comes up.
+
+### Two rough edges in the preview
+
+Found while testing 26.7.4, both worth knowing before you build against them:
+
+- **`POST /Users/.search` returns a broken `meta.location`.** The URI comes back as
+  `…/scim/v2/Users/.search/{id}` instead of `…/scim/v2/Users/{id}`, and fetching it gives a
+  `404`. Build resource URLs from the `id`, not from `meta.location`, on search responses.
+- **A `PUT` that omits `emails` does not clear the stored email, but the response body omits
+  it anyway.** The value survives — the Admin API still shows it, and a later `GET` returns
+  it — so treat the `PUT` response as unreliable and re-read with `GET` if you care.
+
+Neither is surprising for a preview feature. Both are the reason to pin your Keycloak version
+while you build a SCIM integration.
+
+## What this does not cover
+
+Keycloak's SCIM API is **realm-scoped**: one endpoint, one credential, one flat population of
+users. That is the right shape when one organisation's IdP provisions into one realm.
+
+It is the wrong shape for B2B SaaS, where each customer brings their own IdP and each needs
+an endpoint and credentials that cannot see any other customer's users. That is a different
+problem, and in the open-source ecosystem it is solved by an extension —
+[SCIM provisioning per organization](/docs/organizations/scim/) is how we do it. Start with
+the native API on this page; reach for per-organization endpoints when you have a second
+customer asking to sync.
+
+## Next steps
+
+- [SCIM explained: what it is and when you need it](/blog/scim-explained/) — the standard
+  itself, how it differs from SAML and OIDC, and how to tell whether you need it at all.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  what is inside the token you just minted, including that `aud` claim.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — the other side of audience checking.
+- [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) — why
+  `access.token.lifespan` got capped.
+- [Identity and access management with Keycloak](/docs/keycloak/iam/) — where provisioning
+  sits relative to authentication and authorization.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Managing users and groups through SCIM](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_scim),
+  and [RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644) for the protocol itself.
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

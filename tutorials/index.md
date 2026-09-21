@@ -59,6 +59,14 @@ Step-up authentication and passwordless login are next. *(Coming soon.)*
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 
+**Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
+account list honest:
+
+1. [SCIM explained: what it is and when you need it](/blog/scim-explained/)
+2. [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/)
+
+Filtering, pagination and schema mapping are next. *(Coming soon.)*
+
 **Automating the user lifecycle** — joiners, movers and leavers without a script on a cron:
 
 1. [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
@@ -69,8 +77,9 @@ Onboarding, offboarding and inactivity policies build on that one. *(Coming soon
 
 ## A note on scope
 
-These tutorials cover Keycloak itself. Where a capability is not in core Keycloak — SCIM
-server endpoints, magic links, multi-tenant organizations in older versions — we say so
-plainly and point at the open-source extension, rather than pretending the gap isn't there.
+These tutorials cover Keycloak itself. Where a capability is not in core Keycloak — magic
+links, per-organization SCIM endpoints, multi-tenant organizations in older versions — we say
+so plainly and point at the open-source extension, rather than pretending the gap isn't
+there.
 
 Something missing or wrong? The edit link on every page goes to the repository.

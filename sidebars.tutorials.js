@@ -55,6 +55,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "SCIM provisioning",
+      link: { type: "generated-index" },
+      items: ["scim/getting-started"],
+    },
+    {
+      type: "category",
       label: "Workflows",
       link: { type: "generated-index" },
       items: ["workflows/getting-started"],
