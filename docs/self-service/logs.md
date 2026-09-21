@@ -171,6 +171,12 @@ Use **Download Logs** when you need retained logs for offline review, auditing, 
 
 If no files appear, widen the time range first and then confirm that you are looking at the expected cluster and date window.
 
+## Exporting to your own system
+
+Everything above is read in the dashboard. If you would rather have this data in the observability
+stack you already run, [Telemetry Export](./telemetry-export.md) streams your cluster's Keycloak
+logs and events to your own OTLP endpoint. It is available on Enterprise, and experimental.
+
 ## Access notes
 
 If you see a message saying logs cannot be viewed due to lack of permissions, your account does not currently have access to that cluster's logs.
