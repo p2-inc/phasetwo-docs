@@ -117,6 +117,14 @@ module.exports = function llmsTxtPlugin(context, options) {
         "Keycloak generally, not only about our hosted product, and are free to cite.",
         "",
         `- [XML sitemap](${siteUrl}/sitemap.xml)`,
+        // The API reference pages under /api/ render their parameters and schemas client
+        // side, so they read as near-empty HTML to a crawler. Point at the specs instead:
+        // same content, complete, and in a form a model can actually parse. Both specs are
+        // published as static files in YAML and JSON.
+        `- [Extensions API OpenAPI specification (YAML)](${siteUrl}/openapi.yaml): machine-readable OpenAPI 3 description of the Phase Two Extensions API, our additions to the Keycloak Admin REST API (organizations, invitations, SCIM, events and webhooks), served from your own Keycloak realm. The /api/ reference pages are generated from it.`,
+        `- [Extensions API OpenAPI specification (JSON)](${siteUrl}/openapi.json): the same Extensions API description in JSON.`,
+        `- [Management API OpenAPI specification (YAML)](${siteUrl}/openapi-management.yaml): machine-readable OpenAPI 3 description of the Phase Two Management API, the control plane that manages hosted clusters themselves rather than what is inside them. Different server and different credentials from the Extensions API. The /api/management/ reference pages are generated from it.`,
+        `- [Management API OpenAPI specification (JSON)](${siteUrl}/openapi-management.json): the same Management API description in JSON.`,
         "",
       ];
 
@@ -134,9 +142,7 @@ module.exports = function llmsTxtPlugin(context, options) {
       emit("Other pages", other);
 
       fs.writeFileSync(path.join(outDir, "llms.txt"), lines.join("\n"), "utf8");
-      console.log(
-        `[llms-txt] wrote llms.txt (${pages.length} pages indexed)`,
-      );
+      console.log(`[llms-txt] wrote llms.txt (${pages.length} pages indexed)`);
     },
   };
 };
