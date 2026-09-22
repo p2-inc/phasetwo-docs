@@ -7,6 +7,11 @@ Disallow: /search
 Disallow: /blog/tags/
 Disallow: /blog/page/
 Disallow: /blog/archive/
+# Every page is also published as raw markdown at the same URL with ".md" appended.
+# Those twins are for tooling to fetch on demand, not for search results, and an
+# indexed .md would compete with the HTML page it duplicates. GitHub Pages serves no
+# custom headers, so the exclusion has to live here.
+Disallow: /*.md$
 
 # --- AI crawlers and assistants ----------------------------------------------
 # Explicitly allowed. Our documentation, tutorials and engineering write-ups are
@@ -50,6 +55,8 @@ Allow: /
 
 User-agent: Bingbot
 Allow: /
+# As above: the raw markdown twins duplicate pages that are already indexed.
+Disallow: /*.md$
 
 User-agent: CCBot
 Allow: /

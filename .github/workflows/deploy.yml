@@ -67,6 +67,7 @@ jobs:
       - name: Build site
         run: |
           pnpm install --frozen-lockfile
+          pnpm test
           pnpm regen-api-docs
           pnpm build
 
