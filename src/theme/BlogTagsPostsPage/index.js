@@ -14,11 +14,15 @@ import SearchMetadata from "@theme/SearchMetadata";
 import BlogPostItems from "@theme/BlogPostItems";
 import Unlisted from "@theme/ContentVisibility/Unlisted";
 import Heading from "@theme/Heading";
+import NoIndexMeta from "@site/src/components/NoIndexMeta";
 function BlogTagsPostsPageMetadata({ tag }) {
   const title = useBlogTagsPostsPageTitle(tag);
   return (
     <>
       <PageMetadata title={title} description={tag.description} />
+      {/* Tag pages list posts that already have canonical homes. noindex keeps
+          them out of the index; follow still passes equity to the posts. */}
+      <NoIndexMeta />
       <SearchMetadata tag="blog_tags_posts" />
     </>
   );
@@ -50,7 +54,7 @@ export default function BlogTagsPostsPage(props) {
     <HtmlClassNameProvider
       className={clsx(
         ThemeClassNames.wrapper.blogPages,
-        ThemeClassNames.page.blogTagPostListPage
+        ThemeClassNames.page.blogTagPostListPage,
       )}
     >
       <BlogTagsPostsPageMetadata {...props} />
