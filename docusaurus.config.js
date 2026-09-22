@@ -1223,6 +1223,21 @@ module.exports = {
     // Generates /llms.txt at build time from the built pages.
     require.resolve("./plugins/llms-txt"),
     [
+      // Publishes a raw markdown twin of each content page at the same URL with ".md"
+      // appended, and renders the "Copy as Markdown" control that reads it.
+      require.resolve("./plugins/markdown-source"),
+      {
+        // Sections whose pages are written as markdown. Everything else -- landing
+        // pages, the search page, category indexes -- has no markdown source to serve.
+        include: ["/docs/", "/tutorials/", "/guides/", "/updates/", "/blog/"],
+        // The API reference is generated from the OpenAPI specs into React components
+        // wrapped around a payload, so its "markdown source" is a title and a sentence.
+        // A .md twin there would be an empty page rather than the reference. Both
+        // generated trees (/api/ and /api/management/) are covered by the one prefix.
+        exclude: ["/api/"],
+      },
+    ],
+    [
       "@docusaurus/plugin-client-redirects",
       {
         // Comparison blog posts migrated to evergreen /keycloak-alternatives/<vendor>/ pages.
