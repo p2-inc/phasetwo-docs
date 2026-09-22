@@ -40,6 +40,19 @@ const EXCLUDE = [
   /^\/blog\/authors/,
 ];
 
+// Normalizes a URL for comparison: drops the site origin, forces a leading and a
+// trailing slash, and strips any query or fragment. "/a", "/a/", "https://site/a" and
+// "https://site/a/?x=1" all reduce to "/a/".
+function normalizeUrl(href, siteUrl) {
+  let u = href.trim();
+  if (siteUrl && u.startsWith(siteUrl)) u = u.slice(siteUrl.length);
+  else u = u.replace(/^https?:\/\/[^/]+/i, "");
+  u = u.split("#")[0].split("?")[0];
+  if (!u.startsWith("/")) u = `/${u}`;
+  if (!u.endsWith("/")) u = `${u}/`;
+  return u;
+}
+
 const decode = (s) =>
   s
     .replace(/&amp;/g, "&")
@@ -59,7 +72,7 @@ function walk(dir, outDir, acc = []) {
   return acc;
 }
 
-function extract(file, outDir, siteTitle) {
+function extract(file, outDir, siteTitle, siteUrl) {
   const html = fs.readFileSync(file, "utf8");
   const route =
     "/" +
@@ -75,12 +88,40 @@ function extract(file, outDir, siteTitle) {
     /<meta[^>]+name="description"[^>]+content="([^"]*)"/i,
   );
 
+  // A page that tells search engines to ignore it should not be offered to AI
+  // consumers either. Match name="robots" only: Docusaurus's own search page emits
+  // property="robots", which is not a real robots directive, and honoring it here
+  // would mean honoring a typo.
+  const robotsMatch = html.match(
+    /<meta[^>]+name=["']robots["'][^>]*content=["']([^"']*)["']/i,
+  );
+  const noindex = robotsMatch ? /noindex/i.test(robotsMatch[1]) : false;
+
+  // Redirect stubs and other duplicates point their canonical at the real page. That
+  // page is walked in its own right, so listing the stub as well would duplicate the
+  // entry and hand a crawler the near-empty copy. Self-canonical pages -- almost all of
+  // them -- compare equal and are kept.
+  const canonicalMatch = html.match(
+    /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']*)["']/i,
+  );
+  const canonical = canonicalMatch
+    ? normalizeUrl(decode(canonicalMatch[1]), siteUrl)
+    : null;
+  const canonicalElsewhere =
+    canonical !== null && canonical !== normalizeUrl(url, siteUrl);
+
   let title = titleMatch ? decode(titleMatch[1]) : "";
   // Docusaurus appends " | <site title>" to every page title; strip it.
   if (siteTitle && title.endsWith(`| ${siteTitle}`)) {
     title = title.slice(0, -`| ${siteTitle}`.length).trim();
   }
-  return { url, title, description: descMatch ? decode(descMatch[1]) : "" };
+  return {
+    url,
+    title,
+    description: descMatch ? decode(descMatch[1]) : "",
+    noindex,
+    canonicalElsewhere,
+  };
 }
 
 module.exports = function llmsTxtPlugin(context, options) {
@@ -91,8 +132,14 @@ module.exports = function llmsTxtPlugin(context, options) {
       const { url: siteUrl, title: siteTitle, tagline } = siteConfig;
 
       const pages = walk(outDir, outDir)
-        .map((f) => extract(f, outDir, siteTitle))
-        .filter((p) => p.title && !EXCLUDE.some((re) => re.test(p.url)))
+        .map((f) => extract(f, outDir, siteTitle, siteUrl))
+        .filter(
+          (p) =>
+            p.title &&
+            !p.noindex &&
+            !p.canonicalElsewhere &&
+            !EXCLUDE.some((re) => re.test(p.url)),
+        )
         .sort((a, b) => a.url.localeCompare(b.url));
 
       const grouped = new Map(SECTIONS.map((s) => [s.title, []]));
@@ -117,6 +164,14 @@ module.exports = function llmsTxtPlugin(context, options) {
         "Keycloak generally, not only about our hosted product, and are free to cite.",
         "",
         `- [XML sitemap](${siteUrl}/sitemap.xml)`,
+        // The API reference pages under /api/ render their parameters and schemas client
+        // side, so they read as near-empty HTML to a crawler. Point at the specs instead:
+        // same content, complete, and in a form a model can actually parse. Both specs are
+        // published as static files in YAML and JSON.
+        `- [Extensions API OpenAPI specification (YAML)](${siteUrl}/openapi.yaml): machine-readable OpenAPI 3 description of the Phase Two Extensions API, our additions to the Keycloak Admin REST API (organizations, invitations, SCIM, events and webhooks), served from your own Keycloak realm. The /api/ reference pages are generated from it.`,
+        `- [Extensions API OpenAPI specification (JSON)](${siteUrl}/openapi.json): the same Extensions API description in JSON.`,
+        `- [Management API OpenAPI specification (YAML)](${siteUrl}/openapi-management.yaml): machine-readable OpenAPI 3 description of the Phase Two Management API, the control plane that manages hosted clusters themselves rather than what is inside them. Different server and different credentials from the Extensions API. The /api/management/ reference pages are generated from it.`,
+        `- [Management API OpenAPI specification (JSON)](${siteUrl}/openapi-management.json): the same Management API description in JSON.`,
         "",
       ];
 
@@ -134,9 +189,7 @@ module.exports = function llmsTxtPlugin(context, options) {
       emit("Other pages", other);
 
       fs.writeFileSync(path.join(outDir, "llms.txt"), lines.join("\n"), "utf8");
-      console.log(
-        `[llms-txt] wrote llms.txt (${pages.length} pages indexed)`,
-      );
+      console.log(`[llms-txt] wrote llms.txt (${pages.length} pages indexed)`);
     },
   };
 };
