@@ -1,0 +1,797 @@
+---
+id: passkeys-webauthn
+title: Passkeys and WebAuthn in Keycloak
+description: Configure Keycloak passkeys and WebAuthn — the one switch that enables passwordless login on the stock flow, the second-factor setup, and the failure modes.
+keywords:
+  - keycloak webauthn passkeys documentation
+  - keycloak webauthn documentation
+  - keycloak passkey authentication
+  - does keycloak support passkeys
+  - keycloak passwordless login
+  - keycloak webauthn 2fa
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.7.4"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Passkeys and WebAuthn in Keycloak
+
+Keycloak supports passkeys natively, and since the passkeys integration landed in the
+default login forms **you no longer have to build a custom authentication flow to get
+passwordless login**. On 26.7 there are two separate setups and they share almost nothing:
+
+1. **Passwordless passkeys** — flip **Realm settings → Login → Enable Passkeys** on. The
+   stock browser flow immediately offers a *Sign in with Passkey* button and tags the
+   username field for browser autofill. No flow copy, no flow edit.
+2. **WebAuthn as a second factor** — copy the browser flow and change the requirement on
+   the **WebAuthn Authenticator** row that is *already sitting there disabled*. Also no
+   surgery: the row exists in every realm.
+
+The two produce **different credential types** (`webauthn-passwordless` and `webauthn`),
+governed by **different policies**, registered by **different required actions**. A user
+who registers one does not get the other, and nothing in the admin console warns you about
+that. Most of this page is about that split and the ways it bites.
+
+:::info Tested against
+Keycloak **26.7.4** in a container (`quay.io/keycloak/keycloak:26.7.4 start-dev`). Every
+command, output, default value and error message below is copied from a real run against
+that server on 2026-09-21, driven through Chrome 152 with a CDP virtual authenticator.
+Where something could not be tested that way it is called out in
+[what we could not verify](#what-we-could-not-verify).
+:::
+
+## What you'll build
+
+A realm where one user signs in with a passkey and no password at all, a second user signs
+in with a password plus a hardware security key, and both live under the same browser
+flow — plus the verification that proves each one is really on, and the six ways this
+configuration fails quietly.
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.4 start-dev
+```
+
+If this is your first container, start with
+[Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/).
+
+`localhost` matters here. WebAuthn only runs in a secure context, and browsers treat
+`http://localhost` as one. Any other hostname over plain HTTP will fail before Keycloak
+sees the request.
+
+Define the CLI helper once, then build a realm, a client and two users — see
+[your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+if any of that is unfamiliar:
+
+```bash
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+kcadm create realms -s realm=prod -s enabled=true
+kcadm create clients -r prod -s clientId=demo-app -s publicClient=true \
+  -s 'redirectUris=["http://localhost:5173/*"]'
+
+for u in alice bob; do
+  kcadm create users -r prod -s username=$u -s enabled=true \
+    -s email=$u@example.com -s emailVerified=true
+  kcadm set-password -r prod --username $u --new-password s3cret
+done
+```
+
+## The two-credential model, before you touch anything
+
+This is the part that costs people a day. Keycloak carries two parallel WebAuthn stacks:
+
+| | Second factor | Passwordless / passkey |
+|---|---|---|
+| Credential type stored on the user | `webauthn` | `webauthn-passwordless` |
+| Required action alias | `webauthn-register` | `webauthn-register-passwordless` |
+| Policy tab | **WebAuthn Policy** | **WebAuthn Passwordless Policy** |
+| Authenticator | WebAuthn Authenticator | WebAuthn Passwordless Authenticator |
+| Account console section | Two-factor authentication | Passwordless |
+| Default Discoverable credential | not specified | **required** |
+| Default User verification | not specified | **required** |
+
+Both required actions ship **enabled** on a fresh realm, which is a change from what most
+older write-ups assume — there is nothing to switch on:
+
+```bash
+kcadm get authentication/required-actions -r prod --fields alias,name,enabled,defaultAction \
+  | jq '[.[] | select(.alias | startswith("webauthn"))]'
+```
+
+```json
+[
+  {
+    "alias": "webauthn-register",
+    "name": "Webauthn Register",
+    "enabled": true,
+    "defaultAction": false
+  },
+  {
+    "alias": "webauthn-register-passwordless",
+    "name": "Webauthn Register Passwordless",
+    "enabled": true,
+    "defaultAction": false
+  }
+]
+```
+
+`enabled: true` means *a user or a flow may trigger it*. `defaultAction: false` means
+*nobody is asked to*. Nothing happens until you do one of the two setups below.
+
+And the two policies really are separate rows in the realm, differing in exactly the two
+fields that make a credential a passkey:
+
+```bash
+kcadm get realms/prod | jq '{
+  "2fa_residentKey":           .webAuthnPolicyResidentKey,
+  "passwordless_residentKey":  .webAuthnPolicyPasswordlessResidentKey,
+  "2fa_userVerification":      .webAuthnPolicyUserVerificationRequirement,
+  "passwordless_userVerification": .webAuthnPolicyPasswordlessUserVerificationRequirement }'
+```
+
+```json
+{
+  "2fa_residentKey": "not specified",
+  "passwordless_residentKey": "required",
+  "2fa_userVerification": "not specified",
+  "passwordless_userVerification": "required"
+}
+```
+
+Every other field on the two policies (`RpEntityName` `"keycloak"`, `RpId` `""`,
+`SignatureAlgorithms` `["ES256","RS256"]`, `AttestationConveyancePreference`
+`"not specified"`, `AuthenticatorAttachment` `"not specified"`, `CreateTimeout` `0`,
+`AvoidSameAuthenticatorRegister` `false`, `AcceptableAaguids` `[]`, `ExtraOrigins` `[]`)
+is identical on a fresh 26.7.4 realm. The passwordless defaults are already correct for
+passkeys; the two-factor defaults are deliberately looser so an older U2F-era key can still
+enrol.
+
+:::warning A second-factor credential is not a passkey
+A user with only a `webauthn` credential who presses *Sign in with Passkey* gets:
+
+```
+Failed to authenticate by the Passkey.
+```
+
+That is not a bug and no amount of policy tuning fixes it. The two credential types are
+looked up separately. If you want a user to have both, they register twice.
+:::
+
+## Step 1 — passwordless passkeys, the short way
+
+One boolean. The console calls it **Enable Passkeys** and puts it in
+**Realm settings → Login → Login screen customization**; the realm field behind it is
+`webAuthnPolicyPasswordlessPasskeysEnabled`, which is confusing enough to be worth writing
+down, because searching the Admin REST API docs for "passkeys enabled" finds nothing.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+**Realm settings** → **Login** tab → **Login screen customization** → turn **Enable
+Passkeys** on. A **Passkey Mediation** select appears next to it. The settings icon beside
+the switch jumps to **Authentication → Policies → WebAuthn Passwordless Policy**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm update realms/prod -s webAuthnPolicyPasswordlessPasskeysEnabled=true
+kcadm get realms/prod --fields webAuthnPolicyPasswordlessPasskeysEnabled
+```
+
+```json
+{
+  "webAuthnPolicyPasswordlessPasskeysEnabled" : true
+}
+```
+
+</details>
+
+### Prove the switch did something
+
+Do not take the toggle's word for it. Ask the login page. This works with `curl`, no
+browser needed, and it is the cheapest regression check you will get:
+
+```bash
+AUTH="http://localhost:8080/realms/prod/protocol/openid-connect/auth?client_id=demo-app&response_type=code&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A5173%2Fcb&state=xyz"
+
+curl -s "$AUTH" | grep -oE 'autocomplete="[^"]*"|id="authenticateWebAuthnButton"' | sort -u
+```
+
+With the switch **on**:
+
+```
+autocomplete="current-password"
+autocomplete="username webauthn"
+id="authenticateWebAuthnButton"
+```
+
+With it **off**:
+
+```
+autocomplete="current-password"
+autocomplete="username"
+```
+
+Two things changed. The username input gained the `webauthn` autofill token —
+
+```html
+<input id="username" name="username" value="" type="text" autocomplete="username webauthn" autofocus="" aria-invalid="">
+```
+
+— which is what lets the browser offer stored passkeys in the autofill dropdown, and a
+second control appeared:
+
+```html
+<a id="authenticateWebAuthnButton" href="#" class="pf-v5-c-button pf-m-secondary pf-m-block pf-v5-u-mt-md-on-md">
+            Sign in with Passkey
+        </a>
+```
+
+The `autocomplete` token is the half people miss. A page that shows the button but still
+says `autocomplete="username"` has passkeys reachable only by clicking, which is the
+*worst* passkey UX and looks identical in a screenshot.
+
+### Passkey Mediation: what each value actually does
+
+Mediation maps straight onto the `mediation` parameter of
+`navigator.credentials.get()` and controls what happens **on page load**. Measured on
+26.7.4 against Chrome 152 with a discoverable credential already on the authenticator:
+
+| Console value | Realm field value | On page load | Login completed without clicking anything |
+|---|---|---|---|
+| Conditional (autofill only) — *default* | `conditional` | No dialog; passkeys offered via autofill | yes |
+| None (button only, no automatic prompt) | `none` | Nothing | **no** — needed the *Sign in with Passkey* click |
+| Optional (show dialog on page load) | `optional` | Selection dialog, dismissable | yes |
+| Required (force immediate dialog) | `required` | Selection dialog, must act | yes |
+| Silent (no user interaction) | `silent` | Attempts with no UI | not tested — see below |
+
+Read that last column carefully. A CDP virtual authenticator answers with
+`automaticPresenceSimulation`, so it resolves a conditional request without a human picking
+anything from the dropdown. A real user on `conditional` still has to click their own name
+in the autofill list. What the column does prove is that the request is *issued* on page
+load for four of the five values and not issued for `none` — which is the behavioural
+difference you are choosing between.
+
+`silent` is documented as "unlikely to succeed for most passkey types" and browser support
+for both `silent` and `required` varies; we did not test either against a real
+authenticator. Leave it on `conditional` unless you have a specific reason.
+
+```bash
+kcadm update realms/prod -s webAuthnPolicyPasswordlessMediation=conditional
+```
+
+The field is absent from a fresh realm's JSON entirely until you set it, and absent
+behaves as `conditional`.
+
+### Register a passkey and use it
+
+Queue the required action on a user who already exists — the flow-level equivalent is
+covered under [rollout](#rolling-this-out-to-users-who-already-exist):
+
+```bash
+AID=$(kcadm get users -r prod -q username=alice --fields id | jq -r '.[0].id')
+kcadm update "users/$AID" -r prod -s 'requiredActions=["webauthn-register-passwordless"]'
+```
+
+Alice signs in with their password once. Keycloak shows **Passkey Registration**, the browser
+creates the credential, and Keycloak asks for a label through a plain browser prompt —
+`Please input your registered passkey's label` — not a form field, which matters if you are
+scripting an end-to-end test and wondering why the page has stopped responding.
+
+After that, `alice` never needs a password again. Check what got stored:
+
+```bash
+kcadm get "users/$AID/credentials" -r prod \
+  | jq '.[] | select(.type|startswith("webauthn")) | {type, userLabel, credentialData: (.credentialData|fromjson)}'
+```
+
+```json
+{
+  "type": "webauthn-passwordless",
+  "userLabel": "phone-passkey",
+  "credentialData": {
+    "aaguid": "01020304-0506-0708-0102-030405060708",
+    "credentialId": "uPEZE7Dr055+xHxcb12f2HBQ7gTI4CR+0cV8oj/7lDA=",
+    "counter": 2,
+    "credentialPublicKey": "pQECAyYgASFYIINlv7uucEnCcqxY92hdJJe7N22zynQMBOyRqw8vqfEIIlggOgjvv82HVEVrxz_RS2XTD8hLCXv_XsSnutaOsJB1a-A",
+    "attestationStatementFormat": "none",
+    "transports": [
+      "internal"
+    ]
+  }
+}
+```
+
+`"type": "webauthn-passwordless"` is the line to assert on. `attestationStatementFormat`
+is `none` because the policy's **Attestation conveyance preference** is unset — see
+[attestation and AAGUIDs](#attestation-and-aaguid-allowlisting).
+
+Users manage this themselves at `/realms/prod/account/` → **Account security** →
+**Signing in**, and that page is the clearest statement of the two-credential split
+anywhere in the product:
+
+```
+Two-factor authentication
+  Authenticator application    Authenticator application is not set up.
+  Passkey                      Passkey is not set up.
+Passwordless
+  Passkey                      phone-passkey
+                               Transport media  internal    [Delete]
+```
+
+Two entries, both labelled *Passkey*, in two different sections. Alice has one of them.
+
+## Step 2 — WebAuthn as a second factor
+
+Now the other stack. `bob` keeps their password and adds a security key.
+
+The stock `browser` flow already contains the row you need:
+
+```bash
+kcadm get authentication/flows/browser/executions -r prod --fields displayName,requirement,providerId,level \
+  | jq -r '.[] | "\("  " * .level)\(.displayName)  →  \(.requirement)"'
+```
+
+```
+Cookie  →  ALTERNATIVE
+Kerberos  →  DISABLED
+Identity Provider Redirector  →  ALTERNATIVE
+Organization  →  ALTERNATIVE
+  Browser - Conditional Organization  →  CONDITIONAL
+    Condition - user configured  →  REQUIRED
+    Organization Identity-First Login  →  ALTERNATIVE
+forms  →  ALTERNATIVE
+  Username Password Form  →  REQUIRED
+  Browser - Conditional 2FA  →  CONDITIONAL
+    Condition - user configured  →  REQUIRED
+    Condition - credential  →  REQUIRED
+    OTP Form  →  ALTERNATIVE
+    WebAuthn Authenticator  →  DISABLED
+    Recovery Authentication Code Form  →  DISABLED
+```
+
+**WebAuthn Authenticator → DISABLED**, inside `Browser - Conditional 2FA`. Guides that tell
+you to delete *OTP Form* and add *WebAuthn Authenticator* in its place were written before
+that row existed. Deleting OTP Form also throws away every TOTP enrolment your users
+already have, so don't.
+
+Two changes, in a copy of the flow — never edit a built-in flow in place, because a copy
+can be unbound in one command when a rollout goes wrong:
+
+| Execution | Was | Set to | Effect |
+|---|---|---|---|
+| Condition - user configured | REQUIRED | **DISABLED** | Stop skipping the sub-flow for users who have no second factor yet |
+| WebAuthn Authenticator | DISABLED | **REQUIRED** | A user with no `webauthn` credential is sent to enrolment |
+| Condition - credential | REQUIRED | *leave it* | See [how the two interact](#how-passkeys-and-2fa-interact) |
+| OTP Form | ALTERNATIVE | *leave it* | Users with TOTP keep using it |
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Authentication** → **Flows** → **browser** → kebab menu → **Duplicate**, name it
+   `browser-passkey-2fa`.
+2. In the copy, find **browser-passkey-2fa Browser - Conditional 2FA** nested under
+   **forms**.
+3. On its **Condition - user configured** row, select **Disabled**.
+4. On its **WebAuthn Authenticator** row, select **Required**.
+5. Kebab menu on the flow → **Bind flow** → **Browser flow** → **Save**.
+
+There are **two** rows named *Condition - user configured* in this flow. The other belongs
+to `Browser - Conditional Organization` near the top; changing it does nothing for WebAuthn
+and breaks organization-based login. Check which sub-flow the row is indented under.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+Execution IDs are generated per realm, so look them up. Save as `require-passkey-2fa.sh`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+REALM="${1:?usage: require-passkey-2fa.sh <realm> [flow]}"
+FLOW="${2:-browser-passkey-2fa}"
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm create "authentication/flows/browser/copy" -r "$REALM" -s "newName=$FLOW"
+
+EXECS=$(kcadm get "authentication/flows/$FLOW/executions" -r "$REALM")
+
+# the "Condition - user configured" inside Conditional 2FA, not the one in
+# Conditional Organization
+COND_ID=$(jq -r '. as $a
+  | (to_entries | map(select(.value.displayName | endswith("Browser - Conditional 2FA"))) | .[0].key) as $i
+  | [$a[$i+1:][] | select(.providerId=="conditional-user-configured")][0].id' <<<"$EXECS")
+WA_ID=$(jq -r 'first(.[] | select(.providerId=="webauthn-authenticator") | .id)' <<<"$EXECS")
+
+echo "{\"id\":\"$COND_ID\",\"requirement\":\"DISABLED\"}" \
+  | kcadm update "authentication/flows/$FLOW/executions" -r "$REALM" -n -f -
+echo "{\"id\":\"$WA_ID\",\"requirement\":\"REQUIRED\"}" \
+  | kcadm update "authentication/flows/$FLOW/executions" -r "$REALM" -n -f -
+
+kcadm update "realms/$REALM" -s "browserFlow=$FLOW"
+
+kcadm get "authentication/flows/$FLOW/executions" -r "$REALM" --fields displayName,requirement,level \
+  | jq -r '.[] | select(.level >= 1) | "  \(.displayName): \(.requirement)"'
+```
+
+```bash
+bash require-passkey-2fa.sh prod browser-passkey-2fa
+```
+
+```
+Created new copy with id 'aa182a7a-f266-4a2e-aadc-936ac0a2860d'
+  browser-passkey-2fa Browser - Conditional Organization: CONDITIONAL
+  Condition - user configured: REQUIRED
+  Organization Identity-First Login: ALTERNATIVE
+  Username Password Form: REQUIRED
+  browser-passkey-2fa Browser - Conditional 2FA: CONDITIONAL
+  Condition - user configured: DISABLED
+  WebAuthn Authenticator: REQUIRED
+  Condition - credential: REQUIRED
+  OTP Form: ALTERNATIVE
+  Recovery Authentication Code Form: DISABLED
+```
+
+The first `Condition - user configured: REQUIRED` is the organization sub-flow's, untouched.
+
+Note that `WebAuthn Authenticator` has moved **above** `Condition - credential` in the
+listing. Changing an execution's requirement through this endpoint resets its priority, so
+rows reorder. It is harmless here: Keycloak evaluates every condition in a conditional
+sub-flow before it runs any authenticator in that sub-flow, and the flow behaves correctly
+after the move — verified in [how the two interact](#how-passkeys-and-2fa-interact) below.
+Copying the flow also renames every sub-flow with the new flow's name as a prefix, so any
+script matching sub-flows by exact name breaks at this point.
+
+The `-n` (`--no-merge`) and `-f -` are both required. `kcadm update … -s id=… -s
+requirement=…` fails on this endpoint because kcadm GETs the current state first and this
+endpoint returns an array:
+
+```
+HTTP request error: Cannot deserialize value of type
+`com.fasterxml.jackson.databind.node.ObjectNode` from Array value (token `JsonToken.START_ARRAY`)
+```
+
+</details>
+
+Queue enrolment for bob and log them in:
+
+```bash
+BID=$(kcadm get users -r prod -q username=bob --fields id | jq -r '.[0].id')
+kcadm update "users/$BID" -r prod -s 'requiredActions=["webauthn-register"]'
+```
+
+First login: password → **Passkey Registration** → done. Second login: password → a screen
+titled **Passkey login** listing the key by label and transport, with a *Sign in with
+Passkey* button on it:
+
+```
+Passkey login
+Username or email
+yubikey-5   USB   Created Sep 21, 2026, 7:37 AM
+[ Sign in with Passkey ]
+```
+
+Then the stored credential:
+
+```bash
+kcadm get "users/$BID/credentials" -r prod \
+  | jq '.[] | select(.type|startswith("webauthn")) | {type, userLabel, transports: (.credentialData|fromjson|.transports)}'
+```
+
+```json
+{
+  "type": "webauthn",
+  "userLabel": "yubikey-5",
+  "transports": [
+    "usb"
+  ]
+}
+```
+
+`webauthn`, not `webauthn-passwordless`. Bob cannot sign in with this key alone, and the
+credential is not discoverable — which is correct for a second factor and is why a
+2FA-only rollout works on cheap keys with no storage for resident credentials.
+
+One naming note that will cost you a support ticket: 26.7 renamed the user-facing strings.
+The 2FA enrolment screen says **Passkey Registration** and the challenge says **Passkey
+login**, even though this is the *second factor*, not a passkey in the passwordless sense.
+Your rollout email should not say "security key" if the screen says "passkey".
+
+## How passkeys and 2FA interact
+
+`Condition - credential` is the row that makes both setups coexist. It is configured out of
+the box with `credentials: webauthn-passwordless`:
+
+```bash
+CFG=$(kcadm get authentication/flows/browser/executions -r prod \
+  | jq -r 'first(.[] | select(.providerId=="conditional-credential") | .authenticationConfig)')
+kcadm get "authentication/config/$CFG" -r prod
+```
+
+```json
+{
+  "id" : "6ae0ecef-05fa-4d67-9642-25f3e810aa45",
+  "alias" : "browser-conditional-credential",
+  "config" : {
+    "credentials" : "webauthn-passwordless"
+  }
+}
+```
+
+Read: *skip the 2FA sub-flow if the user already authenticated with a passwordless
+WebAuthn credential*. A passkey is already two factors — something you have plus the
+device's own user verification — so asking for a second one is theatre.
+
+Tested with `browser-passkey-2fa` bound and alice holding a passkey but no `webauthn`
+credential:
+
+| Alice signs in with | Conditional 2FA sub-flow | Result |
+|---|---|---|
+| their passkey | skipped | logged in, authorization code issued |
+| their password | runs | sent to **Passkey Registration** — enrol a *second*, 2FA credential |
+
+That second row is the trap. A user with a perfectly good passkey who happens to type their
+password is told to register another credential, because `WebAuthn Authenticator` is
+`REQUIRED` and they have no `webauthn` credential to satisfy it. Three ways out, in order of
+how much we would recommend them:
+
+1. **Set `WebAuthn Authenticator` to `ALTERNATIVE` instead of `REQUIRED`**, alongside
+   `OTP Form`. Users pick whichever second factor they have; users with neither are not
+   forced to enrol. Weaker enforcement, no dead end.
+2. **Leave the password path out entirely** — if the goal is passwordless, remove or
+   restrict password login rather than layering 2FA on top of it.
+3. **Keep `REQUIRED` and accept the enrolment prompt** as the intended migration push. Fine
+   for an internal realm, not fine for a consumer signup.
+
+If you want 2FA *even after* a passkey, set `Condition - credential` to `DISABLED` — the
+documented way to turn the skip off. Do not disable it *and* `Condition - user configured`:
+a conditional sub-flow with no enabled conditions is skipped entirely, not executed, so your
+`REQUIRED` WebAuthn row never runs and the login sails straight through. The console still
+shows *WebAuthn Authenticator: Required* while this is happening. It is the same failure
+described in [TOTP multi-factor authentication](/tutorials/authentication/totp-mfa/), and
+it is the quietest way to ship an MFA config that does nothing.
+
+## Rolling this out to users who already exist
+
+Same asymmetry as every other Keycloak required action, and it is the usual reason a
+"passwordless rollout" leaves most of the existing user base on passwords:
+
+| | Required action as default | Flow change |
+|---|---|---|
+| Where | Authentication → Required actions → *Set as default action* | The browser flow |
+| Applies to | **New users only** | **Every user** |
+| Existing accounts | Untouched | Prompted at next login |
+
+```bash
+kcadm update authentication/required-actions/webauthn-register-passwordless -r prod \
+  -s enabled=true -s defaultAction=true
+```
+
+That queues enrolment for accounts created *after* you run it. For accounts that already
+exist, either change the flow or sweep them:
+
+```bash
+kcadm get users -r prod --fields id -q max=10000 \
+  | jq -r '.[].id' \
+  | while read id; do
+      kcadm update "users/$id" -r prod \
+        -s 'requiredActions=["webauthn-register-passwordless"]' </dev/null
+    done
+```
+
+Two details in that loop are load-bearing and both fail silently. `-q max=10000`, because
+`kcadm get users` returns **100** and does not say there are more. And `</dev/null`,
+because the `kcadm` helper is `docker exec -i`, so without the redirect the first `update`
+consumes the rest of the id list and the loop runs once, exit status 0.
+
+A sweep is only ever as complete as the last time you ran it. Prefer the flow change.
+
+## Troubleshooting
+
+### `SecurityError: The relying party ID is not a registrable domain suffix`
+
+Registration dies with:
+
+```
+Passkey registration result is invalid.
+SecurityError: The relying party ID is not a registrable domain suffix of, nor equal to
+the current domain. Subsequently, an attempt to fetch the .well-known/webauthn resource
+of the claimed RP ID failed.
+```
+
+**Relying party ID** must be the origin's effective domain or a registrable parent of it.
+Set it to `auth.example.com` while serving from `localhost` and every registration fails
+this way. Leave it **blank** and Keycloak uses the host of its own base URL, which is right
+for a single-hostname deployment:
+
+```bash
+kcadm update realms/prod -s webAuthnPolicyPasswordlessRpId=""
+```
+
+Set it deliberately to the registrable parent (`example.com` while serving from
+`auth.example.com`) only when you need one credential to work across sibling subdomains.
+That widens the credential's scope permanently for every key registered afterwards, and
+credentials already registered under the narrower ID do not migrate. We did not test the
+multi-subdomain case locally; the single-host behaviour above is what we verified.
+
+### Every existing passkey stopped working after a hostname change
+
+This is the same rule with the blast radius turned up, and it is worth internalising before
+you move a realm. A credential is bound to the relying party ID it was registered against.
+Change the hostname Keycloak serves on with `Relying party ID` left blank and the ID changes
+underneath every credential in the realm.
+
+Measured: one passkey, one server, two hostnames.
+
+| Login page origin | Result |
+|---|---|
+| `http://localhost:8080` — where it was registered | logged in, authorization code issued |
+| `http://127.0.0.1:8080` — same server, same realm, same user | `Failed to authenticate by the Passkey.` |
+
+Nothing about the second case is recoverable from the admin console. The users re-enrol.
+**Pin `Relying party ID` to your intended production domain before anyone registers**, and
+treat it as immutable afterwards.
+
+### `NotAllowedError` on registration and no clue why
+
+```
+Passkey registration result is invalid.
+NotAllowedError: The operation either timed out or was not allowed.
+See: https://www.w3.org/TR/webauthn-2/#sctn-privacy-considerations-client. Try again
+```
+
+That is a privacy-preserving error and the browser will not tell you which requirement the
+authenticator failed. We reproduced the **identical** message from two different causes
+against the passwordless policy:
+
+- an authenticator with no user verification, against `User verification requirement:
+  required`
+- an authenticator with no resident-key support, against `Discoverable credential:
+  required`
+
+Both defaults are correct for passkeys and you should not loosen them to make an error go
+away. Diagnose by bisecting instead — relax one, retry, put it back:
+
+```bash
+kcadm update realms/prod -s webAuthnPolicyPasswordlessUserVerificationRequirement=preferred
+# retry; if it now works, the authenticator cannot verify users
+kcadm update realms/prod -s webAuthnPolicyPasswordlessUserVerificationRequirement=required
+```
+
+Cheap hardware keys frequently support neither. They are fine as second factors under the
+looser **WebAuthn Policy** and unusable as passkeys. That is a property of the key, not of
+your configuration.
+
+### `InvalidStateError` when a user registers a second key
+
+```
+Passkey registration result is invalid.
+InvalidStateError: The user attempted to register an authenticator that contains one of
+the credentials already registered with the relying party. Try again
+```
+
+That is **Avoid same authenticator registration** doing its job. With it off — the default
+— the same authenticator enrols twice and the user ends up with two credentials backed by
+one device, distinguished only by whatever label they typed at the prompt:
+
+```json
+[
+  { "type": "webauthn-passwordless", "userLabel": "phone-passkey" },
+  { "type": "webauthn-passwordless", "userLabel": "second-registration" }
+]
+```
+
+```bash
+kcadm update realms/prod -s webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister=true
+```
+
+Turn it on. Both behaviours verified on 26.7.4.
+
+### Windows Hello users cannot register
+
+Add `RS256` to **Signature algorithms** on the passwordless policy. `ES256` and `RS256` are
+both in the default list on 26.7.4, so this only bites on a realm where someone trimmed it:
+
+```bash
+kcadm get realms/prod --fields webAuthnPolicyPasswordlessSignatureAlgorithms
+```
+
+```json
+{
+  "webAuthnPolicyPasswordlessSignatureAlgorithms" : [ "ES256", "RS256" ]
+}
+```
+
+Keycloak's documentation also notes that some browsers block access to platform
+authenticators in private windows. We did not test Windows Hello.
+
+### A user lost the device holding their passkey
+
+Delete the credential and re-queue enrolment. Two commands, and it is the whole help-desk
+runbook — the same shape as the TOTP one:
+
+```bash
+AID=$(kcadm get users -r prod -q username=alice --fields id | jq -r '.[0].id')
+CRED=$(kcadm get "users/$AID/credentials" -r prod \
+  | jq -r 'first(.[]|select(.type=="webauthn-passwordless")|.id)')
+
+kcadm delete "users/$AID/credentials/$CRED" -r prod
+kcadm update "users/$AID" -r prod -s 'requiredActions=["webauthn-register-passwordless"]'
+```
+
+The real answer is to not need it. **Recovery codes** ship enabled as a required action,
+but the **Recovery Authentication Code Form** in the browser flow ships `DISABLED` — set it
+to `ALTERNATIVE` in your flow copy so the codes users generate can actually be used. A
+passwordless realm with one passkey per user and no recovery path is one lost phone away
+from a manual account-recovery process you have not written yet.
+
+### Attestation and AAGUID allowlisting
+
+If you need to restrict enrolment to specific authenticator models, **Acceptable AAGUIDs**
+does it — but only in combination with **Attestation conveyance preference** set to
+`direct`. The default `not specified` behaves as `none`, and a `none` attestation is
+permitted to zero out the AAGUID, so an allowlist checked against it is checking nothing.
+Our test credential reported `"aaguid": "01020304-0506-0708-0102-030405060708"` with
+`"attestationStatementFormat": "none"` — a virtual authenticator's fixed value, not a
+trustworthy identifier. Direct attestation also requires the trust anchors in Keycloak's
+truststore. We did not test this path.
+
+## What we could not verify
+
+Worth being explicit, because a WebAuthn page that claims to have tested everything has
+not:
+
+- **Real conditional-UI autofill.** A virtual authenticator answers without a human
+  choosing from the dropdown. The request is issued on page load for `conditional`; whether
+  your users' browser shows their credential in the list is a browser and platform question.
+- **`silent` and `required` mediation**, which Keycloak's own docs flag as inconsistently
+  supported across browsers.
+- **Platform authenticators** — Touch ID, Windows Hello, Android — and **cross-device
+  authentication** (scanning a QR code to use a phone as the authenticator for a desktop
+  login).
+- **Synced passkeys.** Our credentials reported `backupEligibility: false`, so none of the
+  iCloud Keychain / Google Password Manager sync behaviour was exercised.
+- **Direct attestation and AAGUID allowlisting**, per the section above.
+- **Multi-subdomain relying party IDs.**
+
+For platform-authenticator coverage there is no substitute for enrolling one test user per
+target platform before you roll anything out.
+
+## Next steps
+
+- [Set up TOTP multi-factor authentication](/tutorials/authentication/totp-mfa/) — the
+  other second factor, and the one most users already have. The two live side by side in
+  the same sub-flow.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
+  for the identity-first and step-up variants this page deliberately skipped.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — what your API checks after any of this succeeds.
+- [Passkeys](/docs/authentication/passkeys/) and [WebAuthn](/docs/authentication/webauthn/)
+  in our docs — the admin-console walkthrough with screenshots.
+- [A passwordless future with Keycloak](/blog/webauthn-keycloak/) — the concepts behind
+  passkeys, if you want the *why* rather than the configuration.
+- [Brute force detection](/docs/security/brute-force-detection/) — off by default, and
+  still relevant for the password path you have not removed yet.
+- More [Keycloak tutorials](/tutorials/) across authentication, authorization and operations.
+- Official reference:
+  [WebAuthn](https://www.keycloak.org/docs/latest/server_admin/index.html#webauthn) and
+  [Passkeys](https://www.keycloak.org/docs/latest/server_admin/index.html#passkeys_server_administration_guide)
+  in the Keycloak server administration guide.
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
