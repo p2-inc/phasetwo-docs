@@ -208,6 +208,9 @@ curl -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
   "totalResults": 1, "itemsPerPage": 1, ... }
 ```
 
+Every step above, in order, with the errors you get when one is missed, is in
+[Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/).
+
 ## What "supports SCIM" should mean when a buyer asks
 
 Vendors claim SCIM support at wildly different depths. If you are evaluating — or being evaluated — these are the questions that separate a real implementation from a checkbox:
