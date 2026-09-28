@@ -1,0 +1,502 @@
+---
+id: fine-grained-permissions-v2
+title: "Keycloak Fine-Grained Admin Permissions V2"
+description: Build a delegated Keycloak admin who can manage one group and nothing else. Resource types, scopes, policies, the two-sided rules, and what enforcement costs.
+keywords:
+  - keycloak fine grained admin permissions
+  - keycloak admin permissions v2
+  - keycloak delegated administration
+  - keycloak admin-permissions client
+  - keycloak restrict admin to group
+  - ADMIN_FINE_GRAINED_AUTHZ_V2
+difficulty: advanced
+time: 45 minutes
+keycloak_version: "26.7.4"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl` and the Admin REST API
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Fine-Grained Admin Permissions V2
+
+**Fine-grained admin permissions V2** lets you give someone administrative rights over *part*
+of a realm — these users, that group, this one role — instead of handing them `manage-users`
+over everything. You turn it on per realm, and you then express access as
+**permission = resource type + scopes + policies**:
+
+```
+resource type   Users | Groups | Clients | Roles | Organizations
+scopes          the operations, e.g. view, manage, map-roles
+policies        who gets it, e.g. "members of the platform-admins group"
+```
+
+Three things about that model catch everyone, and they are the reason this page exists:
+
+1. **Scopes have no hierarchy.** `manage` does not imply `view`. An admin granted only
+   `manage` cannot see the user they are allowed to edit.
+2. **Any legacy admin role switches the whole thing off for that user.** Roles are not
+   intersected with permissions — one `view-users` role and evaluation is skipped entirely.
+3. **You still need a `query-*` role** to reach the list endpoints at all. Without it you get
+   `403`; with it you get `200 []`, which looks identical to an empty realm.
+
+By the end of this page you will have a delegated admin who can manage the engineering team
+and provably cannot touch finance, cannot create permissions, and cannot promote herself.
+
+:::info Tested against
+
+Keycloak **26.7.4** (`quay.io/keycloak/keycloak:26.7.4 start-dev`, H2 dev database, single
+container), with the version table below checked on 26.0.8, 26.1.5 and 26.2.5 as well. Every
+status code, JSON body and timing here is copied from a real run on 2026-09-28. The official
+[Delegating realm administration using permissions](https://www.keycloak.org/docs/latest/server_admin/index.html#_fine_grained_permissions)
+guide is the reference for what each setting means — this page is the order to do it in, the
+proof that it worked, and the parts that bite.
+
+:::
+
+## Do you already have it?
+
+The feature moved fast, and "fine-grained admin permissions" means two different things
+depending on your version. Reported by `serverinfo` on a stock `start-dev` container:
+
+| Keycloak | `ADMIN_FINE_GRAINED_AUTHZ` (v1) | `ADMIN_FINE_GRAINED_AUTHZ_V2` |
+|---|---|---|
+| 26.0.8 | `PREVIEW`, disabled | not present |
+| 26.1.5 | `PREVIEW`, disabled | `EXPERIMENTAL`, disabled |
+| 26.2.5 | `PREVIEW`, disabled | **`DEFAULT`, enabled** |
+| 26.7.4 | `DEPRECATED`, disabled | **`DEFAULT`, enabled** |
+
+Ask your own server rather than trusting the table:
+
+```bash
+curl -s http://localhost:8080/admin/serverinfo \
+  -H "Authorization: Bearer $TOKEN" -H 'Accept: application/json' \
+  | jq '.features[] | select(.name | startswith("ADMIN_FINE_GRAINED"))'
+```
+
+```json
+{
+  "name": "ADMIN_FINE_GRAINED_AUTHZ_V2",
+  "label": "Fine-Grained Admin Permissions version 2",
+  "type": "DEFAULT",
+  "dependencies": ["AUTHORIZATION"],
+  "enabled": true
+}
+```
+
+`DEFAULT` and `enabled: true` means the *engine* is available. It does nothing until you
+enable admin permissions on a specific realm, which is the next step and is not the same
+switch.
+
+## What you'll build
+
+A realm `acme` with three groups — `engineering`, `finance`, `platform-admins` — and a user
+`dana` in `platform-admins`. Dana ends up able to list and edit engineering's members, assign
+exactly one role, and nothing else. Finance is invisible to her. So is she, to herself.
+
+## 1. Start a server and build the realm
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.4 start-dev
+```
+
+Build the realm with `kcadm.sh`, which ships inside the container. Everything in this step
+runs there; from step 3 on we switch to `curl` on the host, because the permission model has
+no `kcadm` verbs of its own.
+
+```bash
+docker exec -it kc bash
+K=/opt/keycloak/bin/kcadm.sh
+$K config credentials --server http://localhost:8080 --realm master --user admin --password admin
+
+$K create realms -s realm=acme -s enabled=true
+for g in engineering finance platform-admins; do $K create groups -r acme -s name=$g; done
+
+for u in alice bob; do
+  $K create users -r acme -s username=$u -s enabled=true \
+    -s email=$u@acme.test -s firstName=$u -s lastName=Eng
+  $K set-password -r acme --username $u --new-password pw
+done
+$K create users -r acme -s username=carol -s enabled=true \
+  -s email=carol@acme.test -s firstName=Carol -s lastName=Fin
+$K set-password -r acme --username carol --new-password pw
+$K create users -r acme -s username=dana -s enabled=true \
+  -s email=dana@acme.test -s firstName=Dana -s lastName=Admin
+$K set-password -r acme --username dana --new-password pw
+```
+
+Set `firstName` and `lastName`. Without them the declarative user profile adds a
+`VERIFY_PROFILE` required action, the password grant fails with
+`"Account is not fully set up"`, and you will spend ten minutes blaming the permission model
+for an authentication problem.
+
+Put alice and bob in `engineering`, carol in `finance`, dana in `platform-admins` — through
+**Groups → *group* → Members → Add member** in the console, or:
+
+```bash
+$K update users/$USER_ID/groups/$GROUP_ID -r acme \
+  -s realm=acme -s userId=$USER_ID -s groupId=$GROUP_ID -n
+```
+
+If you have not built a realm by hand before, the
+[first realm, client and user](/tutorials/getting-started/first-realm-client-user/) tutorial
+covers the mental model this one assumes.
+
+## 2. Turn admin permissions on for the realm
+
+In the console this is **Realm settings**, enable **Admin permissions**, **Save**. It is one
+field on the realm representation:
+
+```bash
+$K update realms/acme -s adminPermissionsEnabled=true
+```
+
+That creates a client. Confirm it, because everything after this addresses it by UUID:
+
+```bash
+$K get clients -r acme -q clientId=admin-permissions \
+  --fields id,clientId,authorizationServicesEnabled
+```
+
+```json
+[ {
+  "id" : "fa3efcc8-e8b0-4352-99a6-e3c7e4c68225",
+  "clientId" : "admin-permissions",
+  "authorizationServicesEnabled" : true
+} ]
+```
+
+`admin-permissions` is an ordinary authorization-services client whose resources are the
+realm's own resource types. Every permission and policy you create lives under:
+
+```
+/admin/realms/acme/clients/{admin-permissions-uuid}/authz/resource-server
+```
+
+Export `CLIENT=fa3efcc8-…` and `ADMIN_TOKEN` from the `master` realm for the rest of this
+page. Getting that token is the
+[first token tutorial](/tutorials/getting-started/your-first-token/) if you need it.
+
+## 3. Ask the server which scopes exist
+
+Scope names are not guessable and a typo is a `400` with no hint about the valid set. The
+server enumerates them:
+
+```bash
+curl -s "http://localhost:8080/admin/realms/acme/clients/$CLIENT/authz/resource-server/resource" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  | jq -r '.[] | "\(.type): \([.scopes[].name] | sort | join(", "))"'
+```
+
+On 26.7.4 that prints exactly this, and it is the whole surface of the feature:
+
+| Resource type | Scopes |
+|---|---|
+| `Users` | `view`, `manage`, `map-roles`, `manage-group-membership`, `impersonate`, `reset-password` |
+| `Groups` | `view`, `manage`, `view-members`, `manage-members`, `manage-membership`, `manage-membership-of-members`, `impersonate-members` |
+| `Clients` | `view`, `manage`, `map-roles`, `map-roles-composite`, `map-roles-client-scope` |
+| `Roles` | `map-role`, `map-role-composite`, `map-role-client-scope` |
+| `Organizations` | `view`, `manage` |
+
+Two things are worth reading off that table before you design anything. There is **no
+`create` scope** — creating a user is `manage` at the resource-type level, which is why a
+delegated admin scoped to specific users cannot create new ones. And **`Roles` has no `view`
+or `manage`**: this feature governs who may *assign* a role, not who may edit it.
+
+## 4. The `query-*` role you cannot skip
+
+Give dana nothing and call the Admin API as her:
+
+```bash
+DANA=$(curl -s -d client_id=admin-cli -d username=dana -d password=pw -d grant_type=password \
+  http://localhost:8080/realms/acme/protocol/openid-connect/token | jq -r .access_token)
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8080/admin/realms/acme/users \
+  -H "Authorization: Bearer $DANA"
+```
+
+```
+403
+```
+
+Now assign `query-users` and `query-groups` from the `realm-management` client — **User
+details → Role mapping → Assign role → Filter by clients**, or:
+
+```bash
+$K add-roles -r acme --uusername dana --cclientid realm-management \
+  --rolename query-users --rolename query-groups
+```
+
+The same request becomes:
+
+```
+200 []
+```
+
+That transition is the single most confusing thing about this feature. `query-*` decides
+whether the *endpoint* is reachable; permissions decide what is *in* the response. Miss the
+role and you get a `403` that looks like a broken permission. Have the role and no permissions
+and you get an empty list that looks like an empty realm. The same rule governs the console:
+`whoami` needs at least one `query-*` role or the console refuses to open, which is one of the
+cases in [Keycloak 403 Forbidden](/blog/keycloak-403-forbidden/).
+
+## 5. One policy, one permission
+
+A policy says **who**. A permission says **what**, and references policies by name.
+
+Create a group policy for `platform-admins` — in the console, **Permissions → Policies →
+Create policy**, type **Group**:
+
+```bash
+curl -s -X POST \
+  "http://localhost:8080/admin/realms/acme/clients/$CLIENT/authz/resource-server/policy/group" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"platform-admins-policy","logic":"POSITIVE",
+       "groups":[{"id":"'"$PLATFORM_ADMINS_GID"'"}]}'
+```
+
+Then a permission on the `engineering` group — **Permissions → Create permission**, resource
+type **Groups**:
+
+```bash
+curl -s -X POST \
+  "http://localhost:8080/admin/realms/acme/clients/$CLIENT/authz/resource-server/permission/scope" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"engineering-helpdesk","resourceType":"Groups",
+       "scopes":["view","view-members","manage-members"],
+       "resources":["'"$ENGINEERING_GID"'"],
+       "policies":["platform-admins-policy"]}'
+```
+
+```
+201
+```
+
+Omit `resources` and the permission applies to **all** resources of that type. That one
+optional key is the difference between "manage the engineering group" and "manage every group
+in the realm", and in a list of permissions the two look alike, so say which one it is in the
+name.
+
+## 6. Verify it worked
+
+A fresh token for dana, and the realm as she sees it:
+
+```
+GET /admin/realms/acme/users            200  [alice, bob]
+GET /admin/realms/acme/groups           200  [/engineering]
+GET /admin/realms/acme/groups/{eng}/members
+                                        200  [alice, bob]
+```
+
+Carol and the finance group are not hidden by the console — they are absent from the API
+response. This is **partial evaluation**: Keycloak resolves the permissions that reference
+dana, then decorates the database query with them, which is what keeps pagination honest.
+Group scopes reach across to users, which is why `view-members` on a group produced a filtered
+user list with no `Users` permission in existence.
+
+Writes, same token:
+
+| Request | Result | Why |
+|---|---|---|
+| `PUT /users/{alice}` | `204` | `manage-members` on her group |
+| `PUT /users/{alice}/reset-password` | `204` | no `reset-password` permission exists, so it falls back to `manage` |
+| `GET /users/{carol}` | `403` | not a member of a permitted group |
+| `PUT /users/{carol}` | `403` | same |
+| `POST /users` | `403` | creating needs `manage` on the `Users` **type**, not on members |
+| `PUT /users/{alice}/groups/{finance}` | `403` | no `manage-group-membership` |
+| `DELETE /groups/{engineering}` | `403` | `manage-members` is not `manage` |
+| `GET /clients` | `403` | no `query-clients` role |
+
+Note the `reset-password` row. It is the one scope with a fallback: when no
+`reset-password` permission matches the user in question, Keycloak checks `manage` instead.
+The fallback is per user, not per realm — adding a `reset-password` permission for carol left
+dana's ability to reset alice's password untouched. Add one that matches **alice** with a
+policy that denies, though, and the fallback stops applying to her:
+
+```
+PUT /users/{alice}/reset-password   403     ← the new permission decides
+PUT /users/{alice}                  204     ← manage is unaffected
+```
+
+That is the supported way to say "this admin may edit the account but may not take it over".
+
+## 7. The two rules that need both sides
+
+Some operations touch two resource types, and granting one side produces a `403` that looks
+like the permission did not save.
+
+**Assigning a role** needs `map-roles` on the user *and* `map-role` on the role. With only the
+first:
+
+```
+GET  /users/{alice}/role-mappings/realm/available   200  []
+POST /users/{alice}/role-mappings/realm             403
+```
+
+Add a `Roles` permission with `map-role` on the single role `support-agent` and, with no other
+change:
+
+```
+GET  /users/{alice}/role-mappings/realm/available   200  ["support-agent"]
+POST /users/{alice}/role-mappings/realm             204
+```
+
+That empty array is the useful part: the list of assignable roles is itself filtered, so a
+delegated admin is shown only the roles they may grant. This is how you build a helpdesk that
+can hand out `support-agent` and can never hand out `realm-admin` — and it is why `Roles` has
+only `map-*` scopes.
+
+**Changing group membership** needs `manage-group-membership` on the user *and*
+`manage-membership` on the target group. Measured with one unchanged token across three
+states:
+
+```
+nothing granted                          403
++ Users manage-group-membership          403   ← still
++ Groups manage-membership on finance    204
+```
+
+Note what that sequence also proves: **permission changes take effect on the very next
+request, with the same access token.** There is no cache to wait out and no re-login. Role
+changes behave the same way here, because `admin-cli` issues a
+[lightweight access token](/tutorials/sessions/timeouts/) — decode dana's token and there is no
+`realm_access` or `resource_access` claim in it at all, so the server resolves her roles from
+the session on every call. A client configured for full tokens will not behave that way.
+
+## 8. Keep admins out of each other's accounts
+
+The pattern everyone wants: platform-admins manage all users *except* other platform-admins.
+It takes a permission whose policy is inverted.
+
+Grant the broad permission first — `Users`, no `resources`, scopes `view` and `manage`, policy
+`platform-admins-policy`. Dana can now see all four users and create new ones. Then carve out
+the exception with `logic: NEGATIVE`:
+
+```bash
+# policy: everyone EXCEPT platform-admins members
+-d '{"name":"not-platform-admins","logic":"NEGATIVE",
+     "groups":[{"id":"'"$PLATFORM_ADMINS_GID"'"}]}'
+
+# permission: protect that group's members
+-d '{"name":"protect-platform-admins","resourceType":"Groups",
+     "scopes":["view-members","manage-members"],
+     "resources":["'"$PLATFORM_ADMINS_GID"'"],
+     "policies":["not-platform-admins"]}'
+```
+
+Dana's user list drops from `[alice, bob, carol, dana]` to `[alice, bob, carol]`, and:
+
+```
+GET /users/{dana}   403        ← she cannot read her own admin record
+PUT /users/{dana}   403        ← or edit it
+PUT /users/{carol}  204
+```
+
+This works because **a permission on a specific resource overrides the all-resources
+permission for that resource** — the broad grant is not consulted once a specific one matches.
+Where several permissions *do* apply, every one of them must permit; a single `DENY` decides
+the outcome.
+
+While you are here, confirm the model defends itself. As dana:
+
+```
+GET  …/authz/resource-server/permission/scope    403   ← cannot read the permission model
+POST …/authz/resource-server/permission/scope    403   ← cannot write it
+PUT  /admin/realms/acme  {adminPermissionsEnabled:false}
+                                                 403   ← cannot turn enforcement off
+```
+
+## 9. What enforcement costs
+
+The official guide says there is overhead and does not quantify it. On a realm of 500 users in
+one group, listing a 100-user page, 30 requests per sample, two interleaved rounds so warm-up
+cannot explain the gap:
+
+| Setup | Median | p95 |
+|---|---|---|
+| `view-users` role (evaluation **bypassed**) | 30–33 ms | 47–51 ms |
+| One group permission (evaluation **runs**) | 137–141 ms | 174–195 ms |
+| 199 individual per-user permissions | 143–165 ms | 183–229 ms |
+
+Roughly **4× on list queries** for turning enforcement on at all. The shape of the model
+mattered far less: replacing one group permission with 199 per-user permissions cost about
+another 10–20%. The guide's advice to prefer few broad permissions over many narrow ones is
+still right — it is aimed at thousands of permissions, and the underlying filter becomes a SQL
+`IN` clause, which some databases cap — but at a couple of hundred it is not where your
+latency is. The cost is enforcement itself.
+
+Caveats, because they are large: H2, `start-dev`, one container, one admin, no contention.
+Treat the **ratio** as the finding and measure your own absolute numbers on your own database.
+
+## 10. When it goes wrong
+
+- **`403` on a list endpoint.** Missing `query-users` / `query-groups` / `query-clients` /
+  `query-organizations` on `realm-management`. Permissions never grant endpoint access.
+- **`200 []` on a list endpoint.** The role is there and no permission grants a view-related
+  scope to this admin. Check that the permission's policy really references them — a `User`,
+  `Group`, `Role` or `Aggregated` policy — because only those four support partial evaluation.
+  A `Time` or `JavaScript` policy cannot be pre-evaluated and is skipped when filtering queries.
+- **The admin can edit a record they cannot see.** You granted `manage` without `view`. There
+  is no transitive dependency between scopes; select every one you mean.
+- **A permission has no effect at all.** The admin holds a legacy admin role. `view-users`,
+  `manage-users`, `view-clients`, `manage-clients`, `impersonation` and friends **bypass
+  evaluation entirely** — they are not intersected with your permissions. We watched one
+  `view-users` grant widen dana's view from two users to every user and every group in the
+  realm, instantly. The same is true of `realm-admin` in the realm and `admin` in `master`.
+  Audit those role assignments before you trust any permission model.
+- **`400` creating a permission.** The scope is not valid for that `resourceType`. Re-read the
+  table in step 3; `map-roles` is a `Users`/`Clients` scope and `map-role` is a `Roles` scope,
+  and they are not interchangeable.
+- **It works by API and the console shows nothing.** The console needs the matching `query-*`
+  role per section. A delegated admin with only `query-users` sees only **Users**. When a
+  delegated admin can view a nested group but not its parents, the Groups page loads empty
+  because only top-level groups load first — they have to search for it.
+
+The console's **Permissions → Evaluation** tab answers "why can this user do that?" directly:
+pick the admin, the resource type, the resource and the scope, and it prints which permission
+voted and how. It beats bisecting by `curl`.
+
+## When not to use this
+
+If everyone who administers a realm should administer all of it, use the `realm-management`
+roles. They are simpler, they are faster, and the answer to "what can this person do?" is one
+role list rather than a policy evaluation.
+
+This feature earns its cost when the boundary is *inside* a realm: a helpdesk that resets
+passwords for one department, a customer's own admin managing only their own users, an
+auditor who can read and never write. If instead your boundary is per-tenant and each tenant
+needs its own admins, ask first whether those tenants should be separate realms or
+[organizations](/docs/keycloak/iam/) — drawing the line with realm structure is easier to
+reason about than drawing it with a hundred permissions.
+
+Finally, note what is out of scope: enforcement applies to the admin console and Admin REST
+API only, it does not currently cover federated (LDAP-backed) resources, and identity
+providers, authentication flows and realm settings have no resource type at all. An admin who
+needs those still needs the corresponding `realm-management` role — which, as above, turns
+fine-grained evaluation off for them.
+
+## Next steps
+
+- [Keycloak 403 Forbidden: client, realm and admin API causes](/blog/keycloak-403-forbidden/) —
+  the troubleshooting companion when a delegated admin hits a wall.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the realm structure this page delegates.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  including why the admin token here carries no roles.
+- [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+  — automate the group membership that these permissions then key off.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — the
+  service account doing the provisioning is an admin too, and can be scoped the same way.
+- [Identity and access management with Keycloak](/docs/keycloak/iam/) — where delegated
+  administration sits in the wider model.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Delegating realm administration using permissions](https://www.keycloak.org/docs/latest/server_admin/index.html#_fine_grained_permissions),
+  the [Admin REST API section](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing-permissions-rest-api),
+  and [performance considerations](https://www.keycloak.org/docs/latest/server_admin/index.html#performance-considerations).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

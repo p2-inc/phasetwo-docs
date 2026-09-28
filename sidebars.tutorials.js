@@ -69,5 +69,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["workflows/getting-started"],
     },
+    {
+      type: "category",
+      label: "Realm administration",
+      link: { type: "generated-index" },
+      items: ["admin/fine-grained-permissions-v2"],
+    },
   ],
 };

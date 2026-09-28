@@ -74,6 +74,14 @@ Filtering, pagination and schema mapping are next. *(Coming soon.)*
 
 Onboarding, offboarding and inactivity policies build on that one. *(Coming soon.)*
 
+**Delegating realm administration** — give someone admin rights over part of a realm without
+giving them the realm:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+
+Realm keys, auditing and the `kcadm` cookbook build on that one. *(Coming soon.)*
+
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
 ## A note on scope
