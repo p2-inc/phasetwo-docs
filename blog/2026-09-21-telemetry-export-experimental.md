@@ -96,9 +96,13 @@ The pipeline itself is running in all our production regions and delivering. The
 
 ## Try it
 
-Telemetry Export is not enabled on every account yet, even on Enterprise. If you want it turned on for an Enterprise cluster, email [support@phasetwo.io](mailto:support@phasetwo.io) and tell us what you're sending it to — the backend you name genuinely shapes what we build next, particularly around per-signal selection and attribute mapping.
+:::info Updated 2026-09-28 — no longer by request
+When this was published, Telemetry Export had to be switched on per account. It is now **self-serve on every Enterprise cluster**: open **Logs → Export** and configure it yourself. Nothing to email, nothing to wait for.
+:::
 
-On Starter or Premium and want to try it? Tell us that too. We would rather hear the use case than have you assume the answer is no.
+Open **Logs → Export** on an Enterprise cluster, enter your endpoint and token, and save. If you tell us what you're sending it to we would still like to hear it — the backend you name genuinely shapes what we build next, particularly around per-signal selection and attribute mapping — but it is no longer a gate.
+
+On Starter or Premium and want to try it? Email [support@phasetwo.io](mailto:support@phasetwo.io). We would rather hear the use case than have you assume the answer is no.
 
 The full reference, including every attribute, the delivery semantics, and the endpoint requirements, is in [Telemetry Export](/docs/self-service/telemetry-export).
 
