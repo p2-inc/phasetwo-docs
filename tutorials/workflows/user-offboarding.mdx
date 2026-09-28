@@ -1,0 +1,599 @@
+---
+id: user-offboarding
+title: "Automate Keycloak Offboarding and Deprovisioning"
+description: Build a Keycloak offboarding workflow that revokes roles, disables the account and deletes it after retention — and close the access window it leaves open.
+keywords:
+  - keycloak offboarding
+  - keycloak deprovisioning
+  - keycloak automate user offboarding
+  - keycloak disable user workflow
+  - keycloak joiner mover leaver
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.7.4"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Keycloak Workflows basics
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Automate Keycloak Offboarding and Deprovisioning
+
+An offboarding workflow in Keycloak is a YAML document triggered by a leaver event — normally
+`user-group-membership-removed` — that revokes the person's roles, disables the account, and
+optionally deletes it after a retention period. The official
+[User Offboarding example](https://www.keycloak.org/docs/latest/server_admin/index.html#_understanding_common_use_cases_)
+is nine lines long and correct as far as it goes. Two things it leaves out decide whether
+your offboarding actually removes access:
+
+1. **Revoking every role and disabling the account does not end the leaver's session.** On a
+   default realm their access token keeps verifying for up to five more minutes, with the
+   revoked roles still in it.
+2. **A retention delay will delete a rehire.** A user removed from the group and re-added an
+   hour later is still deleted when the parked step comes due — unless the workflow carries an
+   `if` condition that the rehire makes false.
+3. **And that same `if` will cancel a scheduled sweep's own deletion.** The standard
+   marker-attribute pattern for a terminating sweep disables every account it finds and then
+   deletes none of them, with no error anywhere.
+
+This page builds the workflow, measures all three on a real server, and fixes them.
+
+:::info Tested against
+
+Keycloak **26.7.4**, `start-dev`, H2 dev database, single node. Every status code, log line and
+timing below is copied from an actual run on 2026-09-28. If you have not written a workflow
+before, start with
+[Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/) —
+this page assumes the engine, the runner interval and the `scheduled` endpoint from it.
+
+:::
+
+## What you will build
+
+```yaml
+name: Leaver
+on: user-group-membership-removed(/Employees)
+if: not is-member-of(/Employees)
+steps:
+  - uses: revoke-role
+    with:
+      role:
+        - sales-rep
+        - crm-admin
+  - uses: disable-user
+  - uses: delete-user
+    after: 30d
+```
+
+Four decisions are packed into that: which event counts as "left", the order of the first two
+steps, how long the account is retained, and the `if` line that keeps a rehire alive. The rest
+of the page is each of them, with the measurement that justifies it.
+
+## 1. Start a server you can watch
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.4 start-dev \
+  --spi-events-listener--workflow-event-listener--step-runner-task-interval=10s \
+  --log-level=info,org.keycloak.models.workflow:debug
+```
+
+The 10-second runner interval replaces the 12-hour default so a `30d` retention step shortened
+to `60s` finishes while you are watching. Everything below uses two shell helpers:
+
+```bash
+alias kc='docker exec kc /opt/keycloak/bin/kcadm.sh'
+adm() { curl -s -d client_id=admin-cli -d username=admin -d password=admin \
+  -d grant_type=password \
+  http://localhost:8080/realms/master/protocol/openid-connect/token | jq -r .access_token; }
+```
+
+Call `adm` inline rather than exporting it once — the `master` realm's admin token lives 60
+seconds, and a stale one returns `401` on the polling loops further down.
+
+## 2. Build the realm the leaver lives in
+
+```bash
+kc config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+kc create realms -s realm=demo -s enabled=true
+kc create roles  -r demo -s name=sales-rep
+kc create roles  -r demo -s name=crm-admin
+kc create groups -r demo -s name=Employees
+kc create clients -r demo -s clientId=crm -s publicClient=true \
+  -s directAccessGrantsEnabled=true -s 'redirectUris=["*"]' -s enabled=true
+kc create users -r demo -s username=marcus -s enabled=true \
+  -s email=marcus@example.com -s emailVerified=true \
+  -s firstName=Marcus -s lastName=Odell
+kc set-password -r demo --username marcus --new-password pw
+```
+
+`firstName` and `lastName` are not decoration. Without them the realm's `VERIFY_PROFILE`
+required action fires and the direct grant in step 5 fails with `Account is not fully set up`,
+which reads like a password problem and is not one. For the same reason, clear the temporary
+password flag `kcadm` sets:
+
+```bash
+USER_ID=$(kc get users -r demo -q username=marcus --fields id | jq -r '.[0].id')
+kc update "users/$USER_ID" -r demo -s 'requiredActions=[]'
+```
+
+Section 5 introspects the leaver's token, which needs a confidential client to introspect *with*
+and an audience mapper so that client is allowed to:
+
+```bash
+kc create clients -r demo -s clientId=api -s publicClient=false \
+  -s serviceAccountsEnabled=true -s secret=apisecret -s enabled=true
+
+CRM_ID=$(kc get clients -r demo -q clientId=crm --fields id | jq -r '.[0].id')
+kc create "clients/$CRM_ID/protocol-mappers/models" -r demo \
+  -s name=aud-api -s protocol=openid-connect -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=api' -s 'config."access.token.claim"=true'
+```
+
+Skip the mapper and introspection answers `{"active": false}` for a perfectly good token, with
+`Client 'api' is not in the token audience` in the server log and nothing in the HTTP response
+to tell you so. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+covers why.
+
+## 3. Choose the leaver event
+
+This is the decision the docs leave implicit, and getting it wrong means the workflow never
+runs at all. Ask your own build what it has rather than trusting a table:
+
+```bash
+curl -s http://localhost:8080/admin/serverinfo -H "Authorization: Bearer $(adm)" \
+  -H 'Accept: application/json' | jq '.providers."workflow-event".providers | keys'
+```
+
+On 26.7.4 that returns ten events, and only four of them can plausibly mean "this person is
+leaving":
+
+| Candidate trigger | Fires when | Use it when |
+|---|---|---|
+| `user-group-membership-removed(/Employees)` | someone is taken out of the group | The group is the system of record for employment. **The default choice.** |
+| `user-role-revoked(sales-rep)` | a specific role is taken away | Offboarding from one application rather than from the company |
+| `user-federated-identity-removed(corp-idp)` | the link to an external IdP is removed | The upstream directory is authoritative and unlinks on termination |
+| `schedule:` | on a sweep, not on an event | Nobody reliably removes the group — see the last section |
+
+What is *not* in the list matters more. There is **no `user-deleted` event**, no
+`user-disabled` event and no "user updated" event of any kind. So if your upstream system
+deprovisions by flipping the account off — which is what SCIM does, since
+[SCIM deactivates rather than deletes](/blog/scim-explained/) — nothing in Keycloak can react
+to it.
+
+That is worth proving rather than asserting. A probe workflow subscribing to all eight
+user-scoped events:
+
+```yaml
+name: Catch-all probe
+on: >
+  user-created or user-authenticated or user-role-granted or user-role-revoked
+  or user-group-membership-added or user-group-membership-removed
+  or user-federated-identity-added or user-federated-identity-removed
+steps:
+  - uses: set-user-attribute
+    with:
+      probe-fired: "yes"
+```
+
+Creating a user activated it, and granting that user a role activated it again — two positive
+controls, so the probe works:
+
+```
+Workflow 'Catch-all probe' activated for resource f2cd096e-… (execution id: 1462fbc9-…)
+Workflow 'Catch-all probe' activated for resource f2cd096e-… (execution id: 2862fdf7-…)
+```
+
+Between those two, `PUT /users/{id}` with `enabled=false` and a second `PUT` writing a user
+attribute produced **no activation line at all**. An account switched off by an upstream
+directory is invisible to the workflow engine. Drive offboarding off group membership, and
+make your provisioning integration manage group membership.
+
+## 4. Create the workflow and fire it
+
+Start with the two immediate steps; retention comes in step 6.
+
+```bash
+cat > leaver.yaml <<'EOF'
+name: Leaver
+on: user-group-membership-removed(/Employees)
+steps:
+  - uses: revoke-role
+    with:
+      role:
+        - sales-rep
+        - crm-admin
+  - uses: disable-user
+EOF
+
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  http://localhost:8080/admin/realms/demo/workflows \
+  -H "Authorization: Bearer $(adm)" -H 'Content-Type: application/yaml' \
+  --data-binary @leaver.yaml
+```
+
+```
+201
+```
+
+**In the Admin Console:** *Workflows* → *Create workflow*, paste the YAML, *Save*.
+
+Order the steps `revoke-role` before `disable-user`. On a healthy run the two are milliseconds
+apart and the order is cosmetic. It stops being cosmetic when a step fails: the engine has no
+retry ceiling and will re-attempt a failing step indefinitely rather than skipping ahead, so a
+stalled chain freezes the account in whatever half-state it has reached. Revoke-first makes that
+half-state an enabled account with no privileges, rather than a disabled account that still
+carries every role an access review will read.
+
+Now hire and fire:
+
+```bash
+GROUP_ID=$(kc get groups -r demo -q search=Employees --fields id | jq -r '.[0].id')
+kc add-roles -r demo --uusername marcus --rolename sales-rep --rolename crm-admin
+kc update "users/$USER_ID/groups/$GROUP_ID" -r demo -n     # joiner
+kc delete "users/$USER_ID/groups/$GROUP_ID" -r demo        # leaver
+```
+
+The whole chain ran in **31 milliseconds**:
+
+```
+08:21:09,658 Workflow 'Leaver' activated for resource fdceb290-… (execution id: 68702865-…)
+08:21:09,665 Revoking role crm-admin from user fdceb290-…
+08:21:09,677 Revoking role sales-rep from user fdceb290-…
+08:21:09,686 Disabling user marcus (fdceb290-…)
+08:21:09,689 Workflow 'Leaver' completed for resource fdceb290-…
+```
+
+Immediate steps do not wait for the runner interval. Only steps carrying `after` do — which is
+the one asymmetry to keep in your head when you read the retention section.
+
+## 5. Measure what the offboarding did not do
+
+Log in as the user *before* removing them from the group, keep the tokens, and probe every
+path a real application uses after the workflow has run.
+
+```bash
+curl -s -d client_id=crm -d username=marcus -d password=pw \
+  -d grant_type=password -d scope=openid \
+  http://localhost:8080/realms/demo/protocol/openid-connect/token > tok.json
+AT=$(jq -r .access_token tok.json); RT=$(jq -r .refresh_token tok.json)
+```
+
+Three seconds after the group removal:
+
+| Check | Before | After | Meaning |
+|---|---|---|---|
+| `GET /userinfo` with the old access token | `200` | **`401`** | Keycloak-side checks see the disabled account |
+| `POST /token/introspect` | `"active": true` | **`"active": false`** | So does introspection |
+| `POST /token` with `grant_type=refresh_token` | new token | **`invalid_grant: User disabled`** | No new tokens |
+| `GET /admin/…/users/{id}/role-mappings/realm` | `crm-admin`, `sales-rep` | **`default-roles-demo`** | Roles are gone |
+| `GET /admin/…/users/{id}/sessions` | `1` | **`1`** | The session is still there |
+| Local JWT verification of the old access token | valid | **valid** | So is the token |
+
+The last two rows are the finding. The session record survives, and so does the token that
+session issued. Validate it the way a resource server does — signature against the realm's
+JWKS, plus `exp`:
+
+```python
+import time, jwt
+from jwt import PyJWKClient
+
+at = open("at.txt").read()
+key = PyJWKClient("http://localhost:8080/realms/demo/protocol/openid-connect/certs") \
+        .get_signing_key_from_jwt(at)
+claims = jwt.decode(at, key.key, algorithms=["RS256"], audience="api")
+print("signature OK, not expired")
+print("roles in token:", claims["realm_access"]["roles"])
+print("seconds of validity remaining:", claims["exp"] - int(time.time()))
+```
+
+```
+signature OK, not expired
+roles in token: ['crm-admin', 'offline_access', 'sales-rep', 'uma_authorization', 'default-roles-demo']
+seconds of validity remaining: 278
+```
+
+:::danger An offboarded user keeps their access token until it expires
+
+Every service that validates tokens the cheap way — verify the RS256 signature against the
+realm's JWKS, check `exp`, read `realm_access.roles` — will accept the leaver's token, with
+both revoked roles in it, for the remainder of the access token lifespan. On a default realm
+that is **300 seconds**. Nine and a half minutes after the workflow completed, the user's
+session was still listed by the admin API.
+
+There is no workflow step that ends a session. The fifteen steps on 26.7.4 are
+`add-required-action`, `remove-required-action`, `grant-role`, `revoke-role`, `join-group`,
+`leave-group`, `set-user-attribute`, `remove-user-attribute`, `notify-user`, `unlink-user`,
+`disable-user`, `delete-user`, `restart`, `disable-client` and `delete-client`. None of them
+touches sessions.
+
+:::
+
+Closing the window takes one admin API call, which is *not* something a workflow can make:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H "Authorization: Bearer $(adm)" \
+  http://localhost:8080/admin/realms/demo/users/$USER_ID/logout
+```
+
+```
+204
+```
+
+Sessions drop to `0`, and the user's `notBefore` is stamped with the current epoch second —
+`1790584251` in this run — which is the revocation marker adapters and introspection consult.
+So there are three ways to make automated offboarding immediate, and you need one of them:
+
+1. **Call the logout endpoint from whatever removes the group membership.** If your HR
+   integration or joiner-mover-leaver script triggers the workflow, it can make the second call
+   itself. Simplest, and the one to reach for first.
+2. **Listen for the workflow provider events** (`WorkflowStepExecutedEvent` and friends) from an
+   extension and log the user out when `disable-user` completes. This is the only option that
+   keeps everything inside Keycloak, and it means writing and deploying an SPI.
+3. **Shorten the access token lifespan** so the residual window is bounded by something you
+   chose. Sixty seconds instead of three hundred turns a five-minute exposure into a
+   one-minute one, at the cost of five times the refresh traffic. See
+   [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) for what else
+   that setting drags along with it.
+
+What does *not* work is relying on the resource server to notice. It has no reason to ask.
+
+## 6. Add retention, then discover it deletes rehires
+
+Retention policy usually wants the account gone eventually and the record readable until then.
+`delete-user` with an `after` expresses exactly that:
+
+```yaml
+steps:
+  - uses: revoke-role
+    with:
+      role: [sales-rep, crm-admin]
+  - uses: disable-user
+  - uses: delete-user
+    after: 30d
+```
+
+Substitute `60s` for `30d` to watch it. Immediately after the group removal the scheduled
+endpoint shows the parked step:
+
+```bash
+curl -s "http://localhost:8080/admin/realms/demo/workflows/scheduled/$USER_ID" \
+  -H "Authorization: Bearer $(adm)" -H 'Accept: application/json' | jq -c '.[0].steps'
+```
+
+```json
+[{"uses":"revoke-role","status":"COMPLETED"},
+ {"uses":"disable-user","status":"COMPLETED"},
+ {"uses":"delete-user","after":"60s","scheduled-at":1790583799087,"status":"PENDING"}]
+```
+
+Now the case every real directory hits: the person comes back, or was removed from the group by
+mistake. With the workflow exactly as written above, group membership restored and the account
+re-enabled seven seconds after the removal:
+
+```
+08:24:47,353 Workflow 'Leaver no condition' activated for resource 5eb52869-…
+08:25:53,466 Deleting user sam (5eb52869-…)
+08:25:53,648 Workflow 'Leaver no condition' completed for resource 5eb52869-…
+```
+
+```
+08:25:51 sam GET=200
+08:26:02 sam GET=404
+```
+
+**The rehired, re-enabled, back-in-the-group user was deleted 66 seconds after the original
+removal.** The parked step does not care what happened in between; nothing warns you, and the
+account, its credentials and its federated links are gone.
+
+The fix is one line, and it is the reason the `if` in the target workflow exists:
+
+```yaml
+if: not is-member-of(/Employees)
+```
+
+The same test with that line present, on a different user:
+
+```
+08:22:19,070 Workflow 'Leaver with retention' activated for resource 84e9e0df-…
+08:23:23,460 Resource 84e9e0df-… is no longer eligible for workflow 7842b272-….
+             Cancelling execution of the workflow.
+```
+
+The user still exists, is enabled, and is back in `/Employees`. The scheduled endpoint returns
+`[]`.
+
+:::tip The condition is re-evaluated when a scheduled step comes due
+
+This is not the same as "the condition is checked when the workflow starts". At the moment the
+parked step became due, the engine re-tested `if` against the user's *current* state, found it
+false, and cancelled the whole execution.
+
+Note the timing: the rehire happened at `08:22:24` and the cancellation was logged at
+`08:23:23`. The execution stayed `PENDING` for the intervening minute, across six runner
+ticks. Do not read a pending step as proof the deletion is still coming.
+
+The rule that follows: **every workflow with a destructive scheduled step needs an `if` that
+the undo makes false.** For an offboarding chain the natural one is group membership, because
+it is also the trigger.
+
+:::
+
+## 7. Sweep up the accounts nobody removed
+
+Event-driven offboarding only fires when someone performs the event. Contractors whose manager
+forgot, accounts created by hand, users orphaned by a half-finished migration — none of them
+generate a leaver event, ever. That is what `schedule:` is for. A scheduled workflow needs a
+condition its own steps make false, or it re-selects the same `batch-size` users on every sweep
+and never reaches the rest of the realm. A marker attribute is the usual terminator:
+
+```yaml
+name: Sweep
+schedule:
+  after: 20s
+  batch-size: 2
+if: not has-user-attribute(offboarded)
+steps:
+  - uses: set-user-attribute
+    with:
+      offboarded: "yes"
+  - uses: disable-user
+  - uses: delete-user
+    after: 60s
+```
+
+Five users, `batch-size: 2`. The selection half works exactly as intended — two users
+disabled per sweep, all five processed in three sweeps, none processed twice:
+
+```
+08:41:11  alfa false  bravo false  charlie true   delta true   echo true
+08:41:26  alfa false  bravo false  charlie false  delta false  echo true
+08:41:41  alfa false  bravo false  charlie false  delta false  echo false
+```
+
+And then nothing is ever deleted:
+
+```
+$ docker logs kc | grep -c "no longer eligible"
+5
+$ docker logs kc | grep -c "Deleting user"
+0
+```
+
+:::danger A self-terminating sweep cancels its own scheduled steps
+
+The marker does two jobs and they contradict each other. It drops the user out of the *next*
+sweep's selection, which is what you wanted. It also makes `if` false for the execution already
+running, so when `delete-user` comes due the engine re-tests the condition, finds the user no
+longer eligible, and cancels the execution — the same mechanic that saves a rehire in step 6,
+firing here against you.
+
+All five users were disabled, marked, and quietly un-queued. It looks like it is working — users
+processed, sweeps advancing, no errors, no warnings — and retention never happens.
+
+**A scheduled workflow cannot both self-terminate and carry a delayed step.** Split it in two.
+
+:::
+
+The split that works, tested end to end. The first workflow selects and acts immediately, so it
+has no scheduled step to cancel:
+
+```yaml
+name: Flag and disable unassigned accounts
+schedule:
+  after: 1d
+  batch-size: 100
+if: not is-member-of(/Employees) and not has-user-attribute(offboarded)
+steps:
+  - uses: set-user-attribute
+    with:
+      offboarded: "yes"
+  - uses: disable-user
+```
+
+The second picks up whatever the first flagged and holds the retention delay. Its condition is
+true for the whole retention period, so nothing cancels it — except a rehire, which is the one
+thing that should:
+
+```yaml
+name: Delete flagged accounts after retention
+schedule:
+  after: 1d
+  batch-size: 100
+if: has-user-attribute(offboarded) and not is-member-of(/Employees)
+steps:
+  - uses: delete-user
+    after: 30d
+```
+
+Three users outside the group, retention shortened to `60s`, and one of them put back in the
+group and re-enabled 18 seconds after being flagged. Both outcomes landed in the same runner
+tick:
+
+```
+08:46:02,836 Resource 5789bf99-… is no longer eligible for workflow b2ba9430-….
+             Cancelling execution of the workflow.
+08:46:02,853 Deleting user oscar (de32b713-…)
+08:46:02,861 Deleting user nadia (139502f2-…)
+```
+
+The rehire survives; the two real leavers are gone.
+
+One more workflow is needed to make that repeatable, and leaving it out is a nasty failure. The
+rehired user still carries `offboarded=yes`. If she leaves again, the first workflow skips her —
+her marker is already set — while the second still matches, so she is deleted at the retention
+delay without ever being disabled first. Clear the marker when someone comes back:
+
+```yaml
+name: Clear the offboarding flag on rejoin
+on: user-group-membership-added(/Employees)
+steps:
+  - uses: remove-user-attribute
+    with:
+      attribute: offboarded
+```
+
+```
+Workflow 'Clear the offboarding flag on rejoin' activated for resource 5789bf99-…
+Removing attribute offboarded from user 5789bf99-…
+```
+
+With all three in place, a leave-and-rejoin cycle leaves the account enabled, in the group, and
+unmarked — ready to be offboarded properly the next time.
+
+:::warning Your marker will look like it was never written
+
+On a realm with the default user profile — `Unmanaged Attributes: Disabled` — the admin
+representation hides it. `GET /admin/realms/demo/users/{id}` returned `"attributes": null` on a
+user the engine had just written `offboarded=yes` to, and the Admin Console shows nothing
+either. The attribute is stored and conditions match on it; only the read-back is filtered.
+
+So do not debug a sweep by looking for the marker on the user. Check the engine's log line
+(`Setting attribute offboarded to user …`) or test the condition by triggering a workflow that
+depends on it. If you want to see markers in the console, declare the attribute in *Realm
+settings → User profile*.
+
+:::
+
+## Troubleshooting
+
+| Symptom | Cause | Check |
+|---|---|---|
+| Nothing happens when the upstream directory deactivates a user | There is no event for "user disabled" or "user updated" | `jq '.providers."workflow-event".providers\|keys'` on `serverinfo`. Move the integration to group membership |
+| Roles revoked, account disabled, user still calling your API | The access token outlives the offboarding | Decode the token: `exp` is up to 300s after `iat`. Call the admin logout endpoint |
+| A returning employee's account disappeared | A parked `delete-user` with no `if` to cancel it | `Deleting user …` in the log with no preceding `no longer eligible` line |
+| Scheduled deletion still `PENDING` long after the rehire | The condition is only re-tested when the step comes due | Expected. Look for the cancellation at the due time, not at the rehire |
+| Sweep keeps processing the same handful of users | No condition that the steps make false | Compare distinct resource ids across sweeps: `docker logs kc \| grep activated \| grep -oE 'resource [0-9a-f-]+' \| sort \| uniq -c` |
+| Sweep disables accounts but never deletes them | Its own marker step made `if` false and cancelled the parked step | `grep -c "no longer eligible"` against `grep -c "Deleting user"`. Split the sweep in two |
+| `400 Cannot change the number or order of steps` | Parked executions exist for this workflow | Wait them out, or take the list of affected users *before* deleting the workflow — deleting it abandons them silently |
+| `Account is not fully set up` on the test login | `VERIFY_PROFILE`, not the password | The user needs `firstName` and `lastName`, and no leftover `UPDATE_PASSWORD` |
+
+## Next steps
+
+- [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+  — the engine, the runner interval, and the four ways a step reports success without doing
+  anything.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — the
+  other half of lifecycle automation, and where the group membership these workflows key on
+  should come from.
+- [SCIM explained: what it is and when you need it](/blog/scim-explained/) — why upstream
+  systems deactivate rather than delete, and what that costs you here.
+- [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) — the setting
+  that decides how long the residual access window in step 5 lasts.
+- [Keycloak as an IAM system](/docs/keycloak/iam/) — where lifecycle management sits relative to
+  authentication and authorization.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Understanding common use cases](https://www.keycloak.org/docs/latest/server_admin/index.html#_understanding_common_use_cases_),
+  [Defining steps](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_steps_),
+  [Defining conditions](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_conditions_)
+  and
+  [Scheduling workflows](https://www.keycloak.org/docs/latest/server_admin/index.html#_scheduling_workflows_).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
