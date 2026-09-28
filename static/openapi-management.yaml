@@ -1509,6 +1509,8 @@ paths:
           description: "Invalid endpoint, token or unsupported setting"
         "401":
           description: Insufficient permissions
+        "403":
+          description: Telemetry export is not available on this cluster's tier
         "503":
           description: Saved but could not be published
     parameters:
@@ -1538,6 +1540,8 @@ paths:
           description: Validation outcome
         "401":
           description: Insufficient permissions
+        "403":
+          description: Telemetry export is not available on this cluster's tier
     parameters:
     - name: id
       in: path
