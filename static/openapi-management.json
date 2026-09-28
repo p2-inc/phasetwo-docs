@@ -4630,14 +4630,6 @@
           },
           "tokenSet": {
             "type": "boolean"
-          },
-          "lastDeliveryAt": {
-            "format": "date",
-            "type": "string",
-            "example": "2022-03-10"
-          },
-          "lastError": {
-            "type": "string"
           }
         }
       },
