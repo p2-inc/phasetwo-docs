@@ -67,7 +67,11 @@ module.exports = {
       type: "category",
       label: "Workflows",
       link: { type: "generated-index" },
-      items: ["workflows/getting-started", "workflows/user-onboarding"],
+      items: [
+        "workflows/getting-started",
+        "workflows/user-onboarding",
+        "workflows/user-offboarding",
+      ],
     },
   ],
 };

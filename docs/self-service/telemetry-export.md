@@ -7,10 +7,12 @@ Stream your dedicated cluster's Keycloak logs and authentication events to **you
 
 This is for teams who already run an observability stack and want Keycloak data alongside everything else — correlated with application traces, retained under their own policy, queried with their own tools.
 
-**Available on Enterprise.** Your logs and events keep working exactly as they are — upgrading adds the ability to stream them to a destination you operate. [Compare plans](/pricing) or change your plan from **Clusters > Cluster > Config > Subscription**.
+**Available on Enterprise, with nothing to request.** Open **Logs → Export** on any Enterprise cluster and configure it yourself.
+
+On Starter or Premium your logs and events keep working exactly as they are — upgrading adds the ability to stream them to a destination you operate. [Compare plans](/pricing) or change your plan from **Clusters > Cluster > Config > Subscription**. If you want to evaluate it before moving tier, email [support@phasetwo.io](mailto:support@phasetwo.io) and ask.
 
 :::caution Experimental
-Telemetry Export is **experimental and unsupported**. The record shape, the attribute names, and the configuration options may change in a backwards-incompatible way. Do not build production alerting or compliance reporting on it yet, and tell us at [support@phasetwo.io](mailto:support@phasetwo.io) if you want to try it — it is not enabled on every account, even on Enterprise.
+Telemetry Export is **experimental and unsupported**. The record shape, the attribute names, and the configuration options may change in a backwards-incompatible way. Do not build production alerting or compliance reporting on it yet — and if you do take it into production, tell us at [support@phasetwo.io](mailto:support@phasetwo.io) so we can warn you before anything changes.
 :::
 
 ## What you need

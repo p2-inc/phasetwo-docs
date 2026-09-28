@@ -1,1 +1,1 @@
-{"responses":{"200":{"description":"Validation outcome"},"401":{"description":"Insufficient permissions"}}}
+{"responses":{"200":{"description":"Validation outcome"},"401":{"description":"Insufficient permissions"},"403":{"description":"Telemetry export is not available on this cluster's tier"}}}
