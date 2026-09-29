@@ -194,7 +194,7 @@ function DuoSection({ onContact }) {
             <p style={{ color: "var(--ink-2)", fontSize: 14.5, lineHeight: 1.65 }}>Multi-region, high-availability Keycloak with 100+ extensions. Simple, cost-conscious, and customizable.</p>
             <ul>
               <li><Icon name="check-circle-2" /> Up to 10,000+ concurrent users</li>
-              <li><Icon name="check-circle-2" /> Up to 99.95% uptime SLA &amp; SOC 2</li>
+              <li><Icon name="check-circle-2" /> Up to 99.99% uptime SLA &amp; SOC 2</li>
               <li><Icon name="check-circle-2" /> Custom domains &amp; branding</li>
               <li><Icon name="check-circle-2" /> Dedicated clusters from $149/month</li>
             </ul>

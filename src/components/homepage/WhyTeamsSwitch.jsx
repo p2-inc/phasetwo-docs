@@ -4,7 +4,7 @@ const ITEMS = [
   {
     icon: "lucide:wallet",
     title: "Recover your identity budget",
-    body: "Most IdPs charge per user in your system — whether they log in or not. Phase Two charges by concurrent active sessions, so your bill doesn't balloon with sign-ups. Predictable infrastructure pricing, not a seat tax.",
+    body: "Most IdPs charge per user in your system — whether they log in or not. Phase Two gives you unlimited users on every tier and prices the cluster, not the seats, so your bill doesn't balloon with sign-ups. Predictable infrastructure pricing, not a seat tax.",
     stat: "80%",
     statLabel: "avg. cost reduction",
     tone: "primary",

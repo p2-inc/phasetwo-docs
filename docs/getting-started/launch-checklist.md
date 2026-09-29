@@ -28,7 +28,7 @@ Our compliance posture, including completed penetration tests, is published at [
 - **Region confirmed.** A cluster's [region](../self-service/regions.md) is set at creation and cannot be changed later. Check it against any data residency requirement before you launch.
 - **Custom domain live.** Add your domain, complete the DNS validation and vanity records, and confirm the certificate has been issued. See [Custom Domains](../self-service/custom-domains.md).
 - **Applications point at the final hostname.** Moving to a custom domain changes your token issuer, so applications validating the `iss` claim will reject tokens issued under the old hostname. Cut over before go-live rather than after.
-- **Admin access restricted.** IP restrictions are the mechanism for limiting Admin Console access on a hosted cluster; there is no VPN option. Available on Premium and Enterprise — see [Cluster Restrictions](../self-service/restrictions.md).
+- **Admin access restricted.** IP restrictions are the self-service mechanism for limiting Admin Console access on a hosted cluster, available on Premium and Enterprise — see [Cluster Restrictions](../self-service/restrictions.md). To keep authentication traffic off the public internet altogether, [private network connectivity](../self-service/restrictions.md#private-network-connectivity) is a custom add-on on Enterprise and Custom plans.
 - **Security headers reviewed.** Check the realm's Security Defenses settings — Content-Security-Policy, X-Frame-Options, and referrer policy — against how your applications embed or link to login pages.
 
 ## Realms and clients

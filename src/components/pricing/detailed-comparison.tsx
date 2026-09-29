@@ -10,10 +10,9 @@ type TierValue = boolean | string | ReactNode;
 export type Feature = {
   name: string;
   description?: string;
-  externalLink?: {
-    href: string;
-    icon: string;
-  };
+  // Source repo, registry, or documentation page. Rendered in order, so put the
+  // repo first where a feature has both.
+  links?: { href: string; icon: string; label: string }[];
   tiers: Record<TierId, TierValue>;
 };
 
@@ -62,20 +61,19 @@ function FeatureLabel({ feature }: { feature: Feature }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       <span>{feature.name}</span>
-      {feature.externalLink && (
+      {feature.links?.map((link) => (
         <a
-          href={feature.externalLink.href}
+          key={link.href}
+          href={link.href}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center text-gray-400 hover:text-p2blue-400"
+          title={link.label}
         >
-          <Icon
-            icon={feature.externalLink.icon}
-            className="size-4"
-            aria-hidden="true"
-          />
+          <Icon icon={link.icon} className="size-4" aria-hidden="true" />
+          <span className="sr-only">{link.label}</span>
         </a>
-      )}
+      ))}
       {feature.description && (
         <Tooltip.Provider delayDuration={300}>
           <Tooltip.Root>

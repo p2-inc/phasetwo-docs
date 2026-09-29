@@ -45,7 +45,10 @@ export default function ValueHero({ onDemoClick }) {
             </p>
 
             <div className="mb-10 flex flex-wrap items-center gap-3">
-              <button className="btnPrimary btnSupport gap-2" onClick={onDemoClick}>
+              <button
+                className="btnPrimary btnSupport gap-2"
+                onClick={onDemoClick}
+              >
                 <InlineIcon icon="lucide:calendar" className="h-4 w-4" />
                 Get a Demo
               </button>
@@ -94,12 +97,11 @@ export default function ValueHero({ onDemoClick }) {
                   icon="lucide:activity"
                   className="h-4 w-4 text-[#E14CC2]"
                 />
-                Billed by{" "}
                 <span className="group relative cursor-help underline decoration-gray-600 decoration-dotted underline-offset-2">
-                  concurrent sessions
+                  Unlimited users
                   <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-52 -translate-x-1/2 rounded-lg border border-white/[0.12] bg-[#1a1a1a] px-3 py-2 text-center text-[11px] leading-relaxed text-gray-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                    Users actively logged in with a valid session — not every
-                    user registered in your system
+                    We never meter or bill on user count. Clusters are priced
+                    per cluster and sized for authentication load
                   </span>
                 </span>
               </div>
@@ -108,9 +110,7 @@ export default function ValueHero({ onDemoClick }) {
 
           {/* RIGHT: cost comparison chart */}
           <div className="lg:col-span-5">
-            <AnnualSpendChart
-              methodologyHref="/product/open-source-vs-commercial-offering/"
-            />
+            <AnnualSpendChart methodologyHref="/product/open-source-vs-commercial-offering/" />
           </div>
         </div>
       </div>
