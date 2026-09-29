@@ -1,0 +1,91 @@
+---
+id: "2026-09"
+title: "Phase Two: September 2026"
+description: "Keycloak closed 26 CVEs across 26.7.3 and 26.7.4 in September, two of them unauthenticated DoS. Plus six Phase Two extension releases and Telemetry Export."
+keywords:
+  - keycloak news september 2026
+  - keycloak 26.7.4 cve
+  - phase two release notes
+  - keycloak security updates
+email_subject: "Two Keycloak releases, 26 CVEs, two unauthenticated DoS"
+email_preheader: "Upgrade this week if your login or SAML endpoints face the internet. Plus six extension releases and a management API."
+covers_from: "2026-09-01T00:00:00Z"
+covers_through: "2026-09-29T09:22:01Z"
+---
+
+# Phase Two: September 2026
+
+Keycloak shipped two patch releases in September and closed twenty-six CVEs between them.
+Read **26.7.4** first: upgrade this week if your login or SAML endpoints face the internet.
+
+## Official Keycloak
+
+- **🔐 Keycloak 26.7.4**: six CVEs, five rated high — upgrade this week if your login or
+  SAML endpoints face the internet, because two are unauthenticated DoS.
+  ([our write-up](/blog/keycloak-2674-released/))
+- **🔐 Keycloak 26.7.3**: twenty CVEs. Not an emergency, but upgrade this week if you use
+  external token exchange or fine-grained admin permissions v2 — and 26.4–26.6 have no
+  patch yet. ([our write-up](/blog/keycloak-2673-released/))
+
+## Open source releases
+
+- **🏛️ Organizations v0.182**: closes an information leak about existing users, and stops
+  the membership paths loading the full member collection on large populations. ([docs](/extensions/organizations/))
+- **🔗 Magic links v0.85**: new account-activation and activation-or-reset email
+  authenticators, failed email OTP attempts now count towards brute force protection, and
+  passkeys work alongside Cloudflare Turnstile. ([docs](/extensions/magic-link/))
+- **🧙 IdP wizard v0.56**: a rebuilt wizard v2 with new SAML, OIDC and OAuth wizards, Okta and
+  Entra ID SCIM wizards, selected per realm at runtime and still defaulting to v1 during the
+  staged rollout. ([docs](/extensions/idp-wizard/))
+- **🎨 Themes v0.80**: email template overrides now work inside the theme's branded shell,
+  and the OrgMember route no longer requires the `view-clients` role.
+  ([docs](/extensions/themes/))
+- **🔑 KMS key provider v0.1**: first release — realm signing keys are wrapped by a cloud
+  KMS, so the database holds ciphertext instead of a PEM private key. ([docs](/docs/security/))
+- **⚛️ Atomic auth flows v0.2**: first tagged release of the extension built with Gusto — it
+  imports flows, configs and bindings in one transaction and rejects an identical re-import
+  rather than duplicating it. ([read more](/blog/keycloak-atomic-auth-flows/))
+
+## Phase Two hosting
+
+- **🖥️ Custom domains now serve app association files**: upload
+  `apple-app-site-association` and `assetlinks.json` from the dashboard, and mobile apps can
+  autofill saved passwords — and share passkeys — with your Keycloak login page.
+  ([read more](/blog/app-association-custom-domains/))
+- **🔎 Telemetry Export ships logs and events to your own OTLP endpoint**: point an
+  Enterprise cluster at your collector and its logs and authentication events arrive in
+  whatever you already run. Experimental, on request.
+  ([read more](/blog/telemetry-export-experimental/))
+- **🖥️ Every console action is now an API call**: the Management API, an API credential you
+  mint yourself, and a generated Terraform provider — all three experimental, so point them
+  at test environments while the surface settles.
+  ([read more](/blog/phasetwo-management-api/))
+
+## New reading
+
+- **📖 [Keycloak LTS: the security backports nobody publishes](/blog/keycloak-lts-backport-images/)**:
+  upstream backports security fixes to 26.4 and 26.6 and then builds no image from those
+  tags, so we build them at `quay.io/phasetwo/keycloak`.
+- **📖 [Keycloak Skills and the Phase Two MCP server](/blog/keycloak-skills-mcp-launch/)**: an
+  open-source Agent Skills plugin and 158 admin tools, so an agent configures a realm from
+  our scar tissue, not from guesses.
+- **📖 [The Keycloak production readiness checklist](/blog/keycloak-production-checklist/)**:
+  the two settings that block startup, the eleven defaults that are wrong for production,
+  and the probe your load balancer gets wrong.
+- **📖 Four error messages, decoded**: a tested map from each string to what actually caused
+  it. ([redirect_uri](/blog/keycloak-invalid-redirect-uri/) ·
+  [invalid_grant](/blog/keycloak-invalid-grant/) ·
+  [CORS](/blog/keycloak-cors-errors/) ·
+  [403](/blog/keycloak-403-forbidden/))
+- **📖 SCIM and JWKS, explained**: when you need SCIM instead of SSO alone, and what every
+  field in a JWKS means once keys start rotating.
+  ([SCIM](/blog/scim-explained/) · [JWKS](/blog/jwks-explained/))
+- **📖 Seventeen new tutorials**: getting started, authentication flows, passkeys, TOTP,
+  SCIM, workflows, session timeouts and token validation, all on plain
+  open-source Keycloak. ([browse them](/tutorials/))
+
+---
+
+Running Keycloak yourself and want the upgrades handled?
+[Phase Two hosts it](/hosting/dedicated-clusters/).
+Already self-hosting and want a number to call? [We support it](/support/).
