@@ -275,12 +275,19 @@ const Sections: {
       {
         name: "Private network connectivity (2)",
         description:
-          "Connect your backend infrastructure to your Keycloak cluster over a private network connection, keeping authentication traffic off the public internet entirely.",
+          "Connect your backend infrastructure to your Keycloak cluster over a private network link, keeping authentication traffic off the public internet entirely. A custom add-on: not self-service, scoped with our team, and available for an additional fee.",
+        links: [
+          {
+            href: "/docs/self-service/restrictions#private-network-connectivity",
+            icon: "mdi:book-open-variant",
+            label: "Documentation",
+          },
+        ],
         tiers: {
           starter: false,
           premium: false,
           enterprise: "Add-on",
-          custom: true,
+          custom: "Add-on",
         },
       },
       {
