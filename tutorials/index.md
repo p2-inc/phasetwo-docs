@@ -71,9 +71,10 @@ Filtering, pagination and schema mapping are next. *(Coming soon.)*
 **Automating the user lifecycle** — joiners, movers and leavers without a script on a cron:
 
 1. [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
-2. [Automate Keycloak offboarding and deprovisioning](/tutorials/workflows/user-offboarding/)
+2. [Automate user onboarding with a Keycloak workflow](/tutorials/workflows/user-onboarding/)
+3. [Automate Keycloak offboarding and deprovisioning](/tutorials/workflows/user-offboarding/)
 
-Onboarding and inactivity policies build on the same engine. *(Coming soon.)*
+Inactivity policies build on the same engine. *(Coming soon.)*
 
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 

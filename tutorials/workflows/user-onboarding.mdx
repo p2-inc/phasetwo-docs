@@ -1,0 +1,520 @@
+---
+id: user-onboarding
+title: Automate User Onboarding with a Keycloak Workflow
+description: Provision, welcome, chase and expire a new Keycloak user from YAML — and cancel the clock when they actually sign in. Tested command-by-command on 26.7.4.
+keywords:
+  - keycloak automate user onboarding
+  - keycloak onboarding workflow
+  - keycloak user provisioning automation
+  - keycloak joiner mover leaver
+  - keycloak welcome email
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.7.4"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Keycloak 26.6 or later, where workflows are on by default
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Automate User Onboarding with a Keycloak Workflow
+
+Automating onboarding in Keycloak takes **three workflows, not one**:
+
+1. **Provision** — on `user-created`, put the account in its group, grant its role, attach a
+   required action, and send the welcome email. All immediate steps.
+2. **Deadline** — also on `user-created`, but guarded by `if:` and made of scheduled steps: a
+   reminder at day 3, `disable-user` at day 7.
+3. **Mark activated** — on `user-authenticated`, set one attribute that makes the deadline
+   workflow's `if:` false, so the clock stops the moment the person actually signs in.
+
+Onboarding is the use case the [Keycloak admin guide leads with](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_workflows_),
+and its example stops at step 1. Everything interesting is in the other two: what happens to
+the people who never log in, and how you stop chasing the ones who do. This page builds all
+three, runs them, and shows the log and the mailbox at every stage.
+
+:::info Tested against
+
+Keycloak **26.7.4** on `start-dev` with an H2 dev database, plus a Mailpit container as the
+SMTP sink. Every log line, HTTP status and email body below was copied from a real run on
+2026-09-28. If you have not met workflows before, read
+[Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+first — this page assumes the engine, the runner interval and the YAML shape.
+
+:::
+
+## 1. Know which event your users actually arrive on
+
+`user-created` is the obvious trigger and it is usually the right one, but what fires
+*alongside* it depends on how the account is made. Measured by installing one probe workflow
+per event, each writing a distinct attribute, then creating a user five ways:
+
+| How the account arrives | Events fired |
+|---|---|
+| `POST /admin/realms/{realm}/users` (admin console, `kcadm create users`) | `user-created` |
+| Same call with `"groups": ["/Employees"]` in the body | `user-created` **and** `user-group-membership-added` |
+| Same call with `"realmRoles": ["employee"]` in the body | `user-created` only — **and the role is never granted** |
+| Self-registration on the login page | `user-created` **and** `user-authenticated`, in the same request |
+| A role added afterwards via `role-mappings/realm` | `user-role-granted` |
+
+Two of those rows will cost you an afternoon. The `realmRoles` row is not a workflow
+quirk — the admin API silently ignores that field on create, so the user ends up with
+`["default-roles-acme"]` and no event fires. And the self-registration row means a
+self-registered user is *already authenticated* by the time your onboarding steps run, which
+matters in section 5.
+
+There is one more event, `user-federated-identity-added`, for accounts that arrive by
+identity-provider brokering. We did not measure its ordering relative to `user-created` on
+this build, so check it on yours before you make a chain depend on it.
+
+## 2. Build the lab
+
+Two containers on one network — Keycloak, and a mail sink so you can read what the workflow
+actually sent. The SPI option turns the scheduled-step runner down from its 12-hour default
+to 10 seconds, which is the only way to watch a deadline expire in a lunch break:
+
+```bash
+docker network create kcnet
+docker run -d --name mailpit --network kcnet -p 127.0.0.1:8025:8025 axllent/mailpit:latest
+docker run -d --name kc --network kcnet -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.7.4 start-dev \
+  --spi-events-listener--workflow-event-listener--step-runner-task-interval=10s \
+  --log-level=info,org.keycloak.models.workflow:debug
+```
+
+Then a realm with somewhere to put people, and an SMTP server pointing at Mailpit. **Without
+realm SMTP, every `notify-user` step logs an error and reports success** — so configure it
+before you write a workflow that depends on it.
+
+```bash
+alias kc='docker exec kc /opt/keycloak/bin/kcadm.sh'
+kc config credentials --server http://localhost:8080 --realm master --user admin --password admin
+
+kc create realms -s realm=acme -s enabled=true -s displayName="Acme Corp"
+kc create roles  -r acme -s name=employee
+kc create groups -r acme -s name=Employees
+kc update realms/acme \
+  -s 'smtpServer.host=mailpit' -s 'smtpServer.port=1025' \
+  -s 'smtpServer.from=noreply@acme.example' -s 'smtpServer.fromDisplayName=Acme IT' \
+  -s 'smtpServer.auth=false' -s 'smtpServer.ssl=false' -s 'smtpServer.starttls=false'
+```
+
+One more piece of setup that is easy to miss. The deadline workflow keys off a user attribute
+that is not declared in the realm's user profile, and Keycloak drops undeclared attributes
+silently, so the condition would never match anything:
+
+```bash
+kc update users/profile -r acme -s 'unmanagedAttributePolicy=ADMIN_EDIT'
+```
+
+`ADMIN_EDIT` rather than `ENABLED` is deliberate. The `activated` attribute is about to gate
+whether an account gets disabled; if end users can write it, they can opt themselves out.
+
+## 3. The three workflows
+
+Save these as three files. Durations are written for production; the lab substitution is
+noted below.
+
+**`provision.yaml`** — everything that must happen immediately, with no `if:` at all:
+
+```yaml
+name: Provision new employee
+on: user-created
+steps:
+  - uses: join-group
+    with:
+      group: /Employees
+  - uses: grant-role
+    with:
+      role: employee
+  - uses: add-required-action
+    with:
+      action: UPDATE_PASSWORD
+  - uses: notify-user
+    with:
+      subject: Your Acme Corp account is ready
+      message: |
+        <p>Hi ${user.firstName}, welcome to ${realm.displayName}.</p>
+        <p>Your username is <b>${user.username}</b>. Sign in at
+        <a href="https://acme.example/account">acme.example/account</a> to set your password.</p>
+```
+
+**`deadline.yaml`** — the chase-and-expire ladder, and the only one with a condition:
+
+```yaml
+name: Activation deadline
+on: user-created
+if: not has-user-attribute(activated)
+steps:
+  - uses: notify-user
+    after: 3d
+    with:
+      subject: Finish setting up your Acme Corp account
+      message: |
+        <p>Hi ${user.firstName}, you have not signed in yet.</p>
+        <p>Your account will be disabled in ${workflow.daysUntilNextStep} days.</p>
+  - uses: disable-user
+    after: 7d
+```
+
+**`activated.yaml`** — one step, and the reason the other two can be separate:
+
+```yaml
+name: Mark account activated
+on: user-authenticated
+if: not has-user-attribute(activated)
+steps:
+  - uses: set-user-attribute
+    with:
+      activated: "true"
+```
+
+The `if:` on this last one is not decoration. `user-authenticated` fires on **every** login
+for **every** user forever; the condition means an execution is only created the first time,
+which is the difference between one row in the state table per person and one per login.
+
+Post them. The endpoint takes YAML directly, which is the form you want in version control:
+
+```bash
+TOKEN=$(curl -s -d client_id=admin-cli -d username=admin -d password=admin \
+  -d grant_type=password \
+  http://localhost:8080/realms/master/protocol/openid-connect/token | jq -r .access_token)
+
+for f in provision.yaml deadline.yaml activated.yaml; do
+  curl -s -o /dev/null -w "$f %{http_code}\n" \
+    -X POST http://localhost:8080/admin/realms/acme/workflows \
+    -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/yaml' \
+    --data-binary @"$f"
+done
+```
+
+```
+provision.yaml 201
+deadline.yaml 201
+activated.yaml 201
+```
+
+:::tip Running it in under two minutes
+
+To watch the ladder finish, edit `deadline.yaml` to `after: 30s` and `after: 60s` before
+posting it. Every transcript below is from that compressed run; the only visible difference
+is that `${workflow.daysUntilNextStep}` renders `0` instead of `3`, because it reports whole
+days to the next scheduled step.
+
+:::
+
+## 4. Onboard two people and watch them diverge
+
+```bash
+mk() { curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  http://localhost:8080/admin/realms/acme/users \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d "$1"; }
+
+mk '{"username":"oren.tadesse","enabled":true,"email":"oren@acme.example",
+     "firstName":"Oren","lastName":"Tadesse",
+     "credentials":[{"type":"password","value":"Passw0rd!23","temporary":false}]}'
+mk '{"username":"petra.nilsson","enabled":true,"email":"petra@acme.example",
+     "firstName":"Petra","lastName":"Nilsson"}'
+```
+
+Both are fully provisioned before the HTTP response to the *next* command comes back:
+
+```bash
+kc get "users/$OID" -r acme --fields username,enabled,requiredActions
+kc get "users/$OID/groups" -r acme --fields path
+kc get "users/$OID/role-mappings/realm" -r acme --fields name
+```
+
+```json
+{ "username": "oren.tadesse", "enabled": true, "requiredActions": [ "UPDATE_PASSWORD" ] }
+[ { "path": "/Employees" } ]
+[ { "name": "default-roles-acme" }, { "name": "employee" } ]
+```
+
+And the deadline is already ticking. The `scheduled` endpoint is the one place that answers
+"what is queued for this person" without reading logs:
+
+```bash
+curl -s "http://localhost:8080/admin/realms/acme/workflows/scheduled/$OID" \
+  -H "Authorization: Bearer $TOKEN" -H 'Accept: application/json' | jq .
+```
+
+```json
+[
+  {
+    "name": "Activation deadline",
+    "steps": [
+      { "uses": "notify-user",  "after": "30s", "status": "PENDING" },
+      { "uses": "disable-user", "after": "60s", "status": "PENDING" }
+    ]
+  }
+]
+```
+
+Note what is *not* in that list. `Provision new employee` has no scheduled steps, so it ran to
+completion in the first pass and disappeared — a workflow made only of immediate steps is
+never visible here.
+
+## 5. Sign one of them in, and watch the clock stop
+
+Oren signs in; Petra never does. The first surprise is that Oren cannot sign in the easy way:
+
+```bash
+curl -s -d client_id=portal -d username=oren.tadesse -d password='Passw0rd!23' \
+  -d grant_type=password \
+  http://localhost:8080/realms/acme/protocol/openid-connect/token
+```
+
+```json
+{"error":"invalid_grant","error_description":"Account is not fully set up"}
+```
+
+That is `add-required-action` doing its job. A required action can only be cleared in the
+browser flow, so a resource-owner password grant is refused until it is. If you script
+acceptance tests against a realm with this workflow in it, that error is why they break.
+
+Through the browser, Oren enters the password, is redirected to the `UPDATE_PASSWORD` screen,
+and sets a new one. **The `activated` attribute appears only after the required action is
+cleared, not when the password is accepted** — we checked between the two steps and the
+attribute was still absent. That makes `user-authenticated` a fair proxy for "finished
+onboarding" rather than merely "typed a password".
+
+```
+07:40:47  Workflow 'Provision new employee' activated for resource b755cfe7… (execution id: 6dd1c981…)
+07:40:47  Adding user b755cfe7… to group /Employees
+07:40:47  Granting role employee to user b755cfe7…
+07:40:47  Adding required action UPDATE_PASSWORD to user b755cfe7…
+07:40:47  Running step notify-user on resource b755cfe7…
+07:40:47  Workflow 'Provision new employee' completed for resource b755cfe7…
+07:40:47  Workflow 'Activation deadline' activated for resource b755cfe7… (execution id: 0a1b5046…)
+07:40:47  Scheduled step notify-user to run in 30s for resource b755cfe7…
+07:41:01  Workflow 'Mark account activated' activated for resource b755cfe7…
+07:41:01  Setting attribute activated to user b755cfe7…
+07:41:25  Resource b755cfe7… is no longer eligible for workflow f19218f6…. Cancelling execution of the workflow.
+```
+
+That last line is the whole trick. **`if:` is re-evaluated when a scheduled step comes due**,
+not only when the workflow is triggered — so a condition that your own steps or another
+workflow can falsify is a cancel button. Two details worth writing down:
+
+- The cancellation happens at the **next resume**, not at the moment the attribute changes.
+  Oren became ineligible at 07:41:01 and the execution was torn down at 07:41:25, when the
+  reminder came due. On a production runner ticking every 12 hours, a person who signs in an
+  hour before the reminder is due still gets no reminder — but the execution row lives until
+  that tick.
+- The log names the **workflow id**, not its name. Keep the id if you plan to grep for this.
+
+Petra, meanwhile, gets the full ladder:
+
+```
+07:41:25  Running step notify-user on resource 045b2ef7… (execution id: 7bc66b13…)
+07:41:25  Scheduled step disable-user to run in 60s for resource 045b2ef7…
+07:42:35  Disabling user petra.nilsson (045b2ef7…)
+07:42:35  Workflow 'Activation deadline' completed for resource 045b2ef7…
+```
+
+Final state, and three emails in the sink rather than four:
+
+```json
+{ "username": "oren.tadesse",  "enabled": true,  "requiredActions": [],                  "attributes": { "activated": [ "true" ] } }
+{ "username": "petra.nilsson", "enabled": false, "requiredActions": [ "UPDATE_PASSWORD" ], "attributes": null }
+```
+
+| To | Subject |
+|---|---|
+| `oren@acme.example` | Your Acme Corp account is ready |
+| `petra@acme.example` | Your Acme Corp account is ready |
+| `petra@acme.example` | Finish setting up your Acme Corp account |
+
+:::danger Do not put the `if:` on the provisioning workflow
+
+The obvious simplification is one workflow: provisioning steps, then the reminder, then
+`disable-user`, all under `if: not has-user-attribute(activated)`. It works for
+admin-created users and it has a race for self-registered ones.
+
+Self-registration fires `user-created` and `user-authenticated` **in the same request**, and
+the engine dispatches them to different threads. In one measured run the two executions
+interleaved a millisecond apart — `Mark account activated` set the attribute in between
+`join-group` and `grant-role` of the onboarding chain. It did no harm there, because a
+workflow's `if:` is evaluated once at activation and the chain was already running. Had the
+marker thread won by that one millisecond, the merged workflow would have evaluated
+`not has-user-attribute(activated)` as false and **never activated at all**: no group, no
+role, no welcome email, and no log line saying so.
+
+Splitting provisioning (no condition) from the deadline (condition) removes the race. Run
+through the registration form with all three workflows in place and the split behaves: group
+assigned, one welcome email, and the deadline cancelled at the first resume.
+
+:::
+
+## 6. The welcome email is not a template engine
+
+`notify-user` interpolates a fixed, small set of names into `message`. Everything else passes
+through as literal text — or, in one case, throws. Measured by sending one message containing
+all of them:
+
+| Resolves | Passes through unchanged |
+|---|---|
+| `${user.username}` · `${user.email}` · `${user.firstName}` · `${user.lastName}` | `${user.id}` · `${user.enabled}` · `${user.createdTimestamp}` |
+| `${realm.name}` · `${realm.displayName}` | `${user.attributes.<anything>}` · `${workflow.name}` |
+| `${workflow.daysUntilNextStep}` | |
+
+`${workflow.daysUntilNextStep}` is the whole number of days until the next scheduled step. We
+measured `3` against `after: 3d` and `0` against `after: 60s`, so a reminder that says "in 0
+days" is a sign your ladder is tighter than the sentence claims.
+
+Four behaviours that are not in any documentation and will each waste an hour:
+
+- **A placeholder in `subject` kills the email.** `subject: "Hi ${user.firstName}"` produces
+  `IllegalArgumentException: can't parse argument number: user.firstName`, no email is sent,
+  and the step is still logged as `completed successfully`. Placeholders belong in `message`
+  only; keep subjects literal.
+- **The message is parsed as HTML.** Tags in `message` render — the admin guide's `<p>`-based
+  example works — and `<br/>` is normalised to `<br />`.
+- **Links get `rel="nofollow"` added**, and a bare URL in text content has its `=` escaped to
+  `&#61;`, so a "paste this link" line comes out broken while the same URL inside an `href`
+  is fine. Use anchors, not bare URLs.
+- **The `text/plain` alternative is the same HTML, tags and all.** A recipient whose client
+  prefers plain text reads `<p>Hi Oren, welcome to Acme Corp.</p>` literally. There is no
+  separate plain-text body to set.
+
+Here is the welcome email exactly as it left the server:
+
+```html
+<h2>Your Acme Corp account is ready</h2>
+
+    <p><p>Hi Oren, welcome to Acme Corp.</p>
+<p>Your username is <b>oren.tadesse</b>. Sign in at
+<a href="https://acme.example/account" rel="nofollow">acme.example/account</a> to set your password.</p>
+</p>
+```
+
+The `subject` becomes an `<h2>` and your message is wrapped in a `<p>` — so a message that is
+itself a `<p>` nests one inside the other. Harmless in every client we looked at, but it is
+why you should not try to build a full HTML document in `message`.
+
+## 7. Someone who starts next Monday
+
+Two admin endpoints do the work here and neither appears in the admin guide. Both live under
+a workflow id, and the resource type is upper-case `USERS` — `users` returns `404`.
+
+```bash
+# stop the clock for one person
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  "http://localhost:8080/admin/realms/acme/workflows/$WF/deactivate/USERS/$UID" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json'
+
+# start it again, seven days from now
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  "http://localhost:8080/admin/realms/acme/workflows/$WF/activate/USERS/$UID?notBefore=7d" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json'
+```
+
+Both return `204`. `deactivate` logs `Deactivating workflow … for resource …` and the
+`scheduled` endpoint immediately returns `[]`. `activate` creates a fresh execution and
+`notBefore` shifts the **first** step, with the rest of the chain following from there:
+
+```
+Workflow 'Provision new employee' activated for resource beb1fa99… (execution id: 1c03dfce…)
+Scheduled step join-group to run in 7d for resource beb1fa99… (execution id: 1c03dfce…)
+```
+
+That gives you three things the YAML alone cannot: a deferred start date, a manual backfill
+for users who existed before you wrote the workflow, and a per-person pause. `activate`
+against a user who already has an active execution of that workflow is a silent no-op, so a
+backfill loop over the whole realm is safe to re-run.
+
+:::warning `notBefore` takes a duration, not a date
+
+The method's own javadoc says the value may be "an ISO-8601 date string". It may not, on
+26.7.4. `?notBefore=2026-10-05T09:00:00Z` returns **`204` and creates nothing**; the only
+trace is a `WARN` you will not be looking for:
+
+```
+WARN [org.keycloak.models.workflow.DefaultWorkflowProvider] Error processing event adhoc for
+workflow Onboard new employee: java.time.format.DateTimeParseException: Text cannot be parsed
+to a Duration
+```
+
+`7d`, `604800`, `PT2M` and `60000ms` all work. Compute the offset from the start date
+yourself, and check the `scheduled` endpoint afterwards rather than trusting the `204`.
+
+:::
+
+## 8. The second trigger you did not get
+
+HR creates the account, then a second call puts it in a department group. If both events
+trigger the same workflow, only the first one does anything — the engine allows a single
+active execution per workflow per user, and the second event is dropped with no log line at
+any level. `concurrency` is how you choose the other behaviours, and all three were measured
+with one workflow on `user-created or user-group-membership-added`:
+
+| `concurrency` | Second trigger while an execution is active | Emails sent | Pending `disable-user` |
+|---|---|---|---|
+| *(omitted)* | Ignored silently | 1 | Still queued, original clock |
+| `restart-in-progress: true` | `Restarting workflow … at step notify-user` | 2 | Re-queued, clock reset |
+| `cancel-in-progress: true` | `Workflow … cancelled for resource …` | 1 | **Dropped** |
+
+For onboarding the default is usually right, and the fix for "the department steps never ran"
+is normally a second workflow on `user-group-membership-added` rather than
+`restart-in-progress` — restarting re-sends the welcome email. Reach for `cancel-in-progress`
+only when a later event means the earlier process is genuinely void.
+
+## 9. What you cannot automate this way
+
+Honest limits, all of them hit while writing this page:
+
+- **There is no step that sends a set-password or verify-email action link.** The step list on
+  26.7.4 is fifteen providers and none of them is `execute-actions-email`; `notify-user` sends
+  free text only. So `add-required-action: UPDATE_PASSWORD` gets the user prompted *once they
+  reach a login page*, and getting them there is your welcome email's job. An `invite-user`
+  step exists upstream and is not in this release.
+- **No step calls an external system.** If your onboarding has to tell a ticketing system or
+  a laptop-provisioning queue, that is an event listener extension, not a workflow step.
+- **No execution history.** Completed and cancelled executions vanish from the `scheduled`
+  endpoint, and Keycloak persists nothing. For an audit trail of who was onboarded and when,
+  listen to the workflow provider events from an extension — the admin guide's
+  [Listening to workflow provider events](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_provider_events_)
+  section has the interface.
+- **Groups and roles are not workflow resources.** Only users and clients, so "when a group
+  is created, do X" is not expressible.
+- **A step chain cannot be restructured while executions are parked.** Changing a `with:`
+  value is a `204`; adding or reordering a step is a `400`. Deleting the workflow to get
+  around it abandons every execution bound to it, silently — take the list of affected users
+  from the `scheduled` endpoint first.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Check |
+|---|---|---|
+| Nothing ran, no log lines for the user | `if:` was false at activation, or the event never fired | `grep` the user id in the log. Then confirm the attribute exists at all — undeclared attributes are dropped unless `unmanagedAttributePolicy` is set |
+| Everyone gets disabled, including people who signed in | `Mark account activated` never ran, or its attribute is not being stored | `kc get "users/$ID" -r acme` and look for `activated` |
+| Welcome email never arrives, step says `completed successfully` | A placeholder in `subject`, or no realm SMTP | `grep NotifyUserStepProvider` in the log for `Failed to send notification email` |
+| The reminder says "in 0 days" | `${workflow.daysUntilNextStep}` truncates to whole days | Expected with sub-day `after:` values |
+| A user was provisioned but never chased | The two events raced, or a second trigger was dropped | Section 5's warning, then section 8's table |
+| Scheduled steps never fire | Runner interval is 12h | `Workflow runner task scheduled … then every PT12H` at startup |
+| `404` from `activate` / `deactivate` | Resource type must be upper-case | `USERS`, not `users` |
+
+## Next steps
+
+- [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/) —
+  the engine, the runner, and the four ways a step fails while reporting success.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — where
+  the accounts come from when an HR system owns the joiner process rather than an admin.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) — if
+  the `kcadm.sh` calls here were unfamiliar.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) — the
+  other half of a first login, once the required action is in place.
+- [Keycloak as an IAM system](/docs/keycloak/iam/) — where lifecycle automation sits relative to
+  authentication and authorization.
+- Official reference:
+  [Managing workflows](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_workflows_),
+  [Defining steps](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_steps_)
+  and
+  [Defining conditions](https://www.keycloak.org/docs/latest/server_admin/index.html#_workflow_conditions_).
+- Clean up: `docker rm -f kc mailpit && docker network rm kcnet`.
+
+<ProductionNote />
