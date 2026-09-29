@@ -78,11 +78,11 @@ const HostingItems = [
     href: "/hosting",
   },
   {
-    name: "Load-based Pricing, Not User Count",
+    name: "Unlimited Users, Priced Per Cluster",
     desc: (
       <p>
-        Clusters are priced by active session count, not total users in the
-        database.
+        Users are unlimited on every tier. Clusters are priced per cluster and
+        sized for authentication load, never metered on user count.
       </p>
     ),
   },

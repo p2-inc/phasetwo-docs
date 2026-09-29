@@ -3,14 +3,15 @@ import { Icon } from "@iconify/react";
 import { Tooltip } from "radix-ui";
 
 /**
- * Plan estimator — Phase Two sizes each cluster for a range of monthly active
- * users (MAU). A MAU is a user making up to ~1,000 token requests a month
- * (logins, refreshes, OIDC grant types, client-credential grants, etc.).
+ * Plan estimator — users are unlimited on every tier; what differs is the
+ * active-user load the cluster is sized for. Sizing assumes an active user logs
+ * in 30 times and refreshes 1,000 times a month. These are soft limits: nothing
+ * is blocked or surcharged above them.
  *
- * The recommendation is the highest tier required across all inputs: the MAU
- * range AND any features/limits that have a tier floor (custom extensions and
- * IP allow/deny lists start at Premium; custom-domain counts step up through
- * the tiers).
+ * The recommendation is the highest tier required across all inputs: the
+ * active-user sizing AND any features/limits that have a tier floor (custom
+ * extensions and IP allow/deny lists start at Premium; custom-domain counts
+ * step up through the tiers).
  */
 const ORDER = ["starter", "premium", "enterprise", "custom"] as const;
 type TierKey = (typeof ORDER)[number];
@@ -18,27 +19,30 @@ type TierKey = (typeof ORDER)[number];
 const TIERS: Record<TierKey, { name: string; note: string }> = {
   starter: {
     name: "Starter",
-    note: "Sized for up to ~15K MAU. Starts with a 30-day free trial.",
+    note: "Sized for ~5K active users. Starts with a 30-day free trial.",
   },
-  premium: { name: "Premium", note: "Sized for roughly 15K–100K MAU." },
-  enterprise: { name: "Enterprise", note: "Sized for roughly 100K–250K MAU." },
+  premium: { name: "Premium", note: "Sized for roughly 5K–100K active users." },
+  enterprise: {
+    name: "Enterprise",
+    note: "Sized for roughly 100K–500K active users.",
+  },
   custom: {
     name: "Custom",
-    note: "Above ~250K MAU — let's chat about a custom plan.",
+    note: "Above ~500K active users — let's size it together.",
   },
 };
 
 const rank = (k: TierKey) => ORDER.indexOf(k);
-const mauTier = (m: number): TierKey =>
-  m <= 15_000
+const activeUserTier = (m: number): TierKey =>
+  m <= 5_000
     ? "starter"
     : m <= 100_000
       ? "premium"
-      : m <= 250_000
+      : m <= 500_000
         ? "enterprise"
         : "custom";
 const domainTier = (n: number): TierKey =>
-  n <= 1 ? "starter" : n <= 5 ? "premium" : n <= 15 ? "enterprise" : "custom";
+  n <= 2 ? "starter" : n <= 5 ? "premium" : n <= 15 ? "enterprise" : "custom";
 
 function InfoTip({
   children,
@@ -128,7 +132,7 @@ function CheckRow({
 }
 
 export default function PlanEstimator() {
-  const [mau, setMau] = useState(10_000);
+  const [activeUsers, setActiveUsers] = useState(5_000);
   const [domains, setDomains] = useState(1);
   const [customExt, setCustomExt] = useState(false);
   const [ipList, setIpList] = useState(false);
@@ -137,12 +141,12 @@ export default function PlanEstimator() {
     // One bullet per active input, each showing the tier it requires; the
     // recommendation is the highest tier across them all.
     const items: { key: TierKey; text: string }[] = [];
-    const mt = mauTier(mau);
+    const at = activeUserTier(activeUsers);
     items.push({
-      key: mt,
-      text: `${mau >= 300_000 ? "300K+" : mau.toLocaleString()} MAU → ${TIERS[mt].name}`,
+      key: at,
+      text: `${activeUsers >= 600_000 ? "600K+" : activeUsers.toLocaleString()} active users → ${TIERS[at].name}`,
     });
-    if (domains > 1) {
+    if (domains > 2) {
       const k = domainTier(domains);
       items.push({
         key: k,
@@ -159,7 +163,7 @@ export default function PlanEstimator() {
       rank(b.key) > rank(a.key) ? b : a,
     ).key;
     return { tier: TIERS[topKey], bullets: items.map((i) => i.text) };
-  }, [mau, domains, customExt, ipList]);
+  }, [activeUsers, domains, customExt, ipList]);
 
   return (
     <div className="rounded-[32px] border border-white/10 bg-[var(--ifm-background-surface-color)] p-6 sm:p-8">
@@ -172,15 +176,15 @@ export default function PlanEstimator() {
             <Tooltip.Trigger asChild>
               <span className="inline-flex cursor-help items-center gap-1 text-xs text-gray-400">
                 <Icon icon="mdi:information-outline" className="size-4" />
-                What&apos;s a MAU?
+                What&apos;s an active user?
               </span>
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="z-[2000] max-w-xs rounded-md border border-white/10 bg-[#1a1a1a] px-3 py-2 text-sm/6 text-gray-200 shadow-lg">
-                A monthly active user (MAU) is a user making up to ~1,000 token
-                requests a month — logins, token refreshes, OIDC grant types,
-                client-credential grants, and similar. Each tier&apos;s cluster
-                is sized to perform well across its MAU range.
+                Users are unlimited on every tier. For sizing we assume an
+                active user logs in <strong>30 times</strong> and refreshes
+                their token <strong>1,000 times</strong> per month. These are
+                soft limits — nothing is blocked or surcharged above them.
                 <Tooltip.Arrow className="fill-[#1a1a1a]" />
               </Tooltip.Content>
             </Tooltip.Portal>
@@ -190,24 +194,28 @@ export default function PlanEstimator() {
 
       <div className="mt-6">
         <div className="flex items-baseline justify-between gap-2">
-          <label htmlFor="mau-range" className="text-sm text-gray-300">
-            Monthly active users
+          <label htmlFor="active-users-range" className="text-sm text-gray-300">
+            Active users
           </label>
           <span className="font-mono text-base font-semibold tabular-nums text-white">
-            {mau >= 300_000 ? "300K+" : mau.toLocaleString()}
+            {activeUsers >= 600_000 ? "600K+" : activeUsers.toLocaleString()}
           </span>
         </div>
         <input
-          id="mau-range"
+          id="active-users-range"
           type="range"
           min={1_000}
-          max={300_000}
+          max={600_000}
           step={1_000}
-          value={mau}
-          onChange={(e) => setMau(Number(e.target.value))}
+          value={activeUsers}
+          onChange={(e) => setActiveUsers(Number(e.target.value))}
           className="mt-3 w-full accent-p2blue-500"
-          aria-label="Monthly active users"
+          aria-label="Active users"
         />
+        <p className="mb-0 mt-2 text-xs text-gray-500">
+          Registered users are always unlimited — this is the active load the
+          cluster is sized for.
+        </p>
       </div>
 
       <div className="mt-6">
@@ -233,10 +241,11 @@ export default function PlanEstimator() {
         <div className="flex items-center gap-1.5 text-xs text-gray-400">
           Recommended plan
           <InfoTip size="size-3.5">
-            Each cluster is sized to perform well up to its MAU range. Exceeding
-            it isn&apos;t blocked or penalized — token-endpoint latency may
-            increase. We monitor CPU and memory and proactively reach out as
-            limits are approached.
+            Each cluster is sized to perform well up to its active-user range.
+            There is no restriction on exceeding it — nothing is blocked or
+            surcharged — but performance may degrade. We monitor CPU and memory,
+            reach out proactively, and work with you to tune the use case or
+            resize the cluster.
           </InfoTip>
         </div>
         <div className="mt-1 text-2xl font-bold text-white">{tier.name}</div>

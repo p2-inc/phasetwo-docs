@@ -73,27 +73,27 @@ const ENHANCED_FEATURES = {
 };
 
 const DRIVEN_BY_USAGE = {
-  title: "Driven by Usage, Not User Counts",
+  title: "Unlimited Users, Sized for Your Load",
   intro: "Focus on what's important, not on billing.",
   leftLead:
-    "Many enterprise authentication solutions (including other managed Keycloak providers) focus on user counts. We focus on usage—active or concurrent user sessions—so pricing scales with real load, not total users.",
+    "Many enterprise authentication solutions (including other managed Keycloak providers) charge by user count. We don’t. Users are unlimited on every tier — what differs is the authentication load each cluster is sized for.",
   cards: [
     {
       title: "",
       description:
-        "Scale with confidence: your authentication infrastructure keeps pace as usage grows.",
+        "Starter, Premium, and Enterprise clusters are sized for 5K, 100K, and 500K active users respectively — with no cap on how many users you actually have.",
       icon: "lucide:gauge",
     },
     {
       title: "",
       description:
-        "Concurrent sessions are based on active tokens—driven by refresh lifespans, login behavior, and traffic patterns.",
+        "Sizing assumes an active user logs in 30 times and refreshes their token 1,000 times a month. Lighter traffic goes further; heavier traffic goes less far.",
       icon: "lucide:receipt",
     },
     {
       title: "",
       description:
-        "Want help sizing? Talk to us about your use case and we’ll recommend the right fit.",
+        "These are soft limits — nothing is blocked or surcharged. If performance degrades we work with you to tune the use case or resize the cluster.",
       icon: "lucide:trending-up",
     },
   ],

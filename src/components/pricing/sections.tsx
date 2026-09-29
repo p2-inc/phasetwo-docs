@@ -22,7 +22,7 @@ const Sections: {
       {
         name: "Users",
         description:
-          "No artificial limits on the number of users in your realms.",
+          "There is no limit on how many users you register, and no limit on how many of them use the cluster. We never meter, block, or surcharge on user count.",
         tiers: {
           starter: "Unlimited",
           premium: "Unlimited",
@@ -31,14 +31,25 @@ const Sections: {
         },
       },
       {
-        name: "Monthly active users",
+        name: "Sized for active users",
         description:
-          "Each cluster is sized to perform well up to this many monthly active users (MAU). A MAU is a user making up to ~1,000 token requests per month — logins, token refreshes, OIDC grant types, client-credential grants, and similar. Exceeding it isn't blocked or penalized, but token-endpoint latency may increase; we monitor CPU and memory and proactively reach out as limits are approached.",
+          "The active-user load each tier's cluster is provisioned for, assuming an active user logs in 30 times and refreshes their token 1,000 times per month. This is a sizing guide, not a cap — nothing is blocked or surcharged above it, but performance may degrade. If it does, we work with you to tune the use case or resize the cluster.",
         tiers: {
-          starter: "Up to 15K",
-          premium: "Up to 100K",
-          enterprise: "Up to 250K",
-          custom: "250K+",
+          starter: "5K",
+          premium: "100K",
+          enterprise: "500K",
+          custom: "500K+ · sized with you",
+        },
+      },
+      {
+        name: "Realms per cluster",
+        description:
+          "The number of Keycloak realms you can create on a single cluster.",
+        tiers: {
+          starter: "5",
+          premium: "20",
+          enterprise: "100",
+          custom: "Custom",
         },
       },
       {
@@ -77,7 +88,29 @@ const Sections: {
       {
         name: "Custom domain(s)",
         description: "Use your own domain(s) for login and account pages.",
-        tiers: { starter: "1", premium: "5", enterprise: "15", custom: true },
+        tiers: { starter: "2", premium: "5", enterprise: "15", custom: true },
+      },
+      {
+        name: "Wildcard custom domains",
+        description:
+          "Serve every subdomain beneath a domain from a single entry, counting as one custom domain however many subdomains you use.",
+        tiers: {
+          starter: false,
+          premium: false,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "App association files",
+        description:
+          "Publish the Apple and Android app association files on your custom domain, so a password manager can autofill inside your mobile app and a passkey created on your login page can be used from it.",
+        tiers: {
+          starter: false,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
       },
       {
         name: "Default theme CSS customization",
@@ -93,22 +126,34 @@ const Sections: {
       {
         name: "Custom themes",
         description:
-          "Support for fully custom Keycloak themes with HTML, CSS, and JS. Allowed on Starter, but not covered by the uptime guarantee.",
+          "Fully custom Keycloak themes with HTML, CSS, and JS, uploaded per Keycloak major version. Allowed on Starter, but not covered by the uptime guarantee.",
         tiers: {
-          starter: true,
-          premium: true,
-          enterprise: true,
+          starter: "1",
+          premium: "1",
+          enterprise: "Unlimited",
           custom: true,
         },
       },
       {
         name: "Custom extensions (1)",
-        description: "Support for deploying custom Keycloak server extensions.",
+        description:
+          "Deploy your own Keycloak server extension JARs, uploaded per Keycloak major version.",
         tiers: {
           starter: false,
-          premium: true,
-          enterprise: true,
+          premium: "1",
+          enterprise: "Unlimited",
           custom: true,
+        },
+      },
+      {
+        name: "Password denylists",
+        description:
+          "Upload lists of passwords your users may not choose, and apply them to a realm's password policy. Not limited by tier.",
+        tiers: {
+          starter: "Unlimited",
+          premium: "Unlimited",
+          enterprise: "Unlimited",
+          custom: "Unlimited",
         },
       },
       {
@@ -143,16 +188,6 @@ const Sections: {
           custom: true,
         },
       },
-      // {
-      //   name: "Terraform IaC",
-      //   description: "Add Keycloak configuration via environment variables.",
-      //   tiers: {
-      //     starter: false,
-      //     premium: true,
-      //     enterprise: true,
-      //     custom: true,
-      //   },
-      // },
       {
         name: "Global deployment(s)",
         description:
@@ -294,6 +329,80 @@ const Sections: {
           custom: true,
         },
       },
+      {
+        name: "SCIM user provisioning",
+        description:
+          "Inbound SCIM 2.0 so a customer's IdP can provision and deprovision users and groups into their organization.",
+        externalLink: {
+          href: "https://phasetwo.io/docs/organizations/scim",
+          icon: "mdi:book-open-variant",
+        },
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+    ],
+  },
+  {
+    name: "Automation",
+    description:
+      "Provision and manage clusters, realms, domains, extensions and IP rules from code instead of the console.",
+    features: [
+      {
+        name: "Management API",
+        description:
+          "The control-plane REST API behind the console: create clusters and realms, attach custom domains, upload extensions, restrict access by IP, pull logs. Authenticated with an organization API secret and the client credentials grant. Experimental.",
+        externalLink: {
+          href: "https://phasetwo.io/docs/management-api/",
+          icon: "mdi:book-open-variant",
+        },
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "Terraform provider",
+        description:
+          "Manage the same resources declaratively with the p2-inc/phasetwo Terraform provider. Experimental — point it at test or staging environments while it is at 0.x.",
+        externalLink: {
+          href: "https://registry.terraform.io/providers/p2-inc/phasetwo",
+          icon: "mdi:terraform",
+        },
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "API secrets per organization",
+        description:
+          "Client-credential secrets your automation uses to call the Management API.",
+        tiers: {
+          starter: "10",
+          premium: "10",
+          enterprise: "10",
+          custom: "Custom",
+        },
+      },
+      {
+        name: "Keycloak Admin REST API",
+        description:
+          "Full access to Keycloak's own Admin API on your cluster, for everything inside a realm.",
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
     ],
   },
   {
@@ -351,6 +460,21 @@ const Sections: {
         },
       },
 
+      {
+        name: "Telemetry Export",
+        description:
+          "Stream your cluster's Keycloak logs and authentication events to your own observability system over OTLP, self-serve from Logs → Export. Experimental.",
+        externalLink: {
+          href: "https://phasetwo.io/docs/self-service/telemetry-export",
+          icon: "mdi:book-open-variant",
+        },
+        tiers: {
+          starter: false,
+          premium: false,
+          enterprise: true,
+          custom: true,
+        },
+      },
       {
         name: "Alerting",
         tiers: {
@@ -416,20 +540,46 @@ const Sections: {
       },
       {
         name: "Uptime Guarantee",
+        description:
+          "Availability commitment per calendar month. Enterprise is 99.95% as standard and can be extended to 99.99% for an additional fee; that extended commitment is also the ceiling on a Custom plan.",
         tiers: {
           starter: "95% target",
           premium: "99.5%",
-          enterprise: "99.95%",
-          custom: "99.95%",
+          enterprise: "99.95% · 99.99% add-on",
+          custom: "Up to 99.99%",
         },
       },
       {
         name: "SLA",
+        description:
+          "Starter clusters are best effort with no commitment. Premium and Enterprise carry the service credits set out in the Service Level Agreement; the 99.99% Enterprise extension is available for an additional fee.",
         tiers: {
           starter: "Best effort",
           premium: "Standard",
-          enterprise: "Enhanced",
-          custom: "Custom",
+          enterprise: "Enhanced · 99.99% add-on",
+          custom: "Custom · up to 99.99%",
+        },
+      },
+      {
+        name: "Automated backups",
+        description:
+          "Hourly database snapshots written to encrypted, cross-region object storage and retained for 30 days. Restores are tested periodically.",
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
+        },
+      },
+      {
+        name: "EU data residency",
+        description:
+          "Run your cluster, and the data in it, entirely within the EU.",
+        tiers: {
+          starter: true,
+          premium: true,
+          enterprise: true,
+          custom: true,
         },
       },
       {

@@ -26,7 +26,7 @@ const DEFAULT_THEME = {
 export default function AnnualSpendChart({
   data = DEFAULT_DATA,
   title = "Annual identity spend",
-  sampleLabel = "~150K MAU · 25K CONCURRENT",
+  sampleLabel = "~150K ACTIVE USERS · UNLIMITED TOTAL",
   savedAmount = "$109K",
   savedSuffix = "vs. Auth0 list",
   methodologyHref = "#methodology",

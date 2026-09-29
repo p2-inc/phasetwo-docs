@@ -64,10 +64,10 @@ const TIERS: Tier[] = [
     trial: true,
     desc: "For new projects and small teams getting auth into production.",
     features: [
-      "Up to 15K monthly active users",
+      "Unlimited users · sized for 5K active users",
       "Dedicated, independently provisioned cluster",
       "95% uptime target (best effort, no SLA)",
-      "Unlimited SSO connections · 1 custom domain",
+      "Unlimited SSO connections · 2 custom domains",
       "Email support",
     ],
   },
@@ -82,7 +82,7 @@ const TIERS: Tier[] = [
     badgeTone: "primary",
     desc: "For growing products with real traffic and uptime requirements.",
     features: [
-      "Up to 100K monthly active users",
+      "Unlimited users · sized for 100K active users",
       "99.5% uptime guarantee · Standard SLA",
       "Unlimited SSO connections · 5 custom domains",
       "Email support",
@@ -98,11 +98,12 @@ const TIERS: Tier[] = [
     badgeTone: "warning",
     desc: "For high-scale products that need an uptime SLA and priority support.",
     features: [
-      "Up to 250K monthly active users",
+      "Unlimited users · sized for 500K active users",
       "99.95% uptime guarantee · Enhanced SLA",
+      "Extend the SLA to 99.99% for an additional fee",
       "Unlimited SSO connections · 15 custom domains",
       "Dedicated support engineer + Slack",
-      "Alerting & coordinated upgrades",
+      "Telemetry Export, alerting & coordinated upgrades",
     ],
   },
 ];
@@ -226,8 +227,8 @@ export default function TierCards() {
             Need something custom?
           </h3>
           <p className="mb-0 text-sm text-gray-400">
-            Multi-region, on-premise, custom DPA, or unlimited scale? We&apos;ll
-            size it with you.
+            Multi-region, on-premise, custom DPA, a 99.99% SLA, or more than
+            500K active users? We&apos;ll size it with you.
           </p>
         </div>
         <div className="flex flex-shrink-0 flex-wrap gap-3">
