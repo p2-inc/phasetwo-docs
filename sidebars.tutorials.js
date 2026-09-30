@@ -73,5 +73,11 @@ module.exports = {
         "workflows/user-offboarding",
       ],
     },
+    {
+      type: "category",
+      label: "Realm administration",
+      link: { type: "generated-index" },
+      items: ["admin/fine-grained-permissions-v2"],
+    },
   ],
 };
