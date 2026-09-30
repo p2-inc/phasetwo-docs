@@ -20,11 +20,11 @@ keywords: [keycloak 26.7.5, keycloak release, keycloak news, keycloak security u
 | Grant `view-clients` to anyone who should not hold a client secret | **This week.** CVE-2026-89298 leaks it. |
 | Use CIBA or the device grant with brute-force protection | **This week.** Two lockout bypasses. |
 | Run `aud`-sensitive resource servers | Test first — disabled clients leave `aud`. |
-| Run 26.6, 26.5 or 26.4 | You cannot. See below. |
+| Run 26.6, 26.5 or 26.4 | You cannot — see below. |
 
 ## Security fixes
 
-Counted from the release notes: 14 bullets, 14 CVEs. CVE-2026-9798 also appears, but only as the earlier flaw CVE-2026-16103 finishes.
+Counted from the release notes: 14 bullets, 14 CVEs. CVE-2026-9798 also appears, but only as the earlier flaw CVE-2026-16103 finishes fixing.
 
 **In Keycloak:**
 
@@ -65,7 +65,7 @@ Counted from the release notes: 14 bullets, 14 CVEs. CVE-2026-9798 also appears,
 | 26.5 | 26.5.7 (April) | **none — branch archived** | — |
 | 26.4 | 26.4.16 (7 Sep) | CVE-2025-66021 only | `quay.io/phasetwo/keycloak:26.4.16` |
 
-Since those tags, `release/26.6` has moved 35 commits ahead and carries FreeMarker 2.3.35, `bc-fips` 2.1.3 and most of the Keycloak fixes; `release/26.4` is 16 ahead with FreeMarker and the SAML fix, `bc-fips` still at 2.1.2. Upstream labels them `26.6.8` and `26.4.17`; both 404 from the tags API today. Keycloak normally tags backports without announcing them, so [images exist](/extensions/containers/) for versions with no GitHub release ([more here](/blog/keycloak-lts-backport-images)) — here there is nothing to build from. Move to 26.7.5, or wait for the tag.
+Since those tags, `release/26.6` has moved 35 commits ahead and carries FreeMarker 2.3.35, `bc-fips` 2.1.3 and most of the Keycloak fixes; `release/26.4` is 16 ahead with FreeMarker and the SAML fix, `bc-fips` still at 2.1.2. Upstream labels them `26.6.8` and `26.4.17`; both 404 from the tags API today. Keycloak normally tags backports without announcing them, so [images exist](/extensions/containers/) for versions with no GitHub release ([more here](/blog/keycloak-lts-backport-images)) — here there is nothing to build from. Move to 26.7.5, or wait.
 
 ## Breaking changes
 
