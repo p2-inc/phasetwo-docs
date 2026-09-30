@@ -1,7 +1,7 @@
 ---
 slug: secure-spring-boot
 title: Securing an Angular and Spring Boot Application with Keycloak
-description: Learn how to secure resources and access of an Angular and Spring Boot application using Keycloak for Authentication and Authorizationusing the open source IAMs Keycloak for Authentication and Authorization
+description: Learn how to secure resources and access of an Angular and Spring Boot application using the open source IAMs Keycloak for Authentication and Authorization
 authors: [jpatzer]
 tags:
   [
@@ -16,14 +16,13 @@ tags:
 image: /blog/og/springboot@2x.png
 ---
 
-import PhaseTwoStarterInstructions from "/templates/blog/_phase_two_starter_instructions.mdx";
-import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
+import OIDC from "/templates/blog/_oidc_client_creation.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 import SpringBoot from "/templates/frameworks/_springboot.mdx";
 
-[Spring Boot](https://spring.io/projects/spring-boot) is a open-source tool which uses Java-based frameworks for building web applications.
+[Spring Boot](https://spring.io/projects/spring-boot) is an open-source tool which uses Java-based frameworks for building web applications.
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure an [Angular](https://angular.io/) application and access secured resources from a Spring Boot Web application.
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to secure an [Angular](https://angular.dev/) application and access secured resources from a Spring Boot Web application.
 
 <!--truncate-->
 
@@ -35,9 +34,9 @@ If you just want to skip to the code, visit the Phase Two [Spring Boot example](
 
 ## Setting up a Spring Boot project
 
-In order to setup a Spring Boot project, a JDK version must be chosen. As of the time of writing, to be inline with the latest changes from Keycloak 24, the Java 17 baseline will be used. Other JDK versions can also be used for developing the resource server according to the preference of the developer.
+In order to set up a Spring Boot project, a JDK version must be chosen. The example uses Java 21. Spring Boot 4 runs on Java 17 or newer, so other JDK versions can also be used for developing the resource server according to the preference of the developer.
 
-Starting with Spring Boot 2.x the Keycloak client adapters were deprecated. In Spring Boot 3.x we will use native functionalities of the [`spring-boot-oauth2-resource-server`](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html) to be able to configure the application security context.
+Starting with Spring Boot 2.x the Keycloak client adapters were deprecated. In Spring Boot 4.x we will use native functionalities of the [`spring-boot-starter-security-oauth2-resource-server`](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html) to be able to configure the application security context.
 
 ### Quick Start
 
@@ -47,60 +46,126 @@ To get this project up and running locally on your computer you can clone the Ph
 
    To kickstart a project, we will use (and recommend) using the Spring Boot [Initializr](https://start.spring.io/), a Web-based tool that provides a simple UI to generate the project.
 
-   Provide the following values to spring initializr for the project metadata:
+   Provide the following values to the Initializr:
 
-   ```
+   | Setting       | Value                            |
+   | ------------- | -------------------------------- |
+   | Project       | Gradle - Groovy                  |
+   | Language      | Java                             |
+   | Spring Boot   | 4.1.x (the example uses 4.1.1)   |
+   | Group         | `com.example`                    |
+   | Artifact      | `spring-boot-keycloak`           |
+   | Name          | `spring-boot-keycloak`           |
+   | Description   | `Demo project for Spring Boot`   |
+   | Package name  | `com.example.springbootkeycloak` |
+   | Packaging     | Jar                              |
+   | Configuration | YAML                             |
+   | Java          | 21                               |
 
-   Group: com.example
-   Artifact: spring-boot-keycloak
-   Name: spring-boot-keycloak
-   Description: Demo project for Spring Boot
-   Package name: com.example.spring-boot-keycloak
-   ```
-
-   ![Spring Boot Initializr](/blog/2024-05-10-create-spring-boot-project-template.png)
+   Java package names can't contain hyphens, so the package name is `com.example.springbootkeycloak`, as in the example.
 
 2. Add the required dependencies in spring initializr.
 
    For the purpose of this project we will add the following dependencies:
 
-   - Oauth2 Resource Server
+   - OAuth2 Resource Server
    - Spring Web
    - Spring Security
 
-   This will result in the following lines within `build.gradle`.
+   This will result in the following lines within `build.gradle`:
 
+   ```java
+   dependencies {
+       implementation 'org.springframework.boot:spring-boot-starter-security'
+       implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+       implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+       testImplementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test'
+       testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+       testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+       testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+   }
    ```
-   implementation 'org.springframework.boot:spring-boot-starter-security'
-   implementation 'org.springframework.boot:spring-boot-starter-web'
-   implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-   ```
+
+   With Spring Boot 4, Spring Web adds `spring-boot-starter-webmvc`, and each starter comes with its own test starter.
 
    Generate the project with those settings. Open the .zip in your preferred text editor.
 
-3. Setup JDK 17 for the project. Follow instructions on the [JDK setup](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/) page.
+3. Set up JDK 21 for the project. Follow the instructions on the [JDK installation](https://docs.oracle.com/en/java/javase/21/install/overview-jdk-installation.html) page. The cloned example also builds with Java 17 or newer: its `settings.gradle` applies the foojay [toolchain resolver](https://docs.gradle.org/current/userguide/toolchains.html), so Gradle downloads the Java 21 toolchain if you don't have one.
 
 ## Setting up a Keycloak Instance
 
 Before customizing the Spring Boot app, we need to set up and configure our Keycloak instance.
 
+The example runs its own Keycloak: a Phase Two Keycloak 26.6 in Docker, on port 8888, with a realm set up for this post. You need [Docker](https://docs.docker.com/get-started/get-docker/) with the Compose plugin. Even if you generate your own project, start Keycloak from the example's folder:
+
+```bash
+git clone https://github.com/p2-inc/examples.git
+cd examples/frameworks/spring-boot-keycloak
+docker compose up -d --wait
+```
+
+Keycloak imports the realm `demo-realm` from [`keycloak/demo-realm-realm.json`](https://github.com/p2-inc/examples/blob/main/frameworks/spring-boot-keycloak/keycloak/demo-realm-realm.json):
+
+| What          | Value                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| Issuer URL    | `http://localhost:8888/auth/realms/demo-realm`                                              |
+| Admin console | [localhost:8888/auth/admin](http://localhost:8888/auth/admin), `admin` / `admin`            |
+| Client        | `demo-spa`: public, standard flow with PKCE (S256), redirect URIs `http://localhost:4200/*` |
+| Users         | `test` / `test` has the realm role `user`; `noaccess` / `noaccess` doesn't                  |
+
+The client and the users from the next two sections already exist in this realm, so you can skip both. `docker compose down` stops Keycloak, and the next `up` starts again from a fresh realm.
+
+:::note
+
+This isn't the shared Keycloak in the examples repo's `keycloak/` folder, which the other tutorials use: its `p2examples` realm has no client for this example. The shared Keycloak also listens on port 8080, where the Spring Boot API runs, so stop it first with `docker compose -f keycloak/docker-compose.yml down` from the repo root.
+
+:::
+
 <details>
-  <summary>Instructions</summary>
-  <PhaseTwoStarterInstructions />
+  <summary>Use another Keycloak</summary>
+
+If you already have a Keycloak, open its admin console and select your realm. Otherwise, use a hosted Phase Two cluster:
+
+1. Sign up on the [Phase Two Dashboard](https://dash.phasetwo.io/) with an email address, a GitHub account or a Google account.
+1. Create a Starter cluster, which is free for 30 days, and add a realm to it.
+1. Click **Open Console** to open the realm in the Keycloak admin console.
+
+The API and the Angular client connect to Keycloak through the realm's issuer URL, such as `https://<your-keycloak-host>/auth/realms/<your-realm>` on a Phase Two cluster. In the admin console, **Realm settings** > **General** > **Endpoints** > **OpenID Endpoint Configuration** shows it as `issuer`.
+
+Keep the admin console open: the next two sections create the client and a user there.
+
 </details>
 
 ## Setting up an OIDC Client
 
 <details>
   <summary>Instructions</summary>
-  <OIDC />
+
+The example's Keycloak already has this client, `demo-spa`. On another Keycloak, create it as below, with these values for this example:
+
+- **Client ID**: `demo-spa`, the ID the Angular client uses. If you choose another ID, change `clientId` in the Angular client's `environment.ts` too.
+- **Valid redirect URIs**: `http://localhost:4200/*`, since the Angular client runs on port 4200.
+
+<OIDC />
+
 </details>
 
 ## Adding a Non-Admin User
 
 <details>
   <summary>Instructions</summary>
-  <NonAdminUser />
+
+The example's Keycloak isn't the shared one from the examples repo, which has the `demo` user mentioned below. Its users are `test` / `test`, who has the realm role `user`, and `noaccess` / `noaccess`, who doesn't. On another Keycloak, add a user as below, then give it the role `user`.
+
+<NonAdminUser />
+
+The API's `/api/test/user` endpoint only answers users with the realm role `user`. Create the role and assign it to your user:
+
+1. Click **Realm roles** in the menu, then **Create role**.
+1. Enter `user` as the **Role name** and click **Save**.
+1. Click **Users** in the menu and open your user.
+1. Open the **Role mapping** tab, click **Assign role** and assign the realm role `user`.
+
 </details>
 
 <SpringBoot />
