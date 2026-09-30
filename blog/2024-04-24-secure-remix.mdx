@@ -1,7 +1,7 @@
 ---
 slug: instant-user-management-and-sso-for-remix
-title: Securing Remix Apps with Keycloak
-description: Learn how to quickly secure a Remix application with user management and SSO using the open source IAMs Keycloak for Authentication and Authorization
+title: Securing React Router v7 (formerly Remix) Apps with Keycloak
+description: Learn how to quickly secure a React Router v7 (formerly Remix) application with user management and SSO using the open source IAMs Keycloak for Authentication and Authorization
 authors: [rishirajjain]
 tags:
   [
@@ -22,13 +22,13 @@ import OIDC from "/templates/blog/_oidc_client_creation_client_auth.mdx";
 import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
 import Remix from "/templates/frameworks/_remix.mdx";
 
-In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a Remix application with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
+In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly secure a [React Router v7](https://reactrouter.com/) application, the successor of Remix, with user management and single sign on (SSO) using the open source IAMs Keycloak for Authentication and Authorization. We will demonstrate the integration by securing a page for logged-in users. This quickly provides a jump-off point to more complex integrations.
 
 <!--truncate-->
 
 :::info
 
-If you just want to skip to the code, visit the Phase Two [Remix example](https://github.com/p2-inc/examples/tree/main/frameworks/remix). We also have a plain [React example](https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs).
+If you just want to skip to the code, visit the Phase Two [React Router example](https://github.com/p2-inc/examples/tree/main/frameworks/remix). We also have a plain [React example](https://phasetwo.io/blog/instant-user-managemenet-and-sso-for-reactjs).
 
 :::
 
@@ -53,7 +53,7 @@ If you just want to skip to the code, visit the Phase Two [Remix example](https:
   <NonAdminUser />
 </details>
 
-## Setting up a Remix Project
+## Setting up a React Router Project
 
 <Remix />
 

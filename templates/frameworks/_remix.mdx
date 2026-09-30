@@ -1,50 +1,173 @@
 :::info
-We will use the Phase Two Remix example code here, but the logic could easily be applied to any existing application.
+We will use the Phase Two React Router example code here, but the logic could easily be applied to any existing application. Remix v2 is now [React Router v7](https://reactrouter.com/), and the example is the Remix example migrated to React Router's [framework mode](https://reactrouter.com/start/modes).
 :::
 
 1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-2. Open the Remix [folder](https://github.com/p2-inc/examples/tree/main/frameworks/remix) within `/frameworks/remix`.
-3. Run `npm install` and then `npm run dev -- --port 3000`. This example leverages [remix-auth](https://github.com/sergiodxa/remix-auth) and [remix-keycloak](https://github.com/marsmars0x01/remix-keycloak) to provide HOC support.
-4. Open the `app/services/keycloak.server.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`:
+2. Open the React Router [folder](https://github.com/p2-inc/examples/tree/main/frameworks/remix) within `/frameworks/remix`. The folder keeps its Remix name.
+3. Copy `.env.example` to `.env`:
 
-```tsx
-const kcConfig = {
-  useSSL: true,
-  domain: "usw2.auth.ac/auth",
-  realm: "shared-deployment-001",
-  clientID: "reg-example-1",
-  clientSecret: "CLIENT_SECRET", // Paste "Client secret" here. Use Environment variables in prod
-  callbackURL: "http://localhost:3000/auth/keycloak/callback",
-};
-```
+   ```bash
+   cp .env.example .env
+   ```
 
-Those are used to popluate the config for the `KeycloakStrategy`:
+   Its values point at the local Keycloak from the example repo, which `docker compose -f keycloak/docker-compose.yml up -d --wait` starts from the repository root. That Keycloak's `p2examples` realm already has a confidential client with the ID `remix`. In `.env.example`:
 
-```tsx
-export default new KeycloakStrategy(kcConfig, ({ profile }) => profile);
-```
+   ```bash
+   KEYCLOAK_ISSUER=http://localhost:8080/auth/realms/p2examples
+   KEYCLOAK_CLIENT_ID=remix
+   KEYCLOAK_CLIENT_SECRET=remix-local-dev-secret
+   KEYCLOAK_CALLBACK_URL=http://localhost:3000/auth/keycloak/callback
+   SESSION_SECRET=
+   ```
 
-The config is then used with the Authenticator instance in the `app/services/auth.server.ts` file. The authenticator instance uses the Session Storage to manage the state of authentication via a cookie.
+   Set `SESSION_SECRET` to a random value, which signs the session cookie. `openssl rand -base64 32` generates one.
 
-```tsx
-import { Authenticator } from "remix-auth";
-import keycloakServer from "./keycloak.server";
-import { sessionStorage } from "~/services/session.server";
+   To use another Keycloak, set `KEYCLOAK_ISSUER` to your realm's issuer URL, and `KEYCLOAK_CLIENT_ID` and `KEYCLOAK_CLIENT_SECRET` to the ID and secret of your client. The client needs client authentication on, the standard flow enabled, `http://localhost:3000/*` as a valid redirect URI, which covers `KEYCLOAK_CALLBACK_URL`, and `+` as a valid post logout redirect URI. `.env` is ignored by git, so the secrets stay out of version control.
 
-export const authenticator = new Authenticator(sessionStorage);
+4. Run `pnpm install` and then `pnpm dev`, with Node 24. The app runs on port 3000. This example leverages [remix-auth](https://github.com/sergiodxa/remix-auth) and its [OAuth2 strategy](https://github.com/sergiodxa/remix-auth-oauth2) to log users in with the authorization code flow and PKCE.
+5. Open the `app/auth.server.ts` file. This is a server only file. It sets up the remix-auth `Authenticator` with an `OAuth2Strategy`, using the environment variables from `.env`. `OAuth2Strategy.discover` reads Keycloak's endpoints from the realm's OpenID configuration, so the issuer URL is the only Keycloak URL the app needs:
 
-authenticator.use(keycloakServer);
-```
+   ```ts
+   import { Authenticator } from "remix-auth";
+   import { OAuth2Strategy } from "remix-auth-oauth2";
+   import { requireEnv } from "./env.server";
+   import { decodeJwtPayload } from "./jwt.server";
 
-At this point our entire application will be able to access all information and methods needed to perform authentication. View the `session.server.ts` file for additional information about how the `SessionStorage` is used. The `SessionStorage` stores the Keycloak token and is used to derive the authenticated state. View `user.tsx` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `remix-auth`.
+   export type SessionUser = {
+     idToken: string;
+     accessTokenClaims: Record<string, unknown>;
+   };
 
-The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
+   async function createAuthenticator() {
+     const authenticator = new Authenticator<SessionUser>();
+     const strategy = await OAuth2Strategy.discover<SessionUser>(
+       requireEnv("KEYCLOAK_ISSUER"),
+       {
+         clientId: requireEnv("KEYCLOAK_CLIENT_ID"),
+         clientSecret: requireEnv("KEYCLOAK_CLIENT_SECRET"),
+         redirectURI: requireEnv("KEYCLOAK_CALLBACK_URL"),
+         scopes: ["openid", "profile", "email"],
+       },
+       async ({ tokens }) => ({
+         idToken: tokens.idToken(),
+         accessTokenClaims: decodeJwtPayload(tokens.accessToken()),
+       }),
+     );
+     authenticator.use(strategy, "keycloak");
+     return authenticator;
+   }
+   ```
 
-5. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
+   After a login, the verify function at the end keeps the ID token and the decoded claims of the access token. `getAuthenticator()`, further down in the file, creates the authenticator on first use, so builds don't need the environment variables or Keycloak.
+
+   remix-auth 4 no longer manages sessions, so the app keeps its own. `app/sessions.server.ts` defines a signed, HTTP-only cookie session keyed by `SESSION_SECRET`:
+
+   ```ts
+   import { createCookieSessionStorage } from "react-router";
+   import { requireEnv } from "./env.server";
+
+   type SessionData = {
+     idToken: string;
+     accessTokenClaims: Record<string, unknown>;
+   };
+
+   export const sessionStorage = createCookieSessionStorage<SessionData>({
+     cookie: {
+       name: "__session",
+       httpOnly: true,
+       sameSite: "lax",
+       path: "/",
+       secure: process.env.NODE_ENV === "production",
+       secrets: [requireEnv("SESSION_SECRET")],
+       maxAge: 60 * 60 * 8,
+     },
+   });
+
+   export function getSession(request: Request) {
+     return sessionStorage.getSession(request.headers.get("Cookie"));
+   }
+   ```
+
+6. `app/routes.ts` lists the routes. The **Log in** button posts to `/auth/keycloak`, whose action calls `authenticator.authenticate("keycloak", request)` to redirect you to Keycloak. Keycloak sends you back to `/auth/keycloak/callback`, which completes the login and stores the session. In `app/routes/auth.keycloak.callback.tsx`:
+
+   ```tsx
+   import { redirect } from "react-router";
+   import { getAuthenticator } from "~/auth.server";
+   import { getSession, sessionStorage } from "~/sessions.server";
+   import type { Route } from "./+types/auth.keycloak.callback";
+
+   export async function loader({ request }: Route.LoaderArgs) {
+     const authenticator = await getAuthenticator();
+     const user = await authenticator.authenticate("keycloak", request);
+
+     const session = await getSession(request);
+     session.set("idToken", user.idToken);
+     session.set("accessTokenClaims", user.accessTokenClaims);
+
+     return redirect("/", {
+       headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+     });
+   }
+   ```
+
+   The loader in `app/routes/home.tsx` reads the session on the server and returns only decoded claims, so the page's JavaScript never sees a token:
+
+   ```tsx
+   export async function loader({ request }: Route.LoaderArgs) {
+     const session = await getSession(request);
+     const idToken = session.get("idToken");
+
+     if (!idToken) {
+       return { user: null };
+     }
+
+     return {
+       user: {
+         idTokenClaims: decodeJwtPayload(idToken),
+         accessTokenClaims: session.get("accessTokenClaims") ?? {},
+       },
+     };
+   }
+   ```
+
+   View `app/components/user-status.tsx` for how the page renders your state. It shows the **Log in** button when the loader returns no user, and otherwise your name and email, the **Log out** button and the decoded tokens. Both buttons are forms that post to the server. The same session check works in any route's loader, so you can use it to secure routes, components, and more.
+
+7. The **Log out** button posts to `/logout`. Its action in `app/routes/logout.tsx` clears the session and redirects to Keycloak's end-session endpoint, with the ID token as `id_token_hint`, so your Keycloak session ends too:
+
+   ```tsx
+   import { redirect } from "react-router";
+   import { getEndSessionEndpoint } from "~/auth.server";
+   import { requireEnv } from "~/env.server";
+   import { getSession, sessionStorage } from "~/sessions.server";
+   import type { Route } from "./+types/logout";
+
+   export async function action({ request }: Route.ActionArgs) {
+     const session = await getSession(request);
+     const logoutUrl = new URL(await getEndSessionEndpoint());
+     logoutUrl.searchParams.set("client_id", requireEnv("KEYCLOAK_CLIENT_ID"));
+     logoutUrl.searchParams.set(
+       "post_logout_redirect_uri",
+       new URL("/", request.url).href,
+     );
+
+     const idToken = session.get("idToken");
+     if (idToken) {
+       logoutUrl.searchParams.set("id_token_hint", idToken);
+     }
+
+     return redirect(logoutUrl.href, {
+       headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
+     });
+   }
+   ```
+
+   `getEndSessionEndpoint()` in `app/auth.server.ts` reads the endpoint from the realm's OpenID configuration.
+
+8. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. Your current status should be **Not authenticated.** Click **Log in**. This will redirect you to your Keycloak login page.
 
    :::info
-   Use the non-admin user created in the previous section to sign in.
+   Use `demo` / `demo` on the local Keycloak, or a non-admin user of your realm, to sign in.
    :::
 
-6. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
-7. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+9. Enter the user's credentials. Click **Sign In**. You will then be redirected to the application. The Phase Two example landing page now shows your **Authenticated** state, with your user's name and email and the decoded access and ID tokens.
+10. Click **Log out**. Keycloak ends your session and sends you back to the application, which shows **Not authenticated.** again. The next **Log in** asks for your credentials again.
