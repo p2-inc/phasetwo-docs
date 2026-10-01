@@ -1,10 +1,10 @@
 ## Install and configure Spring Boot
 
-Now that we've setup and configured Keycloak using [Phase Two](https://dash.phasetwo.io/) and cloned or created our Spring Boot application template, we will need to configure the project to leverage the capabilities provided by Keycloak.
+Now that we've set up Keycloak and cloned or created our Spring Boot application, we need to configure the project to use Keycloak.
 
 1. Configure application settings
 
-   Update your `application.yaml` configuration file with the Keycloak security configuration (it's possible your download includes a `application.properties` file instead).
+   Update the `src/main/resources/application.yaml` configuration file with the Keycloak security configuration (if you picked **Properties** in the Initializr, your download includes an `application.properties` file instead):
 
    ```yaml
    spring:
@@ -14,95 +14,110 @@ Now that we've setup and configured Keycloak using [Phase Two](https://dash.phas
        oauth2:
          resourceserver:
            jwt:
-             issuer-uri: $http-keycloak-url/auth/realms/$your-realm
-             jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+             issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8888/auth/realms/demo-realm}
+   server:
+     port: 8080
+   app:
+     cors:
+       allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
    ```
 
-   Replace
+   - `issuer-uri` is the realm's issuer URL. It defaults to the example's Keycloak, and the `KEYCLOAK_ISSUER_URI` environment variable overrides it. On the first request, the API reads the realm's signing keys from it, and it only accepts tokens whose `iss` claim is exactly this URL.
+   - `app.cors.allowed-origins` lists the origins allowed to call the API from a browser: the Angular client. The `CORS_ALLOWED_ORIGINS` environment variable overrides it with a comma-separated list.
 
-   - `$http-keycloak-url` with the Keycloak URL from the Phase Two hosted Keycloak instance.
-   - `$your-realm` with the Keycloak realm created earlier in this tutorial.
+   To use another Keycloak, set `KEYCLOAK_ISSUER_URI` to your realm's issuer URL when you start the API, for example:
 
-   If you are using the local Keycloak instance from the cloned example, use the local address for `$http-keycloak-url`.
+   ```bash
+   KEYCLOAK_ISSUER_URI=https://keycloak.example.com/auth/realms/myrealm ./gradlew bootRun
+   ```
 
-   The below Java code omits any imports, reference our example for necessary imports or use your text editor to assist with populating the imports.
+   The below Java code omits the `package` and `import` statements. Reference our [example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak/src/main/java/com/example/springbootkeycloak) for the necessary imports or use your text editor to assist with populating them.
 
 2. Configure Spring Boot resource server
 
-   Under `src.main.java.com.springbootkeycloak` create a new package, `config`, and create a class `SecurityConfig.java`. In this class, add the `HttpSecurity` settings:
+   Under `src/main/java/com/example/springbootkeycloak` create a new package, `config`, and create a class `SecurityConfig.java`. In this class, add the `HttpSecurity` settings and the CORS configuration:
 
    ```java
    @Configuration
-   @EnableWebSecurity
    @EnableMethodSecurity
    public class SecurityConfig {
 
-       private final JwtClaimsConverter jwtAuthConverter;
-
-       public SecurityConfig(JwtClaimsConverter jwtAuthConverter) {
-           this.jwtAuthConverter = jwtAuthConverter;
+       @Bean
+       SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+           http
+                   .cors(withDefaults())
+                   .csrf(AbstractHttpConfigurer::disable)
+                   .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                   .authorizeHttpRequests(authorize -> authorize
+                           .requestMatchers("/error").permitAll()
+                           .requestMatchers(HttpMethod.GET, "/api/test/anonymous").permitAll()
+                           .requestMatchers("/api/**").authenticated()
+                           .anyRequest().denyAll())
+                   .oauth2ResourceServer(resourceServer -> resourceServer
+                           .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtClaimsConverter())));
+           return http.build();
        }
 
        @Bean
-       public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-           http.authorizeHttpRequests(authz ->
-                   authz
-                           .requestMatchers("/api/**")
-                           .authenticated()
-           );
-           http.oauth2ResourceServer(oauth2ResourceServer ->
-                   oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
-           );
-           http.csrf(AbstractHttpConfigurer::disable);
-
-           http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-           return http.build();
+       CorsConfigurationSource corsConfigurationSource(
+               @Value("${app.cors.allowed-origins}") List<String> allowedOrigins) {
+           var configuration = new CorsConfiguration();
+           configuration.setAllowedOrigins(allowedOrigins);
+           configuration.setAllowedMethods(List.of("GET"));
+           configuration.setAllowedHeaders(List.of("Authorization"));
+           var source = new UrlBasedCorsConfigurationSource();
+           source.registerCorsConfiguration("/api/**", configuration);
+           return source;
        }
    }
    ```
 
-   This configuration will make the Spring Boot act as an OAuth2 Resource Server's with JWT authentication. This configuration is part of the functionality provided by the `spring-boot-starter-oauth2-resource-server` dependency. Read more about it's configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-sansboot).
+   This configuration will make the Spring Boot app act as an OAuth2 Resource Server with JWT authentication:
+
+   - The API is stateless and CSRF protection is off: browsers send the access token in the `Authorization` header, not a session cookie.
+   - `/error` and `GET /api/test/anonymous` are public, the rest of `/api/**` needs a valid access token, and every other path is denied.
+   - `JwtClaimsConverter`, from the next step, turns the validated token into the user's authentication.
+   - `@EnableMethodSecurity` turns on the `@PreAuthorize` checks of the endpoints.
+   - CORS lets the origins from `app.cors.allowed-origins` call `/api/**` with `GET` and the `Authorization` header.
+
+   This configuration is part of the functionality provided by the `spring-boot-starter-security-oauth2-resource-server` dependency. Read more about its configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-sansboot).
 
 3. Add JWT token convert configuration
 
    In the same `config` package, create another class, `JwtClaimsConverter.java`. Add a converter for extracting the security context attributes from the `access_token` received from Keycloak.
 
    ```java
-   @Component
    public class JwtClaimsConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
        @Override
        public AbstractAuthenticationToken convert(Jwt jwt) {
-         var authorities = extractRealmRoles(jwt);
-           return new JwtAuthenticationToken(jwt, authorities, getPrincipalFromClaim(jwt));
+           return new JwtAuthenticationToken(jwt, realmRoles(jwt), username(jwt));
        }
 
-       private String getPrincipalFromClaim(Jwt jwt) {
-           var claimName = "preferred_username";
-           return jwt.getClaim(claimName);
+       private static String username(Jwt jwt) {
+           String username = jwt.getClaimAsString("preferred_username");
+           return username != null ? username : jwt.getSubject();
        }
 
-       private Collection<GrantedAuthority> extractRealmRoles(Jwt jwt) {
-           Map<String, Object> resource = jwt.getClaim("realm_access");
-           Collection<String> roles;
-           if (resource == null
-                   || (roles = (Collection<String>) resource.get("roles")) == null) {
-               return Set.of();
+       private static Set<GrantedAuthority> realmRoles(Jwt jwt) {
+           if (jwt.getClaims().get("realm_access") instanceof Map<?, ?> realmAccess
+                   && realmAccess.get("roles") instanceof Collection<?> roles) {
+               return roles.stream()
+                       .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                       .collect(Collectors.toUnmodifiableSet());
            }
-           return roles.stream()
-                   .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                   .collect(Collectors.toSet());
+           return Set.of();
        }
    }
    ```
 
-   The provided example uses the `preferred_username` claim for populating the _principal_ of the security context and the `realm_access.roles` to populate the _authorities_.
+   The provided example uses the `preferred_username` claim, or `sub` if the token has none, for populating the _principal_ of the security context and the `realm_access.roles` to populate the _authorities_: the realm role `user` becomes `ROLE_user`.
 
-   This configuration is part of the functionality provided by the `spring-boot-starter-oauth2-resource-server` dependency. Read more about it's configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-authorization-extraction).
+   This configuration is part of the functionality provided by the `spring-boot-starter-security-oauth2-resource-server` dependency. Read more about its configuration [here](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html#oauth2resourceserver-jwt-authorization-extraction).
 
 4. Create the secured API resources:
 
-   In `src.main.java.com.springbootkeycloak` create a new package, `web`, and create a new class `TestController.java`.
+   In `src/main/java/com/example/springbootkeycloak` create a new package, `web`, and create a new class `TestController.java`.
 
    To test the security integration two resource endpoints are defined:
 
@@ -116,53 +131,51 @@ Now that we've setup and configured Keycloak using [Phase Two](https://dash.phas
    @RequestMapping("/api/test")
    public class TestController {
 
-       @RequestMapping(value = "/anonymous", method = RequestMethod.GET)
-       public ResponseEntity<String> getAnonymous() {
-           return ResponseEntity.ok("Hello Anonymous");
+       @GetMapping("/anonymous")
+       public Message anonymous() {
+           return new Message("Hello Anonymous");
        }
 
-       @PreAuthorize("hasRole('ROLE_user')")
-       @RequestMapping(value = "/user", method = RequestMethod.GET)
-       public ResponseEntity<String> getUser()
-       {
-           return ResponseEntity.ok("Hello Secured with user role.");
+       @GetMapping("/user")
+       @PreAuthorize("hasRole('user')")
+       public UserMessage user(Authentication authentication) {
+           return new UserMessage("Hello Secured with user role.", authentication.getName());
+       }
+
+       public record Message(String message) {
+       }
+
+       public record UserMessage(String message, String user) {
        }
    }
-
    ```
 
-   Because both endpoints have the prefix `/api` they will require a secure context in order to access them. Furthermore, the `/api/test/user` endpoint is secured using a predefined authority `ROLE_user`. This is a Realm role that can be created and applied to your example user from earlier in this tutorial.
+   Anyone can call `/api/test/anonymous`, since `SecurityConfig` makes it public. The `/api/test/user` endpoint needs a valid access token, and `@PreAuthorize("hasRole('user')")` also requires the authority `ROLE_user`, which comes from the realm role `user`. Both endpoints return JSON, and `/api/test/user` adds the user name from the token.
 
    This logic can be used to extend access and authorization to any part of the application.
 
-   Start the application running with `./gradlew bootRun`.
+   Start the API on port 8080 with `./gradlew bootRun`.
 
 ### Testing the secured endpoints
 
-The secured endpoints can be tested using `curl` with the `Authorization` header. The `Authorization` header must contain the `access_token`.
+The secured endpoints can be tested using `curl`. The public endpoint needs no token:
 
 ```bash
-curl --location 'http://localhost:8080/api/test/anonymous' \
-    --header 'Authorization: Bearer {{$access_token}}'
+curl http://localhost:8080/api/test/anonymous
 ```
+
+It returns `{"message":"Hello Anonymous"}`.
+
+The `user` endpoint needs an `access_token` in the `Authorization` header. Keycloak doesn't hand one out for a username and password here, since `demo-spa` is a public client that only allows the browser login flow. Take the token from the Angular client of the next section instead: log in, open the browser's developer console and run `sessionStorage.getItem('access_token')`. Then:
 
 ```bash
-curl --location 'http://localhost:8080/api/test/user' \
-    --header 'Authorization: Bearer {{$access_token}}'
+ACCESS_TOKEN='paste the access token here'
+
+curl -i http://localhost:8080/api/test/user
+curl -H "Authorization: Bearer $ACCESS_TOKEN" http://localhost:8080/api/test/user
 ```
 
-To generate an access token, you can use the `openid-connect/token` endpoint from Keycloak.
-
-```bash
-curl -X POST \
-  --location "https://$http-keycloak-url/auth/realms/$keycloak-realm/protocol/openid-connect/token" \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'username=$test-user&password=$password&grant_type=password&client_id=$client-name&client_secret=$client-secret'
-```
-
-Substitute the values from your Keycloak instance and test user for `$http-keycloak-url`, `$keycloak-realm`, `$test-user`, `$password`, `$client-name`, and `$client-secret`.
-
-In the returned HTTP response, the `access_token` will be present. Use this token to test the secured endpoints in the example curl's above.
+The first call returns `401`, the second `{"message":"Hello Secured with user role.","user":"test"}`, or `403` with the `noaccess` user's token. Access tokens expire after 5 minutes. If you get an unexpected `401` or `403`, the [Spring Boot Keycloak tutorial](/tutorials/securing-applications/spring-boot/#every-401-and-403-and-what-it-means) explains the causes of each.
 
 At this point, your Spring Boot application is secured with Keycloak, but there is no "Frontend" to the application. In the next section, we will add an Angular SPA to demonstrate sign-in with Keycloak.
 
@@ -172,120 +185,245 @@ In order to access the secured resources of the Spring Boot server, we will crea
 
 ### Generate Angular Application
 
-Our [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak) already has a basic Angular application setup. We will use that for the rest of this setup.
+Our [Spring Boot example](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak) already has an Angular 22 application set up. We will use that for the rest of this setup.
 
 In the example folder, open the `angularclient` folder.
 
 If you do want to start your own Application, follow the instructions below:
 
-- Setup a new Angular application following these [instructions](https://angular.io/start)
-- Use the Angular Oauth2 OIDC [library](https://github.com/manfredsteyer/angular-oauth2-oidc) to integrate authentication and authorization.
+- Set up a new Angular application with the Angular CLI, following these [instructions](https://angular.dev/installation).
+- Use the Angular OAuth2 OIDC [library](https://github.com/manfredsteyer/angular-oauth2-oidc) to integrate authentication and authorization. The example also decodes the tokens with [jwt-decode](https://github.com/auth0/jwt-decode): `pnpm add angular-oauth2-oidc jwt-decode`.
 
 ### Securing views
 
-In the `/angularclient/src/app` folder, the `app.module.ts` file is the entry point for the Angular application. The Angular application will need to be configured in order to access user information only after authentication.
+The Angular client is a standalone application: `src/main.ts` starts it with the providers from `src/app/app.config.ts`, which set up the `angular-oauth2-oidc` library. In `src/app/app.config.ts`:
 
-```javascript
-@NgModule({
-  declarations: [
-    AppComponent,
-    MainpageComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    OAuthModule.forRoot()
-  ],
+```ts
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
+import { Router, provideRouter } from '@angular/router';
+import { OAuthService, provideOAuthClient } from 'angular-oauth2-oidc';
+import { environment } from '../environments/environment';
+import { routes } from './app.routes';
+import { authConfig } from './auth/auth.config';
+
+export const appConfig: ApplicationConfig = {
   providers: [
-    {
-      provide: APP_INITIALIZER,
-      useFactory: applicationInitializerFactory,
-      deps: [OAuthService],
-      multi: true
-    },
-    {provide: LOCAL_STORAGE_TOKEN, useFactory: localStorageFactory},
-    {provide: OAuthStorage, useFactory: localStorageFactory}
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
+    provideOAuthClient({
+      resourceServer: {
+        allowedUrls: [environment.apiBaseUrl],
+        sendAccessToken: true,
+      },
+    }),
+    provideAppInitializer(async () => {
+      const oauth = inject(OAuthService);
+      const router = inject(Router);
+      oauth.configure(authConfig);
+      oauth.setupAutomaticSilentRefresh();
+      try {
+        await oauth.loadDiscoveryDocumentAndTryLogin();
+      } catch (error) {
+        console.error('Could not reach Keycloak or finish the login', error);
+        return;
+      }
+      if (oauth.state) {
+        void router.navigateByUrl(decodeURIComponent(oauth.state));
+      }
+    }),
   ],
-  bootstrap: [AppComponent]
-})
-export class AppModule {...}
+};
 ```
 
-The app is initialized with the `OAuthService` as a dependency. Tokens from the `OAuthService` are stored in the browser's `localStorage`.
+- `provideOAuthClient` provides the `OAuthService` and an HTTP interceptor, enabled by `withInterceptorsFromDi()`, that sends the access token only with requests to the URLs in `allowedUrls`: the API's.
+- `provideAppInitializer` runs before the app starts. It configures the `OAuthService`, refreshes the tokens before they expire and loads Keycloak's discovery document. When Keycloak redirects back after a login, `loadDiscoveryDocumentAndTryLogin()` exchanges the authorization code for tokens. If the login started from a guarded page, the app then navigates back to it.
 
-To configure the `OAuthService`'s `authorization code` login flow with the `angular-oauth2-oidc` library add the following configuration:
+Tokens from the `OAuthService` are stored in the browser's `sessionStorage`, the library's default.
 
-```javascript
-function configure() {
-  oauthService.configure({
-    // URL of the SPA to redirect the user to after login
-    redirectUri: window.location.origin + "/index.html",
-    // The SPA's id. The SPA is registered with this id at the auth-server
-    clientId: "$your-public-keycloak-client",
-    // set the scope for the permissions the client should request
-    scope: "openid",
-    // url for  /.well-known/openid-configuration endpoint
-    issuer: "http://$http-keycloak-url:8888/auth/realms/$your-keycloak-realm",
-    disablePKCE: true,
-    //initialize the code flow
-    responseType: "code",
-    showDebugInformation: true,
-  });
-}
+The `OAuthService`'s `authorization code` login flow is configured in `src/app/auth/auth.config.ts`:
+
+```ts
+import { AuthConfig } from 'angular-oauth2-oidc';
+import { environment } from '../../environments/environment';
+
+export const authConfig: AuthConfig = {
+  issuer: environment.issuer,
+  clientId: environment.clientId,
+  redirectUri: window.location.origin + '/',
+  postLogoutRedirectUri: window.location.origin + '/',
+  responseType: 'code',
+  scope: 'openid profile email',
+};
 ```
 
-Replace `http-keycloak-url`, `$your-public-keycloak-client`, and `$your-keycloak-realm` with your actual Keycloak configurations.
+The library uses PKCE with the authorization code flow, as the `demo-spa` client requires. The Keycloak issuer, the client ID and the API's URL are in `src/environments/environment.ts`:
 
-Start the application with `npm run start`
+```ts
+export const environment = {
+  issuer: 'http://localhost:8888/auth/realms/demo-realm',
+  clientId: 'demo-spa',
+  apiBaseUrl: 'http://localhost:8080',
+};
+```
+
+To use another Keycloak, replace `issuer` with your realm's issuer URL and `clientId` with your client's ID.
+
+Start the Angular client on port 4200. You need Node.js 24 and pnpm:
+
+```bash
+cd angularclient
+pnpm install
+pnpm start
+```
+
+Then open [localhost:4200](http://localhost:4200).
 
 #### User Authentication
 
-In the `user.component.html` file, we authenticate the user to the logged in state and conditionally render the login and logout buttons.
+In the `src/app/home/home.html` file, we render the user's logged in state and conditionally render the login and logout buttons:
 
 ```html
-<div *ngIf="isLoggedIn">
-  <!-- Content for logged-in users -->
-  <div class="mb-2 text-p2blue-700 text-2xl">Authenticated</div>
-  <div class="mb-6 text-p2blue-700 text-md">
-    <div *ngIf="userInfo">
-      <p><span class="font-bold">Username</span>: {{ userInfo.username }}</p>
-      <p><span class="font-bold">Email</span>: {{ userInfo.email }}</p>
-      <p><span class="font-bold">Roles</span>: {{ userInfo.roles }}</p>
-    </div>
+<div class="pb-8 text-xl italic">Your current status is:</div>
+@if (auth.authenticated()) {
+  <div class="mb-2 text-2xl text-p2blue-700">Authenticated</div>
+  <div class="mb-6 text-p2blue-700">
+    <div>{{ auth.idTokenClaims()?.name }}</div>
+    <div>{{ auth.idTokenClaims()?.email }}</div>
   </div>
-  <button [class]="buttonClasses" (click)="signOut()">Sign Out</button>
-</div>
-<div *ngIf="!isLoggedIn">
-  <div class="mb-6 text-p2blue-700 text-2xl">Not authenticated.</div>
-  <button [class]="buttonClasses" (click)="signIn()">Sign In</button>
-</div>
+  <button
+    type="button"
+    class="cursor-pointer rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    (click)="auth.logout()"
+  >
+    Log out
+  </button>
+} @else {
+  <div class="mb-6 text-2xl text-p2blue-700">Not authenticated.</div>
+  @if (!auth.keycloakReachable()) {
+    <p class="mb-6 text-sm text-red-700">
+      Keycloak is not reachable at {{ issuer }}. Start it with
+      <code>docker compose up -d --wait</code>.
+    </p>
+  }
+  <button
+    type="button"
+    class="cursor-pointer rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    (click)="auth.login()"
+  >
+    Log in
+  </button>
+}
 ```
 
-the `isLoggedIn` function can be found in the `user.component.ts` file.
+`auth` is the `Auth` service from `src/app/auth/auth.ts`. It turns the `OAuthService`'s events into signals, so the page updates when the user logs in or out and when the tokens are refreshed:
 
-```javascript
-this.isLoggedIn = this.oauthService.hasValidAccessToken();
-```
+```ts
+import { Injectable, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { OAuthService } from 'angular-oauth2-oidc';
+import { JwtPayload, jwtDecode } from 'jwt-decode';
+import { map, startWith } from 'rxjs';
 
-Clicking the Log In or Log Out buttons will redirect to the Keycloak login page or log the user out.
+export interface IdTokenClaims extends JwtPayload {
+  name?: string;
+  email?: string;
+}
 
-#### Use Angular guards to secure routes
+@Injectable({ providedIn: 'root' })
+export class Auth {
+  private readonly oauth = inject(OAuthService);
 
-We can achieve route restriction by using guards. If the access token is not valid the guard will initiate the login flow. You could optionally apply this at the router level to enforce a full page login.
+  private readonly session = toSignal(
+    this.oauth.events.pipe(
+      startWith(null),
+      map(() => ({
+        keycloakReachable: this.oauth.discoveryDocumentLoaded,
+        authenticated: this.oauth.hasValidAccessToken(),
+        accessToken: this.oauth.getAccessToken(),
+        idToken: this.oauth.getIdToken(),
+      })),
+    ),
+    { requireSync: true },
+  );
 
-```javascript
-export class AuthGuard implements CanActivate {
+  readonly keycloakReachable = computed(() => this.session().keycloakReachable);
+  readonly authenticated = computed(() => this.session().authenticated);
+  readonly accessTokenClaims = computed(() => decode<JwtPayload>(this.session().accessToken));
+  readonly idTokenClaims = computed(() => decode<IdTokenClaims>(this.session().idToken));
 
-  constructor(private oauthService: OAuthService) {
+  login(): void {
+    this.oauth.initCodeFlow();
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree>{
-    if(!this.oauthService.hasValidAccessToken()) {
-      this.oauthService.initLoginFlow();
-    }
-    return of(true);
+  logout(): void {
+    this.oauth.logOut();
+  }
+}
+
+function decode<T>(token: string | null): T | null {
+  return token ? jwtDecode<T>(token) : null;
+}
+```
+
+Clicking the Log in button will redirect to the Keycloak login page. Clicking Log out logs the user out of the app and of Keycloak, which redirects back to the app.
+
+Below the login state, the home page has buttons that call `/api/test/anonymous` and `/api/test/user` and show the response. They use the `Api` service. In `src/app/api/api.ts`:
+
+```ts
+@Injectable({ providedIn: 'root' })
+export class Api {
+  private readonly http = inject(HttpClient);
+
+  get(path: string): Observable<ApiResponse> {
+    return this.http.get<unknown>(environment.apiBaseUrl + path).pipe(
+      map((body) => ({ path, text: JSON.stringify(body, null, 2) })),
+      catchError((error: HttpErrorResponse) => of({ path, text: errorMessage(error) })),
+    );
   }
 }
 ```
+
+The service never handles the token: the interceptor from `provideOAuthClient` adds it, since the URL starts with `environment.apiBaseUrl`. Logged out, `/api/test/user` returns `401`. Logged in as `test`, it returns the message with the user name, and logged in as `noaccess`, `403`.
+
+#### Use Angular guards to secure routes
+
+We can achieve route restriction by using guards. If the access token is not valid, `authGuard` in `src/app/auth/auth.guard.ts` initiates the login flow with the requested URL and cancels the navigation:
+
+```ts
+import { inject } from '@angular/core';
+import { CanActivateFn } from '@angular/router';
+import { OAuthService } from 'angular-oauth2-oidc';
+
+export const authGuard: CanActivateFn = (_route, state) => {
+  const oauth = inject(OAuthService);
+  if (oauth.hasValidAccessToken()) {
+    return true;
+  }
+  oauth.initCodeFlow(state.url);
+  return false;
+};
+```
+
+`src/app/app.routes.ts` applies the guard to the protected page:
+
+```ts
+import { Routes } from '@angular/router';
+import { authGuard } from './auth/auth.guard';
+import { Home } from './home/home';
+import { Protected } from './protected/protected';
+
+export const routes: Routes = [
+  { path: '', component: Home },
+  { path: 'protected', component: Protected, canActivate: [authGuard] },
+  { path: '**', redirectTo: '' },
+];
+```
+
+After the login, the app initializer in `app.config.ts` navigates back to `/protected`, which calls `/api/test/user`. You could optionally apply the guard to every route to enforce a full page login.

@@ -26,7 +26,7 @@ In this article we'll be using [Keycloak](https://www.keycloak.org/) to quickly 
 
 :::info
 
-If you just want to skip to the code, visit the Phase Two [ReactJS example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
+If you just want to skip to the code, visit the Phase Two [ReactJS example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-client-ts).
 
 :::
 
@@ -57,53 +57,67 @@ If you just want to skip to the code, visit the Phase Two [ReactJS example](http
 We will use the Phase Two ReactJS example code here, but the logic could easily be applied to any existing application.
 :::
 
-1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-1. Open the ReactJS [folder](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs) within `/frameworks/reactjs`.
-1. Run `npm install` and then `npm start`. This example leverages [react-oidc-context](https://github.com/authts/react-oidc-context/tree/f175dcba6ab09871b027d6a2f2224a17712b67c5) (which uses [oidc-client-ts](https://github.com/authts/oidc-client-ts)) to provide hook and HOC support.
-1. Open the `index.tsx` file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code.
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/), if you haven't already.
+1. Open the ReactJS [folder](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-client-ts) within `/frameworks/reactjs/oidc-client-ts`. You need [Node.js](https://nodejs.org/) 24 and [pnpm](https://pnpm.io/).
+1. Point the app at your Keycloak. The app reads two environment variables, `VITE_OIDC_ISSUER_URI` and `VITE_OIDC_CLIENT_ID`. `.env` holds the values of the hosted Phase Two demo realm, and `.env.local` overrides them. For the local Keycloak, copy `.env.local.sample` to `.env.local`:
 
-   ```js
-   const authServerUrl = "https://euc1.auth.ac/auth/";
-   const realm = "shared-deployment-001";
-   const client = "reg-example-1";
+   ```bash
+   cp .env.local.sample .env.local
    ```
 
-   Those are used to popluate the OIDC config
+   It holds the issuer URL of the local Keycloak and the client it already has for the React examples, `reactjs-example`:
 
-   ```js
-   const oidcConfig = {
-     authority: `${authServerUrl}realms/${realm}`,
-     client_id: client,
-     redirect_uri: "http://localhost:3000/authenticated",
-     onSigninCallback: (args: any) =>
-       window.history.replaceState(
-         {},
-         document.title,
-         window.location.pathname
-       ),
+   ```bash
+   VITE_OIDC_ISSUER_URI=http://localhost:8080/auth/realms/p2examples
+   VITE_OIDC_CLIENT_ID=reactjs-example
+   ```
+
+   For another Keycloak, copy the file the same way and replace both values with the **Issuer URL** and the **Client ID** from the OIDC Config section. The client ID is the one you entered when you created the client, so it may not be `reactjs-example`.
+
+1. Run `pnpm install` and then `pnpm dev`. This example leverages [react-oidc-context](https://github.com/authts/react-oidc-context) (which uses [oidc-client-ts](https://github.com/authts/oidc-client-ts)) to provide hook and HOC support.
+1. Open the `src/main.tsx` file. It builds the OIDC config from the environment variables:
+
+   ```tsx
+   import { StrictMode } from "react";
+   import { createRoot } from "react-dom/client";
+   import { AuthProvider, type AuthProviderProps } from "react-oidc-context";
+   import App from "./App.tsx";
+   import "./index.css";
+
+   const oidcConfig: AuthProviderProps = {
+     authority: import.meta.env.VITE_OIDC_ISSUER_URI,
+     client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
+     redirect_uri: `${window.location.origin}/`,
+     post_logout_redirect_uri: `${window.location.origin}/`,
+     scope: "openid profile email",
+     onSigninCallback: () => {
+       window.history.replaceState({}, document.title, window.location.pathname);
+     },
    };
+
+   createRoot(document.getElementById("root")!).render(
+     <StrictMode>
+       <AuthProvider {...oidcConfig}>
+         <App />
+       </AuthProvider>
+     </StrictMode>,
+   );
    ```
 
-   The config is then provided to the `AuthProvider`.
+   Keycloak sends users back to the app's origin after they log in and after they log out, which the client's `http://localhost:3000/*` redirect URI and `+` post logout redirect URI allow. `onSigninCallback` removes the authorization response from the URL once the login completes. The config is then provided to the `AuthProvider`, which wraps the whole app.
 
-   ```js
-   <AuthProvider {...oidcConfig}>
-     <App />
-   </AuthProvider>
-   ```
-
-   At this point our entire applicationw will be able to access all information and methods needed to perform authentication. View `Auth.tsx` for exactly how the code is authenticating your user. The sections rendering the "Log in" and "Log out" buttons are conditional areas based on the authenticated context.
+   At this point our entire application will be able to access all information and methods needed to perform authentication. View `src/Auth.tsx` for exactly how the code is authenticating your user. It reads the authentication state with the `useAuth()` hook, and the sections rendering the "Log in" and "Log out" buttons are conditional areas based on that state. **Log in** calls `auth.signinRedirect()`, and **Log out** calls `auth.signoutRedirect()`.
 
    The logic using the hook to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
 
-1. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be "Not authenticated". Click **Log In**. This will redirect you to your login page.
+1. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. Your current status should be "Not authenticated." Click **Log in**. This will redirect you to your login page.
 
    :::info
-   Use the non-admin user created in the previous section to sign in.
+   Use the non-admin user created in the previous section to sign in. On the local Keycloak, that is `demo` / `demo`.
    :::
 
-1. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your "Authenticated" state, displaying your user's email and their Token.
-1. After your first log in, click **Log out**. Then click **Log in** again. Notice how this time you will not be redirected to sign in as your state is already in the browser. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+1. Sign in with the credentials of the non-admin user. You will then be redirected to the application. The Phase Two example landing page now loads your "Authenticated" state, displaying your user's name and email, and the decoded access and ID tokens. The app keeps the tokens in session storage and refreshes them before they expire.
+1. Click **Log out**. The app ends your Keycloak session too, and Keycloak sends you back to the landing page. When you click **Log in** again, Keycloak asks for your credentials.
 
 ## Learning more
 

@@ -1,27 +1,35 @@
 :::tip
 
-If you already have a functioning Keycloak instance, you can skip to the next section.
+If you already have a Keycloak instance, skip to the next section.
 
 :::
 
-Rather than trying to set up a "from scratch" instance of Keycloak, we're going to short-circuit that process by leveraging a free [Phase Two Starter](https://phasetwo.io/) instance. The Starter provides a free hosted instance of Phase Two's enhanced Keycloak ready for light production use cases.
+You can run Keycloak on your machine with Docker, or use a hosted Phase Two cluster. Both come with Phase Two's Keycloak extensions.
 
-- Visit the sign-up [page](https://dash.phasetwo.io/).
-- Enter an email, use a Github account, or use an existing Google account to register.
+### Run Keycloak locally
 
-  ![Phase Two Register](/blog/starter_instructions/register.png)
+The Phase Two [examples repo](https://github.com/p2-inc/examples) includes a local [Phase Two Keycloak](https://github.com/p2-inc/phasetwo-containers) that is already set up for the examples: a `p2examples` realm with a client for each example and a demo user. You need [Docker](https://docs.docker.com/get-started/get-docker/) with the Compose plugin.
 
-- Follow the register steps. This will include a sign-in link being sent to your email. Use that for password-less login.
+```bash
+git clone https://github.com/p2-inc/examples.git
+cd examples
+docker compose -f keycloak/docker-compose.yml up -d --wait
+```
 
-  ![Phase Two Email Magic Link Register](/blog/starter_instructions/email_link.png)
+| What          | Value                                                                            |
+| ------------- | -------------------------------------------------------------------------------- |
+| Issuer URL    | `http://localhost:8080/auth/realms/p2examples`                                   |
+| Admin console | [localhost:8080/auth/admin](http://localhost:8080/auth/admin), `admin` / `admin` |
+| Demo user     | `demo` / `demo`                                                                  |
 
-- After creating an account, a [realm](https://www.youtube.com/watch?v=ZTFlc-3pG1M) is automatically created for you with all of the Phase Two enhancements. You need to create a Deployment in the Shared Phase Two infrastructure in order to gain access to the realm. Without a deployment created, the Create Shared Deployment modal will automatically pop up.
-- Create a Shared Deployment by providing a region (pick something close to your existing infrastructure), a name for the deployment, and selecting the default organization that was created for you upon account creation. Hit "Confirm" when ready. Standby while our robots get to work generating your deployment. This can take a few seconds.
+The client and the user from the next two sections already exist in this realm, so you can skip both. The [local Keycloak README](https://github.com/p2-inc/examples/blob/main/keycloak/README.md) lists the client of each example. `docker compose -f keycloak/docker-compose.yml down` stops Keycloak, and the next `up` starts again from a fresh realm.
 
-  ![Phase Two Create Shared Deployment](/blog/starter_instructions/create_shared_deployment.png)
+### Use a hosted Phase Two cluster
 
-- After the deployment is created and active, you can access the Keycloak Admin console by clicking "Open Console" for that deployment. Open it now to see the console.
+1. Sign up on the [Phase Two Dashboard](https://dash.phasetwo.io/) with an email address, a GitHub account or a Google account.
+1. Create a Starter cluster, which is free for 30 days, and add a realm to it.
+1. Click **Open Console** to open the realm in the Keycloak admin console.
 
-  ![Phase Two Open Console Keycloak Admin UI](/blog/starter_instructions/deployments.png)
+The app connects to Keycloak through the realm's issuer URL, `https://<your-keycloak-host>/auth/realms/<your-realm>`. In the admin console, **Realm settings** > **General** > **Endpoints** > **OpenID Endpoint Configuration** shows it as `issuer`.
 
-At this point, move on to the next step in the tutorial. We'll be coming back to the Admin Console when its time to start connecting our App to the Keycloak instance.
+Keep the admin console open: the next sections create the app's client and a user there.

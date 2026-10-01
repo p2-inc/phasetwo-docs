@@ -3,72 +3,74 @@ id: react
 title: React
 ---
 
-Many SPAs use a framework such as [React](https://reactjs.org/) to simplify the creation of interactive experiences. We suggest the use of the open source [react-keycloak](https://github.com/react-keycloak/react-keycloak) library to make securing React applications easier.
+Many SPAs use a framework such as [React](https://react.dev/) to simplify the creation of interactive experiences. We suggest the open source [react-oidc-context](https://github.com/authts/react-oidc-context) library, built on [oidc-client-ts](https://github.com/authts/oidc-client-ts), to make securing React applications easier. It logs users in with the authorization code flow and PKCE, keeps the tokens in session storage and refreshes them before they expire.
 
 ### Example
 
-Phase Two has a [React project](https://github.com/p2-inc/examples) with sample code or view a [live deployed version](https://phasetwo-react-example.vercel.app/).
+Phase Two has a [React project](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-client-ts) with sample code or view a [live deployed version](https://phasetwo-react-example.vercel.app/). The [React tutorial](/blog/instant-user-managemenet-and-sso-for-reactjs) walks through it step by step.
 
-Keycloak has setup instructions in their [library documentation](https://www.npmjs.com/package/@react-keycloak/web).
+The app needs a public OpenID Connect client in Keycloak: client authentication off, the standard flow enabled with PKCE (S256), `http://localhost:3000/*` as valid redirect URI, and `+` as web origin and as valid post logout redirect URI. The [local Keycloak](https://github.com/p2-inc/examples/blob/main/keycloak/README.md) of the examples repo already has one, `reactjs-example`.
 
-#### Setup Keycloak instance
+#### Configure the app
 
-Create a `keycloak.js` file in the `src` folder of your project (e.g. where `App.js` is located) with the following content:
+The example reads the issuer URL and the client ID from environment variables. For the local Keycloak, start it from the root of the examples repo with `docker compose -f keycloak/docker-compose.yml up -d --wait`, and run `cp .env.local.sample .env.local` in the example folder. The file holds:
 
-```js
-import Keycloak from "keycloak-js";
-
-// Pass initialization options as required or leave blank to load from 'keycloak.json'
-const keycloak = new Keycloak();
-
-export default keycloak;
+```bash
+VITE_OIDC_ISSUER_URI=http://localhost:8080/auth/realms/p2examples
+VITE_OIDC_CLIENT_ID=reactjs-example
 ```
 
-Further documentation on setup of the Keycloak instance is in the official documentation https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter
+For another Keycloak, set `VITE_OIDC_ISSUER_URI` to your realm's issuer URL, `https://<your-keycloak-host>/auth/realms/<your-realm>`, and `VITE_OIDC_CLIENT_ID` to the ID of your client.
 
-#### Setup ReactKeycloakProvider
+Then run `pnpm install` and `pnpm dev`, and open [localhost:3000](http://localhost:3000). On the local Keycloak, log in as `demo` / `demo`.
 
-Once you have set up the `Keycloak` instance there, you can easily wrap components you wish to protect using the `ReactKeycloakProvider`.
+#### Set up the AuthProvider
 
-```jsx
-import { ReactKeycloakProvider } from "@react-keycloak/web";
+Install the libraries:
 
-import keycloak from "./keycloak";
+```bash
+pnpm add react-oidc-context oidc-client-ts
+```
 
-// Wrap everything inside KeycloakProvider
-const App = () => {
-  return (
-    <ReactKeycloakProvider authClient={keycloak}>...</ReactKeycloakProvider>
-  );
+Then wrap the app in an `AuthProvider`. In `src/main.tsx`:
+
+```tsx
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { AuthProvider, type AuthProviderProps } from "react-oidc-context";
+import App from "./App.tsx";
+import "./index.css";
+
+const oidcConfig: AuthProviderProps = {
+  authority: import.meta.env.VITE_OIDC_ISSUER_URI,
+  client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
+  redirect_uri: `${window.location.origin}/`,
+  post_logout_redirect_uri: `${window.location.origin}/`,
+  scope: "openid profile email",
+  onSigninCallback: () => {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  },
 };
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <AuthProvider {...oidcConfig}>
+      <App />
+    </AuthProvider>
+  </StrictMode>,
+);
 ```
 
-#### Using hooks
+#### Use the hook
 
-When a component requires access to Keycloak, you can use the `useKeycloak` Hook.
+When a component requires access to the login state, use the `useAuth` hook. The example's `src/Auth.tsx` calls it and renders the page from what it returns:
 
-```jsx
-import { useKeycloak } from "@react-keycloak/web";
+- `auth.isLoading` is `true` while the library loads the user, and `auth.error` holds an authentication error;
+- `auth.isAuthenticated` tells whether the user is logged in, and `auth.user?.profile` holds the claims of the ID token, such as `name` and `email`;
+- `auth.signinRedirect()` sends the user to the Keycloak login page, and `auth.signoutRedirect()` logs them out of the app and of Keycloak.
 
-export default () => {
-  // Using Object destructuring
-  const { keycloak, initialized } = useKeycloak();
+The [react-oidc-context documentation](https://github.com/authts/react-oidc-context) describes the hook and how to protect routes.
 
-  // Here you can access all of keycloak methods and variables.
-  // See https://www.keycloak.org/docs/latest/securing_apps/index.html#javascript-adapter-reference
+### oidc-spa
 
-  return (
-    <div>
-      <div>{`User is ${
-        !keycloak.authenticated ? "NOT " : ""
-      }authenticated`}</div>
-
-      {!!keycloak.authenticated && (
-        <button type="button" onClick={() => keycloak.logout()}>
-          Logout
-        </button>
-      )}
-    </div>
-  );
-};
-```
+Phase Two also has an [oidc-spa example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa), with a [live deployed version](https://phasetwo-react-oidcspa-example.vercel.app/). [oidc-spa](https://www.oidc-spa.dev/) is the library Phase Two uses in its own dashboards. Its Vite plugin starts it before the app loads and hardens the page against token theft. The [oidc-spa tutorial](/blog/keycloak-oidc-spa-phasetwo) builds the example step by step.

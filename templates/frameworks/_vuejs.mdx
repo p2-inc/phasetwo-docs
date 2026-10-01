@@ -2,87 +2,191 @@
 We will use the Phase Two Vue example code here, but the logic could easily be applied to any existing application.
 :::
 
-This example uses [Vue.js](https://vuejs.org/). We're going to leverage [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) to integrate OIDC authentication with the Vue app. The [`oidc-client-ts`](https://www.npmjs.com/package/oidc-client-ts) package is a well-maintained and used library. It provides a lot of utilities for building out a fully production app.
+This example uses [Vue.js](https://vuejs.org/) 3 with [Vite](https://vite.dev/) and [Vue Router](https://router.vuejs.org/). We're going to leverage [`oidc-client-ts`](https://authts.github.io/oidc-client-ts/) to integrate OIDC authentication with the Vue app. The `oidc-client-ts` package is a well-maintained and used library. It provides a lot of utilities for building out a fully production app.
 
 1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-1. Open the Vue [folder](https://github.com/p2-inc/examples/tree/main/frameworks/vue) within `/frameworks/vue` and open the `/nuxt/oidc-client-ts` folder.
-1. Run `npm install` and then `npm run dev`.
-1. We'll review where we configure out Keycloak instance. First open `/auth.ts`. In this file you will want to update it with the values for the Keycloak instance we set-up earlier in the tutorial. Update the `clientSecret` with the value. Use and environment variable here if you wish.
+1. Open the Vue [folder](https://github.com/p2-inc/examples/tree/main/frameworks/vue) within `/frameworks/vue`. You need [Node.js](https://nodejs.org/) 24 and [pnpm](https://pnpm.io/).
+1. Point the app at your Keycloak. The app reads the issuer URL of your realm from `VITE_OIDC_ISSUER_URI` and the client ID from `VITE_OIDC_CLIENT_ID`. `.env` sets them to the hosted Phase Two demo realm. To use the [local Keycloak](https://github.com/p2-inc/examples/blob/main/keycloak/README.md) from the examples repo, copy the sample file:
 
-   ```json
-   export const keycloakConfig = {
-     authorityUrl: "https://euc1.auth.ac",
-     applicationUrl: "http://localhost:3000",
-     realm: "shared-deployment-001",
-     clientId: "reg-example-1",
-     clientSecret: "CLIENT_SECRET",
-   };
+   ```bash
+   cp .env.local.sample .env.local
    ```
 
-   After the config, you can see how the OIDC instance is started.
+   Vite loads `.env.local` over `.env`, so the app now uses the local Keycloak and its `vue-example` client:
 
-   ```javascript
-   const settings = {
-     authority: `${keycloakConfig.authorityUrl}/auth/realms/${keycloakConfig.realm}`,
-     client_id: keycloakConfig.clientId,
-     client_secret: keycloakConfig.clientSecret,
+   ```bash
+   VITE_OIDC_ISSUER_URI=http://localhost:8080/auth/realms/p2examples
+   VITE_OIDC_CLIENT_ID=vue-example
+   ```
+
+   For another Keycloak, create `.env.local` the same way, and set `VITE_OIDC_ISSUER_URI` to your realm's issuer URL and `VITE_OIDC_CLIENT_ID` to the ID of your client. The app runs in the browser, so it uses a public client and no client secret. The client needs `http://localhost:3000/*` as valid redirect URI, and `+` as web origin and as valid post logout redirect URI.
+
+1. Run `pnpm install` and then `pnpm dev`. The app runs on [localhost:3000](http://localhost:3000).
+1. We'll review where we configure the OIDC client. Open `src/auth.ts`. It creates the oidc-client-ts `UserManager` from the environment variables:
+
+   ```ts
+   import { UserManager } from 'oidc-client-ts'
+
+   export const userManager = new UserManager({
+     authority: import.meta.env.VITE_OIDC_ISSUER_URI,
+     client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
      redirect_uri: `${window.location.origin}/auth`,
      silent_redirect_uri: `${window.location.origin}/silent-refresh`,
-     post_logout_redirect_uri: `${window.location.origin}`,
-     response_type: "code",
-     userStore: new WebStorageStateStore(),
-     loadUserInfo: true,
-   };
-   this.userManager = new UserManager(settings);
+     post_logout_redirect_uri: `${window.location.origin}/`,
+     scope: 'openid profile email',
+   })
    ```
 
-1. With the Keycloak instance defined, we attach this to the app instance for Vue. Switch to `/main.ts`
+   oidc-client-ts logs users in with the authorization code flow and PKCE. It keeps the tokens in session storage and renews them before they expire.
 
-   ```javascript
-   import Auth from "@/auth";
-   // ...
-   app.config.globalProperties.$auth = Auth;
+1. With the `UserManager` defined, we expose it to the components through a composable. Switch to `src/composables/useAuth.ts`. It keeps the signed-in user in reactive state, which the `UserManager` events update, and `useAuth()` returns that state with the `signIn` and `signOut` actions:
+
+   ```ts
+   import type { User } from 'oidc-client-ts'
+   import { shallowRef } from 'vue'
+   import { userManager } from '@/auth'
+
+   const user = shallowRef<User | null>(null)
+   const error = shallowRef<Error | null>(null)
+
+   userManager.events.addUserLoaded((loadedUser) => {
+     user.value = loadedUser
+     error.value = null
+   })
+   userManager.events.addUserUnloaded(() => {
+     user.value = null
+   })
+   userManager.events.addSilentRenewError((renewError) => {
+     error.value = renewError
+   })
+
+   export async function initAuth() {
+     const storedUser = await userManager.getUser()
+     user.value = storedUser && !storedUser.expired ? storedUser : null
+   }
+
+   export function setAuthError(authError: unknown) {
+     error.value = authError instanceof Error ? authError : new Error(String(authError))
+   }
+
+   export function useAuth() {
+     return {
+       user,
+       error,
+       signIn: () => userManager.signinRedirect({ state: { returnTo: window.location.pathname } }),
+       signOut: () => userManager.signoutRedirect(),
+     }
+   }
    ```
 
-   We pull in the `Auth` instance then expose it through the `$auth` variable.
+   `signIn` sends the current path along with the login, so the app can bring the user back to it. `signOut` also ends the Keycloak session.
 
-1. There are a few main pages in play here that we define to create paths the library can leverage. The `/view/auth` and `/view/silent-refresh` create paths at the same name. These are used to do the redirection during authentication. From within these we use the `Auth` instance to direct the user around within the app. For instance in `/views/AuthView`:
+   `src/main.ts` loads the stored user with `initAuth()` before it mounts the app:
 
-   ```javascript
-   export default {
-     name: "AuthAuthenticated",
-     async mounted() {
-       try {
-         await this.$auth.signinCallback();
-         this.$router.push("/");
-       } catch (e) {
-         console.error(e);
-       }
-     },
-   };
+   ```ts
+   import './assets/main.css'
+
+   import { createApp } from 'vue'
+   import App from './App.vue'
+   import { initAuth } from './composables/useAuth'
+   import router from './router'
+
+   await initAuth()
+
+   createApp(App).use(router).mount('#app')
    ```
 
-   The `router.push` naively sends someone to the home page. This could be updated to go to any number of places, including the page one started the login flow from if you were to store that information to be retrieved.
+1. There are a few routes in play here that the library leverages during the login. `src/router/index.ts` adds `/auth` and `/silent-refresh` next to the home page:
 
-1. Now that we have all the things setup, we can define the user component `/components/User` to easily pull information about the user's state and display the appropriate UI.
+   ```ts
+   import { createRouter, createWebHistory } from 'vue-router'
+   import AuthCallbackView from '@/views/AuthCallbackView.vue'
+   import HomeView from '@/views/HomeView.vue'
+   import SilentRefreshView from '@/views/SilentRefreshView.vue'
 
-   ```javascript
-   export default {
-     name: "UserComponent",
-     data() {
-       return {
-         user: null,
-         signIn: () => this.$auth.signinRedirect(),
-         logout: () => this.$auth.signoutRedirect(),
-       };
-     },
-     async created() {
-       const user = await this.$auth.getUser();
-       if (user) {
-         this.user = user;
-       }
-     },
-   };
+   const router = createRouter({
+     history: createWebHistory(import.meta.env.BASE_URL),
+     routes: [
+       { path: '/', name: 'home', component: HomeView },
+       { path: '/auth', name: 'auth-callback', component: AuthCallbackView },
+       { path: '/silent-refresh', name: 'silent-refresh', component: SilentRefreshView },
+     ],
+   })
+
+   export default router
    ```
 
-   With this, the user object is now easily available. A simple `v-if="user"` allows the app to determine what UI to show.
+   Keycloak redirects the user back to `/auth` after the login. `src/views/AuthCallbackView.vue` completes the login and returns to the page it started from:
+
+   ```vue
+   <script setup lang="ts">
+   import { onMounted } from 'vue'
+   import { useRouter } from 'vue-router'
+   import { userManager } from '@/auth'
+   import { setAuthError } from '@/composables/useAuth'
+
+   const router = useRouter()
+
+   onMounted(async () => {
+     try {
+       const user = await userManager.signinCallback()
+       const state = user?.state as { returnTo?: string } | undefined
+       await router.replace(state?.returnTo ?? '/')
+     } catch (callbackError) {
+       setAuthError(callbackError)
+       await router.replace('/')
+     }
+   })
+   </script>
+   ```
+
+   `src/views/SilentRefreshView.vue` handles silent renewals on `/silent-refresh`:
+
+   ```vue
+   <script setup lang="ts">
+   import { onMounted } from 'vue'
+   import { userManager } from '@/auth'
+
+   onMounted(() => userManager.signinSilentCallback())
+   </script>
+   ```
+
+1. Now that we have all the things set up, the `src/components/UserStatus.vue` component reads the user's state with `useAuth()` and displays the appropriate UI:
+
+   ```vue
+   <script setup lang="ts">
+   import TokenPanels from '@/components/TokenPanels.vue'
+   import { useAuth } from '@/composables/useAuth'
+
+   const { user, error, signIn, signOut } = useAuth()
+
+   const buttonClasses =
+     'cursor-pointer rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+   </script>
+
+   <template>
+     <div>
+       <div class="pb-8 text-xl italic">Your current status is:</div>
+       <template v-if="user">
+         <div class="mb-2 text-2xl text-p2blue-700">Authenticated</div>
+         <div class="mb-6 text-p2blue-700">
+           <div>{{ user.profile.name }}</div>
+           <div>{{ user.profile.email }}</div>
+         </div>
+         <button type="button" :class="buttonClasses" @click="signOut()">Log out</button>
+         <TokenPanels :user="user" />
+       </template>
+       <template v-else-if="error">
+         <div class="mb-2 text-2xl text-p2blue-700">Authentication error.</div>
+         <div class="mb-6">{{ error.message }}</div>
+         <button type="button" :class="buttonClasses" @click="signIn()">Log in</button>
+       </template>
+       <template v-else>
+         <div class="mb-6 text-2xl text-p2blue-700">Not authenticated.</div>
+         <button type="button" :class="buttonClasses" @click="signIn()">Log in</button>
+       </template>
+     </div>
+   </template>
+   ```
+
+   With this, the user object is now easily available. A simple `v-if="user"` allows the app to determine what UI to show. `src/components/TokenPanels.vue` decodes the access and ID tokens with [`jwt-decode`](https://github.com/auth0/jwt-decode) and shows their claims.
