@@ -81,14 +81,25 @@ Seven distinct CVE identifiers appear in the notes: five under *Security fixes* 
 
 No backport of the four Keycloak CVEs has landed on another live branch. Verified 1 October against branch histories and each tag's Quarkus BOM:
 
-| Branch | Newest release | Newest tag | These fixes | Runnable image |
-|---|---|---|---|---|
-| 26.8 | 26.8.0 | 26.8.0 | all seven | *(not published yet)* |
-| 26.7 | 26.7.5 | 26.7.5 | dependencies only | `quay.io/phasetwo/keycloak:26.7.5` |
-| 26.6 | 26.6.4 (June) | 26.6.7 | jackson only | `quay.io/phasetwo/keycloak:26.6.7` |
-| 26.4 | 26.4.7 (Dec 2025) | 26.4.16 | jackson only | `quay.io/phasetwo/keycloak:26.4.16` |
+| Branch | Newest release | Newest tag | These fixes | Image | On CockroachDB |
+|---|---|---|---|---|---|
+| 26.8 | 26.8.0 | 26.8.0 | all seven | `26.8.0` | `26.8.0` |
+| 26.7 | 26.7.5 | 26.7.5 | dependencies only | `26.7.5` | `26.7.5` |
+| 26.6 | 26.6.4 (June) | 26.6.7 | jackson only | `26.6.7` | `26.6.7` |
+| 26.4 | 26.4.7 (Dec 2025) | 26.4.16 | jackson only | `26.4.16` | `26.4.7` — see below |
 
-26.7.5 picked up Netty 4.1.138 via Quarkus 3.33.4 without naming CVE-2026-59903; 26.6.7 and 26.4.16 remain on 4.1.136. CVE-2026-19608 and the Netty fix carry `backport/26.6` and `backport/26.7` labels — intended, but neither commit is on those branches yet. We publish [container images](/extensions/containers/) for backport tags upstream never announces; check the [tag list](https://quay.io/repository/phasetwo/keycloak?tab=tags), as the 26.8.0 image was not built at the time of writing. **26.5 is archived and will get nothing.**
+Those are tags on [`quay.io/phasetwo/keycloak`](https://quay.io/repository/phasetwo/keycloak?tab=tags) and, for CockroachDB, [`quay.io/phasetwo/keycloak-crdb`](https://quay.io/repository/phasetwo/keycloak-crdb?tab=tags). Both 26.8.0 images were built and pushed this morning, within about an hour of the upstream release, `linux/amd64` and `linux/arm64`:
+
+```bash
+docker pull quay.io/phasetwo/keycloak:26.8.0
+docker pull quay.io/phasetwo/keycloak-crdb:26.8.0
+```
+
+The vanilla image is stock Keycloak built from the tag's own Dockerfile, with no Phase Two code in it — that is [a different image](/extensions/containers/). The CockroachDB one carries the [CockroachDB port](/blog/keycloak-on-cockroachdb) on top of the same tag.
+
+**One gap worth stating plainly: the CockroachDB line stops at 26.4.7 on the 26.4 branch.** We build the 26.4 backport tags for the vanilla image up to 26.4.16, but have not extended the CockroachDB build to them, so a CockroachDB deployment on 26.4 has nothing newer than December 2025. If that is you, [tell us](/contact) and we will look at it.
+
+26.7.5 picked up Netty 4.1.138 via Quarkus 3.33.4 without naming CVE-2026-59903; 26.6.7 and 26.4.16 remain on 4.1.136. CVE-2026-19608 and the Netty fix carry `backport/26.6` and `backport/26.7` labels — intended, but neither commit is on those branches yet. We publish images for [backport tags upstream never announces](/blog/keycloak-lts-backport-images), which is why the 26.6 and 26.4 rows have a tag newer than their newest release. **26.5 is archived and will get nothing.**
 
 ## Breaking changes and migration
 
