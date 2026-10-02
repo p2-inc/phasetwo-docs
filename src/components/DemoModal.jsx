@@ -1,8 +1,10 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 
-const BOOKING_URL =
-  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true";
+const BOOKING_URLS = {
+  us: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true",
+  eu: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2xyylJTggqoYgEH7Zc6h6tKj8HSotq_r14gZ2T_a6lEh43Uc7Y69zGIEU1VEEzxibsUQdYuEmm?gv=true",
+};
 
 const buildInitialForm = () => ({
   name: "",
@@ -23,6 +25,7 @@ export default function DemoModal({
   const isTurnstileEnabled = Boolean(turnstileSiteKey) && !isLocalDev;
 
   const [view, setView] = useState("scheduler"); // 'scheduler' | 'form'
+  const [region, setRegion] = useState("us");
   const [form, setForm] = useState(buildInitialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -61,6 +64,7 @@ export default function DemoModal({
   useEffect(() => {
     if (!isOpen) {
       setView("scheduler");
+      setRegion("us");
       setForm(buildInitialForm());
       setError("");
       setSuccess("");
@@ -325,11 +329,48 @@ export default function DemoModal({
         <div className="flex-1 overflow-y-auto">
           {view === "scheduler" ? (
             <div className="flex flex-col">
+              {/* Region toggle */}
+              <div className="flex gap-2 px-8 pb-4 pt-6">
+                <button
+                  type="button"
+                  onClick={() => setRegion("us")}
+                  className="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    background:
+                      region === "us"
+                        ? "var(--ifm-color-primary)"
+                        : "rgba(255,255,255,0.06)",
+                    color: region === "us" ? "white" : "#9ca3af",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  US / Global
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegion("eu")}
+                  className="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    background:
+                      region === "eu"
+                        ? "var(--ifm-color-primary)"
+                        : "rgba(255,255,255,0.06)",
+                    color: region === "eu" ? "white" : "#9ca3af",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  EU
+                </button>
+              </div>
+
               {/* Google Calendar booking page */}
-              <div className="px-4 pb-6 pt-6">
+              <div className="px-4 pb-6">
                 <iframe
-                  src={BOOKING_URL}
-                  title="Book a demo"
+                  key={region}
+                  src={BOOKING_URLS[region]}
+                  title={`Book a demo — ${region === "us" ? "US / Global" : "EU"}`}
                   width="100%"
                   height="600"
                   style={{
