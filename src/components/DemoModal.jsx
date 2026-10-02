@@ -1,10 +1,8 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 
-const ZOOM_URLS = {
-  us: "https://scheduler.zoom.us/phasetwo/general-meeting--30-mins?embed=true",
-  eu: "https://scheduler.zoom.us/phasetwo/eu-30-mins?embed=true",
-};
+const BOOKING_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true";
 
 const buildInitialForm = () => ({
   name: "",
@@ -25,7 +23,6 @@ export default function DemoModal({
   const isTurnstileEnabled = Boolean(turnstileSiteKey) && !isLocalDev;
 
   const [view, setView] = useState("scheduler"); // 'scheduler' | 'form'
-  const [region, setRegion] = useState("us");
   const [form, setForm] = useState(buildInitialForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -64,7 +61,6 @@ export default function DemoModal({
   useEffect(() => {
     if (!isOpen) {
       setView("scheduler");
-      setRegion("us");
       setForm(buildInitialForm());
       setError("");
       setSuccess("");
@@ -329,57 +325,19 @@ export default function DemoModal({
         <div className="flex-1 overflow-y-auto">
           {view === "scheduler" ? (
             <div className="flex flex-col">
-              {/* Region toggle */}
-              <div className="flex gap-2 px-8 pb-4 pt-6">
-                <button
-                  type="button"
-                  onClick={() => setRegion("us")}
-                  className="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
-                  style={{
-                    background:
-                      region === "us"
-                        ? "var(--ifm-color-primary)"
-                        : "rgba(255,255,255,0.06)",
-                    color: region === "us" ? "white" : "#9ca3af",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  US / Global
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRegion("eu")}
-                  className="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
-                  style={{
-                    background:
-                      region === "eu"
-                        ? "var(--ifm-color-primary)"
-                        : "rgba(255,255,255,0.06)",
-                    color: region === "eu" ? "white" : "#9ca3af",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  EU
-                </button>
-              </div>
-
-              {/* Zoom iframe */}
-              <div className="px-4 pb-6">
+              {/* Google Calendar booking page */}
+              <div className="px-4 pb-6 pt-6">
                 <iframe
-                  key={region}
-                  src={ZOOM_URLS[region]}
-                  title={`Book a demo — ${region === "us" ? "US / Global" : "EU"}`}
+                  src={BOOKING_URL}
+                  title="Book a demo"
                   width="100%"
-                  height="580"
+                  height="600"
                   style={{
                     border: "none",
                     borderRadius: "16px",
                     display: "block",
                     background: "#fff",
                   }}
-                  allow="camera *; microphone *; fullscreen *"
                 />
               </div>
 
