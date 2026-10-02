@@ -101,7 +101,7 @@ function Pricing() {
               </h3>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <a
-                  href="https://scheduler.zoom.us/phasetwo"
+                  href="https://calendar.app.google/tKAMghq8QwTreugS6"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

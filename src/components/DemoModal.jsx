@@ -1,9 +1,9 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 
-const ZOOM_URLS = {
-  us: "https://scheduler.zoom.us/phasetwo/general-meeting--30-mins?embed=true",
-  eu: "https://scheduler.zoom.us/phasetwo/eu-30-mins?embed=true",
+const BOOKING_URLS = {
+  us: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true",
+  eu: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2xyylJTggqoYgEH7Zc6h6tKj8HSotq_r14gZ2T_a6lEh43Uc7Y69zGIEU1VEEzxibsUQdYuEmm?gv=true",
 };
 
 const buildInitialForm = () => ({
@@ -365,21 +365,20 @@ export default function DemoModal({
                 </button>
               </div>
 
-              {/* Zoom iframe */}
+              {/* Google Calendar booking page */}
               <div className="px-4 pb-6">
                 <iframe
                   key={region}
-                  src={ZOOM_URLS[region]}
+                  src={BOOKING_URLS[region]}
                   title={`Book a demo — ${region === "us" ? "US / Global" : "EU"}`}
                   width="100%"
-                  height="580"
+                  height="600"
                   style={{
                     border: "none",
                     borderRadius: "16px",
                     display: "block",
                     background: "#fff",
                   }}
-                  allow="camera *; microphone *; fullscreen *"
                 />
               </div>
 

@@ -372,7 +372,7 @@ export default function Support() {
           secondaryText="Let Us Show You How."
           showCta
           ctaLabel="See How"
-          ctaHref="https://scheduler.zoom.us/phasetwo"
+          ctaHref="https://calendar.app.google/tKAMghq8QwTreugS6"
         />
 
         <DemoModal
