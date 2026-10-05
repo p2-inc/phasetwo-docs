@@ -1,13 +1,14 @@
 ---
 id: multi-tenancy
 title: "Keycloak Multi-Tenancy: Realms, Groups, or Organizations?"
-description: Choose between realm-per-tenant, group-per-tenant and Keycloak Organizations for multi-tenant B2B SaaS, with measured costs and the failure modes of each.
+description: Choose between realm-per-tenant, group-per-tenant and Keycloak Organizations for multi-tenant B2B SaaS, with measured costs, the failure modes of each, and how native organizations differ from the Phase Two organizations extension.
 keywords:
   - keycloak multi tenancy
   - keycloak multi tenant
   - keycloak organizations
   - multi-tenant authentication architecture
   - keycloak realm per tenant
+  - keycloak organizations extension
 difficulty: intermediate
 time: 45 minutes
 keycloak_version: "26.8.0"
@@ -17,7 +18,7 @@ import ProductionNote from "@site/src/components/ProductionNote";
 
 # Keycloak Multi-Tenancy: Realms, Groups, or Organizations?
 
-Keycloak multi-tenancy has three implementations, and the right one is decided by a single
+Keycloak multi-tenancy has three models, and the right one is decided by a single
 question: **does a tenant need its own identity provider, its own login policy, or neither?**
 
 1. **Neither** — use a **realm group** per tenant. One realm, one issuer, a group membership
@@ -32,12 +33,27 @@ question: **does a tenant need its own identity provider, its own login policy, 
 Most B2B SaaS lands on (2). This page builds all three on one server, shows the token each
 produces, and gives the numbers for what each one costs.
 
+"Organizations" needs one disambiguation before we start, because there are two of them:
+
+- **Keycloak native organizations** — built into Keycloak since 25, supported since 26, enabled
+  with a realm toggle. This is what the commands below exercise, because they run on a stock
+  `quay.io/keycloak/keycloak` image.
+- **The Phase Two organizations extension**,
+  [`keycloak-orgs`](https://github.com/p2-inc/keycloak-orgs) — the implementation the native
+  feature was modelled on. It was built for Phase Two's own cloud, open-sourced in 2022, is a
+  superset of what native organizations do, and is the one Phase Two runs and maintains.
+
+Everything in the decision above applies to both. [The last section](#native-organizations-vs-the-phase-two-extension)
+is about choosing between them.
+
 :::info Tested against
 Keycloak **26.8.0**, `start-dev`, H2 dev database, on a 2-vCPU / 8 GB Linux host. Every
 command, error message and token below is copied from an actual run. The official references
 are [Managing organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
 and [Groups](https://www.keycloak.org/docs/latest/server_admin/index.html#groups) — they
-document what each option does. This page is about which to pick and what breaks.
+document what each option does. This page is about which to pick and what breaks. The
+organizations commands target the native feature; the Phase Two extension is not in the stock
+image and is compared, not run, [at the end](#native-organizations-vs-the-phase-two-extension).
 :::
 
 ## Start a server
@@ -181,9 +197,9 @@ realm for any client in the realm; **isolation is entirely your application's jo
 are the right answer when tenants are a label on an otherwise uniform population — everyone
 logs in the same way, and your API filters on a claim.
 
-## Model 3: organizations
+## Model 3: organizations (Keycloak native)
 
-Organizations are a realm-level toggle, not a build-time feature flag:
+Native organizations are a realm-level toggle, not a build-time feature flag:
 
 ```bash
 kc update realms/saas -s organizationsEnabled=true
@@ -356,7 +372,7 @@ belongs to; they do not stop the user from asking about another one.
 
 ## Choosing
 
-| | Realm per tenant | Group per tenant | Organization |
+| | Realm per tenant | Group per tenant | Organization (native) |
 |---|---|---|---|
 | Tenant's own IdP | yes | no | **yes** |
 | Tenant's own password policy, MFA, token lifespans | **yes** | no | no |
@@ -372,24 +388,75 @@ Read it top-down and stop at the first row you cannot live without. In practice:
 
 - **Internal apps, departments, a label on one population** — groups.
 - **B2B SaaS where customers bring their own SSO** — organizations. This is the common case,
-  and it is what the feature was built for.
+  and it is what the feature was built for. Native organizations if membership, domains and a
+  token claim are all you need; the [Phase Two extension](#native-organizations-vs-the-phase-two-extension)
+  as soon as a customer's own IT team has to manage anything — their SSO connection, their
+  members, their roles — without a ticket to you.
 - **Tenants that are separately regulated, separately branded, or contractually isolated** —
   a realm each, and budget for the key generation and the per-issuer validation.
 - **Dozens of tenants today and thousands next year** — do not start with realms. Migrating
   from realms to organizations means re-creating every account under a new issuer; migrating
   from groups to organizations is a membership backfill.
 
-## What this does not cover
+## Native organizations vs the Phase Two extension
 
-Core Keycloak organizations are **realm-scoped in the places that matter commercially**:
-there is no per-organization SCIM endpoint, no per-organization admin portal for your
-customer's own IT team, and no per-organization theming. Those gaps are real and we do not
-pretend otherwise — in the open-source ecosystem they are filled by an extension, and
-[Keycloak organizations](/extensions/organizations/) is the one we maintain. Build on the
-native feature first; reach for an extension when a customer asks for something in that list.
+Keycloak did not invent the organizations model in 25. Phase Two's
+[`keycloak-orgs`](https://github.com/p2-inc/keycloak-orgs) extension has implemented
+single-realm multi-tenancy — organizations, memberships, domains, per-organization IdPs and a
+membership claim — as first-class Keycloak entities since before Keycloak had a word for them,
+open source since 2022, and the Keycloak team
+[used it as the reference](https://github.com/p2-inc/keycloak-orgs/blob/main/docs/note-keycloak-organizations-feature.md)
+when they built the native feature. What shipped in 25 and 26 is a copy of that core. Every
+concept you met in Model 3 — the alias, the domain uniqueness rule, the membership mapper,
+the identity-first login — has a direct equivalent in the extension, where it had already been
+running in production for several years. Native has been slow to add anything beyond that core.
+The two are still *not interchangeable*, so you should pick one deliberately:
 
-Also out of scope here: routing a user to their tenant's IdP by email domain, which
-organizations do with domain routing and auto-redirect, and which deserves its own page.
+| | Keycloak native organizations | Phase Two organizations extension |
+|---|---|---|
+| Organizations, members, domains, linked IdPs, token claim | yes | yes |
+| Domain-based IdP routing at login | yes | yes, plus DNS-verified domain ownership |
+| **Organization roles** — default and custom, per organization, mapped into the token | no | yes |
+| **Invitations** — invite a non-user by email, accept on registration | no | yes |
+| **Admin Portal** — your customer's IT team manages their own members, roles, invitations and SSO | no | yes |
+| **IdP Wizard** — guided self-service SAML, OIDC and LDAP setup for a tenant admin | no | yes |
+| Per-organization SCIM endpoint and credentials | no, realm-level only | yes (experimental) |
+| One IdP shared by many organizations | no | yes |
+| "Active organization" switching for multi-org users | no | yes |
+| Organization-scoped admin events | no | yes |
+| Ships in the stock Keycloak image | yes | no — `quay.io/phasetwo/phasetwo-keycloak` or add the jar |
+| Admin API | `/admin/realms/{realm}/organizations` | `/realms/{realm}/orgs` |
+| Supported since | Keycloak 26 (October 2024) | open source since 2022, several hundred deployments |
+
+Read the table as a superset: the extension does what native does, then keeps going into the
+Customer IAM and enterprise-SaaS work that follows — the part where a customer's own
+administrator needs to set up SSO on a Tuesday afternoon without filing a ticket with you.
+That is the feature set the native implementation has not tracked, and it is the one most
+B2B SaaS teams discover they need in the quarter after launch.
+
+Practical consequences of picking one:
+
+- **The APIs and claims differ.** The extension's REST API lives under `/realms/{realm}/orgs`,
+  and its token mappers are its own (organization, organization roles, organization
+  attributes). Code written against the native `organizations` admin endpoint and the
+  `organization` claim shape above does not run against the extension unchanged, and vice
+  versa.
+- **Do not run both in one realm.** Phase Two does not enable native organizations in its
+  hosted product, and a realm with both enabled has two unrelated notions of "organization"
+  and two login-flow modifications fighting over the same users. Pick one per deployment.
+- **The extension is not a flip of a toggle on the stock image.** You run Phase Two's
+  Keycloak image, or build the extension into your own. It has tracked Keycloak releases since
+  17, but it is a dependency to own.
+- **The migration direction matters.** Going from native to the extension is a data move of
+  the same shape — organizations, domains, memberships — into a richer model. Going the other
+  way drops roles, invitations and everything the table marks extension-only.
+
+If you are evaluating organizations for a product that sells to businesses, start from the
+[extension's documentation](/docs/organizations/) rather than from Model 3 above, and treat
+Model 3 as the floor that both implementations share.
+
+Also out of scope here: routing a user to their tenant's IdP by email domain, which both
+implementations do with domain routing and auto-redirect, and which deserves its own page.
 
 ## Next steps
 
@@ -403,8 +470,12 @@ organizations do with domain routing and auto-redirect, and which deserves its o
   — how to let a tenant administer their own slice without a realm of their own.
 - [Keycloak as an identity provider broker](/docs/keycloak/idp/) — what you link to an
   organization when a customer brings their own SSO.
-- [Organizations documentation](/docs/organizations/) and
-  [understanding multi-tenancy options in Keycloak](/blog/multi-tenancy-options-keycloak/).
+- [Phase Two organizations extension documentation](/docs/organizations/) — roles,
+  invitations, the [IdP Wizard](/docs/organizations/idp-wizard/), per-organization
+  [SCIM](/docs/organizations/scim/) and the [Admin Portal](/docs/admin-portal/), with the
+  source at [p2-inc/keycloak-orgs](https://github.com/p2-inc/keycloak-orgs).
+- [Understanding multi-tenancy options in Keycloak](/blog/multi-tenancy-options-keycloak/) —
+  the longer argument for organizations over realms.
 - More [Keycloak tutorials](/tutorials/).
 - Official reference:
   [Managing organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
