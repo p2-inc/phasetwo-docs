@@ -91,15 +91,27 @@ Now that we've discussed how the system is designed, let's work through an examp
 
 #### Keycloak Configuration
 
-We'll be using Phase Two's [hosted Keycloak](/hosting) to set up a realm and associated organizations. Visit the [Phase Two Dashboard](https://dash.phasetwo.io/) to sign up, create a Starter cluster — free for 30 days — and add a realm to it. After you have created the realm, click the "Open Console" link to go to the Keycloak admin console.
+You can run Keycloak on your machine with Docker, or use Phase Two's hosted Keycloak. Both come with Phase Two's Organizations extension.
+
+To run it locally, you need [Docker](https://docs.docker.com/get-started/get-docker/) with the Compose plugin. The Phase Two [examples repo](https://github.com/p2-inc/examples) includes a local [Phase Two Keycloak](https://github.com/p2-inc/phasetwo-containers) that is already set up for this example. Start it with the `orgs` profile:
+
+```bash
+git clone https://github.com/p2-inc/examples.git
+cd examples
+docker compose -f keycloak/docker-compose.yml --profile orgs up -d --wait
+```
+
+Its `p2examples` realm already has the `zoo` and `aquarium` clients and the users `jane` / `jane` and `jacques` / `jacques`, and the `orgs` profile adds the `california` and `newyork` organizations with their roles and members: everything the next section configures by hand. The admin console is at [localhost:8080/auth/admin](http://localhost:8080/auth/admin), with `admin` / `admin`, and the realm's issuer URL is `http://localhost:8080/auth/realms/p2examples`. `docker compose -f keycloak/docker-compose.yml down` stops Keycloak, and the next `up` starts again from a fresh realm. With the local Keycloak, skip to [Configuring Client Applications](#configuring-client-applications).
+
+To use Phase Two's [hosted Keycloak](/hosting) instead, set up a realm and associated organizations there. Visit the [Phase Two Dashboard](https://dash.phasetwo.io/) to sign up, create a Starter cluster — free for 30 days — and add a realm to it. After you have created the realm, click the "Open Console" link to go to the Keycloak admin console.
 
 Next we'll configure Keycloak and then configure the applications.
 
 ##### Configuring Keycloak
 
-1. Go to the Clients tab. We will create two Clients. Provide a `Client ID` of `aquarium` and `zoo` to each. Enter a value of `*` for `Valid redirect URIs` (don't use this for production).
-2. Go to the Users tab. Add a user with a username of `jane`, first name of `jane`, and last name of `goodall`. Add a second user with a username of `jacques`, first name of `jacques`, and last name of `cousteau`.
-3. Go to the Organizations tab. Create two Organizations. Name one `california` and the other `new york`. For each organization, create two roles: `aquarium` and `zoo`. For each organization, add the two user's created to them as members.
+1. Go to the Clients tab. We will create two Clients, with a `Client ID` of `zoo` and `aquarium`. For each, keep **Client authentication** off, check only **Standard flow**, and turn **Require PKCE** on with the **S256** method. Enter `http://localhost:4200/*` (zoo) or `http://localhost:4201/*` (aquarium) for **Valid redirect URIs**, and `+` for **Valid post logout redirect URIs** and **Web origins**. The `+` web origin lets the apps call Keycloak and the Organizations API from the browser.
+2. Go to the Users tab. Add a user with a username of `jane`, first name of `jane`, and last name of `goodall`. Add a second user with a username of `jacques`, first name of `jacques`, and last name of `cousteau`. Set a password for each user in its Credentials tab.
+3. Go to the Organizations tab. Create two Organizations. Name one `california` and the other `newyork`, with the display names `California` and `New York`. For each organization, create two roles: `aquarium` and `zoo`. For each organization, add the two users created to them as members.
 4. Inside the `california` organization, assign the `aquarium` role to the `jacques` user. Assign the `zoo` role to the `jane` user.
 5. Inside the `newyork` organization, assign the `aquarium` role to both users. Assign the `zoo` role only to the `jane` user.
 
@@ -107,11 +119,44 @@ At this point we should have all we require for configuring our client applicati
 
 ##### Configuring Client Applications
 
-We won't go through all the steps required to build a client application in this post. We have a `nx` [monorepo](https://github.com/p2-inc/examples/tree/main/multitenant) generated for use where you can clone it and change the OIDC client config to speak to the correct applications.
+We won't go through all the steps required to build a client application in this post. We have an Nx [monorepo](https://github.com/p2-inc/examples/tree/main/multitenant) with two React apps, Zoo and Aquarium. They log users in with [oidc-spa](https://www.oidc-spa.dev/) and call the Organizations API's [`/orgs/me` endpoint](https://phasetwo.io/api/get-me/) with the user's access token. You need [Node.js](https://nodejs.org/) 24 and [pnpm](https://pnpm.io/).
 
-Update the associated values make use of the Keycloak configuration you created above: realm name, clients, and so on. The app is setup already with a scaffold to pull the `/orgs/me` endpoint.
+1. Clone the [examples repo](https://github.com/p2-inc/examples), if you haven't already, and open its `multitenant` folder.
+2. Point the apps at your Keycloak. Each app reads its settings from its own `.env`, which points at the local Keycloak: `apps/zoo/.env` uses the `zoo` client, and `apps/aquarium/.env` the `aquarium` client. With the local Keycloak, there is nothing to change.
 
-Once you have the application setup (check readme for more details), log in as the `jane` and `jacques` user to see the variation of which organization and roles they have access to. You'll see a variation of this:
+   For another Keycloak, copy `.env.local.sample` to `.env.local` in each app:
+
+   ```bash
+   cp apps/zoo/.env.local.sample apps/zoo/.env.local
+   cp apps/aquarium/.env.local.sample apps/aquarium/.env.local
+   ```
+
+   Then set your realm's issuer URL, `https://<your-keycloak-host>/auth/realms/<your-realm>`, and the app's client ID, if you named the client differently. For Zoo, `apps/zoo/.env.local` starts as:
+
+   ```bash
+   VITE_OIDC_ISSUER_URI=https://your-keycloak.example.com/auth/realms/your-realm
+   VITE_OIDC_CLIENT_ID=zoo
+   ```
+
+   The apps derive the Organizations API URL and the realm name from the issuer URL.
+
+3. Install the dependencies and start both apps:
+
+   ```bash
+   pnpm install
+   pnpm dev
+   ```
+
+   Zoo runs on [localhost:4200](http://localhost:4200) and Aquarium on [localhost:4201](http://localhost:4201). `pnpm dev:zoo` and `pnpm dev:aquarium` start only one of them.
+
+Log in as the `jane` and `jacques` user in each app to see the variation of which organization and roles they have access to. The sample assigns the roles a bit differently than User 1 and User 2 in the diagram above. Both users are members of both organizations, with these roles:
+
+| User      | California | New York          |
+| --------- | ---------- | ----------------- |
+| `jane`    | `zoo`      | `zoo`, `aquarium` |
+| `jacques` | `aquarium` | `aquarium`        |
+
+Jane can use Zoo for both tenants and Aquarium only for New York. Jacques can use Aquarium for both tenants and Zoo for neither. Each app lists the user's organizations with their roles, and shows for each one whether it gives access to the app. The role that grants access is `appRole` in `apps/zoo/src/app/auth.tsx` and `apps/aquarium/src/app/auth.tsx`. You'll see a variation of this:
 
 ![Organizations](/blog/multi_tenant/orgs.png)
 

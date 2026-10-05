@@ -25,29 +25,35 @@ If you just want to skip to the code, visit the Phase Two [Django example](https
 
 ## Setting up a Django Project
 
-The following could be applied to an existing Django application, but we have chosen to use the excellent tutorial application built by [Mozilla](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django) as our example. If you aren't yet familiar with Django, we encourage you to follow the tutorial there.
+The following could be applied to an existing Django application, but we have chosen to use the excellent tutorial application built by [Mozilla](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Django) as our example. If you aren't yet familiar with Django, we encourage you to follow the tutorial there.
 
-The completed code for that tutorial is available in their GitHub repository. We'll clone it to get started.
+The Phase Two Django example is the completed code of that tutorial, from MDN's [GitHub repository](https://github.com/mdn/django-locallibrary-tutorial), with Keycloak login added. We'll clone it to get started.
 
 ### Quick Start
 
 To get this project up and running locally on your computer:
 
-1. Set up the [Python development environment](https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/development_environment).
-   We recommend using a Python virtual environment.
-1. Assuming you have Python setup, run the following commands (if you're on Windows you may use `py` or `py -3` instead of `python` to start Python):
+1. Set up the [Python development environment](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Django/development_environment). The example uses Python 3.14, the version in its `.python-version` file, and its pinned dependencies support Python 3.10 and newer.
+1. Clone the Phase Two [examples repo](https://github.com/p2-inc/examples) and open the Django example:
+   ```bash
+   git clone https://github.com/p2-inc/examples.git
+   cd examples/frameworks/django
    ```
+1. Copy `.env.example` to `.env`, create and activate a virtual environment, and install the requirements. Then set up the database, run the tests, create a local account for the admin site and start the server on port 8000:
+   ```bash
+   cp .env.example .env
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
-   python manage.py makemigrations
    python manage.py migrate
-   python manage.py collectstatic
-   python manage.py test # Run the standard tests. These should all pass.
-   python manage.py createsuperuser # Create a superuser
-   python manage.py runserver
+   python manage.py test
+   python manage.py createsuperuser
+   python manage.py runserver 8000
    ```
-1. Open a browser to `http://127.0.0.1:8000/admin/` to open the admin site
+   On Windows, activate the virtual environment with `.venv\Scripts\activate`. The tests don't need Keycloak. `.env` turns on `DJANGO_DEBUG` for local development and holds the Keycloak settings, which this tutorial explains below.
+1. Open a browser to `http://localhost:8000/admin/` to open the admin site.
 1. Create a few test objects of each type.
-1. Open tab to `http://127.0.0.1:8000` to see the main site, with your new objects.
+1. Open a tab to `http://localhost:8000` to see the main site, with your new objects.
 
 ## Setting up a Keycloak Instance
 
@@ -59,6 +65,8 @@ Before customizing the Django app, we need to set up and configure our Keycloak 
 </details>
 
 ## Setting up an OIDC Client
+
+The Django app runs on port 8000, so use `http://localhost:8000/*` as the valid redirect URI instead of `http://localhost:3000/*`. Keep Keycloak's default `profile` and `email` client scopes on the client, which provide the username, name and email claims. The local Keycloak already has this client, with the ID `django`.
 
 <details>
   <summary>Instructions</summary>
@@ -74,80 +82,160 @@ Before customizing the Django app, we need to set up and configure our Keycloak 
 
 ## Install and configure the Django OIDC library
 
-Now that we've installed and configured Keycloak, we need to setup Django to replace the native authentication method provided by the framework. The first task is to install a library that is compatible with Keycloak's OIDC implementation.
+Now that we've installed and configured Keycloak, we need to set up Django to replace the native authentication method provided by the framework. The first task is to install a library that is compatible with Keycloak's OIDC implementation.
 
-The [mozilla-django-oidc](https://mozilla-django-oidc.readthedocs.io/) library provides an easy way to integrate Keycloak (or any OpenID Connect-compliant identity provider) with your Django app. It abstracts many of the complexities of integrating authentication and authorization. Here's how you can set it up:
+The [mozilla-django-oidc](https://mozilla-django-oidc.readthedocs.io/en/stable/) library provides an easy way to integrate Keycloak (or any OpenID Connect-compliant identity provider) with your Django app. It abstracts many of the complexities of integrating authentication and authorization. Here's how you can set it up:
 
 1. **Install the Package**:
-   Install the `mozilla-django-oidc` package using pip:
+   The example's `requirements.txt` pins `mozilla-django-oidc==5.0.2`, so the quick start already installed it, along with `python-dotenv`, which reads `.env`. In your own project, install the `mozilla-django-oidc` package using pip:
 
    ```bash
    pip install mozilla-django-oidc
    ```
 
 2. **Configure Django Settings**:
-   Update your Django app's `settings.py` to include the necessary configurations for `mozilla-django-oidc`:
+   `locallibrary/settings.py` reads its configuration from the environment and from `.env`, and sets up `mozilla-django-oidc`. These are the parts that matter for Keycloak:
 
    ```python
+   import os
+   from pathlib import Path
+
+   from dotenv import load_dotenv
+
+   BASE_DIR = Path(__file__).resolve().parent.parent
+
+   load_dotenv(BASE_DIR / ".env")
+
    INSTALLED_APPS = [
-       # ...
-       'django.contrib.auth',
-       'mozilla_django_oidc',  # Load after django.contrib.auth
-       # ...
+       "django.contrib.admin",
+       "django.contrib.auth",
+       "mozilla_django_oidc",
+       "django.contrib.contenttypes",
+       "django.contrib.sessions",
+       "django.contrib.messages",
+       "django.contrib.staticfiles",
+       "catalog.apps.CatalogConfig",
    ]
 
-   AUTHENTICATION_BACKENDS = (
-       'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
-       # ...
-   )
+   AUTHENTICATION_BACKENDS = [
+       "locallibrary.auth.KeycloakOIDCAuthenticationBackend",
+       "django.contrib.auth.backends.ModelBackend",
+   ]
 
-   OIDC_RP_CLIENT_ID = 'your-client-id'
-   OIDC_RP_CLIENT_SECRET = 'your-client-secret'
-   OIDC_OP_AUTHORIZATION_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/auth'
-   OIDC_OP_TOKEN_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/token'
-   OIDC_OP_USER_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/userinfo'
-   OIDC_OP_JWKS_ENDPOINT = 'https://keycloak-url/auth/realms/your-realm/protocol/openid-connect/certs'
-   OIDC_RP_SIGN_ALGO = 'RS256'
+   LOGIN_URL = "oidc_authentication_init"
+   LOGIN_REDIRECT_URL = "/"
+   LOGOUT_REDIRECT_URL = "/"
 
-   LOGIN_URL = 'oidc_authentication_init'
-   LOGOUT_REDIRECT_URL = '/'
-   LOGIN_REDIRECT_URL = '/'
+   OIDC_ISSUER = os.environ.get("OIDC_ISSUER", "http://localhost:8080/auth/realms/p2examples").rstrip("/")
+   OIDC_OP_AUTHORIZATION_ENDPOINT = f"{OIDC_ISSUER}/protocol/openid-connect/auth"
+   OIDC_OP_TOKEN_ENDPOINT = f"{OIDC_ISSUER}/protocol/openid-connect/token"
+   OIDC_OP_USER_ENDPOINT = f"{OIDC_ISSUER}/protocol/openid-connect/userinfo"
+   OIDC_OP_JWKS_ENDPOINT = f"{OIDC_ISSUER}/protocol/openid-connect/certs"
+   OIDC_OP_LOGOUT_ENDPOINT = f"{OIDC_ISSUER}/protocol/openid-connect/logout"
+   OIDC_OP_LOGOUT_URL_METHOD = "locallibrary.auth.keycloak_logout_url"
+   OIDC_RP_CLIENT_ID = os.environ.get("OIDC_RP_CLIENT_ID", "django")
+   OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_RP_CLIENT_SECRET", "")
+   OIDC_RP_SIGN_ALGO = "RS256"
+   OIDC_RP_SCOPES = "openid email profile"
+   OIDC_USE_PKCE = True
+   OIDC_STORE_ID_TOKEN = True
    ```
 
-   Replace `your-client-id`, `your-client-secret`, and the Keycloak URLs with your actual Keycloak configurations.
+   - `mozilla_django_oidc` is in `INSTALLED_APPS`, after `django.contrib.auth`.
+   - `AUTHENTICATION_BACKENDS` puts the Keycloak backend from `locallibrary/auth.py` first. [Use Username rather than Email](#use-username-rather-than-email) explains it.
+   - `LOGIN_URL` sends pages that need a login to `mozilla-django-oidc`'s `oidc_authentication_init` view, which redirects to Keycloak.
+   - The Keycloak endpoints are derived from `OIDC_ISSUER`, with Keycloak's paths. `mozilla-django-oidc` checks the ID token's `RS256` signature against the keys at `OIDC_OP_JWKS_ENDPOINT`.
+   - `OIDC_RP_SCOPES` asks for the `email` and `profile` scopes, which carry the user's email, name and username.
+   - `OIDC_USE_PKCE` adds PKCE to the login, on top of the client secret.
+   - `OIDC_STORE_ID_TOKEN` keeps the ID token in the session, where the function named in `OIDC_OP_LOGOUT_URL_METHOD` finds it to log out of Keycloak. [Logging out](#logging-out) explains both.
+
+   The Keycloak values come from `.env`. `.env.example` has the values for the local Keycloak:
+
+   ```bash
+   DJANGO_DEBUG=True
+   OIDC_ISSUER=http://localhost:8080/auth/realms/p2examples
+   OIDC_RP_CLIENT_ID=django
+   OIDC_RP_CLIENT_SECRET=django-local-dev-secret
+   ```
+
+   To use another Keycloak, put the values from the OIDC Config section in `.env`: the issuer URL in `OIDC_ISSUER`, the client ID in `OIDC_RP_CLIENT_ID` and the client secret in `OIDC_RP_CLIENT_SECRET`. Restart the server after you change `.env`. Variables that are already set in the environment take precedence over `.env`, which is ignored by git.
 
 3. **Add URLs**:
-   Update your Django app's `urls.py` to include the authentication URLs provided by `mozilla-django-oidc`:
+   `locallibrary/urls.py` includes the authentication URLs provided by `mozilla-django-oidc`:
 
    ```python
-   urlpatterns += [
-       path('oidc/', include('mozilla_django_oidc.urls')),
+   from django.contrib import admin
+   from django.urls import include, path
+   from django.views.generic import RedirectView
+
+   urlpatterns = [
+       path("", RedirectView.as_view(url="/catalog/", permanent=True)),
+       path("admin/", admin.site.urls),
+       path("catalog/", include("catalog.urls")),
+       path("oidc/", include("mozilla_django_oidc.urls")),
    ]
    ```
+
+   They are `/oidc/authenticate/` (named `oidc_authentication_init`), which redirects to Keycloak, `/oidc/callback/`, where Keycloak sends the user back after the login, and `/oidc/logout/` (named `oidc_logout`).
+
+4. **Log in**:
+   Open `http://localhost:8000` and click **Login**. Log in as `demo` / `demo` on the local Keycloak, or as the non-admin user you created. Back on the site, the sidebar shows your username and email.
 
 ## Using it in your app
 
 ### Protect your views
 
-Use Decorators for Access Control. You can now use the `@oidc_protected` decorator to protect views that require authentication and potentially specific roles:
+`mozilla-django-oidc` has no decorators of its own. Protect views with Django's [`login_required`](https://docs.djangoproject.com/en/5.2/topics/auth/default/#the-login-required-decorator) decorator and [`LoginRequiredMixin`](https://docs.djangoproject.com/en/5.2/topics/auth/default/#the-loginrequiredmixin-mixin), as the example does. Because `LOGIN_URL` is `oidc_authentication_init`, they send anonymous users to `/oidc/authenticate/`, which redirects to Keycloak. The **My Borrowed** page in `catalog/views.py` uses the mixin:
 
 ```python
-from mozilla_django_oidc.decorators import oidc_protected
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-@oidc_protected
-def protected_view(request):
-    # Your view logic
+
+class LoanedBooksByUserListView(LoginRequiredMixin, generic.ListView):
+    """Generic class-based view listing books on loan to current user."""
+    model = BookInstance
+    template_name = 'catalog/bookinstance_list_borrowed_user.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return (
+            BookInstance.objects.filter(borrower=self.request.user)
+            .filter(status__exact='o')
+            .order_by('due_back')
+        )
 ```
+
+Function-based views use the decorator, as `renew_book_librarian` in `catalog/views.py` does:
+
+```python
+from django.contrib.auth.decorators import login_required, permission_required
+
+
+@login_required
+@permission_required('catalog.can_mark_returned', raise_exception=True)
+def renew_book_librarian(request, pk):
+    """View function for renewing a specific BookInstance by librarian."""
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+```
+
+`PermissionRequiredMixin`, which the librarian's class-based views use, also sends anonymous users to the login.
 
 ### Accessing user information
 
-You can access user information after authentication using the `request.oidc_user` attribute. For example:
+`mozilla-django-oidc` logs in a regular Django user, so there is no `request.oidc_user`: use `request.user` in views, as `get_queryset` does above, and `user` in templates. The sidebar in `catalog/templates/base_generic.html` shows the username, the email and the **logout** button, or the **Login** link:
 
-```python
-def profile_view(request):
-    user_info = request.oidc_user.userinfo
-    # Access user_info['sub'], user_info['email'], etc.
-    # Your view logic
+```html
+{% if user.is_authenticated %}
+  <li>User: {{ user.get_username }}</li>
+  <li>Email: {{ user.email }}</li>
+  <li><a href="{% url 'my-borrowed' %}">My Borrowed</a></li>
+  <form action="{% url 'oidc_logout' %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="logout">
+  </form>
+{% else %}
+  <li><a href="{% url 'oidc_authentication_init' %}">Login</a></li>
+{% endif %}
 ```
 
 By default, `mozilla-django-oidc` looks up a Django user matching the email field to the email address returned in the user info data from Keycloak.
@@ -156,76 +244,71 @@ If a user logs into your site and doesn’t already have an account, by default,
 
 #### Use Username rather than Email
 
-`mozilla-django-oidc` defaults to setting up Django users using the email address as the user name from keycloak was required. Fortunately, `preferred_username` is set up by default in Keycloak as a claim. The claim can used by overriding the `OIDCAuthenticationBackend` class in `mozilla_django_oidc.auth` and referring to this in `AUTHENTICATION_BACKENDS` as below:
+The example matches Django users to Keycloak users by username instead. Keycloak sends the username in the `preferred_username` claim, which is set up by default. `KeycloakOIDCAuthenticationBackend` in `locallibrary/auth.py` overrides the `OIDCAuthenticationBackend` class in `mozilla_django_oidc.auth`:
 
 ```python
-
-# Classes to override default OIDCAuthenticationBackend (Keycloak authentication)
 from mozilla_django_oidc.auth import OIDCAuthenticationBackend
 
+
 class KeycloakOIDCAuthenticationBackend(OIDCAuthenticationBackend):
+    def verify_claims(self, claims):
+        return bool(claims.get("preferred_username"))
 
- def create_user(self, claims):
-     """ Overrides Authentication Backend so that Django users are
-         created with the keycloak preferred_username.
-         If nothing found matching the email, then try the username.
-     """
-     user = super(KeycloakOIDCAuthenticationBackend, self).create_user(claims)
-     user.first_name = claims.get('given_name', '')
-     user.last_name = claims.get('family_name', '')
-     user.email = claims.get('email')
-     user.username = claims.get('preferred_username')
-     user.save()
-     return user
+    def filter_users_by_claims(self, claims):
+        return self.UserModel.objects.filter(username=claims["preferred_username"])
 
- def filter_users_by_claims(self, claims):
-     """ Return all users matching the specified email.
-         If nothing found matching the email, then try the username
-     """
-     email = claims.get('email')
-     preferred_username = claims.get('preferred_username')
+    def create_user(self, claims):
+        user = self.UserModel.objects.create_user(claims["preferred_username"])
+        return self.update_user(user, claims)
 
-     if not email:
-         return self.UserModel.objects.none()
-     users = self.UserModel.objects.filter(email__iexact=email)
-
-     if len(users) < 1:
-         if not preferred_username:
-             return self.UserModel.objects.none()
-         users = self.UserModel.objects.filter(username__iexact=preferred_username)
-     return users
-
- def update_user(self, user, claims):
-     user.first_name = claims.get('given_name', '')
-     user.last_name = claims.get('family_name', '')
-     user.email = claims.get('email')
-     user.username = claims.get('preferred_username')
-     user.save()
-     return user
+    def update_user(self, user, claims):
+        user.email = claims.get("email", "")
+        user.first_name = claims.get("given_name", "")
+        user.last_name = claims.get("family_name", "")
+        user.save()
+        return user
 ```
 
-In settings.py, overide the new library you have just added in AUTHENTICATION_BACKENDS :
+- `verify_claims` rejects a login without a `preferred_username` claim.
+- `filter_users_by_claims` looks up the Django user with that username, so a Keycloak user logs in to the Django account with the same username, including one created with `createsuperuser`.
+- `create_user` creates the user on their first login, without a Django password.
+- `update_user` copies the email, first name and last name from Keycloak on every login.
 
-```python
- # mozilla_django_oidc - Keycloak authentication
- "fragalysis.auth.KeycloakOIDCAuthenticationBackend",
-```
+`AUTHENTICATION_BACKENDS` in `locallibrary/settings.py`, shown above, lists this backend first. Django's `ModelBackend` stays after it, so the admin site still accepts the local accounts that `createsuperuser` creates, and the tests can log in with `client.login`.
 
 ### Logging out
 
-You can use the `@oidc_logout` decorator to log the user out of both your app and Keycloak:
+There is no `@oidc_logout` decorator either. The `oidc_logout` view of `mozilla-django-oidc`, at `/oidc/logout/`, logs the user out, and it only accepts POST requests. The **logout** button in `base_generic.html`, shown above, is a form that posts to it.
+
+Before it ends the Django session, the view calls the function that `OIDC_OP_LOGOUT_URL_METHOD` names, `keycloak_logout_url` in `locallibrary/auth.py`, and redirects to the URL it returns:
 
 ```python
-from mozilla_django_oidc.decorators import oidc_logout
+from urllib.parse import urlencode
 
-@oidc_logout
-def logout_view(request):
-    # Your logout view logic
+from django.conf import settings
+from django.shortcuts import resolve_url
+
+
+def keycloak_logout_url(request):
+    redirect_url = resolve_url(settings.LOGOUT_REDIRECT_URL)
+    id_token = request.session.get("oidc_id_token")
+    if not id_token:
+        return redirect_url
+    query = urlencode(
+        {
+            "client_id": settings.OIDC_RP_CLIENT_ID,
+            "post_logout_redirect_uri": request.build_absolute_uri(redirect_url),
+            "id_token_hint": id_token,
+        }
+    )
+    return f"{settings.OIDC_OP_LOGOUT_ENDPOINT}?{query}"
 ```
+
+That URL is Keycloak's end-session endpoint, with the ID token that `OIDC_STORE_ID_TOKEN` keeps in the session as `id_token_hint`. Keycloak ends its session without asking for confirmation, and redirects back to `LOGOUT_REDIRECT_URL`, which the client's valid post logout redirect URIs allow. A user who logged in without Keycloak, for example through the admin login form, only has their Django session ended.
 
 ## Add support for Django Rest Framework
 
-Django Rest Framework (DRF) is a flexible toolkit built on top of Django, specifically designed for building RESTful APIs.
+[Django REST framework](https://www.django-rest-framework.org/) (DRF) is a flexible toolkit built on top of Django, specifically designed for building RESTful APIs. The example doesn't use it, but `mozilla-django-oidc` [supports it](https://mozilla-django-oidc.readthedocs.io/en/stable/drf.html).
 
 If you want DRF to authenticate users based on an OAuth access token provided in the Authorization header, you can use the DRF-specific authentication class which ships with the package.
 
@@ -236,7 +319,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        # other authentication classes, if needed
     ],
 }
 ```
@@ -246,7 +328,7 @@ Note that this only takes care of authenticating against an access token, and pr
 If you’ve created a custom Django OIDCAuthenticationBackend and added that to your AUTHENTICATION_BACKENDS, the DRF class should be smart enough to figure that out. Alternatively, you can manually set the OIDC backend to use:
 
 ```python
-OIDC_DRF_AUTH_BACKEND = 'mozilla_django_oidc.auth.OIDCAuthenticationBackend'
+OIDC_DRF_AUTH_BACKEND = 'locallibrary.auth.KeycloakOIDCAuthenticationBackend'
 ```
 
 ## Learning more

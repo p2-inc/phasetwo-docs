@@ -25,11 +25,11 @@ import NonAdminUser from "/templates/blog/_add_nonadmin_user.mdx";
   alt="OIDC SPA Logo"
 ></img>
 
-Our pal over at [Keycloakify](https://www.keycloakify.dev/) has been working on creating a simple OpenId Connect (OIDC) library called, [OIDC Spa](https://www.oidc-spa.dev/). As with [Joseph](https://github.com/garronej)'s usual approach to user friendliness, OIDC SPA simplifies a lot of the integration work than can come with adding an Authentication and Authorization layer to your application. Follow along as we show you how to integrate OIDC SPA with a Phase Two's free Keycloak instance.
+Our pal over at [Keycloakify](https://www.keycloakify.dev/) has been working on creating a simple OpenId Connect (OIDC) library called, [OIDC Spa](https://www.oidc-spa.dev/). As with [Joseph](https://github.com/garronej)'s usual approach to user friendliness, OIDC SPA simplifies a lot of the integration work that can come with adding an Authentication and Authorization layer to your application. Follow along as we show you how to integrate OIDC SPA with Phase Two's Keycloak, running on your machine or in a hosted Phase Two cluster.
 
 <!--truncate-->
 
-We're going to work through an example of how to add OIDC SPA to a React application. If you just want to skip to code, check out our [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs).
+We're going to work through an example of how to add OIDC SPA to a React application. If you just want to skip to code, check out our [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa).
 
 ## Setting up a Keycloak Instance
 
@@ -54,174 +54,169 @@ We're going to work through an example of how to add OIDC SPA to a React applica
 
 ## Setting up a ReactJS Project
 
-As this is a more interactive project, we're going to walk through a bit more integration. We've got a very basic starter template which you can find [here](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa-starter). If you'd like to see more examples, check out the [oidc-spa repo](https://github.com/keycloakify/oidc-spa/tree/main/examples)
+As this is a more interactive project, we're going to walk through a bit more integration. We've got a very basic [starter template](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa-starter): a React app built with Vite and Tailwind CSS, with the Phase Two example layout and no authentication yet. This tutorial uses oidc-spa 10. If you'd like to see more examples, check out the [oidc-spa repo](https://github.com/keycloakify/oidc-spa/tree/main/examples).
 
-1. Clone the [starter repo](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa-starter) and install the OIDC SPA library:
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/), if you haven't already, and open the starter in `frameworks/reactjs/oidc-spa-starter`. You need [Node.js](https://nodejs.org/) 24 and [pnpm](https://pnpm.io/). Install the dependencies:
 
-```bash
-npm install oidc-spa
-```
+   ```bash
+   pnpm install
+   ```
 
-2. Add an OIDC Provider in `index.tsx`. We'll be using the params from the Keycloak instance we set up earlier (update `issuerUri` and `clientId` as needed):
+1. Point the app at your Keycloak. The code you add below reads two environment variables, `VITE_OIDC_ISSUER_URI` and `VITE_OIDC_CLIENT_ID`. `.env` holds the values of the hosted Phase Two demo realm, and `.env.local` overrides them. For the local Keycloak, copy `.env.local.sample` to `.env.local`:
 
-```tsx
-import { createReactOidc } from "oidc-spa/react";
+   ```bash
+   cp .env.local.sample .env.local
+   ```
 
-export const { OidcProvider, useOidc, getOidc } = createReactOidc({
-  // NOTE: If you don't have the params right away see note below.
-  issuerUri: "https://app.phasetwo.io/auth/realms/p2examples",
-  clientId: "reactjs-example",
-  /**
-   * Vite:  `publicUrl: import.meta.env.BASE_URL`
-   * CRA:   `publicUrl: process.env.PUBLIC_URL`
-   * Other: `publicUrl: "/"` (Usually)
-   */
-  publicUrl: process.env.BASE_URL,
-});
-```
+   It holds the issuer URL of the local Keycloak and the client it already has for the React examples, `reactjs-example`:
 
-Once that is added, we can render the App within the `OidcProvider`:
+   ```bash
+   VITE_OIDC_ISSUER_URI=http://localhost:8080/auth/realms/p2examples
+   VITE_OIDC_CLIENT_ID=reactjs-example
+   ```
 
-```tsx
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <OidcProvider
-    // Optional
-    fallback={<>Checking authentication ⌛️</>}
-  >
-    <App />
-  </OidcProvider>
-);
-```
+   For another Keycloak, copy the file the same way and replace both values with the **Issuer URL** and the **Client ID** from the OIDC Config section. The client ID is the one you entered when you created the client, so it may not be `reactjs-example`.
 
-3. Use the `useOidc` hook to access the OIDC context from `index.tsx` in the `Auth.tsx` file. This will allow you to check if the user is logged in, log them in, log them out, and access the OIDC tokens:
+1. Install oidc-spa, and [zod](https://zod.dev/) to describe the ID token:
 
-```tsx
-import { useOidc } from "./index";
+   ```bash
+   pnpm add oidc-spa zod
+   ```
 
-const Auth = () => {
-  const { isUserLoggedIn, login, logout, oidcTokens } = useOidc();
-  ...
-};
+1. Create `src/oidc.ts`:
 
-export default Auth;
-```
+   ```ts
+   import { oidcSpa } from "oidc-spa/react-spa";
+   import { z } from "zod";
 
-Looking at what comes back, we have a few main items:
+   export const { bootstrapOidc, useOidc, getOidc, OidcInitializationGate } =
+     oidcSpa
+       .withExpectedDecodedIdTokenShape({
+         decodedIdTokenSchema: z.looseObject({
+           sub: z.string(),
+           name: z.string().optional(),
+           email: z.string().optional(),
+         }),
+       })
+       .createUtils();
 
-- `isUserLoggedIn` - A boolean value that tells you if the user is logged in.
-- `login` - A function that will log the user in.
-- `logout` - A function that will log the user out.
-- `oidcTokens` - An object that contains the OIDC tokens. From this we can grab the `decodedIdToken` and to see information about the user. There are other tokens within this like `accessToken`, `refreshToken`, and `idToken`, which can be used for various purposes.
+   bootstrapOidc({
+     implementation: "real",
+     issuerUri: import.meta.env.VITE_OIDC_ISSUER_URI,
+     clientId: import.meta.env.VITE_OIDC_CLIENT_ID,
+     scopes: ["profile", "email"],
+   });
+   ```
 
-:::info
-One of the nicest things that OIDC SPA does well is handling your token refresh for you. This is a common issue with OIDC libraries and OIDC SPA has a nice solution.
-:::
+   The zod schema describes the claims you expect in the ID token, so `decodedIdToken` is typed, and `z.looseObject` keeps the other claims too. `createUtils()` returns the hook and helpers the rest of the app imports from this file. `bootstrapOidc` starts oidc-spa with the issuer URL and the client ID from the environment, and asks for the `profile` and `email` scopes on top of `openid`.
 
-Let's move forward with building out this component and adding some logic to handle the user's authentication state. Some of the mark is purely for layout and styling, but the logic is what we're after:
+1. Add the oidc-spa Vite plugin to `vite.config.ts`, so oidc-spa starts before the app and protects the tokens. The file then looks like this:
 
-- `oidcTokens.decodedIdToken?.email as string` we type this as since the `decodedIdToken` isn't defined. If you want to pretype the `decodedIdToken` in the `createReactOidc` function, do so by providing a `decodedIdTokenSchema` key and optionally validate it with [zod](https://zod.dev/).
+   ```ts
+   import tailwindcss from "@tailwindcss/vite";
+   import react from "@vitejs/plugin-react";
+   import { oidcSpa } from "oidc-spa/vite-plugin";
+   import { defineConfig } from "vite";
 
-```tsx
-let content;
+   export default defineConfig({
+     plugins: [
+       react(),
+       tailwindcss(),
+       oidcSpa({ browserRuntimeFreeze: { enabled: true } }),
+     ],
+     server: { port: 3000, strictPort: true },
+     preview: { port: 3000, strictPort: true },
+   });
+   ```
 
-if (isUserLoggedIn) {
-  content = (
-    <div>
-      <div className="mb-2 text-p2blue-700 text-2xl">Authenticated</div>
-      <div className="mb-6 text-p2blue-700 text-md">
-        <div>{oidcTokens.decodedIdToken?.email as string}</div>
-        <div>{oidcTokens.decodedIdToken?.sub as string}</div>
-      </div>
-      <button
-        className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-        onClick={() => logout({ redirectTo: "current page" })}
-      >
-        Log out
-      </button>
-      <Token />
-    </div>
-  );
-} else {
-  content = (
-    <div>
-      <div className="mb-6 text-p2blue-700 text-2xl">Not authenticated.</div>
-      <button
-        className="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-        onClick={() => login({ doesCurrentHrefRequiresAuth: true })}
-      >
-        Log in
-      </button>
-    </div>
-  );
-}
+   `browserRuntimeFreeze` keeps scripts on the page from altering core JavaScript behavior to steal the tokens. The [oidc-spa docs](https://docs.oidc-spa.dev/security-features/browser-runtime-freeze) explain it.
 
-return (
-  <div>
-    <div className="text-xl pb-8 italic">Your current status is:</div>
-    {content}
-  </div>
-);
-```
+1. In `src/App.tsx`, wrap `<Auth />` so it renders once oidc-spa is ready:
 
-4. Run the application:
+   ```tsx
+   import { OidcInitializationGate } from "./oidc.ts";
 
-```bash
-npm run start
-```
+   <OidcInitializationGate>
+     <Auth />
+   </OidcInitializationGate>;
+   ```
 
-5. Test the login and logout functionality. You should see the user's email and sub displayed when logged in. If you're using the Keycloak instance we set up earlier, you can use the non-admin user we created.
+   `OidcInitializationGate` renders its children once oidc-spa has initialized, that is, once it knows whether the user is logged in. The finished example also passes it a `fallback` prop, which renders in the meantime.
+
+1. Replace `src/Auth.tsx`. It uses the `useOidc` hook from `src/oidc.ts` to check if the user is logged in, log them in and log them out:
+
+   ```tsx
+   import { useOidc } from "./oidc.ts";
+
+   export default function Auth() {
+     const oidc = useOidc();
+
+     return (
+       <div>
+         <div className="pb-8 text-xl italic">Your current status is:</div>
+         {oidc.isUserLoggedIn ? (
+           <>
+             <div className="mb-2 text-2xl text-p2blue-700">Authenticated</div>
+             <div className="mb-6 text-p2blue-700">
+               {oidc.decodedIdToken.email}
+             </div>
+             <button onClick={() => oidc.logout({ redirectTo: "home" })}>
+               Log out
+             </button>
+           </>
+         ) : (
+           <>
+             <div className="mb-6 text-2xl text-p2blue-700">
+               Not authenticated.
+             </div>
+             <button onClick={() => oidc.login()}>Log in</button>
+           </>
+         )}
+       </div>
+     );
+   }
+   ```
+
+   Looking at what comes back from `useOidc()`, we have a few main items:
+
+   - `isUserLoggedIn` - A boolean value that tells you if the user is logged in. The other items depend on it.
+   - `login` - A function that sends the user to the Keycloak login page. It is there while the user is logged out.
+   - `logout` - A function that logs the user out of the app and of Keycloak. It is there while the user is logged in, and `redirectTo: "home"` brings them back to the app's home page afterwards.
+   - `decodedIdToken` - The claims of the ID token, typed by the schema in `src/oidc.ts`, such as the user's `email`.
+
+   :::info
+   One of the nicest things that OIDC SPA does well is handling your token refresh for you. This is a common issue with OIDC libraries and OIDC SPA has a nice solution.
+   :::
+
+1. Run the application:
+
+   ```bash
+   pnpm dev
+   ```
+
+1. Open [localhost:3000](http://localhost:3000) and test the login and logout functionality. Sign in with the non-admin user we created, or `demo` / `demo` on the local Keycloak. You should see the user's email displayed when logged in.
+
+The [finished example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa) also shows the decoded tokens, a link to the Keycloak account console, a mock mode for working without Keycloak, a `fetchWithAuth` helper for calling APIs, and a warning before an idle session expires.
 
 ### Bonus
 
-A very common use case is security API calls. An example `api.ts` file below shows how you would intercept all requests and append the `accessToken` to the headers.
+A very common use case is securing API calls. The finished example's `src/oidc.ts` exports a `fetchWithAuth` function, which works like `fetch` and adds the user's access token to the `Authorization` header:
 
-This example is provided with Axios by [Keycloakify](https://docs.oidc-spa.dev/documentation/web-api). We'll implement it in `fetch` as an alternative.
-
-```tsx
-import { getOidc } from "oidc";
-
-type Api = {
-  getTodos: () => Promise<{ id: number; title: string }[]>;
-  addTodo: (todo: { title: string }) => Promise<void>;
-};
-
-const baseURL = import.meta.env.API_URL;
-
-const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+```ts
+export const fetchWithAuth: typeof fetch = async (input, init) => {
   const oidc = await getOidc();
 
   if (!oidc.isUserLoggedIn) {
-    throw new Error(
-      "We made a logic error: The user should be logged in at this point"
-    );
+    return fetch(input, init);
   }
 
-  const headers = {
-    ...options.headers,
-    Authorization: `Bearer ${oidc.getTokens().accessToken}`,
-    "Content-Type": "application/json",
-  };
-
-  const response = await fetch(`${baseURL}${url}`, { ...options, headers });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-};
-
-export const api: Api = {
-  getTodos: () => fetchWithAuth("/todo"),
-  addTodo: (todo) =>
-    fetchWithAuth("/todo", {
-      method: "POST",
-      body: JSON.stringify(todo),
-    }),
+  const headers = new Headers(init?.headers);
+  headers.set("Authorization", `Bearer ${await oidc.getAccessToken()}`);
+  return fetch(input, { ...init, headers });
 };
 ```
 
-We aren't setting this actual backend up, but you can see how you would use the `api.ts` file to make authenticated requests.
+`getOidc()` gives you access to oidc-spa outside of React components. `getAccessToken()` returns a valid access token, and refreshes it first if it has expired or is about to. We aren't setting up a backend here, but the [oidc-spa docs](https://docs.oidc-spa.dev/integration-guides/backend-token-validation) show how your API can validate the token.
 
 ## Conclusion
 

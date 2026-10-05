@@ -2,83 +2,246 @@
 We will use the Phase Two SvelteKit example code here, but the logic could easily be applied to any existing application.
 :::
 
-1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/).
-2. Open the SvelteKit [folder](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit) within `/frameworks/sveltekit`.
-3. Run `npm install` and then `npm run dev`. This example leverages [@auth/sveltekit](https://github.com/nextauthjs/next-auth) to provide HOC support.
-4. The project makes use of the following SvelteKit items: hooks, components, layout, and `@auth/sveltekit` module. We'll review each in kind.
-5. We'll review where we configure out Keycloak instance. Open the `src/auth.ts` file. This is a server only file. We will be updating a few values from the prior section where we set up our OIDC client. Taking the values from the OIDC Client Config section, set those values in the code. While it is recommended to use Environment variables for the secret, for the purpose of this tutorial, paste in the **Client secret** from the OIDC client creation section for the value of `clientSecret`.
+The example is a [SvelteKit](https://svelte.dev/docs/kit) 2 app with Svelte 5. It logs users in with [Auth.js](https://authjs.dev/reference/sveltekit) (`@auth/sveltekit` 1.11) and its [Keycloak provider](https://authjs.dev/getting-started/providers/keycloak). The login runs on the server: the tokens stay in an encrypted, HTTP-only session cookie, and the browser only sees their decoded claims. You need [Node.js](https://nodejs.org/) 24 and [pnpm](https://pnpm.io/).
 
-```tsx
-// Use Environment Variables AUTH_SECRET in prod
-const authjsSecret =
-  "f18d48ce9bea32e44b5591b2c89185729d4559435f77ca76872a83a0850563a4";
+1. Clone the Phase Two [example repo](https://github.com/p2-inc/examples/) if you haven't yet, and open the SvelteKit [folder](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit):
 
-const realm = "shared-deployment-001";
+   ```bash
+   git clone https://github.com/p2-inc/examples.git
+   cd examples/frameworks/sveltekit
+   ```
 
-const kcConfig = {
-  // Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
-  issuer: `https://usw2.auth.ac/auth/realms/${realm}`,
-  // Paste "Client id" here. Use Environment Variables AUTH_KEYCLOAK_ID in prod
-  clientId: "reg-example-1",
-  // Paste "Client secret" here. Use Environment Variables AUTH_KEYCLOAK_ISSUER in prod
-  clientSecret: "CLIENT_SECRET",
-};
-```
+1. Copy `.env.example` to `.env`:
 
-Those are used to popluate the config for the provider `Keycloak`:
+   ```bash
+   cp .env.example .env
+   ```
 
-```tsx
-export const { handle, signIn, signOut } = SvelteKitAuth({
-  trustHost: true,
-  secret: authjsSecret,
-  providers: [Keycloak(kcConfig)],
-});
-```
+   `.env.example` points at the [local Keycloak](https://github.com/p2-inc/examples/blob/main/keycloak/README.md) of the example repo. Its `p2examples` realm already has the example's `sveltekit` client and a non-admin user, `demo` / `demo`. If it isn't running yet, start it from the root of the repo with `docker compose -f keycloak/docker-compose.yml up -d --wait`.
 
-6. Next, let's review the hooks (`src/hooks.server.ts`) file. This imports the `handle` method by the `src/auth.ts` and re-exports it. This allows the hooks to act as a middleware and include the authentication status of the user in each request.
+   Auth.js reads these variables at runtime:
 
-```tsx
-export { handle } from "./auth.js";
-```
+   | Variable               | Description                             | Local Keycloak                                 |
+   | ---------------------- | --------------------------------------- | ---------------------------------------------- |
+   | `AUTH_SECRET`          | Random secret that encrypts the session | Generate your own                              |
+   | `AUTH_KEYCLOAK_ID`     | Client ID                               | `sveltekit`                                    |
+   | `AUTH_KEYCLOAK_SECRET` | Client secret                           | `sveltekit-local-dev-secret`                   |
+   | `AUTH_KEYCLOAK_ISSUER` | Issuer URL of the realm                 | `http://localhost:8080/auth/realms/p2examples` |
 
-7. To retrieve the authentication status of the user in server-side rendering on the index route, it's using the `+layout.server.ts` file. It retrieves the authentication status via the `getSession` function from [SvelteKit Locals](https://kit.svelte.dev/docs/types#app-locals) set by `src/hook.server.ts`.
+   Set `AUTH_SECRET` in `.env` to a random value, such as the output of `openssl rand -base64 32`.
 
-```tsx
-import type { LayoutServerLoad } from "./$types.js";
+   To use another Keycloak, set `AUTH_KEYCLOAK_ISSUER` to your realm's issuer URL, and `AUTH_KEYCLOAK_ID` and `AUTH_KEYCLOAK_SECRET` to the ID and secret of a confidential client there, with `http://localhost:3000/*` as valid redirect URI and `+` as valid post logout redirect URI. Use your own client's ID, since `sveltekit` is only the client of the local Keycloak. `.env` is ignored by git, so your secrets stay out of version control.
 
-export const load: LayoutServerLoad = async (event) => {
-  const session = await event.locals.getSession();
-  return {
-    session,
-  };
-};
-```
+1. Install the dependencies and start the app:
 
-8. The server-side authentication data is then accessed inside the `+page.svelte`, and then passed onto the user (`src/components/user.svelte`) component as follows:
+   ```bash
+   pnpm install
+   pnpm dev
+   ```
 
-```html
-<script lang="ts">
-  import User from "$components/user.svelte";
-  import type { LayoutServerData } from "./$types.js";
+1. The project makes use of the following SvelteKit items: a server hook, a layout `load` function, form actions and the `@auth/sveltekit` module. We'll review each in turn.
 
-  export let data: LayoutServerData;
-</script>
+1. Open `src/auth.ts`, where the example configures Auth.js. This file runs only on the server and reads the Keycloak settings at runtime through `$env/dynamic/private`. At the top of `src/auth.ts`, `refreshAccessToken` trades the refresh token for new tokens at Keycloak's token endpoint:
 
-// ... Rest of the index route ... // <User data={{ user: data?.session?.user,
-status: Boolean(data?.session), }} />
-```
+   ```ts
+   import type { JWT } from '@auth/core/jwt';
+   import { SvelteKitAuth } from '@auth/sveltekit';
+   import Keycloak from '@auth/sveltekit/providers/keycloak';
+   import { env } from '$env/dynamic/private';
+   import { decodeJwtPayload } from '$lib/server/jwt';
 
-The props, **user** and **status** represent the user information object and whether the user is signed in, respectively.
+   async function refreshAccessToken(token: JWT): Promise<JWT> {
+     if (!token.refreshToken) {
+       return { ...token, error: 'RefreshAccessTokenError' };
+     }
 
-9. At this point our entire application will be able to access all information and methods needed to perform authentication. View `src/components/user.svelte` for exactly how the code is authenticating your user. The sections rendering the **Log in** and **Log out** buttons are conditional areas based on the authenticated context. The buttons invoke server-side APIs provided by `@auth/sveltekit`.
+     const response = await fetch(`${env.AUTH_KEYCLOAK_ISSUER}/protocol/openid-connect/token`, {
+       method: 'POST',
+       body: new URLSearchParams({
+         grant_type: 'refresh_token',
+         client_id: env.AUTH_KEYCLOAK_ID ?? '',
+         client_secret: env.AUTH_KEYCLOAK_SECRET ?? '',
+         refresh_token: token.refreshToken
+       })
+     });
 
-The logic using the authenticator to conditionally determine the Authenticated state, can be used to secure routes, components, and more.
+     if (!response.ok) {
+       return { ...token, error: 'RefreshAccessTokenError' };
+     }
 
-10. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. You current state should be **Not authenticated**. Click **Log In**. This will redirect you to your login page.
+     const tokens = await response.json();
+     return {
+       ...token,
+       accessToken: tokens.access_token,
+       idToken: tokens.id_token ?? token.idToken,
+       refreshToken: tokens.refresh_token ?? token.refreshToken,
+       expiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
+       error: undefined
+     };
+   }
+   ```
 
-:::info
-Use the non-admin user created in the previous section to sign in.
-:::
+   Further down in `src/auth.ts`, `SvelteKitAuth` creates the `handle` hook and the `signIn` and `signOut` actions:
 
-11. Enter the credentials of the non-admin user you created. Click **Submit**. You will then be redirected to the application. The Phase Two example landing page now loads your **Authenticated** state, displaying your user's email and name.
-12. Neat! If you clear the browser state for that tab, then you will have to be redirected away to sign-in again.
+   ```ts
+   export const { handle, signIn, signOut } = SvelteKitAuth({
+     trustHost: true,
+     providers: [Keycloak],
+     callbacks: {
+       async jwt({ token, account }) {
+         if (account) {
+           return {
+             ...token,
+             accessToken: account.access_token,
+             idToken: account.id_token,
+             refreshToken: account.refresh_token,
+             expiresAt: account.expires_at
+           };
+         }
+
+         if (token.expiresAt && Date.now() < (token.expiresAt - 30) * 1000) {
+           return token;
+         }
+
+         return refreshAccessToken(token);
+       },
+       session({ session, token }) {
+         return {
+           ...session,
+           error: token.error,
+           accessTokenClaims: decodeJwtPayload(token.accessToken),
+           idTokenClaims: decodeJwtPayload(token.idToken)
+         };
+       }
+     },
+     events: {
+       async signOut(message) {
+         const refreshToken = 'token' in message ? message.token?.refreshToken : undefined;
+         if (!refreshToken) {
+           return;
+         }
+
+         await fetch(`${env.AUTH_KEYCLOAK_ISSUER}/protocol/openid-connect/logout`, {
+           method: 'POST',
+           body: new URLSearchParams({
+             client_id: env.AUTH_KEYCLOAK_ID ?? '',
+             client_secret: env.AUTH_KEYCLOAK_SECRET ?? '',
+             refresh_token: refreshToken
+           })
+         });
+       }
+     }
+   });
+   ```
+
+   - `providers: [Keycloak]` passes the provider without options: Auth.js [reads](https://authjs.dev/guides/environment-variables#environment-variable-inference) its client ID, client secret and issuer from the `AUTH_KEYCLOAK_*` variables, and its own secret from `AUTH_SECRET`.
+   - The `jwt` [callback](https://authjs.dev/reference/core#callbacks) stores Keycloak's access, ID and refresh tokens in the encrypted session cookie when the user logs in. When the access token has less than 30 seconds left, it calls `refreshAccessToken`.
+   - The `session` callback decides what the app gets from the session: the decoded claims of the access and ID tokens, and an `error` if the refresh failed. The tokens themselves never leave the server.
+   - The `signOut` [event](https://authjs.dev/reference/core#events) posts the refresh token to Keycloak's logout endpoint, so logging out of the app also ends the Keycloak session.
+
+   `decodeJwtPayload` is in `src/lib/server/jwt.ts`, and `src/app.d.ts` adds these fields to the `Session` and `JWT` types.
+
+1. Next, let's review the hooks file. SvelteKit runs its `handle` [hook](https://svelte.dev/docs/kit/hooks) on every request, so Auth.js can answer its own routes under `/auth`, such as the callback that Keycloak redirects to after the login, and add `auth()` to `event.locals`. `src/hooks.server.ts` re-exports `handle` from `src/auth.ts`:
+
+   ```ts
+   export { handle } from './auth';
+   ```
+
+1. To get the session during server-side rendering, `src/routes/+layout.server.ts` calls `event.locals.auth()` from [SvelteKit Locals](https://svelte.dev/docs/kit/types#Locals) and returns the session to every page:
+
+   ```ts
+   import type { LayoutServerLoad } from './$types';
+
+   export const load: LayoutServerLoad = async (event) => {
+     return { session: await event.locals.auth() };
+   };
+   ```
+
+1. `src/routes/+page.svelte` receives that data with [`$props()`](https://svelte.dev/docs/svelte/$props) and passes the session on to the `UserStatus` component:
+
+   ```svelte
+   <script lang="ts">
+     import Footer from '$lib/components/Footer.svelte';
+     import Header from '$lib/components/Header.svelte';
+     import UserStatus from '$lib/components/UserStatus.svelte';
+
+     let { data } = $props();
+   </script>
+
+   <div class="page-bg min-h-screen">
+     <Header />
+     <main class="py-8">
+       <div class="mx-auto max-w-3xl px-6 text-center lg:px-8">
+         <UserStatus session={data.session} />
+       </div>
+     </main>
+     <Footer />
+   </div>
+   ```
+
+1. `UserStatus` shows **Not authenticated.** and a **Log in** button, or your name and email, the decoded tokens and a **Log out** button. If the token refresh failed, it asks you to log in again. In `src/lib/components/UserStatus.svelte`, the buttons are plain HTML forms that post to `/signin` and `/signout`:
+
+   ```svelte
+   <script lang="ts">
+     import type { Session } from '@auth/sveltekit';
+     import TokenPanels from './TokenPanels.svelte';
+
+     let { session }: { session: Session | null } = $props();
+
+     const buttonClasses =
+       'cursor-pointer rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600';
+   </script>
+
+   {#snippet loginForm()}
+     <form method="POST" action="/signin">
+       <input type="hidden" name="providerId" value="keycloak" />
+       <input type="hidden" name="redirectTo" value="/" />
+       <button type="submit" class={buttonClasses}>Log in</button>
+     </form>
+   {/snippet}
+
+   <div>
+     <div class="pb-8 text-xl italic">Your current status is:</div>
+     {#if session?.error}
+       <div class="mb-2 text-2xl text-p2blue-700">Authentication error.</div>
+       <div class="mb-6">Your session expired. Please log in again.</div>
+       {@render loginForm()}
+     {:else if session}
+       <div class="mb-2 text-2xl text-p2blue-700">Authenticated</div>
+       <div class="mb-6 text-p2blue-700">
+         <div>{session.user?.name}</div>
+         <div>{session.user?.email}</div>
+       </div>
+       <form method="POST" action="/signout">
+         <input type="hidden" name="redirectTo" value="/" />
+         <button type="submit" class={buttonClasses}>Log out</button>
+       </form>
+       <TokenPanels {session} />
+     {:else}
+       <div class="mb-6 text-2xl text-p2blue-700">Not authenticated.</div>
+       {@render loginForm()}
+     {/if}
+   </div>
+   ```
+
+   Each of those routes only has a [form action](https://svelte.dev/docs/kit/form-actions): the `signIn` or `signOut` action from `src/auth.ts`. In `src/routes/signin/+page.server.ts`:
+
+   ```ts
+   import { signIn } from '../../auth';
+   import type { Actions } from './$types';
+
+   export const actions = { default: signIn } satisfies Actions;
+   ```
+
+   `src/routes/signout/+page.server.ts` does the same with `signOut`. The hidden `providerId` field makes `signIn` [go straight to Keycloak](https://authjs.dev/reference/sveltekit#signing-in-and-signing-out), and `redirectTo` brings you back to the home page.
+
+   Protect other routes the same way: call `event.locals.auth()` in their `load` functions and actions, and check that it returns a session.
+
+1. Open [localhost:3000](http://localhost:3000). You will see the Phase Two example landing page. Your current status should be **Not authenticated.** Click **Log in**. This will redirect you to the Keycloak login page.
+
+   :::info
+   Sign in with a non-admin user, such as `demo` / `demo` on the local Keycloak.
+   :::
+
+1. Enter the user's credentials and sign in. You will then be redirected to the application. The Phase Two example landing page now shows your **Authenticated** state, your user's name and email, and the decoded access token and ID token.
+1. Click **Log out**. The app also ends your Keycloak session, so the next time you click **Log in**, Keycloak asks for your credentials again.
