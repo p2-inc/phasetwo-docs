@@ -65,8 +65,9 @@ account list honest:
 
 1. [SCIM explained: what it is and when you need it](/blog/scim-explained/)
 2. [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/)
+3. [Keycloak SCIM filtering, pagination, and search](/tutorials/scim/filtering/)
 
-Filtering, pagination and schema mapping are next. *(Coming soon.)*
+Mapping attributes to SCIM schemas and extensions is next. *(Coming soon.)*
 
 **Automating the user lifecycle** — joiners, movers and leavers without a script on a cron:
 

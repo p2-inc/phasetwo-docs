@@ -1,0 +1,449 @@
+---
+id: filtering
+title: "Keycloak SCIM Filtering, Pagination, and Search"
+description: Which SCIM filter operators Keycloak really supports, the limits it enforces, and why paging with startIndex silently loses users. Tested on 26.8.0 with 20,252 users.
+keywords:
+  - keycloak scim filter
+  - scim filtering
+  - scim pagination
+  - keycloak scim search
+  - scim startindex count
+  - scim filter operators
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.8.0"
+prerequisites:
+  - Docker
+  - A realm with the SCIM API enabled and a service-account client
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak SCIM filtering, pagination, and search
+
+Keycloak's SCIM API supports the full RFC 7644 filter grammar, caps every page at **100
+results**, and ignores `sortBy` entirely. Those three sentences hide the two things that
+actually break a provisioning integration:
+
+1. **A filter on an attribute Keycloak does not map returns `200` with zero results.** No
+   error, no warning. `id eq "<a real user id>"` matches nothing. So does
+   `name.formatted pr`, on users whose `name.formatted` is right there in the response body.
+2. **Walking the directory with `startIndex` loses users.** Measured below: a 20,252-user
+   walk with 50 concurrent deletions returned 20,252 distinct rows and **never returned 50
+   users that existed the whole time.**
+
+Keycloak's own [filtering reference](https://www.keycloak.org/docs/latest/server_admin/index.html#_scim_filtering_resources)
+is a good description of the grammar and the documented limits. This page is what the grammar
+does when you point it at a realm: which operators are enforced, which failures are silent,
+and a tested cursor-based walk that does not lose anybody.
+
+:::info Tested against
+Keycloak **26.8.0** (`quay.io/keycloak/keycloak:26.8.0 start-dev`), dev mode with the default
+H2 database, on 2026-10-05. Every status code, JSON body, count and timing below is copied
+from a real run against a realm holding **20,252 users** created over the SCIM API. SCIM is
+**supported** as of 26.8.0 — it no longer needs `--features=scim-api`, though the per-realm
+`scimApiEnabled` toggle is still off by default.
+:::
+
+## What you'll build
+
+A realm with enough users that pagination stops being theoretical, a filter cheat sheet you
+have verified against your own server rather than against a spec, and a directory walk that
+survives writes happening underneath it.
+
+## Prerequisites
+
+You need a realm with SCIM enabled and a service-account client that can reach it.
+[Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) is the
+five-step version — the audience mapper in its step 5 is the one people miss. On 26.8.0 the
+server starts without a feature flag:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_HOSTNAME=http://localhost:8080 \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+Then, with `$TOKEN` and `$BASE` set as in that tutorial, seed a realistic population. Twenty
+thousand users through the SCIM API at twelve concurrent writers took **4 minutes 7 seconds**
+on this container:
+
+```bash
+cat > mk.sh <<'EOF'
+BASE=http://localhost:8080/realms/scimdemo/scim/v2
+TOKEN=$(cat token.txt)
+n=$(printf "%05d" $1)
+curl -s -o /dev/null -X POST "$BASE/Users" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/scim+json" \
+  -d "{\"schemas\":[\"urn:ietf:params:scim:schemas:core:2.0:User\"],
+       \"userName\":\"bulk$n\",\"active\":true,
+       \"name\":{\"givenName\":\"Ann\",\"familyName\":\"Okafor\"},
+       \"emails\":[{\"value\":\"ann.okafor.b$n@example.com\"}]}"
+EOF
+echo "$TOKEN" > token.txt
+seq 1 20000 | xargs -P 12 -n 1 bash mk.sh
+```
+
+Note the explicit `"active": true`. **A `POST /Users` that omits `active` creates a disabled
+user** — the response says `"active": false` and the Admin API agrees — so a seed without it
+produces a realm where `active eq true` quietly returns nothing.
+
+Raise the client's token lifespan first or the seed outlives the token — the default access
+token lives 300 seconds, and the realm's `ssoSessionMaxLifespan` caps it. Both knobs are in
+[the getting-started tutorial](/tutorials/scim/getting-started/#token-lifetime-the-thing-that-breaks-a-week-later).
+
+## The operators, and what each one did
+
+Every row here was run against the 20,252-user realm. Comparisons are **case-insensitive**:
+`userName eq "USER0001"` matches `user0001`, and Keycloak lowercases `userName` on write
+anyway, so the value your IdP sent back is not necessarily the value it stored.
+
+| Filter | Result |
+|---|---|
+| `userName eq "user0001"` | 1 |
+| `userName ne "user0001"` | 20,251 |
+| `userName co "0001"` | 13 |
+| `userName sw "bulk1"` | 10,000 |
+| `userName ew "0001"` | 3 |
+| `userName pr` | 20,252 |
+| `userName gt "user0248"` / `ge` / `lt` / `le` | works on strings; `gt` → 2, `ge` → 3 |
+| `meta.created gt "2020-01-01T00:00:00Z"` | 20,252 |
+| `name.familyName eq "Okafor"` | 2,030 |
+| `name[familyName eq "Okafor"]` | 2,030 |
+| `emails.value eq "ann.smith0001@example.com"` | 1 |
+| `emails eq "ann.smith0001@example.com"` | 1 |
+| `name.givenName eq "Ann" and name.familyName eq "Smith"` | 203 |
+| `not (active eq true)` | 12 |
+| `(userName sw "user00" or userName sw "bulk000") and active eq true` | 195 |
+
+Two operand rules the server does enforce, each with a message that names the attribute:
+
+```text
+active sw "t"           400 invalidFilter  Operator 'sw' is not supported for boolean attribute: active
+meta.created co "2026"  400 invalidFilter  String operators (co, sw, ew) are not supported for timestamp attribute: meta.created
+meta.created eq "x"     400 invalidFilter  Invalid date/time format: x. Expected ISO 8601 format …
+```
+
+Syntax errors are good too — they carry a character position:
+
+```text
+userName eq        400  Invalid filter syntax: position 11: missing {TRUE, FALSE, NULL, STRING, NUMBER} at '<EOF>'
+userName eq 'x'    400  Invalid filter syntax: position 13: mismatched input 'x' expecting {TRUE, FALSE, NULL, STRING, NUMBER}
+```
+
+That second one catches people daily. **SCIM string literals are double-quoted**, which means
+the shell quoting goes the other way round from what your fingers expect:
+`--data-urlencode 'filter=userName eq "jdoe"'`.
+
+### Two hard limits
+
+```bash
+# 2,733-character filter
+{"status":"400","scimType":"invalidFilter",
+ "detail":"Filter expression exceeds maximum allowed length of 2048 characters"}
+
+# 11 levels of parentheses (10 is fine)
+{"status":"400","scimType":"invalidFilter",
+ "detail":"Filter expression exceeds maximum allowed nesting depth of 10"}
+```
+
+2,048 characters is about 85 `userName eq "…"` clauses joined with `or`. A reconciliation
+client that batches lookups will hit it; batch by 50 and you have room.
+
+## The failures that return `200`
+
+This is the section worth reading twice. **An unknown or unmapped attribute never produces an
+error.** Every one of these returned `"totalResults": 0` with status `200`:
+
+| Filter | Why it matches nothing |
+|---|---|
+| `id eq "84bcd0a0-…"` — the user's real `id` | `id` is not a filterable attribute at all |
+| `urn:ietf:params:scim:schemas:core:2.0:User:userName eq "user0001"` | the fully-qualified form is recognised for *extension* schemas only |
+| `name.formatted pr` | returned in every response, with a value, and not filterable |
+| `emails.type eq "work"` | only the `value` sub-attribute of a multivalued attribute is filterable |
+| `emails[type eq "work"]` | same, in value-path form |
+| `title pr`, `displayName pr`, `nickName pr`, `userType pr`, `locale pr` | advertised by `/Schemas`, unmapped in a stock realm |
+| `externalId eq "…"` | unmapped until you add the user-profile attribute |
+| `anythingYouJustMadeUp pr` | no such attribute |
+
+Each of those has a positive control that proves the mechanism rather than the data:
+`name.givenName pr` returns 20,252 while `name.formatted pr` returns 0, and
+`emails[value eq "…"]` returns 1 while `emails[type eq "work"]` returns 0 **on the same user
+whose stored email carries `"type": "work"`**. The attribute is in the response body and in
+the schema; it is simply not a column anybody can query.
+
+The consequence for a conjunction is worse than for a lone filter:
+
+```text
+userName eq "user0001" and bogus eq "x"      →  0     (one dead clause kills the filter)
+userName eq "user0001" or  bogus eq "x"      →  1     (one dead clause is just ignored)
+```
+
+So **verify every attribute in a filter independently before you ship it.** `GET /Schemas` is
+not the answer — it advertises `title`, `displayName`, `nickName`, `userType` and
+`name.formatted`, none of which are filterable in a stock realm. The answer is one request per
+attribute with `count=0`, which is cheap:
+
+```bash
+for a in userName active name.givenName emails.value title externalId; do
+  printf '%-18s ' "$a"
+  curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+    --data-urlencode "filter=$a pr" --data-urlencode 'count=0' | jq -r .totalResults
+done
+```
+
+```text
+userName           20252
+active             20252
+name.givenName     20252
+emails.value       20252
+title              0
+externalId         0
+```
+
+(`name.formatted` and `id` answer `0` to the same probe.)
+
+`title` and `externalId` are not broken; they are unmapped. Mapping them is
+[attribute and schema mapping](https://www.keycloak.org/docs/latest/server_admin/index.html#_scim_mapping_attributes_),
+and until you do, every filter that mentions them is a filter that silently matches nobody.
+
+### Group membership has its own grammar
+
+`groups.value` and `members.value` work, and `ne` on them does not mean what it looks like:
+
+```text
+groups.value eq "<groupId>"                            1
+groups.value ne "<groupId>"                            1    ← users in *some other* group
+not (groups.value eq "<groupId>")                      every other user
+groups[value eq "<A>" or value eq "<B>"]               works
+groups[value eq "<A>" and value eq "<B>"]              400  'and' operator is not supported within a value path filter …
+groups.value eq "<A>" and groups.value eq "<B>"        0    ← same impossibility, no error
+```
+
+The last two lines are the same logically impossible request. The bracket form is rejected
+with an explanation; the dotted form returns an empty page. Use the bracket form so the server
+can tell you when you are wrong.
+
+Keycloak documents two further restrictions on these two paths that we could not reproduce and
+so cannot characterise: under **fine-grained admin permissions** only `eq` is supposed to be
+honoured, with other operators returning empty results, and under an **LDAP `LDAP_ONLY` group
+mapper** membership filters read the local database and can come back empty. With FGAP enabled
+and a `manage-users` service account every operator behaved normally here, so treat the
+official note as the specification and test your own grant. [Keycloak fine-grained admin
+permissions V2](/tutorials/admin/fine-grained-permissions-v2/) covers how those grants are
+built.
+
+## Pagination: `startIndex` and `count`
+
+| Request | What comes back |
+|---|---|
+| no parameters | `itemsPerPage: 100`, `startIndex: 1` |
+| `count=5` | 5 |
+| `count=1000` | **100** — silently clamped to `filter.maxResults` |
+| `count=0` | `Resources: []` with the real `totalResults` — a free count |
+| `startIndex=0` | normalised to 1 |
+| `startIndex=20300` (past the end) | empty `Resources`, `itemsPerPage: 0`, correct `totalResults` |
+| `startIndex=abc` or `count=abc` | **`404 {"error":"HTTP 404 Not Found"}`** |
+
+That last row deserves a note. A non-numeric paging parameter produces a bare Keycloak 404
+with no SCIM `schemas` key — **the same response you get when SCIM is not enabled on the
+realm**. If a client suddenly 404s, check its paging parameters before you go looking at the
+realm toggle.
+
+The `count=0` trick is the one to remember. It answers "how many users match this?" in a
+single request with no result set to parse, and it is how you check a walk afterwards.
+
+## Sorting is not applied — but the order is not random
+
+`sortBy` and `sortOrder` are accepted and ignored; `ServiceProviderConfig` says
+`"sort": {"supported": false}` and means it. What you get instead is the underlying store's
+order, which on 26.8.0 is **ascending by `userName`** — verified across all 203 pages of the
+20,252-user walk, with a filter applied, and across page boundaries:
+
+```bash
+curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode 'count=100' | jq -r '[.Resources[].userName] | . == (. | sort)'
+```
+
+```
+true
+```
+
+This is an observation, not a contract — the documentation promises only "the default order of
+the underlying store". Run that one-liner against your own version and database before you
+depend on it, and run it again after an upgrade. Everything in the next section does depend on
+it, and the check costs one request.
+
+## Why `startIndex` loses users, measured
+
+Offset paging reads *positions*, not records. Anything that changes how many records sort
+before your cursor moves every later record into a different position, and you are already
+past it.
+
+Four runs over the 20,252-user realm, each walking the whole directory at `count=100` — 203
+pages — while a second process wrote at roughly five operations a second:
+
+| Walk | Concurrent writes | Rows read | Distinct | Pre-existing users never returned | Duplicates | Wall clock |
+|---|---|---|---|---|---|---|
+| `startIndex` | 50 inserts sorting early | 20,302 | 20,252 | 0 | **50** | 25.4 s |
+| `startIndex` | 50 deletes sorting early | 20,252 | 20,252 | **50** | 0 | 23.3 s |
+| `userName gt` cursor | 50 inserts | 20,252 | 20,252 | 0 | 0 | 16.7 s |
+| `userName gt` cursor | 50 deletes | 20,302 | 20,302 | 0 | 0 | 17.8 s |
+
+Read the second row again. The walk made 203 successful requests, every one returned `200`,
+`totalResults` was consistent throughout, it collected 20,252 distinct usernames — the exact
+size of the surviving population — and **50 of the users it reported were ones that had just
+been deleted, while 50 that still existed were never returned at all.** There is no signal
+anywhere in that run that it went wrong.
+
+What that costs depends on which way your reconciler reasons. One that treats "not seen" as
+"gone" deprovisions 50 live accounts. One that treats its own result as the inventory never
+learns those 50 exist, which is the direction that leaves a leaver's account enabled.
+
+## Walk it with a cursor instead
+
+Because results come back ordered by `userName`, the last username on a page is a cursor.
+Ask for everything after it rather than for a position:
+
+```bash
+cursor=""
+while :; do
+  if [ -z "$cursor" ]; then flt='userName pr'; else flt="userName gt \"$cursor\""; fi
+  page=$(curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+          --data-urlencode "filter=$flt" --data-urlencode 'count=100')
+  names=$(echo "$page" | jq -r '.Resources[]?.userName')
+  [ -z "$names" ] && break
+  echo "$names" >> inventory.txt
+  cursor=$(echo "$names" | tail -1)
+done
+```
+
+Each request names a record rather than a position, so a write that lands behind the cursor
+cannot shift anything in front of it. In the runs above this returned every pre-existing user
+exactly once under both inserts and deletes, and it was **faster, not slower** — 16.7 s
+against 25.4 s over the same 203 pages.
+
+Three things to know before you adopt it:
+
+- **It is not a snapshot.** A user created *behind* the cursor during the walk is missed — but
+  they are new, and the next pass picks them up. The offset walk's failure is the opposite
+  kind: it loses users that were there before it started.
+- **Usernames are unique in a realm**, which is what makes `userName` a safe cursor. There is
+  no tie to break.
+- **Check the result.** The walk is self-verifying: compare what you collected against a
+  `count=0` probe.
+
+```bash
+echo "walked:   $(sort -u inventory.txt | wc -l)"
+echo "reported: $(curl -s -G "$BASE/Users" -H "Authorization: Bearer $TOKEN" \
+                    --data-urlencode 'count=0' | jq -r .totalResults)"
+```
+
+A mismatch larger than the writes you expect during the walk means stop and look, not retry.
+[Automating Keycloak offboarding and deprovisioning](/tutorials/workflows/user-offboarding/)
+is the other half of this: a reconciliation that is right about who exists still has to act on
+it.
+
+## Give a search client the roles it actually needs
+
+Searching needs less than reading. Four service accounts, the same five endpoints — the
+second and third rows are one account before and after `query-groups` was added:
+
+| Roles | `GET /Users?filter=` | `POST /Users/.search` | `GET /Users/{id}` | `GET /Groups` | `POST /Users` |
+|---|---|---|---|---|---|
+| none | 403 | 403 | 403 | 403 | 403 |
+| `query-users` | **200** | **200** | **403** | 403 | 403 |
+| `query-users` + `query-groups` | 200 | 200 | 403 | **200** | 403 |
+| `view-users` | 200 | 200 | 200 | 200 | 403 |
+| `manage-users` | 200 | 200 | 200 | 200 | 200 |
+
+A client that only reconciles — pulls the list, compares, reports — needs `query-users`, and
+`query-groups` as well if it reads groups. It can search the whole directory and still cannot
+fetch an individual user by id, which is a genuinely narrower grant than `view-users` rather
+than a cosmetic one. The discovery endpoints (`/ServiceProviderConfig`, `/ResourceTypes`,
+`/Schemas`) come with either query role.
+
+## `POST /Users/.search`
+
+Same semantics, filter in the body, for filters long enough to worry about URL limits — which
+at the 2,048-character cap means roughly never, but some clients use it unconditionally:
+
+```bash
+curl -s -X POST "$BASE/Users/.search" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/scim+json" \
+  -d '{"schemas":["urn:ietf:params:scim:api:messages:2.0:SearchRequest"],
+       "filter":"name.familyName eq \"Okafor\" and active eq true",
+       "startIndex":1,"count":100,"attributes":["userName","emails"]}'
+```
+
+It accepts `filter`, `startIndex`, `count`, `attributes` and `excludedAttributes`, and it is
+forgiving about a missing `schemas` key. Two things still to watch on 26.8.0:
+
+- **`meta.location` on a search result is wrong.** It comes back as
+  `…/scim/v2/Users/.search/{id}`, which `404`s. Build resource URLs from `id`.
+- **There is no cross-resource `/.search`.** `POST /scim/v2/.search` returns
+  `{"status":"404","detail":"Resource type not found"}`. Search `/Users` and `/Groups`
+  separately.
+
+Note also what `attributes` does and does not do: `attributes=userName` trims the response to
+`schemas`, `id`, `meta` and `userName` — `id` and `meta` are always returned — but
+`attributes=userName,emails.value` returns the whole `emails` object, sub-attribute selection
+included only as far as the top-level name. `excludedAttributes` works as expected.
+
+## Is any of this slow?
+
+No, and that is worth stating because it is where people optimise first. At 20,252 users on
+this dev container, `count=100`, median of five runs — nine for the two offset rows:
+
+| Request | Matches | Median |
+|---|---|---|
+| `filter=userName eq "bulk10000"` | 1 | 2 ms |
+| `filter=userName pr` | 20,252 | 11 ms |
+| `filter=name.familyName eq "Okafor"` | 2,030 | 13 ms |
+| `filter=active eq true` | 20,240 | 14 ms |
+| `filter=userName sw "bulk1"` | 10,000 | 42 ms |
+| `filter=emails.value co "example.com"` | 20,252 | 62 ms |
+| `startIndex=1`, no filter | — | 6–17 ms |
+| `startIndex=20001`, no filter | — | 6–17 ms |
+
+The last two rows are the point: across nine runs each, a page at offset 20,001 and a page at
+offset 1 were indistinguishable. **The reason to stop using `startIndex` is that it returns the
+wrong users, not that it is slow** — and these numbers come from H2 in dev mode, so treat the
+shape (an exact match is cheap; a substring match that has to look at every row is not) as the
+transferable part and measure your own database for absolutes.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `200` with `totalResults: 0` on a filter you are sure should match | the attribute is unmapped, or not filterable at all | run `filter=<attr> pr&count=0`; if that is 0, the attribute is the problem, not the value |
+| `400 invalidFilter`, `mismatched input` at a position | single-quoted string literal | SCIM literals are double-quoted |
+| `400 invalidFilter`, `exceeds maximum allowed length` | filter longer than 2,048 characters | batch the `or` clauses, 50 at a time |
+| `404 {"error":"HTTP 404 Not Found"}` on a list call | non-numeric `startIndex` or `count` — *or* SCIM not enabled on the realm | check the paging parameters first; a SCIM-shaped error would have a `schemas` key |
+| A page returns 100 rows when you asked for more | `count` clamped to `filter.maxResults` | paginate; the cap is not configurable |
+| Reconciliation finds users it did not expect to be missing | offset paging under concurrent writes | walk with a `userName gt` cursor and check against `count=0` |
+| `active eq true` returns fewer users than you expect | a SCIM `POST /Users` that omits `active` creates a **disabled** user | send `"active": true` explicitly on create |
+
+## Next steps
+
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — the
+  five-step setup, the audience mapper, and the provisioning round trip.
+- [SCIM explained: what it is and when you need it](/blog/scim-explained/) — whether you need
+  SCIM at all, and how it differs from SAML and OIDC.
+- [Automate Keycloak offboarding and deprovisioning](/tutorials/workflows/user-offboarding/) —
+  acting on what reconciliation finds.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/) —
+  building the narrow grants that change how membership filters behave.
+- [Identity and access management with Keycloak](/docs/keycloak/iam/) — where provisioning sits
+  relative to authentication and authorization.
+- [SCIM provisioning per organization](/docs/organizations/scim/) — when one realm-scoped
+  endpoint is the wrong shape, because every customer brings their own IdP.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Filtering resources](https://www.keycloak.org/docs/latest/server_admin/index.html#_scim_filtering_resources)
+  and [RFC 7644 §3.4.2.2](https://datatracker.ietf.org/doc/html/rfc7644#section-3.4.2.2).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
