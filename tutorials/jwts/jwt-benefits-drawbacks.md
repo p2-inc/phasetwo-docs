@@ -93,3 +93,10 @@ While not inherent flaws in the JWT specification, several common implementation
 ## Conclusion
 
 JWTs provide a standardized way for services to interact with user identity data across distributed systems. By encoding user information, permissions, and metadata in a self-contained, cryptographically signed format, JWTs eliminate the need for services to make database lookups or API calls to validate user sessions. This standardization means any service in your architecture can independently verify a user's identity and permissions by simply validating the JWT signature and parsing the embedded claims. While JWTs introduce complexity around token management, revocation, and performance considerations, they solve the fundamental problem of sharing authenticated user context across multiple services without requiring shared state or synchronous communication between components.
+
+
+## Keep reading
+
+- **[Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)** — a field-by-field walkthrough, if any of the claims above were unfamiliar.
+- **[JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)** — having decided a JWT is the right tool, the practices that keep it from becoming the wrong one.
+- **[JWT Decoder](/tools/jwt-decoder/)** — paste a token and see every field, in your browser. Nothing is sent to a server.

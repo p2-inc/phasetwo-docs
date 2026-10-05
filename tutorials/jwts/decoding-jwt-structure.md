@@ -285,3 +285,10 @@ Key takeaways for developers:
 - **Security first**: Always validate all claims and use proper key management
 
 Proper JWT implementation requires attention to both the specification details and practical considerations like performance, security, and operational complexity. Use established libraries rather than custom implementations, and always follow security best practices for your specific use case.
+
+
+## Keep reading
+
+- **[Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)** — now that you can read a token, whether you should be using one at all.
+- **[JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)** — the validation steps that turn a decoded token into a trusted one.
+- **[JWT Decoder](/tools/jwt-decoder/)** — paste a token and see every field, in your browser. Nothing is sent to a server.
