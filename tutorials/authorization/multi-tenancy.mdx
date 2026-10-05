@@ -1,0 +1,485 @@
+---
+id: multi-tenancy
+title: "Keycloak Multi-Tenancy: Realms, Groups, or Organizations?"
+description: Choose between realm-per-tenant, group-per-tenant and Keycloak Organizations for multi-tenant B2B SaaS, with measured costs, the failure modes of each, and how native organizations differ from the Phase Two organizations extension.
+keywords:
+  - keycloak multi tenancy
+  - keycloak multi tenant
+  - keycloak organizations
+  - multi-tenant authentication architecture
+  - keycloak realm per tenant
+  - keycloak organizations extension
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.0"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Multi-Tenancy: Realms, Groups, or Organizations?
+
+Keycloak multi-tenancy has three models, and the right one is decided by a single
+question: **does a tenant need its own identity provider, its own login policy, or neither?**
+
+1. **Neither** — use a **realm group** per tenant. One realm, one issuer, a group membership
+   mapper that puts the tenant id in the token. Cheapest to build and to run.
+2. **Its own identity provider, but the same login rules as everyone else** — use an
+   **organization**. One realm, one issuer, per-tenant IdPs and domains, a built-in
+   `organization` token claim.
+3. **Its own login policy** — password rules, MFA requirements, token lifespans, themes,
+   signing keys — use a **realm per tenant**. It is the only model where Keycloak itself
+   enforces the boundary, and it is the most expensive by every measure below.
+
+Most B2B SaaS lands on (2). This page builds all three on one server, shows the token each
+produces, and gives the numbers for what each one costs.
+
+"Organizations" needs one disambiguation before we start, because there are two of them:
+
+- **Keycloak native organizations** — built into Keycloak since 25, supported since 26, enabled
+  with a realm toggle. This is what the commands below exercise, because they run on a stock
+  `quay.io/keycloak/keycloak` image.
+- **The Phase Two organizations extension**,
+  [`keycloak-orgs`](https://github.com/p2-inc/keycloak-orgs) — the implementation the native
+  feature was modelled on. It was built for Phase Two's own cloud, open-sourced in 2022, is a
+  superset of what native organizations do, and is the one Phase Two runs and maintains.
+
+Everything in the decision above applies to both. [The last section](#native-organizations-vs-the-phase-two-extension)
+is about choosing between them.
+
+:::info Tested against
+Keycloak **26.8.0**, `start-dev`, H2 dev database, on a 2-vCPU / 8 GB Linux host. Every
+command, error message and token below is copied from an actual run. The official references
+are [Managing organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
+and [Groups](https://www.keycloak.org/docs/latest/server_admin/index.html#groups) — they
+document what each option does. This page is about which to pick and what breaks. The
+organizations commands target the native feature; the Phase Two extension is not in the stock
+image and is compared, not run, [at the end](#native-organizations-vs-the-phase-two-extension).
+:::
+
+## Start a server
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+Everything below runs `kcadm.sh` inside that container, through one helper:
+
+```bash
+kc() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kc config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+## What each model costs
+
+Three identical containers, 100 tenants each, every tenant with one user. The realm run also
+creates one client per realm, because a realm with no client cannot issue a token — that is
+the honest shape of the model, not an extra. Heap is measured after a forced GC.
+
+| | Realm per tenant | Organization | Realm group |
+|---|---|---|---|
+| Create 100 tenants | **46.2 s** | 11.5 s | 9.9 s |
+| Create one object, in isolation | **0.529 s** | 0.025 s | 0.011 s |
+| Heap over a 70 MB baseline | **+24 MB** | +10 MB | +7 MB |
+| Restart to ready (empty server: 9.7 s) | **12.8 s** | 10.1 s | 9.9 s |
+| List all 100 through the admin API, warm | 81–118 ms | **13–19 ms** | 118–193 ms |
+
+The ratio that matters is the second row. A realm takes **21× longer to create than an
+organization**, because creating a realm generates a fresh key set — an RS256 signing key, an
+RSA-OAEP encryption key, an HS512 HMAC key and an AES key. An organization creates a row.
+
+Half a second of RSA keygen per tenant is invisible when you onboard by hand and very visible
+when you onboard from a signup form, or when you restore 2,000 tenants into a fresh cluster.
+These are single-node dev-mode numbers on a small host; treat the ratios as the finding and
+re-measure the absolutes on your own hardware.
+
+## Model 1: a realm per tenant
+
+```bash
+for t in globex initech; do
+  kc create realms -s realm=tenant-$t -s enabled=true
+  kc create clients -r tenant-$t -s clientId=app -s publicClient=true \
+    -s 'redirectUris=["http://localhost/cb"]'
+done
+```
+
+Keycloak generates a full key set for each one. That is where the half-second goes:
+
+```bash
+kc get keys -r tenant-globex --fields 'keys(algorithm,use,status)'
+```
+
+```json
+{
+  "keys" : [ {
+    "status" : "ACTIVE", "algorithm" : "RSA-OAEP", "use" : "ENC"
+  }, {
+    "status" : "ACTIVE", "algorithm" : "RS256", "use" : "SIG"
+  }, {
+    "status" : "ACTIVE", "algorithm" : "AES", "use" : "ENC"
+  }, {
+    "status" : "ACTIVE", "algorithm" : "HS512", "use" : "SIG"
+  } ]
+}
+```
+
+Each realm is also its own issuer with its own JWKS:
+
+```bash
+for r in tenant-globex tenant-initech; do
+  curl -s "http://localhost:8080/realms/$r/.well-known/openid-configuration" \
+    | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d["issuer"]); print(d["jwks_uri"])'
+done
+```
+
+```
+http://localhost:8080/realms/tenant-globex
+http://localhost:8080/realms/tenant-globex/protocol/openid-connect/certs
+http://localhost:8080/realms/tenant-initech
+http://localhost:8080/realms/tenant-initech/protocol/openid-connect/certs
+```
+
+This is the only model where **Keycloak enforces the boundary**. A user in `tenant-globex`
+cannot authenticate against `tenant-initech`'s client at all; there is no token to validate
+and no claim for your application to forget to check. In exchange you give up everything that
+is realm-scoped: a user cannot belong to two tenants without two accounts, and cross-tenant
+reporting means iterating realms.
+
+Your resource server pays for it too. One audience, one issuer and one cached JWKS becomes N
+of each, resolved per request from the token's `iss` — see
+[validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+for what that validation has to do.
+
+## Model 2: a group per tenant
+
+```bash
+kc create realms -s realm=saas -s enabled=true
+kc create clients -r saas -s clientId=app -s publicClient=true \
+  -s directAccessGrantsEnabled=true -s 'redirectUris=["http://localhost/cb"]'
+
+GID=$(kc create groups -r saas -s name=globex -i)
+ALICE=$(kc create users -r saas -s username=alice -s email=alice@globex.com \
+  -s emailVerified=true -s firstName=Alice -s lastName=Chen -s enabled=true -i)
+kc set-password -r saas --username alice --new-password pw
+kc update "users/$ALICE/groups/$GID" -r saas -n
+```
+
+Group membership is **not in the token by default**, and there is no built-in `groups` client
+scope to turn on. Decoding the access token straight after the commands above:
+
+```
+groups claim present: False
+claims: ['acr', 'allowed-origins', 'aud', 'azp', 'email', 'email_verified', 'exp',
+         'family_name', 'given_name', 'iat', 'iss', 'jti', 'name', 'preferred_username',
+         'realm_access', 'resource_access', 'scope', 'sid', 'sub', 'typ']
+```
+
+You add the mapper yourself:
+
+```bash
+CID=$(kc get clients -r saas -q clientId=app --fields id --format csv --noquotes)
+kc create "clients/$CID/protocol-mappers/models" -r saas \
+  -s name=tenant -s protocol=openid-connect \
+  -s protocolMapper=oidc-group-membership-mapper \
+  -s 'config."claim.name"=tenant' -s 'config."full.path"=false' \
+  -s 'config."access.token.claim"=true' -s 'config."id.token.claim"=true'
+```
+
+```json
+"tenant": ["globex"]
+```
+
+That claim is the whole mechanism. Keycloak will happily issue a token to any user in the
+realm for any client in the realm; **isolation is entirely your application's job.** Groups
+are the right answer when tenants are a label on an otherwise uniform population — everyone
+logs in the same way, and your API filters on a claim.
+
+## Model 3: organizations (Keycloak native)
+
+Native organizations are a realm-level toggle, not a build-time feature flag:
+
+```bash
+kc update realms/saas -s organizationsEnabled=true
+kc get realms/saas --fields realm,organizationsEnabled
+```
+
+```json
+{ "realm" : "saas", "organizationsEnabled" : true }
+```
+
+Forget the toggle and the endpoint does not exist rather than returning a useful error:
+
+```
+Resource not found for url: http://localhost:8080/admin/realms/saas/organizations
+```
+
+Create two tenants, each owning an email domain:
+
+```bash
+kc create organizations -r saas -s name=globex -s alias=globex -s enabled=true \
+  -s 'domains=[{"name":"globex.com"}]'
+kc create organizations -r saas -s name=initech -s alias=initech -s enabled=true \
+  -s 'domains=[{"name":"initech.com"}]'
+```
+
+A domain belongs to exactly one organization per realm:
+
+```bash
+kc create organizations -r saas -s name=umbrella -s alias=umbrella -s enabled=true \
+  -s 'domains=[{"name":"globex.com"}]'
+```
+
+```
+Domain globex.com is already linked to organization globex in realm saas
+```
+
+Adding a member takes the **user id as a bare JSON string** — not an object, not a field:
+
+```bash
+GLOBEX=$(kc get organizations -r saas -q search=globex -q exact=true \
+  --fields id --format csv --noquotes)
+echo "\"$ALICE\"" | kc create "organizations/$GLOBEX/members" -r saas -f -
+```
+
+```
+Created new member with id 'e10a6ac5-8689-4e68-924f-55446ecf956e'
+```
+
+```bash
+kc get "organizations/$GLOBEX/members" -r saas --fields username,membershipType
+```
+
+```json
+[ { "username" : "alice", "membershipType" : "UNMANAGED" } ]
+```
+
+`UNMANAGED` means the account belongs to the realm and survives the organization being
+deleted. Accounts federated in through an identity provider linked with the **Managed**
+membership type are deleted with the organization — the
+[official section on managed and unmanaged members](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
+is worth reading before you onboard anyone through an IdP.
+
+### The organization claim
+
+Unlike groups, the mapper already exists: `organization` is a built-in optional client scope
+on every client, carrying an Organization Membership mapper. The client has to ask for it.
+
+```
+alice, no scope requested
+   scope: email profile
+   organization: null
+
+alice, scope=organization
+   scope: email profile organization
+   organization: ["globex"]
+```
+
+By default you get aliases and nothing else. The ids, domains and organization attributes the
+reference material shows are off until you switch them on, and the config keys are camelCase
+— unlike every other mapper key in Keycloak, and not named anywhere in the admin guide:
+
+```bash
+SID=$(kc get client-scopes -r saas --fields id,name --format csv --noquotes \
+  | grep ',organization$' | cut -d, -f1)
+MID=$(kc get "client-scopes/$SID/protocol-mappers/models" -r saas \
+  --fields id,name --format csv --noquotes | grep ',organization$' | cut -d, -f1)
+
+kc update "organizations/$GLOBEX" -r saas -s 'attributes.plan=["enterprise"]'
+kc update "client-scopes/$SID/protocol-mappers/models/$MID" -r saas \
+  -s 'config."addOrganizationId"=true' \
+  -s 'config."addOrganizationDomain"=true' \
+  -s 'config."addOrganizationAttributes"=true'
+```
+
+```json
+"organization": {
+  "globex": {
+    "plan": ["enterprise"],
+    "id": "7d0cf958-b6fa-48d9-abba-11810e80efda",
+    "domain": "globex.com"
+  }
+}
+```
+
+`addOrganizationId`, `addOrganizationDomain`, `addOrganizationAttributes`. The snake-cased
+guesses (`add.organization.id`) are accepted silently and do nothing, which is how you lose
+an afternoon. Enabling any of them also flips `jsonType.label` from `String` to `JSON` and
+changes the claim from an array to an object — a breaking change to anything parsing it.
+
+## The organization scope is not an access gate
+
+This is the one to take away. Add a second user who joins nothing:
+
+```bash
+kc create users -r saas -s username=dan -s email=dan@initech.com -s emailVerified=true \
+  -s firstName=Dan -s lastName=Reyes -s enabled=true
+kc set-password -r saas --username dan --new-password pw
+```
+
+Dan is a member of no organization. He asks for `globex` anyway:
+
+```
+dan, scope=organization:globex
+   scope: email profile
+   organization: null
+
+alice, scope=organization:globex
+   scope: organization:globex email profile
+   organization: {"globex": {"plan": ["enterprise"], "id": "7d0cf958-…", "domain": "globex.com"}}
+```
+
+Dan gets **HTTP 200 and a valid access token.** The scope is silently dropped from the
+granted scope list and no claim is issued. The request is not rejected, there is no error,
+and nothing in the log distinguishes it from a normal login. Reproduced identically on 26.8.0
+through the browser authorization-code flow and through direct grant.
+
+An alias that does not exist *is* rejected, which makes the asymmetry easy to miss in testing
+— typos fail loudly, missing memberships fail silently:
+
+```
+alice, scope=organization:nope
+   {"error": "invalid_scope", "error_description": "Invalid scopes: organization:nope"}
+```
+
+So: **never treat the presence of `organization:<alias>` in your authorization request as
+proof of anything.** Read the `organization` claim out of the validated token and compare it
+to the tenant the request is for. Organizations tell your application which tenant a user
+belongs to; they do not stop the user from asking about another one.
+
+## Four more things that will bite you
+
+- **Turning organizations on changes the login page for the whole realm.** It switches from
+  the one-step `login.ftl` to identity-first `login-username.ftl` — username, submit, then
+  password on a second screen. Every user in the realm sees it, including the ones in no
+  organization. It is a realm toggle with a user-visible side effect, so do not flip it in
+  production on a Friday.
+- **Organization groups cannot be used in authorization policies.** Organizations have their
+  own group tree, isolated per organization — `orgA` and `orgB` can both own `/Engineering`
+  without colliding. The admin guide is explicit that a group-based policy in Keycloak
+  Authorization Services accepts realm groups only and errors on an organization group. If
+  you use policies, your tenant boundary has to be a realm group or a claim check.
+- **There is no per-organization login theme.** The full representation of an organization is
+  name, alias, enabled, domains, attributes — no theme, no password policy, no token
+  lifespan. Everything about *how* a user authenticates is still realm-wide. Per-tenant
+  branding and per-tenant login policy are what a realm still buys you that nothing else does.
+- **Non-imported LDAP users cannot be organization members.** Membership is stored in a local
+  group that is never synchronised outward, so an LDAP federation provider with import mode
+  disabled cannot contribute members at all. Enable import mode before you promise an
+  LDAP-backed customer their own organization.
+
+## Choosing
+
+| | Realm per tenant | Group per tenant | Organization (native) |
+|---|---|---|---|
+| Tenant's own IdP | yes | no | **yes** |
+| Tenant's own password policy, MFA, token lifespans | **yes** | no | no |
+| Tenant's own login theme | **yes** | no | no |
+| One user in two tenants | no, two accounts | yes | **yes** |
+| Tenant id in the token out of the box | n/a — separate issuer | no, add a mapper | **yes** |
+| Keycloak refuses cross-tenant logins | **yes** | no | no |
+| Works in authorization-services policies | yes | **yes** | no |
+| Admin delegation | realm admin roles | fine-grained admin permissions | `manage-organizations` |
+| Cost to create one | 0.53 s | 0.01 s | 0.03 s |
+
+Read it top-down and stop at the first row you cannot live without. In practice:
+
+- **Internal apps, departments, a label on one population** — groups.
+- **B2B SaaS where customers bring their own SSO** — organizations. This is the common case,
+  and it is what the feature was built for. Native organizations if membership, domains and a
+  token claim are all you need; the [Phase Two extension](#native-organizations-vs-the-phase-two-extension)
+  as soon as a customer's own IT team has to manage anything — their SSO connection, their
+  members, their roles — without a ticket to you.
+- **Tenants that are separately regulated, separately branded, or contractually isolated** —
+  a realm each, and budget for the key generation and the per-issuer validation.
+- **Dozens of tenants today and thousands next year** — do not start with realms. Migrating
+  from realms to organizations means re-creating every account under a new issuer; migrating
+  from groups to organizations is a membership backfill.
+
+## Native organizations vs the Phase Two extension
+
+Keycloak did not invent the organizations model in 25. Phase Two's
+[`keycloak-orgs`](https://github.com/p2-inc/keycloak-orgs) extension has implemented
+single-realm multi-tenancy — organizations, memberships, domains, per-organization IdPs and a
+membership claim — as first-class Keycloak entities since before Keycloak had a word for them,
+open source since 2022, and the Keycloak team
+[used it as the reference](https://github.com/p2-inc/keycloak-orgs/blob/main/docs/note-keycloak-organizations-feature.md)
+when they built the native feature. What shipped in 25 and 26 is a copy of that core. Every
+concept you met in Model 3 — the alias, the domain uniqueness rule, the membership mapper,
+the identity-first login — has a direct equivalent in the extension, where it had already been
+running in production for several years. Native has been slow to add anything beyond that core.
+The two are still *not interchangeable*, so you should pick one deliberately:
+
+| | Keycloak native organizations | Phase Two organizations extension |
+|---|---|---|
+| Organizations, members, domains, linked IdPs, token claim | yes | yes |
+| Domain-based IdP routing at login | yes | yes, plus DNS-verified domain ownership |
+| **Organization roles** — default and custom, per organization, mapped into the token | no | yes |
+| **Invitations** — invite a non-user by email, accept on registration | no | yes |
+| **Admin Portal** — your customer's IT team manages their own members, roles, invitations and SSO | no | yes |
+| **IdP Wizard** — guided self-service SAML, OIDC and LDAP setup for a tenant admin | no | yes |
+| Per-organization SCIM endpoint and credentials | no, realm-level only | yes (experimental) |
+| One IdP shared by many organizations | no | yes |
+| "Active organization" switching for multi-org users | no | yes |
+| Organization-scoped admin events | no | yes |
+| Ships in the stock Keycloak image | yes | no — `quay.io/phasetwo/phasetwo-keycloak` or add the jar |
+| Admin API | `/admin/realms/{realm}/organizations` | `/realms/{realm}/orgs` |
+| Supported since | Keycloak 26 (October 2024) | open source since 2022, several hundred deployments |
+
+Read the table as a superset: the extension does what native does, then keeps going into the
+Customer IAM and enterprise-SaaS work that follows — the part where a customer's own
+administrator needs to set up SSO on a Tuesday afternoon without filing a ticket with you.
+That is the feature set the native implementation has not tracked, and it is the one most
+B2B SaaS teams discover they need in the quarter after launch.
+
+Practical consequences of picking one:
+
+- **The APIs and claims differ.** The extension's REST API lives under `/realms/{realm}/orgs`,
+  and its token mappers are its own (organization, organization roles, organization
+  attributes). Code written against the native `organizations` admin endpoint and the
+  `organization` claim shape above does not run against the extension unchanged, and vice
+  versa.
+- **Do not run both in one realm.** Phase Two does not enable native organizations in its
+  hosted product, and a realm with both enabled has two unrelated notions of "organization"
+  and two login-flow modifications fighting over the same users. Pick one per deployment.
+- **The extension is not a flip of a toggle on the stock image.** You run Phase Two's
+  Keycloak image, or build the extension into your own. It has tracked Keycloak releases since
+  17, but it is a dependency to own.
+- **The migration direction matters.** Going from native to the extension is a data move of
+  the same shape — organizations, domains, memberships — into a richer model. Going the other
+  way drops roles, invitations and everything the table marks extension-only.
+
+If you are evaluating organizations for a product that sells to businesses, start from the
+[extension's documentation](/docs/organizations/) rather than from Model 3 above, and treat
+Model 3 as the floor that both implementations share.
+
+Also out of scope here: routing a user to their tenant's IdP by email domain, which both
+implementations do with domain routing and auto-redirect, and which deserves its own page.
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the mental model underneath all three of these.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  how to look at the `organization` claim you just produced.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — the
+  provisioning side of the same problem, and where it is also realm-scoped.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+  — how to let a tenant administer their own slice without a realm of their own.
+- [Keycloak as an identity provider broker](/docs/keycloak/idp/) — what you link to an
+  organization when a customer brings their own SSO.
+- [Phase Two organizations extension documentation](/docs/organizations/) — roles,
+  invitations, the [IdP Wizard](/docs/organizations/idp-wizard/), per-organization
+  [SCIM](/docs/organizations/scim/) and the [Admin Portal](/docs/admin-portal/), with the
+  source at [p2-inc/keycloak-orgs](https://github.com/p2-inc/keycloak-orgs).
+- [Understanding multi-tenancy options in Keycloak](/blog/multi-tenancy-options-keycloak/) —
+  the longer argument for organizations over realms.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Managing organizations](https://www.keycloak.org/docs/latest/server_admin/index.html#_managing_organizations)
+  and [Groups](https://www.keycloak.org/docs/latest/server_admin/index.html#groups).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

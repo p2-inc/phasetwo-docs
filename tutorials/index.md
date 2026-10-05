@@ -86,6 +86,15 @@ Filtering, pagination and schema mapping are next. *(Coming soon.)*
 
 Inactivity policies build on the same engine. *(Coming soon.)*
 
+**Designing for multiple tenants** — one customer per realm, per group, or per organization:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Keycloak multi-tenancy: realms, groups, or organizations?](/tutorials/authorization/multi-tenancy/)
+3. [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/)
+
+Client scopes and fine-grained authorization build on the same track.
+*(Coming soon.)*
+
 **Delegating realm administration** — give someone admin rights over part of a realm without
 giving them the realm:
 
