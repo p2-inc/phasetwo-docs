@@ -32,6 +32,8 @@ More recently, nascent companies such as [WorkOS](https://workos.com) and [Front
 
 ### Keycloak advantages
 
+If you are coming to it cold, our [introduction to Keycloak](/docs/keycloak/) walks through the realm, client and user model that the rest of this comparison assumes, and splits the product into the three jobs it actually does — internal IAM, customer-facing CIAM, and identity brokering for partners. The short version is that each of those is a separate product line at the vendors above.
+
 Amidst this landscape, open-source alternatives like Keycloak are emerging as powerful contenders, offering unique advantages over their commercial counterparts. Because the market has settled on standard protocols, it opened the door for superior open-source implementations to emerge with feature parity and standards compliance. Keycloak stands out as an alternative to commercial IAM solutions, enabling your business to unlock both flexibility and control.
 
 1. **Open Source Foundation:** At the heart of Keycloak lies its open-source nature. Developed by Red Hat, Keycloak provides a fully-fledged IAM solution that is freely available for anyone to use, modify, and extend according to their requirements. This open ethos empowers organizations with unparalleled flexibility and control over their identity infrastructure, without being tied to proprietary vendors or licensing agreements. Furthermore, given the core security requirements of the protocol implementations, developing in the open gives customers the reassurance that the code has been audited by others, unlike closed source, buggy, commercial implementations that come with zero transparency or guarantees.

@@ -124,7 +124,7 @@ export default function KeycloakAlternatives() {
                 <div className="glyph"><img src="/img/comparison/phasetwo_logo_icon.svg" alt="" /></div>
               </div>
               <h1>Keycloak Alternatives</h1>
-              <p className="lede">Evaluating Auth0, Okta, WorkOS, or another commercial IAM? Keycloak is the open-source alternative that matches them on standards and features — without per-user licensing or vendor lock-in. Paired with Phase Two managed hosting, you get that control with fixed, predictable costs and none of the operational burden.</p>
+              <p className="lede">Evaluating Auth0, Okta, WorkOS, or another commercial IAM? Keycloak is the open-source alternative that matches them on standards and features — without per-user licensing or vendor lock-in. Paired with Phase Two managed hosting, you get that control with fixed, predictable costs and none of the operational burden. New to it? <Link to="/docs/keycloak/" className="ilink">Start with what Keycloak is</Link> — the realm and client model, and the three jobs it does — before comparing it feature by feature.</p>
               <div className="hero-cta">
                 <a href={DASH} target="_blank" rel="noreferrer"><button className="btn btn-primary btn-lg"><Icon name="zap" /> Try for Free</button></a>
                 <a href="#compare" className="btn btn-ghost btn-lg">Compare the platforms <Icon name="arrow-down" /></a>
