@@ -37,6 +37,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Authorization and multi-tenancy",
+      link: { type: "generated-index" },
+      items: ["authorization/multi-tenancy"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [
