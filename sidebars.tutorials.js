@@ -37,6 +37,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Authorization",
+      link: { type: "generated-index" },
+      items: ["authorization/roles-and-groups"],
+    },
+    {
+      type: "category",
       label: "JSON Web Tokens (JWT)",
       link: { type: "doc", id: "jwts/index" },
       items: [

@@ -1,0 +1,530 @@
+---
+id: roles-and-groups
+title: "Keycloak Roles, Composite Roles, and Groups"
+description: When to use a Keycloak realm role, client role, composite role or group — with the token each one produces, measured on 26.8.0, and the six ways it goes wrong.
+keywords:
+  - keycloak composite roles
+  - keycloak manage users role
+  - keycloak groups vs roles
+  - keycloak realm role vs client role
+  - keycloak client scopes vs roles
+  - keycloak group membership claim
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.8.0"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - A client you can get a token from
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Roles, Composite Roles, and Groups
+
+Keycloak gives you four ways to say "this user may do that thing", and the official
+documentation describes all four without telling you which to pick. Here is the short
+version:
+
+- **Realm role** — a permission that means the same thing everywhere in the realm.
+  `employee`, `auditor`.
+- **Client role** — a permission that only one application understands. `deploy` on your
+  CI client. Lives in that client's own namespace, so two clients can both have `admin`.
+- **Composite role** — a role that contains other roles. Assign one, the user gets all of
+  them. Use it to bundle permissions.
+- **Group** — a collection of *users* that carries role mappings and attributes.
+  Use it to organise people.
+
+The upstream guide draws the line this way:
+
+> Composite roles apply the permission model to a set of services and applications. Use
+> composite roles to manage applications and services. Groups focus on collections of users
+> and their roles in an organization. Use groups to manage users.
+
+Which is correct and hard to act on, because at the point you are choosing, both look like
+"a thing that holds roles". The operational version: **composite roles bundle permissions,
+groups bundle people.** If you are about to create a role named after a team, you wanted a
+group. If you are about to create a group named after a permission, you wanted a composite
+role. And if you still cannot tell, pick by what ends up in the token — which is what the
+rest of this page measures.
+
+:::info Tested against
+Keycloak **26.8.0** in `start-dev`, on 2026-10-05. Every command, token payload and byte
+count below is copied from a real run. Upstream reference:
+[Assigning permissions using roles and groups](https://www.keycloak.org/docs/latest/server_admin/index.html#assigning-permissions-using-roles-and-groups).
+:::
+
+## Which one do I use?
+
+| You want to… | Use | Shows in the token as |
+|---|---|---|
+| Gate a feature every app in the realm understands | Realm role | `realm_access.roles` |
+| Gate a feature only one app understands | Client role | `resource_access.<clientId>.roles` |
+| Grant 20 permissions in one click | Composite role | all 20, expanded, individually |
+| Give a team shared roles and attributes | Group | **nothing, by default** |
+| Model a reporting line or an org chart | Group hierarchy | nothing, by default |
+| Hand a new user a starting set of permissions | Default roles / default groups | the roles they resolve to |
+
+The two **nothing, by default** rows are the single most expensive thing on this page. Group
+membership does not appear in a Keycloak token unless you add a mapper for it. The roles a
+group grants do appear, and look exactly like directly-assigned ones. Both are demonstrated
+below.
+
+## Prerequisites
+
+```bash
+docker run -d --name keycloak -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+Every CLI example runs `kcadm.sh` inside that container. A shell alias keeps the lines
+short:
+
+```bash
+alias K='docker exec keycloak /opt/keycloak/bin/kcadm.sh'
+
+K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+If you do not already have a realm, client and user, build them with
+[your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+first. This page assumes a realm `authz` with a public client `demo-app` that has direct
+access grants enabled, so we can fetch tokens with `curl`.
+
+## Step 1 — Realm roles and client roles
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Realm roles** → **Create role** → name `employee` → **Save**.
+2. Repeat for `developer`.
+3. For a client role: **Clients** → `demo-app` → **Roles** tab → **Create role** → `deploy`.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+K create roles -r authz -s name=employee -s 'description=Everyone in the company'
+K create roles -r authz -s name=developer -s 'description=Writes code'
+
+CID=$(K get clients -r authz -q clientId=demo-app --fields id --format csv --noquotes)
+K create clients/$CID/roles -r authz -s name=deploy -s 'description=Can push to prod'
+```
+
+```
+Created new role with id 'employee'
+Created new role with id 'developer'
+Created new role with id 'deploy'
+```
+
+</details>
+
+The two namespaces are genuinely separate, and nothing stops you from putting the same name
+in both. Do that and the token carries both, in different places:
+
+```json
+"realm_access":   { "roles": ["employee", "deploy"] },
+"resource_access": { "demo-app": { "roles": ["deploy"] } }
+```
+
+Those are two unrelated roles that happen to share a name. Application code that flattens
+all roles into one list — a very common shortcut — cannot tell them apart, and will grant
+the client-role permission to someone who only has the realm role. Pick a prefix convention
+early, or never reuse a name across namespaces.
+
+## Step 2 — Make a role composite
+
+A composite role is any role that has other roles associated with it. Assign the composite
+and the user gets the lot. The inheritance is recursive: a composite of a composite works.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Realm roles** → click `developer`.
+2. From the **Action** list, select **Add associated roles**.
+3. Tick `employee` → **Assign**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+The piece that is easy to miss: `add-roles` takes `--rname` to target a *role* rather than
+`--uusername` to target a user. Same command, different flag, completely different object.
+
+```bash
+K add-roles -r authz --rname developer --rolename employee
+K get roles/developer -r authz --fields name,composite
+```
+
+```json
+{
+  "name" : "developer",
+  "composite" : true
+}
+```
+
+</details>
+
+Now give a user the composite and ask for the *effective* mapping:
+
+```bash
+K add-roles -r authz --uusername carol --rolename staff-engineer
+K get-roles -r authz --uusername carol --effective --fields name
+```
+
+```json
+[ { "name" : "developer" },
+  { "name" : "offline_access" },
+  { "name" : "uma_authorization" },
+  { "name" : "employee" },
+  { "name" : "staff-engineer" },
+  { "name" : "default-roles-authz" } ]
+```
+
+One assignment, three roles: `staff-engineer` → `developer` → `employee`. Drop
+`--effective` and you see only what was literally assigned. Both views are useful and they
+answer different questions — "what did someone grant this person" versus "what can this
+person do".
+
+The upstream guide's own advice on composites is one sentence long and worth repeating:
+"we recommend that composite roles are not overused." [Step 4](#step-4--what-actually-lands-in-the-token)
+shows the cost in bytes.
+
+## Step 3 — Groups, subgroups, and what they carry
+
+Groups are hierarchical: a group has many children and exactly one parent, and the path
+(`/engineering/platform`) identifies it. A member of a child group inherits the role
+mappings **and** the attributes of every ancestor.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Groups** → **Create group** → `engineering`.
+2. Click into it → **Child groups** → **Create group** → `platform`.
+3. On `engineering`: **Attributes** tab → add `department` = `engineering` → **Save**.
+4. On `engineering`: **Role mapping** tab → **Assign role** → `employee`.
+5. On `platform`: **Role mapping** → filter by clients → `demo-app` `deploy`.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+GID=$(K create groups -r authz -s name=engineering -i)
+SGID=$(K create groups/$GID/children -r authz -s name=platform -i)
+
+K update groups/$GID  -r authz -s 'attributes={"department":["engineering"],"cost_center":["CC-1000"]}'
+K update groups/$SGID -r authz -s 'attributes={"on_call":["true"]}'
+
+K add-roles -r authz --gid $GID  --rolename employee
+K add-roles -r authz --gid $SGID --cclientid demo-app --rolename deploy
+```
+
+Put a user in the **child** group only:
+
+```bash
+BID=$(K get users -r authz -q username=bob --fields id --format csv --noquotes)
+K update users/$BID/groups/$SGID -r authz -n
+```
+
+</details>
+
+Bob has no role assigned to him directly, yet:
+
+```bash
+K get-roles -r authz --uusername bob --fields name            # direct
+K get-roles -r authz --uusername bob --effective --fields name
+```
+
+```json
+[ { "name" : "default-roles-authz" } ]
+
+[ { "name" : "offline_access" },
+  { "name" : "uma_authorization" },
+  { "name" : "employee" },
+  { "name" : "default-roles-authz" } ]
+```
+
+`employee` came from `/engineering` — the parent of the only group Bob joined. Inheritance
+walks the whole ancestor chain, and `--effective` reports it. Worth knowing, because the
+non-effective view makes a correctly-configured user look like they have nothing.
+
+## Step 4 — What actually lands in the token
+
+Fetch a token for Bob and decode the payload:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/authz/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=bob -d password=s3cret -d grant_type=password \
+  | jq -r .access_token | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+```
+
+```json
+{
+  "realm_access":    { "roles": ["offline_access", "uma_authorization", "employee", "default-roles-authz"] },
+  "resource_access": { "demo-app": { "roles": ["deploy"] },
+                       "account":  { "roles": ["manage-account", "manage-account-links", "view-profile"] } }
+}
+```
+
+Two things to take from that payload.
+
+**Group-derived roles are indistinguishable from directly-assigned ones.** `deploy` came
+from the group Bob joined and `employee` from that group's parent, and the token records
+neither fact. Your application authorizes on the role; where it came from is an
+administrative concern, not a runtime one. That is the point of groups.
+
+**There is no `groups` claim.** Bob is a member of `/engineering/platform` and the token
+says nothing about it. See [Step 5](#step-5--put-group-membership-in-the-token).
+
+### The cost of a composite, measured
+
+Composites expand. Every role inside one is written into the token individually, and
+[the upstream guide says so](https://www.keycloak.org/docs/latest/server_admin/index.html#_composite-roles):
+"any composite also has its associated roles added to the claims and assertions of the
+authentication response". A separate realm with one composite role holding 40 client roles,
+measured on the access token for a user with nothing else assigned:
+
+| Configuration | Access token | Roles in token |
+|---|---|---|
+| Default roles only | 1,265 chars | 3 realm, 0 client |
+| **+1 composite role holding 40 client roles** | **1,617 chars** | 4 realm, 40 client |
+| Same user, a *second* client asks for a token | 1,630 chars | 4 realm, 40 client |
+| That second client, `Full Scope Allowed` off | **1,001 chars** | 0 realm, 0 client |
+
+Row three is the one to look at. Client `other` has no relationship to those 40 roles — they
+belong to a different client entirely — and it receives all of them anyway, because
+`Full Scope Allowed` defaults to on. A composite bundle built for one application is
+broadcast to every application in the realm, and it stays in the token for the token's whole
+lifetime. That is the real argument against deep composites: not that they are slow, but
+that they leak.
+
+## Step 5 — Put group membership in the token
+
+If your application needs the group itself — for a UI, for an audit log, for
+attribute-based rules — add a group membership mapper.
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+**Clients** → `demo-app` → **Client scopes** → `demo-app-dedicated` → **Add mapper** →
+**By configuration** → **Group Membership**. Name it `groups`, leave **Full group path** on.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+K create clients/$CID/protocol-mappers/models -r authz \
+  -s name=groups -s protocol=openid-connect \
+  -s protocolMapper=oidc-group-membership-mapper \
+  -s 'config."claim.name"=groups' \
+  -s 'config."full.path"=true' \
+  -s 'config."access.token.claim"=true' \
+  -s 'config."id.token.claim"=true'
+```
+
+</details>
+
+```json
+"groups": ["/engineering/platform"]
+```
+
+**Only the group Bob joined is listed.** `/engineering` is absent, even though it is where
+his `employee` role came from. Role inheritance walks up the tree; the `groups` claim does
+not. Authorization code that tests `groups.includes("/engineering")` fails for every member
+of every subgroup — which is to say, for everyone, once the hierarchy is more than one level
+deep. Match on a prefix, or authorize on roles and use the claim for display only.
+
+Turning **Full group path** off gives you the bare name instead:
+
+```json
+"groups": ["platform"]
+```
+
+Shorter, and ambiguous the moment two parts of the tree both contain a `platform`. Keep the
+path unless you have measured that you need the bytes.
+
+Group **attributes** reach the token through an ordinary user attribute mapper — there is no
+separate group-attribute mapper. Add an `oidc-usermodel-attribute-mapper` for
+`user.attribute=department` and the inherited value appears:
+
+```json
+{ "department": "engineering", "on_call": "true" }
+```
+
+`department` is inherited from the parent group, `on_call` from the child. Set
+`aggregate.attrs=true` on the mapper if a user can be in several groups that each define the
+same attribute and you want all the values rather than one.
+
+## Step 6 — Keep the token to the roles the client needs
+
+As of 26.8.0 the upstream guide is explicit about this:
+
+> The `Full Scope Allowed` switch is deprecated and will be removed in a future release.
+> Leaving `Full Scope Allowed` enabled means every access token contains all roles the
+> authenticated user holds, which unnecessarily widens the blast radius if a token is
+> compromised.
+
+Turn it off per client, then declare what that client actually needs:
+
+```bash
+K update clients/$CID -r authz -s fullScopeAllowed=false
+
+RID=$(K get roles/employee -r authz --fields id --format csv --noquotes)
+echo "[{\"id\":\"$RID\",\"name\":\"employee\"}]" \
+  | docker exec -i keycloak /opt/keycloak/bin/kcadm.sh \
+      create clients/$CID/scope-mappings/realm -r authz -f -
+```
+
+In the console that is **Clients** → `demo-app` → **Client scopes** → *Dedicated scope and
+mappers* → **Scope** tab → toggle **Full scope allowed** off, then **Assign role**.
+
+Measured in the `authz` realm on a user holding six realm roles and a composite that
+expands to 25 `demo-app` client roles:
+
+| Scope configuration | `realm_access` | Token |
+|---|---|---|
+| Full scope allowed (default) | 6 roles | 1,778 chars |
+| Full scope off, no scope mappings | *claim absent entirely* | 1,486 chars |
+| Full scope off, `employee` mapped in | 1 role | 1,537 chars |
+
+Two behaviours to know before you flip it on a live client:
+
+- **A client always receives its own client roles**, scope mappings or not. Only roles from
+  other namespaces get filtered. That is why `resource_access.demo-app` survived all three
+  rows above.
+- **`realm_access` disappears rather than going empty.** Code that reads
+  `token.realm_access.roles` without a null check throws instead of denying. Check your
+  resource server before, not after.
+
+To stop the switch coming back on new clients, Keycloak ships a client policy executor for
+it — `full-scope-disabled`, confirmed present in 26.8.0's executor list — described under
+[Enforcing Full Scope Allowed to be disabled](https://www.keycloak.org/docs/latest/server_admin/index.html#_full_scope_disabled_policy).
+
+## Verify it worked
+
+Three checks, in order. Each one fails differently, so run all three.
+
+```bash
+# 1. The effective mapping includes everything inherited
+K get-roles -r authz --uusername bob --effective --fields name
+```
+
+Expect `employee` from the parent group.
+
+```bash
+# 2. The token carries it
+curl -s -X POST http://localhost:8080/realms/authz/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=bob -d password=s3cret -d grant_type=password \
+  | jq -r .access_token | cut -d. -f2 | base64 -d 2>/dev/null \
+  | jq '{realm_access, resource_access, groups}'
+```
+
+Expect `employee` in `realm_access.roles`, `deploy` under `resource_access.demo-app`, and
+`/engineering/platform` in `groups`.
+
+```bash
+# 3. The token is not carrying anything else — count every role in it
+curl -s -X POST http://localhost:8080/realms/authz/protocol/openid-connect/token \
+  -d client_id=demo-app -d username=bob -d password=s3cret -d grant_type=password \
+  | jq -r .access_token | cut -d. -f2 | base64 -d 2>/dev/null \
+  | jq '[.realm_access.roles[]?, (.resource_access | to_entries[] | .value.roles[]?)] | length'
+```
+
+If that number is larger than the number of permissions this application checks, you have
+roles in the token for no reason. Go back to [Step 6](#step-6--keep-the-token-to-the-roles-the-client-needs).
+
+## Troubleshooting
+
+**`GET /groups` returns `subGroups: []` for a group that has children.** The list endpoint
+reports the count and leaves the array empty — children are loaded on demand:
+
+```json
+{ "name" : "engineering", "path" : "/engineering",
+  "subGroupCount" : 1, "subGroups" : [ ] }
+```
+
+Children come from `GET /groups/{id}/children`. A script that walks `subGroups` recursively
+finds nothing, reports a flat realm, and exits 0 — so check `subGroupCount` before you trust
+an empty array.
+
+**"Who has this role?" returns the wrong answer.** `GET /roles/{name}/users` and
+`GET /clients/{id}/roles/{name}/users` list **direct** assignments only. Bob holds the
+`deploy` client role through a group; Carol holds it directly. The endpoint returns Carol:
+
+```json
+[ { "username" : "carol" } ]
+```
+
+Bob effectively has `deploy` and does not appear. Likewise `GET /groups/{id}/members` on a
+parent group returns `[]` when every member joined a subgroup — `?subGroups=true` does not
+change it. There is no single endpoint that answers "everyone who effectively has this
+role". Enumerate users and read `--effective` per user, or query your group tree yourself.
+
+**Deleting a role silently empties the composites that contained it.** No warning, no
+dependency error:
+
+```bash
+K delete roles/employee -r authz
+K get roles/developer -r authz --fields name,composite
+```
+
+```json
+{ "name" : "developer", "composite" : false }
+```
+
+Everyone holding `developer` lost `employee` at the same moment, and nothing in the console
+says so. Check `GET /roles/{name}/composites` across the realm before deleting a role, and
+do it in a maintenance window if the role is widely held.
+
+**Renaming a parent group rewrites every descendant's path.** Rename `/engineering` to
+`/eng` and the child's path becomes `/eng/platform` immediately. Role mappings are unaffected
+— they hang off group IDs — but the `groups` claim changes, so any authorization rule
+matching on a literal path breaks on the next token refresh, not at rename time. This is the
+strongest argument for authorizing on roles and treating the path as a label.
+
+**A `groups` claim full of role names.** Keycloak's built-in `microprofile-jwt` optional
+client scope contains a mapper *named* `groups` which is an `oidc-usermodel-realm-role-mapper`
+— it writes **realm roles** into a claim called `groups`. Request that scope and you get
+(output here from the sizing realm used for the measurements above):
+
+```json
+{ "groups": ["default-roles-sizing", "admin-bundle", "offline_access", "uma_authorization"] }
+```
+
+No group in sight. If your `groups` claim contains things that look like permissions, this
+is why. Either drop the scope or rename your own claim.
+
+**A 403 after you changed role mappings.** Existing access tokens are unaffected by a role
+change until they expire — the token is a snapshot. Equally, a 403 from the admin API is
+about `realm-management` roles, not your application roles; see
+[Keycloak 403 Forbidden](/blog/keycloak-403-forbidden/) for telling the three surfaces apart.
+
+## Next steps
+
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+  — the same ideas applied to administering Keycloak itself, where a group becomes the
+  policy that scopes a delegated admin.
+- [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/) —
+  turning `realm_access.roles` into authorities your framework actually enforces, which is
+  the step everyone skips.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+  — if any of the payloads above were unfamiliar.
+- [Keycloak as an IAM system](/docs/keycloak/iam/) — where roles and groups sit relative to
+  federation and brokering.
+- Official reference:
+  [Assigning permissions using roles and groups](https://www.keycloak.org/docs/latest/server_admin/index.html#assigning-permissions-using-roles-and-groups),
+  [Groups](https://www.keycloak.org/docs/latest/server_admin/index.html#proc-managing-groups_server_administration_guide)
+  and [Groups compared to roles](https://www.keycloak.org/docs/latest/server_admin/index.html#con-comparing-groups-roles_server_administration_guide).
+- Clean up: `docker rm -f keycloak`.
+
+<ProductionNote />
