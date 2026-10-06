@@ -486,3 +486,10 @@ Working with JWTs requires a solid grasp of their core concepts, proper validati
 - [RFC 8725: JSON Web Token Best Current Practices](https://tools.ietf.org/html/rfc8725)
 - [OWASP JWT Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)
 - [JSON Web Key (JWK) Specification](https://tools.ietf.org/html/rfc7517)
+
+
+## Keep reading
+
+- **[Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)** — what each claim in the token actually is, field by field.
+- **[Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)** — the revocation and token-size limits that no amount of hardening removes.
+- **[JWT Decoder](/tools/jwt-decoder/)** — paste a token and see every field, in your browser. Nothing is sent to a server.
