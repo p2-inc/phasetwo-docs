@@ -41,6 +41,16 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 More framework-by-framework guides are next. *(Coming soon.)*
 
+**Deciding who may do what** — the four ways Keycloak models permissions, and what each one
+puts in the token:
+
+1. [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/)
+2. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
+3. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+
+Client scopes, protocol mappers and fine-grained authorization build on the first one.
+*(Coming soon.)*
+
 **Adding a second factor, or dropping the password** — turn MFA on for everyone, not just
 the people who opt in, then go passwordless:
 
@@ -82,7 +92,7 @@ Inactivity policies build on the same engine. *(Coming soon.)*
 2. [Keycloak multi-tenancy: realms, groups, or organizations?](/tutorials/authorization/multi-tenancy/)
 3. [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/)
 
-Roles, client scopes and fine-grained authorization build on the same track.
+Client scopes and fine-grained authorization build on the same track.
 *(Coming soon.)*
 
 **Delegating realm administration** — give someone admin rights over part of a realm without

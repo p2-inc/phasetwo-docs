@@ -39,7 +39,10 @@ module.exports = {
       type: "category",
       label: "Authorization and multi-tenancy",
       link: { type: "generated-index" },
-      items: ["authorization/multi-tenancy"],
+      items: [
+        "authorization/roles-and-groups",
+        "authorization/multi-tenancy",
+      ],
     },
     {
       type: "category",
