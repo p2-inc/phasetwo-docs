@@ -1,0 +1,75 @@
+---
+# Built from content-marketing updates/2026-09/ (generated.mdx + page.toml). Edit there, not here: the sync rebuilds this file.
+id: "2026-09"
+title: "Phase Two: September 2026"
+description: "September 2026: the Phase Two Keycloak MCP server and Agent Skills, Telemetry Export, a Management API and Terraform provider, and 26 Keycloak CVEs fixed."
+keywords:
+  - keycloak news september 2026
+  - keycloak 26.7.4 cve
+  - phase two release notes
+  - keycloak security updates
+covers_from: "2026-09-01T00:00:00Z"
+covers_through: "2026-09-29T09:22:01Z"
+---
+
+# Phase Two: September 2026
+
+September was a big month for Phase Two. We launched Keycloak Skills and the Phase Two MCP server, so an AI agent can configure and run Keycloak from your command line, and Telemetry Export, which streams a cluster's Keycloak logs and authentication events to your own observability stack. The Management API and a generated Terraform provider arrived alongside them.
+
+Upstream, Keycloak shipped two patch releases and closed twenty-six CVEs between them. Read **26.7.4** first: upgrade this week if your login or SAML endpoints face the internet.
+
+## Official Keycloak
+
+- **🔐 Keycloak 26.7.4**: six CVEs, five rated high. Upgrade this week if your login or SAML endpoints face the internet, because two are unauthenticated DoS. ([our write-up](/blog/keycloak-2674-released/) · [release notes](https://github.com/keycloak/keycloak/releases/tag/26.7.4))
+- **🔐 Keycloak 26.7.3**: twenty CVEs. Not an emergency, but upgrade this week if you use external token exchange or fine-grained admin permissions v2, and note that 26.4–26.6 have no patch yet. ([our write-up](/blog/keycloak-2673-released/) · [release notes](https://github.com/keycloak/keycloak/releases/tag/26.7.3))
+
+## Phase Two open source releases
+
+- **🏛️ Organizations v0.182**: closes an information leak about existing users, and stops the membership paths loading the full member collection on large populations. ([docs](/extensions/organizations/) · [GitHub](https://github.com/p2-inc/keycloak-orgs))
+- **🔗 Magic links v0.85**: new account-activation and activation-or-reset email authenticators, failed email OTP attempts now count towards brute force protection, and passkeys work alongside Cloudflare Turnstile. ([docs](/extensions/magic-link/) · [GitHub](https://github.com/p2-inc/keycloak-magic-link))
+- **🧙 IdP wizard v0.56**: a rebuilt wizard v2 with new SAML, OIDC and OAuth wizards, Okta and Entra ID SCIM wizards, selected per realm at runtime and still defaulting to v1 during the staged rollout. ([docs](/extensions/idp-wizard/) · [GitHub](https://github.com/p2-inc/idp-wizard))
+- **🎨 Themes v0.80**: email template overrides now work inside the theme's branded shell, and the OrgMember route no longer requires the `view-clients` role. ([docs](/extensions/themes/) · [GitHub](https://github.com/p2-inc/keycloak-themes))
+- **🔑 KMS key provider v0.1**: first release. Realm signing keys are wrapped by a cloud KMS, so the database holds ciphertext instead of a PEM private key. ([docs](/docs/security/) · [GitHub](https://github.com/p2-inc/keycloak-kms))
+- **⚛️ Atomic auth flows v0.2**: first tagged release of the extension we built with Gusto. It imports flows, configs and bindings in one transaction, and rejects an identical re-import rather than duplicating it. ([read more](/blog/keycloak-atomic-auth-flows/) · [GitHub](https://github.com/p2-inc/keycloak-atomic-auth-flows))
+
+## New from Phase Two
+
+- **🤖 Keycloak Skills and the Phase Two MCP server**: tell Claude what you want and it configures Keycloak for you. The open-source skills teach it to get the configuration right, and the MCP server gives it 158 admin tools against your live Phase Two cluster. Install takes two commands. ([read the launch](/blog/keycloak-skills-mcp-launch/) · [skills on GitHub](https://github.com/p2-inc/keycloak-skills))
+- **🔎 Telemetry Export**: your cluster's Keycloak logs and authentication events, delivered over OTLP to whatever you already run: Datadog, Grafana, Elastic, OpenSearch, or your own OpenTelemetry Collector. No agent to install. Experimental, and available on request for Enterprise clusters. ([read more](/blog/telemetry-export-experimental/) · [docs](/docs/self-service/telemetry-export/))
+- **🛠️ Management API and Terraform provider**: everything you can do in the dashboard is now an API call, with API credentials you create yourself and a Terraform provider generated from the same spec. All experimental for now, so start with a test environment. ([read more](/blog/phasetwo-management-api/) · [Terraform provider on GitHub](https://github.com/p2-inc/terraform-provider-phasetwo))
+- **🛡️ Fleet-wide security upgrades**: when Keycloak 26.7.4 landed with its two unauthenticated denial-of-service fixes, upstream backported them to 26.6 but shipped no release. So we built 26.6.7 ourselves and rolled it across nearly every hosted cluster over the next two weeks, with nothing for our customers to do. ([why we build the backports](/blog/keycloak-lts-backport-images/) · [the 26.7.4 CVEs](/blog/keycloak-2674-released/))
+- **📱 Custom domains serve app association files**: upload `apple-app-site-association` and `assetlinks.json` from the dashboard, and your mobile apps can autofill saved passwords and share passkeys with your Keycloak login page. ([read more](/blog/app-association-custom-domains/) · [tutorial](/tutorials/mobile-apps/app-association-files/))
+
+## New reading
+
+- **📖 [Keycloak LTS: the security backports nobody publishes](/blog/keycloak-lts-backport-images/)**:
+  upstream backports security fixes to 26.4 and 26.6 and then builds no image from those
+  tags, so we build them at `quay.io/phasetwo/keycloak`.
+- **📖 [The Keycloak production readiness checklist](/blog/keycloak-production-checklist/)**:
+  the two settings that block startup, the eleven defaults that are wrong for production,
+  and the probe your load balancer gets wrong.
+- **📖 Four error messages, decoded**: a tested map from each string to what actually caused
+  it. ([redirect_uri](/blog/keycloak-invalid-redirect-uri/) ·
+  [invalid_grant](/blog/keycloak-invalid-grant/) ·
+  [CORS](/blog/keycloak-cors-errors/) ·
+  [403](/blog/keycloak-403-forbidden/))
+- **📖 SCIM and JWKS, explained**: when you need SCIM instead of SSO alone, and what every
+  field in a JWKS means once keys start rotating.
+  ([SCIM](/blog/scim-explained/) · [JWKS](/blog/jwks-explained/))
+- **📖 Seventeen new tutorials**: getting started, authentication flows, passkeys, TOTP,
+  SCIM, workflows, session timeouts and token validation, all on plain
+  open-source Keycloak. ([browse them](/tutorials/))
+
+## Looking ahead
+
+Next up is getting our experimental features to general availability. Telemetry Export, the Management API, API credentials and the Terraform provider all launched as experimental, and over the next few months we'll settle how they work and make them stable. If you're trying any of them, we want to hear what's missing. That's what decides what we fix first.
+
+We'll also keep improving Keycloak Skills and the MCP server, with more tools, sharper skills, and fewer reasons to leave your terminal. The skills are open source, and [issues and pull requests are welcome](https://github.com/p2-inc/keycloak-skills/issues).
+
+In short: Keycloak is now easier to run by hand, by API or by agent, and there's more on the way.
+
+---
+
+Running Keycloak yourself and want the upgrades handled?
+[Phase Two hosts it](/hosting/dedicated-clusters/).
+Already self-hosting and want a number to call? [We support it](/support/).

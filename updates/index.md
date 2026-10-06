@@ -23,7 +23,7 @@ advisories feed.
 
 <!-- updates:list:start -->
 
-_The first monthly update publishes at the start of next month._
+- **[September 2026](/updates/2026-09/)** — Keycloak closed 26 CVEs across 26.7.3 and 26.7.4, two of them unauthenticated DoS.
 
 <!-- updates:list:end -->
 
