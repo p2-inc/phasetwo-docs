@@ -51,6 +51,9 @@ want it in a ticket. If you are running on Phase Two rather than self-hosting, t
 server-level items are already done and the
 [platform launch checklist](/docs/getting-started/launch-checklist) is the application-side
 list you want instead.
+If you are self-hosting our images on your own cluster instead, the
+[deployment documentation](/docs/hosting/) covers the Helm chart and the bundled on-prem
+model, and every item below still applies to you.
 
 ## What actually blocks startup
 
