@@ -34,6 +34,16 @@ Allowlist **all three addresses** for your region. Traffic may originate from an
 3.68.147.134
 ```
 
+### AWS Europe (Ireland) `eu-west-1`
+
+```
+52.214.48.166
+52.210.84.63
+52.49.216.138
+```
+
+These addresses are reserved ahead of eu-west-1 coming online. No traffic is sent from them yet, but you can allowlist them now so no firewall change is needed when it does.
+
 ### AWS Asia-Pacific (Singapore) `ap-southeast-1`
 
 ```
