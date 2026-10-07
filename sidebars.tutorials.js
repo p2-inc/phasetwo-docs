@@ -70,7 +70,7 @@ module.exports = {
       type: "category",
       label: "SCIM provisioning",
       link: { type: "generated-index" },
-      items: ["scim/getting-started"],
+      items: ["scim/getting-started", "scim/filtering"],
     },
     {
       type: "category",
