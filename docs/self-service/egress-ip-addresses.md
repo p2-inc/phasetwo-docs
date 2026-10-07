@@ -34,6 +34,14 @@ Allowlist **all three addresses** for your region. Traffic may originate from an
 3.68.147.134
 ```
 
+### AWS Europe (Ireland) `eu-west-1`
+
+```
+52.214.48.166
+52.210.84.63
+52.49.216.138
+```
+
 ### AWS Asia-Pacific (Singapore) `ap-southeast-1`
 
 ```
