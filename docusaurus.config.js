@@ -1270,6 +1270,26 @@ module.exports = {
             from: "/blog/keyclaok-vs-workos-open-source-alternative",
             to: "/keycloak-alternatives/workos/",
           },
+          // The eleven placeholder pages deleted in #353 were deleted but never
+          // redirected, so every one of them has been a 404 since 2026-08-31. They sat
+          // in the main nav for months, which means the links to them are other
+          // people's -- a directory listing, a review, a blog post -- and those cannot
+          // be repointed the way the five internal ones were. A 404 throws that away.
+          //
+          // Each goes to the page that now covers its subject, not to a generic parent:
+          // a redirect to something unrelated is treated as a soft 404 and is worth
+          // about as much as the 404 it replaced.
+          { from: "/hosting/backups", to: "/docs/self-service/backups-and-data-retention/" },
+          { from: "/hosting/version-upgrades", to: "/docs/self-service/upgrades/" },
+          { from: "/hosting/monitoring", to: "/hosting/dedicated-clusters/" },
+          { from: "/hosting/customize", to: "/hosting/dedicated-clusters/" },
+          { from: "/hosting/security", to: "/hosting/dedicated-clusters/" },
+          { from: "/support/theming", to: "/support/" },
+          { from: "/support/custom-extensions", to: "/support/" },
+          { from: "/support/24-7-on-call", to: "/support/" },
+          { from: "/support/version-upgrades", to: "/support/" },
+          { from: "/support/guidance-for-scale", to: "/support/" },
+          { from: "/support/infrastructure-implementation", to: "/support/" },
           // The /articles/ section was folded into /tutorials/. These are high-traffic
           // URLs, so every old path redirects rather than 404s. plugin-client-redirects
           // emits meta-refresh + rel=canonical, which is the strongest signal available
