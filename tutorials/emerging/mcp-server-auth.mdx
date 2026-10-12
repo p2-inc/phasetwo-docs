@@ -1,0 +1,455 @@
+---
+id: mcp-server-auth
+title: "Secure an MCP Server with Keycloak"
+description: Configure Keycloak as the authorization server for an MCP server — audience binding, scopes, PKCE, client registration — with every failure mode tested on Keycloak 26.8.0.
+keywords:
+  - secure mcp server keycloak
+  - keycloak mcp authorization server
+  - mcp server audience validation
+  - keycloak resource indicators
+  - mcp protected resource metadata
+  - keycloak client id metadata document
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.0"
+prerequisites:
+  - Docker
+  - Python 3.11 or newer, with PyJWT
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Secure an MCP server with Keycloak
+
+To secure an MCP server with Keycloak you need three things, and Keycloak gives you exactly
+one of them for free. **Your MCP server must serve RFC 9728 protected-resource metadata,
+challenge unauthenticated requests with a `401` naming that metadata, and reject any token
+whose audience is not the MCP server's own URL.** Keycloak issues the token; the audience
+binding you have to configure, and the metadata and the rejection are code you write.
+
+Skip the audience binding and Keycloak will hand out a signed, unexpired, perfectly valid
+access token with **no `aud` claim at all**. Measured below. A resource server that checks
+the signature and the issuer — which is the default in most JWT middleware — accepts it.
+
+<!-- truncate -->
+
+:::info Tested against
+Keycloak **26.8.0** (`quay.io/keycloak/keycloak:26.8.0`), dev mode with the default H2
+database, on **2026-10-12**, against MCP protocol revision **2026-07-28**. Every status code,
+error string and token claim below is copied from a real run. Two servers were used: a stock
+`start-dev` for the supported configuration, and a second started with
+`--features=resource-indicators,cimd` for the experimental half.
+:::
+
+## Who implements what
+
+The MCP [authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization)
+splits the work between the authorization server and the resource server, and most of the
+normative `MUST`s land on the resource server — that is, on you.
+
+| Requirement | Implemented by | On Keycloak 26.8.0 |
+|---|---|---|
+| OAuth 2.1, PKCE, authorization code flow | Keycloak | Supported, **PKCE off by default** |
+| RFC 8414 / OIDC Discovery metadata | Keycloak | Supported |
+| RFC 9207 `iss` in the authorization response | Keycloak | Supported, advertised, on by default |
+| RFC 8707 `resource` parameter | Keycloak | **Experimental**, off by default |
+| Client ID Metadata Documents | Keycloak | **Experimental**, off by default |
+| RFC 7591 dynamic client registration | Keycloak | Supported, deprecated by the spec |
+| RFC 9728 protected-resource metadata | **Your MCP server** | Not Keycloak's job |
+| `401` with a `WWW-Authenticate` challenge | **Your MCP server** | Not Keycloak's job |
+| Rejecting tokens issued for somebody else | **Your MCP server** | Not Keycloak's job |
+
+Keycloak's own [MCP authorization-server guide](https://www.keycloak.org/securing-apps/mcp-authz-server)
+is the reference for the first six rows, including a per-client-application walkthrough for
+VS Code, Claude Code and Claude Desktop. This page is the other half: the resource server,
+and what each of these settings does when you get it slightly wrong.
+
+## Step 1: a realm, a scope, and an audience mapper
+
+Start a server:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_HOSTNAME=http://localhost:8080 \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+The audience lands in the token through a client scope carrying an **Audience** mapper. Make
+the scope **optional**, not default — the client then has to ask for it, and the user has to
+consent to it. Why that matters is the last section on this page.
+
+```bash
+kc() { docker exec kc /opt/keycloak/bin/kcadm.sh "$@"; }
+MCP_URL=https://mcp.example.com/mcp
+
+kc config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+kc create realms -s realm=mcp -s enabled=true
+kc create users -r mcp -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+kc set-password -r mcp --username alice --new-password alice
+
+kc create client-scopes -r mcp \
+  -s name=mcp:tools -s protocol=openid-connect \
+  -s 'attributes."include.in.token.scope"=true' \
+  -s 'attributes."display.on.consent.screen"=true' \
+  -s 'attributes."consent.screen.text"=Run MCP tools'
+
+SCOPE_ID=$(kc get client-scopes -r mcp --format json \
+  | python3 -c 'import sys,json;print([s["id"] for s in json.load(sys.stdin) if s["name"]=="mcp:tools"][0])')
+
+kc create "client-scopes/$SCOPE_ID/protocol-mappers/models" -r mcp \
+  -s name=mcp-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s "config.\"included.custom.audience\"=$MCP_URL" \
+  -s 'config."access.token.claim"=true' \
+  -s 'config."id.token.claim"=false' \
+  -s 'config."introspection.token.claim"=true'
+```
+
+`include.in.token.scope` has to be on. Without it the audience still lands but the `scope`
+claim comes back empty, so a server checking scope rejects a token that looks right.
+
+## Step 2: the MCP client
+
+MCP clients are public clients on an end user's machine with a loopback redirect. Pre-register
+one:
+
+```bash
+kc create clients -r mcp \
+  -s clientId=mcp-client -s enabled=true -s publicClient=true \
+  -s standardFlowEnabled=true -s consentRequired=true \
+  -s 'redirectUris=["http://127.0.0.1:33418/*"]' \
+  -s 'attributes."pkce.code.challenge.method"=S256'
+
+CLIENT_ID=$(kc get clients -r mcp -q clientId=mcp-client --format json \
+  | python3 -c 'import sys,json;print(json.load(sys.stdin)[0]["id"])')
+
+kc update "clients/$CLIENT_ID/optional-client-scopes/$SCOPE_ID" -r mcp
+```
+
+That `pkce.code.challenge.method` attribute is not optional dressing. **Keycloak does not
+require PKCE unless you tell it to**, for public clients included, and MCP mandates OAuth 2.1,
+which does. With the attribute set, both bad cases are rejected at the authorization endpoint:
+
+```bash
+curl -si "http://localhost:8080/realms/mcp/protocol/openid-connect/auth?client_id=mcp-client\
+&response_type=code&scope=openid&redirect_uri=http%3A%2F%2F127.0.0.1%3A33418%2Fcallback&state=s1" \
+  | grep -i '^location'
+```
+
+```text
+Location: http://127.0.0.1:33418/callback?error=invalid_request&
+  error_description=Missing+parameter%3A+code_challenge_method&state=s1&
+  iss=http%3A%2F%2Flocalhost%3A8080%2Frealms%2Fmcp
+```
+
+Send `code_challenge_method=plain` instead and you get
+`Invalid parameter: code challenge method is not matching the configured one`. Note the `iss`
+parameter on both: that is RFC 9207, Keycloak emits it on success and on error, and
+`authorization_response_iss_parameter_supported` is `true` in the discovery document. The
+2026-07-28 revision requires clients to validate it.
+
+To cover clients you do not pre-register — anything arriving by dynamic registration or by
+metadata document — put the same rule in a realm-wide client policy instead, where it applies
+to clients that do not exist yet:
+
+```json
+{"profiles":[{"name":"mcp-oauth21",
+  "executors":[{"executor":"pkce-enforcer","configuration":{"auto-configure":true}}]}]}
+```
+
+Attach it with an `any-client` condition. Tested: `plain` then fails with
+`Invalid parameter: code_challenge`, realm-wide. The discovery document still advertises
+`"code_challenge_methods_supported": ["plain","S256"]` afterwards, so do not trust that field
+to tell you what the server will accept.
+
+## Step 3: look at the token
+
+Run the authorization code flow and decode what comes back. Asking for `openid mcp:tools`:
+
+```json
+{
+  "iss": "http://localhost:8080/realms/mcp",
+  "aud": "https://mcp.example.com/mcp",
+  "azp": "mcp-client",
+  "scope": "openid mcp:tools profile email"
+}
+```
+
+Asking for `openid` alone, from the same client, the same user, the same realm:
+
+```json
+{
+  "iss": "http://localhost:8080/realms/mcp",
+  "aud": "<absent>",
+  "azp": "mcp-client",
+  "scope": "openid profile email"
+}
+```
+
+**There is no `aud` claim.** Not a wrong audience — no claim. The token is signed by the
+realm, it is not expired, `iss` is correct, and it is useless as proof of anything about who
+it was issued for. On another client in the same realm the same request produced
+`"aud": "account"`, the audience of Keycloak's own account console.
+
+Two consequences for your validator:
+
+- **`aud` is a string when there is one audience and an array when there is more than one.**
+  Both forms came out of this realm: `"https://mcp.example.com/mcp"` and
+  `["https://mcp.example.com/mcp", "account"]`. Membership test, not equality test.
+- **Pass an expected audience to your JWT library explicitly.** PyJWT rejects the
+  claimless token with `MissingRequiredClaimError` when you pass `audience=`, and accepts it
+  the moment you set `verify_aud: False`. Tested all three ways. Libraries differ on the
+  default; none of them can guess your resource URI.
+
+## Step 4: the half Keycloak does not do
+
+Keycloak never sees the MCP endpoint, so the protected-resource metadata and the challenge
+are yours. For a resource `https://mcp.example.com/mcp`, RFC 9728 puts the document at
+`/.well-known/oauth-protected-resource/mcp` — the path of the resource is **appended to** the
+well-known prefix, not replaced by it.
+
+```python
+import json, os
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse
+import jwt
+from jwt import PyJWKClient
+
+RESOURCE = os.environ["MCP_RESOURCE"]          # https://mcp.example.com/mcp
+ISSUER   = os.environ["KC_ISSUER"]             # http://localhost:8080/realms/mcp
+SCOPE    = "mcp:tools"
+
+_p = urlparse(RESOURCE)
+PRM_PATH = "/.well-known/oauth-protected-resource" + _p.path
+PRM = {"resource": RESOURCE, "authorization_servers": [ISSUER],
+       "scopes_supported": [SCOPE], "bearer_methods_supported": ["header"]}
+jwks = PyJWKClient(ISSUER + "/protocol/openid-connect/certs", cache_keys=True)
+
+def check(auth_header):
+    challenge = (f'Bearer resource_metadata="{_p.scheme}://{_p.netloc}{PRM_PATH}", '
+                 f'scope="{SCOPE}"')
+    if not auth_header or not auth_header.lower().startswith("bearer "):
+        return 401, challenge, "no bearer token"
+    try:
+        key = jwks.get_signing_key_from_jwt(auth_header.split(None, 1)[1]).key
+        claims = jwt.decode(
+            auth_header.split(None, 1)[1], key,
+            algorithms=["RS256", "ES256", "PS256"],
+            audience=RESOURCE, issuer=ISSUER,
+            options={"require": ["exp", "iat", "iss", "aud"]})
+    except jwt.InvalidAudienceError:
+        return 401, challenge + ', error="invalid_token", error_description="wrong audience"', "aud"
+    except jwt.PyJWTError as e:
+        return 401, challenge + f', error="invalid_token", error_description="{type(e).__name__}"', str(e)
+    if SCOPE not in claims.get("scope", "").split():
+        return 403, (f'Bearer error="insufficient_scope", scope="{SCOPE}", '
+                     f'resource_metadata="{_p.scheme}://{_p.netloc}{PRM_PATH}"'), "scope"
+    return 200, None, claims
+```
+
+Four behaviours, all measured against the realm from step 1:
+
+| Request | Status | `WWW-Authenticate` |
+|---|---|---|
+| No `Authorization` header | `401` | `resource_metadata="…", scope="mcp:tools"` |
+| Token with `mcp:tools` | `200` | — |
+| Token without `mcp:tools` | `401` | `… error="invalid_token", error_description="MissingRequiredClaimError"` |
+| `abc.def.ghi` | `401` | `… error="invalid_token", error_description="DecodeError"` |
+
+Returning the `scope` parameter in the first challenge is a `SHOULD` in the 2026-07-28
+revision, and it is the difference between a client that asks for the right scope on its first
+attempt and one that guesses. A client with a valid token that is merely missing a scope
+should get `403` with `error="insufficient_scope"`, not `401` — `401` sends it back through
+the whole authorization flow for nothing.
+
+## Why the `resource` parameter does nothing
+
+The spec says MCP clients **MUST** send RFC 8707 `resource` on both the authorization request
+and the token request, "regardless of whether authorization servers support it". Stock
+Keycloak 26.8.0 does not support it, and does not say so:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/mcp/protocol/openid-connect/token \
+  -d grant_type=password -d client_id=intranet-wiki -d client_secret=... \
+  -d username=alice -d password=alice -d scope=openid \
+  --data-urlencode 'resource=https://totally-unknown.example.net/mcp'
+```
+
+```text
+HTTP 200 — issued anyway. aud = "account"
+```
+
+A resource that exists nowhere in the realm, and the token endpoint returns `200`. RFC 8707
+§2 says an authorization server that cannot honour a `resource` value must return
+`invalid_target`. There is no `resource_indicators_supported` key in the discovery document
+either, so a client cannot detect this ahead of time. **The audience mapper from step 1 is not
+a workaround for a missing feature — on stock Keycloak it is the only thing standing between
+you and an unaudienced token.**
+
+Start the server with `--features=resource-indicators` and the behaviour changes completely.
+Register the MCP server as a client carrying a `resource_url` attribute, give the MCP client
+an Audience mapper pointing at it, and:
+
+| `resource` sent | `aud` in the access token | Status |
+|---|---|---|
+| *(none)* | `["mcp-server", "account"]` | `200` |
+| `https://mcp.example.com/mcp` | `"https://mcp.example.com/mcp"` | `200` |
+| `https://other.example.com/mcp` | — | `400 invalid_target` |
+
+Note the second row: the audience is **narrowed to exactly the resource**, and `account`
+disappears. That is the behaviour RFC 8707 describes and the one the spec wants. It is also
+flagged experimental, which means no support commitment and no stability guarantee between
+releases — fine for a prototype, a decision to take deliberately for anything else.
+
+## How a client gets a `client_id`
+
+The 2026-07-28 revision lists three mechanisms and **deprecates dynamic client registration**
+in favour of Client ID Metadata Documents, where the `client_id` is an HTTPS URL the
+authorization server fetches.
+
+```bash
+curl -s "http://localhost:8080/realms/mcp/protocol/openid-connect/auth\
+?client_id=https%3A%2F%2Fvscode.dev%2Foauth%2Fclient-metadata.json&response_type=code..."
+```
+
+On a stock server that is `400 Client not found`. CIMD needs `--features=cimd`, a client
+profile with the `client-id-metadata-document` executor, and a policy with a `client-id-uri`
+condition. Three things worth knowing before you try it:
+
+**The configuration keys are not the console labels.** The Admin Console shows *Trusted
+domains*, *Allow http scheme*, *Restrict same domain*. Over the Admin REST API, kcadm or a
+realm import, the keys are `cimd-allow-permitted-domains`, `cimd-allow-http-scheme`,
+`cimd-restrict-same-domain`, and on the condition `client-id-uri-allow-permitted-domains` and
+`client-id-uri-scheme`. **Keycloak stores unrecognised client-policy configuration keys
+without complaining.** A profile written with the console's wording saved cleanly, read back
+intact, and did nothing — the only symptom was `Client not found`, with
+`error="client_not_found"` in the event log and no mention of a policy anywhere.
+
+**Every URL in the metadata document has to be in the permitted-domains list.** With VS Code's
+real published metadata, deleting the auto-created client between attempts:
+
+| `cimd-allow-permitted-domains` | Result |
+|---|---|
+| `["vscode.dev"]` | `400` |
+| `["vscode.dev","127.0.0.1"]` | `400` |
+| `["vscode.dev","code.visualstudio.com"]` | `400` |
+| `["vscode.dev","127.0.0.1","code.visualstudio.com"]` | `200` |
+
+`127.0.0.1` is the loopback redirect URI host. `code.visualstudio.com` is in the document for
+one reason: it hosts the `logo_uri`. An icon URL on a domain you did not list fails the whole
+registration, and the failure is indistinguishable from the client not existing.
+
+**CIMD creates a real, persistent client.** After a successful authorization the realm has a
+client whose `clientId` is literally `https://vscode.dev/oauth/client-metadata.json`.
+Tightening the policy afterwards does not revoke it — the client is already there and keeps
+working. Delete it if you meant to revoke it.
+
+If you stay on dynamic registration, the stock anonymous policies reject the registration any
+MCP client actually sends:
+
+| Request | Response |
+|---|---|
+| Stock policies | `Policy 'Trusted Hosts' … Details: Host not trusted.` |
+| `redirect_uris` host not in the trusted list | `… Details: URI doesn't match any trusted host` |
+| `client_uri` host not in the trusted list | `… Details: URL doesn't match any trusted host` |
+| `"scope": "openid mcp:tools"` | `Policy 'Allowed Client Scopes' … Not permitted to use specified clientScope` |
+| `"scope": "mcp:tools"` | `201`, with `mcp:tools` attached as an **optional** scope |
+
+Three of those are worth spelling out. **`URI` means a redirect URI failed and `URL` means
+`client_uri` failed** — one letter apart, in an otherwise identical sentence. **Trusted Hosts
+checks both**, so a desktop client needs `127.0.0.1` and `localhost` in the list alongside the
+vendor's own domain; `host-sending-registration-request-must-match` additionally pins the
+requesting IP, which cannot work for software running on end users' machines, so turn that one
+off and leave `client-uris-must-match` on. And **the DCR `scope` field is a list of Keycloak
+client scope names, not an OAuth scope string** — `openid` is not a client scope, so including
+the one word every OIDC client sends fails registration with an error that names no scope at
+all.
+
+The common advice to delete the Trusted Hosts policy does make all of this go away. It also
+means anyone who can reach the realm can register a client in it.
+
+## The mistake that opens the whole realm
+
+The fastest way to make a registered client get the `mcp:tools` scope is to add it to the
+realm's default client scopes. Do that, create any unrelated application in the same realm,
+and ask for nothing but `openid`:
+
+```json
+{
+  "aud": ["https://mcp.example.com/mcp", "account"],
+  "azp": "intranet-wiki",
+  "scope": "openid mcp:tools profile email"
+}
+```
+
+Correct issuer, correct audience, correct scope, no consent screen — because default scopes
+are not consented. The MCP server answers `200 OK` and tells you who it thinks is calling:
+
+```text
+{"ok": true, "azp": "intranet-wiki", "aud": ["https://mcp.example.com/mcp", "account"], ...}
+```
+
+Every client in that realm is now a key to the MCP server, and the MCP server cannot tell,
+because the token is exactly what it was told to look for. This is the confused-deputy
+problem the specification's audience rules exist to prevent, reintroduced by a convenience
+setting.
+
+It is also sticky. Removing `mcp:tools` from the realm defaults afterwards does **not** take
+it off the clients that already picked it up — `intranet-wiki` kept it, kept getting the
+audience, and kept getting `200`. Only detaching it from that client directly fixed it:
+
+```bash
+kc delete "clients/$WIKI_ID/default-client-scopes/$SCOPE_ID" -r mcp
+```
+
+```text
+HTTP/1.0 401 Unauthorized
+WWW-Authenticate: Bearer … error="invalid_token", error_description="wrong audience"
+```
+
+Realm defaults apply to clients created from then on, so the blast radius is every client made
+while the setting was in place, and you have to walk them. Keep the scope optional and attach
+it per client.
+
+## When this setup is the wrong one
+
+- **The MCP server must never forward its token anywhere.** The spec is explicit: servers
+  "MUST NOT accept or transit any other tokens". If your tools call a downstream API, that
+  needs its own token with its own audience, not this one passed along.
+- **One scope is rarely enough.** `mcp:tools`, `mcp:prompts` and `mcp:resources` with separate
+  audience mappers let a client ask for read without getting write, and let you answer a
+  `403 insufficient_scope` with something a client can act on. One scope makes consent
+  all-or-nothing.
+- **Resource indicators and CIMD are experimental.** If you need either, you are choosing to
+  run an experimental feature, and the supported alternative — optional scopes with audience
+  mappers, and pre-registered clients — works today at the cost of a manual step per client.
+- **`start-dev` and HTTP are for this page only.** Every URL here is `http://localhost`
+  because that is what a local run produces. CIMD rejects `http` client IDs unless you turn
+  `cimd-allow-http-scheme` on, which exists for development and nothing else.
+
+## Next steps
+
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — the general version of step 4, for the rest of your services.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  where `aud`, `azp` and `scope` come from, and why they are not the same thing.
+- [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/) — audience
+  validation in the wider context of what else a resource server has to check.
+- [Instant MCP authorization using Keycloak](/blog/instant-mcp-authorization-keycloak/) — the
+  client-side walkthrough: a working Python MCP server and VS Code connected to it.
+- [Native applications](/docs/securing-applications/native-apps/) — loopback redirects and
+  the browser hand-off, which MCP desktop clients do the same way.
+- Paste a token into the [JWT decoder](/tools/jwt-decoder/) while you work through step 3.
+- More [Keycloak tutorials](/tutorials/).
+- Official references: the
+  [MCP authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization),
+  Keycloak's [MCP authorization-server guide](https://www.keycloak.org/securing-apps/mcp-authz-server),
+  and [client registration policies](https://www.keycloak.org/securing-apps/client-registration#_client_registration_policies).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
