@@ -56,6 +56,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Users, profiles, and lifecycle",
+      link: { type: "generated-index" },
+      items: ["users/user-profile"],
+    },
+    {
+      type: "category",
       label: "Sessions and tokens",
       link: { type: "generated-index" },
       items: ["sessions/timeouts"],
