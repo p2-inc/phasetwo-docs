@@ -70,6 +70,16 @@ Step-up authentication and magic links are next. *(Coming soon.)*
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 
+**Storing data on a user** — what Keycloak will and will not keep on an account, and why a
+custom attribute goes missing:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/)
+3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+
+Validators, progressive profiling and the registration form build on the second one.
+*(Coming soon.)*
+
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
 account list honest:
 

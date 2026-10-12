@@ -1,0 +1,506 @@
+---
+id: user-profile
+title: "Keycloak Managed vs Unmanaged Attributes"
+description: Why Keycloak drops your custom user attributes, what each unmanaged attribute policy really does, and how to migrate attributes into the declarative user profile.
+keywords:
+  - keycloak unmanaged attributes
+  - keycloak user profile
+  - keycloak declarative user profile
+  - keycloak custom user attributes
+  - unmanagedAttributePolicy
+  - keycloak user attributes not saving
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.8.0"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl` and the Admin REST API
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Managed vs Unmanaged Attributes
+
+A **managed** attribute is one you declared in the realm's user profile. An **unmanaged**
+attribute is any other key you try to store on a user, and what happens to it is decided by a
+single realm setting, `unmanagedAttributePolicy`, with four values:
+
+```
+DISABLED     the default. Unmanaged attributes are read back as absent and
+             writes to them are discarded — with an HTTP 2xx
+ENABLED      readable and writable by admins and by end users
+ADMIN_VIEW   readable by admins only, and still not writable by anyone
+ADMIN_EDIT   readable and writable by admins only
+```
+
+That is the whole feature, and the reason this page exists is the second line of it. Every
+write that a policy forbids returns **204 No Content** and changes nothing. A `POST /users`
+carrying attributes the realm does not recognise returns **201 Created** and stores none of
+them. Nothing logs, nothing warns, and the attribute is simply not there the next time you
+look.
+
+:::info Tested against
+
+Keycloak **26.8.0** (`quay.io/keycloak/keycloak:26.8.0 start-dev`), with the SQL audit run
+against the same version on PostgreSQL 16. Every status code, JSON body and row count below
+is copied from a real run on **2026-10-12**. The official
+[Managing user attributes](https://www.keycloak.org/docs/latest/server_admin/index.html#user-profile)
+guide is the reference for what each field in the schema means — this page is what each
+policy does when you measure it, and the order to migrate in.
+
+:::
+
+## Which policy is your realm on?
+
+One request, and the answer is in what is *missing*:
+
+```bash
+curl -s "$KC/admin/realms/$REALM/users/profile" \
+  -H "Authorization: Bearer $TOKEN" | jq '.unmanagedAttributePolicy'
+```
+
+```
+null
+```
+
+`null` means `DISABLED`. The key is omitted entirely rather than written out, so a script
+that tests for the string `"DISABLED"` reports the wrong thing on exactly the realms that
+need checking. In the admin console the same setting is **Realm settings → General →
+Unmanaged attributes**, and the attribute list it governs is one tab over, under **Realm
+settings → User profile**.
+
+How your realm got its value depends on where it came from, and the three paths do not agree:
+
+| Realm origin | Policy it ends up with |
+|---|---|
+| Upgraded from before 24, with *User Profile Enabled* **off** | `ENABLED` — nothing broke |
+| Upgraded from before 24, with *User Profile Enabled* **on** | `DISABLED` |
+| Created on 24 or later, including by realm import | `DISABLED` |
+
+The [upgrading guide](https://www.keycloak.org/docs/latest/upgrading/index.html#user-profile-changes)
+is explicit about the first two: the 24.0.0 migration deliberately set `ENABLED` on realms
+that had the declarative user profile switched off, so that custom attributes kept working.
+It is the **third** row that bites, and it is the one nobody is warned about. A realm created
+on a current server starts strict, so the team that hits this is usually not upgrading at all
+— they are standing up a new realm, or importing a realm JSON exported from an older one.
+
+## The failure, in one request
+
+Stock realm, default policy. Create a user with two custom attributes:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+```bash
+curl -s -X POST "$KC/admin/realms/t1/users" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"username":"alice","email":"alice@acme.test","enabled":true,
+       "firstName":"Alice","lastName":"Nguyen",
+       "attributes":{"plan":["pro"],"employee_id":["E-4417"]}}'
+```
+
+```
+HTTP 201
+```
+
+Read her back:
+
+```json
+{
+  "id": "06bce858-802e-4660-b521-0cf5a745cea4",
+  "username": "alice",
+  "firstName": "Alice",
+  "lastName": "Nguyen",
+  "email": "alice@acme.test",
+  "enabled": true,
+  "requiredActions": []
+}
+```
+
+No `attributes` key at all. This is not a display filter — on a PostgreSQL-backed server, the
+rows were never written:
+
+```sql
+select ua.name, count(*)
+from user_attribute ua
+  join user_entity ue on ue.id = ua.user_id
+  join realm r on r.id = ue.realm_id
+where r.name = 't1'
+group by ua.name;
+```
+
+```
+(0 rows)
+```
+
+If you are migrating users in bulk, that is the whole import. Set the policy *before* the
+run, not after — there is no backfill that is not the import again. The same trap, with the
+Auth0 field names on it, is
+[step 1 of the Auth0 migration](/blog/migrate-auth0-to-keycloak/).
+
+## What each policy actually does
+
+The docs describe the four policies in a sentence each. Here is the same four measured across
+every surface that touches an attribute — one user, one attribute called `plan`, the policy
+changed between rounds and nothing else:
+
+| | `DISABLED` | `ENABLED` | `ADMIN_VIEW` | `ADMIN_EDIT` |
+|---|---|---|---|---|
+| Admin API read | absent | **visible** | **visible** | **visible** |
+| Admin API write | discarded, `204` | **applied**, `204` | discarded, `204` | **applied**, `204` |
+| Account API read (end user) | absent | **visible** | absent | absent |
+| Account API write (end user) | discarded, `204` | **applied**, `204` | discarded, `204` | discarded, `204` |
+| Admin search `?q=plan:pro` | **finds the user** | **finds the user** | **finds the user** | **finds the user** |
+| Protocol mapper → access token | **claim present** | **claim present** | **claim present** | **claim present** |
+| `/userinfo` | **claim present** | **claim present** | **claim present** | **claim present** |
+
+Three readings of that table are worth more than the table.
+
+**Every discarded write is a `204`.** There is no policy under which a rejected unmanaged
+write tells you it was rejected. `ADMIN_VIEW` is the sharpest version: an administrator can
+read the value, can `PUT` a new one, gets a success code, and the old value is still there.
+
+**Search ignores the policy entirely.** `GET /users?q=plan:pro` returns the user under all
+four, including `DISABLED` where the API will not show you the attribute it just matched on.
+That is useful — it is how you confirm a value survived — and it is worth knowing before you
+treat the policy as an access control.
+
+**So do tokens.** This is the finding that should change what you do. A protocol mapper reads
+the attribute store directly, not the user profile, so an attribute that is invisible in the
+admin console, invisible in the account console and invisible to the Admin API is still
+minted into every access token and returned from `/userinfo`:
+
+```bash
+# realm policy is DISABLED; the admin API reports "attributes": null
+curl -s "$KC/realms/t1/protocol/openid-connect/userinfo" \
+  -H "Authorization: Bearer $USER_TOKEN" | jq '.plan'
+```
+
+```
+"pro"
+```
+
+The unmanaged attribute policy is a **write and display** policy. It is not a disclosure
+boundary, and it is not a reason to leave stale values in the store on the grounds that
+nobody can see them. If an attribute must not reach a client, remove the mapper or the
+value — see [protocol mappers and claims](/tutorials/getting-started/your-first-token/) for
+what ends up in a token and why.
+
+## The three ways an attribute disappears
+
+They look identical from the outside and only one of them loses data.
+
+**Never stored.** A write through the Admin API or the Account API while the policy forbids
+it. The value does not reach the database, and no later change of policy brings it back.
+This is the one that destroys an import.
+
+**Stored but hidden.** Attributes that were written while the policy allowed it, read under a
+policy that does not. Tightening the policy does not delete anything, and an ordinary update
+does not clear them either:
+
+```bash
+# policy ENABLED → write plan=pro, employee_id=E-9001
+# policy DISABLED → GET returns "attributes": null
+curl -s -X PUT "$KC/admin/realms/t1/users/$BOB" ... -d '{"firstName":"Robert"}'   # 204
+# policy ENABLED again:
+#   "firstName": "Robert", "attributes": {"plan":["pro"],"employee_id":["E-9001"]}
+```
+
+A realm import behaves the same way. Importing a realm JSON whose users carry attributes
+stores every one of them and then hides them, because the new realm starts on `DISABLED` —
+so the fix there is a policy change, not a re-import.
+
+**Wiped by a write you thought was additive.** An `attributes` map in a user representation
+is read as the *complete* attribute set, and that includes the managed ones:
+
+```bash
+curl -s -X PUT "$KC/admin/realms/t2/users/$FRANK" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"attributes":{"nickname":["f"]}}'
+```
+
+```
+HTTP 204
+   firstName=None lastName=None email=None
+```
+
+Frank had a first name, a last name and an email address before that request. `firstName`,
+`lastName` and `email` are managed attributes that happen to also appear as top-level fields,
+and omitting them from a representation that carries `attributes` deletes them. `{}` as the
+map erases everything. This happens on `DISABLED` too — the unmanaged keys are ignored and
+the managed ones are still cleared.
+
+The rule that follows is short: **a PUT with no `attributes` key is a partial update; a PUT
+with one is a replacement.** Read the user, merge, and send the whole map back, or do not
+send the key at all.
+
+## Migrating to managed attributes
+
+Four steps, in this order. The point of the exercise is that at the end, the writes that are
+currently being discarded with a `204` fail with a `400` and a field name instead.
+
+### 1. Find out what you actually have
+
+You cannot list unmanaged attribute names through the Admin API — there is no endpoint, and
+`?q=` needs the name you are trying to discover. Two ways:
+
+```sql
+-- the honest inventory, straight from the database
+select ua.name, count(*) as users
+from user_attribute ua
+  join user_entity ue on ue.id = ua.user_id
+  join realm r on r.id = ue.realm_id
+where r.name = 't1'
+group by ua.name
+order by users desc, ua.name;
+```
+
+```
+     name      | users
+---------------+-------
+ employee_id   |     3
+ legacy_sso_id |     3
+ plan          |     3
+```
+
+`username`, `email`, `firstName` and `lastName` are columns on `user_entity`, not rows in
+`user_attribute`, so everything this query returns is a candidate for declaring.
+
+If you have no database access, set the policy to `ADMIN_VIEW` for the length of the audit
+and page through the users. That is a read-only change, it exposes nothing to end users, and
+it is reversible.
+
+### 2. Declare them
+
+The user profile is one JSON document, read and written whole at
+`/admin/realms/{realm}/users/profile`. Add to the `attributes` array:
+
+```json
+{
+  "name": "plan",
+  "displayName": "Subscription plan",
+  "multivalued": false,
+  "permissions": { "view": ["admin", "user"], "edit": ["admin"] },
+  "validations": { "options": { "options": ["free", "pro", "enterprise"] } },
+  "annotations": { "inputType": "select" }
+}
+```
+
+```bash
+curl -s "$KC/admin/realms/t1/users/profile" -H "Authorization: Bearer $TOKEN" \
+  | jq '.attributes += [{"name":"plan", ... }]' > profile.json
+curl -s -X PUT "$KC/admin/realms/t1/users/profile" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d @profile.json
+```
+
+```
+HTTP 200
+```
+
+In the console the same thing is **Realm settings → User profile → Create attribute**, and
+from the CLI `kcadm.sh` merges rather than replaces, which makes the policy flip a one-liner
+that cannot clobber your attribute list:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh update users/profile -r t1 \
+  -s unmanagedAttributePolicy=ADMIN_EDIT
+```
+
+**Existing values appear immediately.** There is no backfill and no re-import: the rows were
+always in `user_attribute`, and declaring the attribute is what makes the server willing to
+show them. On a realm still set to `DISABLED`, declaring `plan` took Alice's representation
+from `"attributes": null` to `{"plan": ["pro"]}` with no write to the user at all.
+
+### 3. Check that it now fails loudly
+
+That is the deliverable. Same request as before, with a value outside the option list:
+
+```bash
+curl -s -X PUT "$KC/admin/realms/t1/users/$BOB" ... \
+  -d '{"email":"bob@acme.test","firstName":"Bob","lastName":"Ray",
+       "attributes":{"plan":["platinum"],"employee_id":["E-9001"]}}'
+```
+
+```
+HTTP 400 {"field":"plan","errorMessage":"error-invalid-value","params":["plan"]}
+```
+
+And from the end user's side, where `plan` is `view: user` but `edit: admin` only:
+
+```
+HTTP 400 {"field":"plan","errorMessage":"error-user-attribute-read-only",
+          "params":["Subscription plan"]}
+```
+
+An unmanaged attribute could not produce either of these. It would have returned `204` and
+done nothing.
+
+### 4. Tighten the policy last
+
+With the attributes you care about declared, move the realm to the strictest policy that
+still works. `ADMIN_EDIT` is the usual landing place: anything you have not declared yet
+remains editable by administrators and your own tooling, while end-user contexts — the
+registration form, the update-profile page, the
+[account console](/docs/keycloak/account-console/) — can no longer invent attributes.
+`DISABLED` is the goal once the inventory is empty.
+
+## The fields that decide the behaviour
+
+Everything else in an attribute definition is rendering. These four change what the server
+accepts:
+
+| Field | What it decides | Default if you omit it |
+|---|---|---|
+| `permissions.view` / `permissions.edit` | Which of `admin` / `user` may read and write it | **Neither** — the attribute is admin-only and invisible to end users |
+| `required.roles` | Whether `admin`, `user`, or both must supply a value | Optional for everyone |
+| `multivalued` | Whether more than one value is accepted | `false`, enforced as a `max: 1` size validator |
+| `validations` | `length`, `pattern`, `options`, `email`, `integer`, `multivalued`, and the rest | Only the 2048-character ceiling |
+
+`permissions` is the one worth reading twice. A newly created attribute with no `permissions`
+block is not "public by default" — it is invisible to end users entirely, which means a
+registration form or account console page that used to collect it silently stops doing so.
+
+## Four ways declaring an attribute breaks the realm
+
+Each of these is a `200` on the profile update and a failure somewhere else, minutes or hours
+later.
+
+**`required.roles: ["user"]` locks out every existing user who lacks the value.** The login
+itself is fine and then the token request is not:
+
+```bash
+curl -s -d client_id=app -d username=bob -d password=pw -d grant_type=password \
+  "$KC/realms/t1/protocol/openid-connect/token"
+```
+
+```json
+{"error":"invalid_grant","error_description":"Account is not fully set up"}
+```
+
+The user's `requiredActions` array reads `[]` the whole time, so the admin API shows nothing
+wrong with the account. The required action is `VERIFY_PROFILE`, evaluated against the user
+profile at authentication time rather than stored on the user. Browser flows handle this
+gracefully — the user gets a form — but every non-interactive grant and every integration
+test breaks at once.
+
+**`required.roles: ["admin"]` locks out your own tooling instead.** Logins are unaffected;
+administrative writes to users that predate the attribute are not. This is a one-field
+update to an unrelated name:
+
+```bash
+curl -s -X PUT "$KC/admin/realms/t1/users/$ALICE" ... -d '{"firstName":"Alicia"}'
+```
+
+```
+HTTP 400 {"field":"employee_id","errorMessage":"error-user-attribute-required",
+          "params":["employee_id"]}
+```
+
+You cannot edit the user at all until the attribute is backfilled, including to backfill some
+*other* field. Declare first, backfill, then mark required.
+
+**Single-valued is the default, and legacy data is often not.** Unmanaged attributes accept
+any number of values. Declare one of them without `multivalued: true` and every subsequent
+write to those users fails — again, including writes that do not mention the attribute:
+
+```bash
+# teams = ["a","b","c","d","e"], written while unmanaged
+curl -s -X PUT "$KC/admin/realms/t1/users/$BOB" ... -d '{"firstName":"Bob"}'
+```
+
+```
+HTTP 400 {"field":"teams","errorMessage":"error-invalid-multivalued-size",
+          "params":["teams",0,1]}
+```
+
+The existing values are still readable. It is the next write that fails, which is what makes
+this one surface in production rather than in your test realm.
+
+**Some names can never be declared at all.** Attribute names are restricted in the profile
+schema in a way they never were in the attribute table:
+
+```
+HTTP 400 {"errorMessage":"[Invalid attribute name (only letters, numbers and
+          '.' '_' '-' special characters allowed): legacy:sso_id']"}
+```
+
+A pre-24 realm can easily hold `legacy:sso_id` or `some/attribute`. Those are permanently
+unmanaged: the realm has to stay on `ADMIN_EDIT`, or the attribute has to be renamed on every
+user first. Plan the rename during the audit, not after you have declared everything else and
+assumed you were finished.
+
+One more ceiling worth knowing because it fails the *other* way: an unmanaged value longer
+than **2048 characters** is rejected with a `400`, not truncated and not silently dropped.
+Declare the attribute and add a `length` validator if you genuinely need more, and consider
+whether a user attribute is the right place for it — Keycloak caches user objects, and
+every byte is held per cached user.
+
+## When to leave it on `ENABLED`
+
+`ENABLED` exists for realms that came from before 24 and whose custom themes write arbitrary
+attributes, and it is the right answer while that is still true. It is also the right answer
+for the duration of a bulk import, where declaring forty attributes before you know which
+ones survived the export is work you will throw away.
+
+It is the wrong answer as a permanent state for one reason that has nothing to do with
+tidiness: on `ENABLED`, an end user can set **any** attribute name through any end-user
+context your theme exposes. If some part of your stack reads a user attribute to make a
+decision — a tier, a tenant id, a feature flag — that attribute is writable by its owner.
+Declaring it with `edit: ["admin"]` is the fix, and it is the one change on this page that is
+a security change rather than a hygiene one.
+
+Where the attributes arrive from an upstream system rather than from your own forms, declare
+them and let the provisioning path write them: that is what
+[SCIM](/tutorials/scim/getting-started/) does, and user-profile validation applies to SCIM
+writes exactly as it does to the Admin API. Pulling users out of a legacy store instead is
+[user migration](/docs/user-migration/) territory, and the same rule holds — the policy has to
+be right before the first user moves.
+
+## When it goes wrong
+
+- **`201`/`204` and the attribute is absent.** The policy forbids the write. Check
+  `.unmanagedAttributePolicy` — remember that `null` is `DISABLED` — before you check
+  anything else.
+- **The attribute reads back under one tool and not another.** `ADMIN_VIEW` or `ADMIN_EDIT`:
+  the Admin API sees it, the account console does not.
+- **A user lost their email address.** A write carried an `attributes` map that omitted it.
+  Grep your provisioning code for representations built from scratch rather than from a GET.
+- **`Account is not fully set up` on a password grant.** An attribute is `required` for
+  `user` and this user has no value. `requiredActions` will be `[]`; that is expected.
+- **`400` on an unrelated field.** An attribute is `required` for `admin`, or a legacy
+  multi-valued attribute has been declared single-valued. The error names the real field —
+  read `"field"`, not the field you were editing.
+- **An attribute still appears in tokens after you stopped exposing it.** Protocol mappers do
+  not consult the user profile. Remove the mapper.
+- **Users cannot be created with their old usernames.** 24 added default validators the
+  previous default had no equivalent of: a 3-character minimum, prohibited characters, and an
+  IDN-homograph check on `username`. Existing users keep working; new ones must comply.
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the realm this page configures.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  where an attribute ends up once a mapper picks it up.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — the
+  provisioning path that user-profile validation applies to.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+  — scoping *who* may edit the attributes you just declared.
+- [Migrating from Auth0 to Keycloak](/blog/migrate-auth0-to-keycloak/) — the same trap, with
+  `app_metadata` in it.
+- [Keycloak account console](/docs/keycloak/account-console/) and
+  [user migration](/docs/user-migration/) — the two end-user-facing surfaces the policy
+  governs.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Managing user attributes](https://www.keycloak.org/docs/latest/server_admin/index.html#user-profile)
+  and the
+  [24.0.0 user profile migration notes](https://www.keycloak.org/docs/latest/upgrading/index.html#user-profile-changes).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
