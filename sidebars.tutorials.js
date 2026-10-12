@@ -88,5 +88,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["admin/fine-grained-permissions-v2"],
     },
+    {
+      type: "category",
+      label: "Extending Keycloak",
+      link: { type: "generated-index" },
+      items: ["extending/first-spi"],
+    },
   ],
 };

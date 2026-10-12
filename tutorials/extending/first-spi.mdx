@@ -1,0 +1,611 @@
+---
+id: first-spi
+title: "Your First Keycloak SPI: Build, Package, Deploy"
+description: Build a Keycloak provider from an empty directory to a running server. The pom that compiles, the service file everyone forgets, and how to prove the jar loaded.
+keywords:
+  - keycloak spi
+  - keycloak custom provider
+  - keycloak extension
+  - keycloak provider jar
+  - keycloak providers directory
+  - META-INF/services keycloak
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.8.0"
+prerequisites:
+  - Docker
+  - JDK 21 and Maven
+  - A Keycloak admin login
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Your First Keycloak SPI: Build, Package, Deploy
+
+A **Keycloak SPI** extension is four things, and three of them are packaging:
+
+1. A **provider** class implementing the SPI's interface — the code that does the work.
+2. A **factory** class implementing the matching `…ProviderFactory` — it has an id, reads
+   configuration, and hands out providers.
+3. A **`META-INF/services/<factory-interface>`** file naming your factory class. Java's
+   `ServiceLoader` finds your code through this file and nothing else.
+4. A **plain jar** dropped into `/opt/keycloak/providers/`, after which the server must
+   rebuild before it will see it.
+
+Miss number 3 and the server starts perfectly, logs nothing, and your provider does not
+exist. That failure is why this page exists — the mechanics of getting a jar loaded are
+where first extensions die, long before the interesting code does anything wrong.
+
+:::info Tested against
+
+Keycloak **26.8.0** (`quay.io/keycloak/keycloak:26.8.0`, `start-dev`, H2 dev database, single
+container), built with Temurin JDK 21 and Maven 3.10. Every log line, timing and JSON body
+below is copied from a real run on 2026-10-12. The official
+[Server Developer Guide — Service Provider Interfaces](https://www.keycloak.org/docs/latest/server_development/index.html#_providers)
+is the reference for what the interfaces mean; this page is the order to do it in, the proof
+it worked, and the five ways it silently doesn't.
+
+:::
+
+## What you'll build
+
+An event listener called `hello` that writes one line per login to the server log, takes a
+configurable prefix, and reports its own version on the server's Provider info page. It is
+deliberately trivial — the point is the loop from empty directory to running server, which is
+identical whether the provider is ten lines or ten thousand.
+
+## 139 SPIs, and why yours will be called "internal"
+
+Ask a running server what it can be extended with:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh get serverinfo \
+  | jq '.providers | keys | length'
+```
+
+On a stock 26.8.0 container that is **139** SPIs. Of those, **131 are marked internal** and
+8 are public:
+
+| Public SPI | Shipped implementations |
+|---|---|
+| `componentFactory` | `default` |
+| `hostname` | `v2` |
+| `localeSelector` | `default` |
+| `localeUpdater` | `default` |
+| `storage` | `kerberos`, `ldap` |
+| `themeResource` | `flat-classpath` |
+| `themeSelector` | `default` |
+| `x509cert-lookup` | `apache`, `default`, `envoy`, `haproxy`, `nginx`, `quarkus` |
+
+Every SPI people actually extend — authenticators, event listeners, protocol mappers,
+required actions, custom REST endpoints — is in the other 131. So the first time you deploy
+a provider you get this, and it is not an error:
+
+```
+WARN [org.keycloak.services] (build-8) KC-SERVICES0047: hello
+(io.example.keycloak.HelloEventListenerProviderFactory) is implementing the internal SPI
+eventsListener. This SPI is internal and may change without notice
+```
+
+Treat it as the opposite of a problem: **it is the first proof that your factory was
+found**. What it does tell you honestly is that these interfaces can change in a minor
+release, so pin your Keycloak version in the build and re-test on upgrade.
+
+## 1. The pom that compiles
+
+Four dependencies, all `provided` — the server supplies them at runtime and bundling them
+causes classloader problems rather than solving them.
+
+```xml title="pom.xml"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.example</groupId>
+  <artifactId>hello-spi</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <keycloak.version>26.8.0</keycloak.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-parent</artifactId>
+        <version>${keycloak.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi-private</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
+```
+
+Two things about that file are not obvious and both cost a compile error:
+
+**You get no transitive dependencies.** Keycloak's own artifacts declare their dependencies
+as `provided`, so `mvn dependency:tree` on a project that lists only `keycloak-server-spi`
+prints exactly two lines and nothing else. Every package you import has to be named. For a
+first extension the map is short:
+
+| You import | Comes from |
+|---|---|
+| `org.keycloak.provider.ProviderFactory`, `org.keycloak.models.KeycloakSession` | `keycloak-server-spi` |
+| `org.keycloak.events.*`, `org.keycloak.provider.ServerInfoAwareProviderFactory` | `keycloak-server-spi-private` |
+| `org.keycloak.Config` | `keycloak-core` |
+| `org.jboss.logging.Logger` | `jboss-logging` |
+
+`org.keycloak.Config` catching people out is the common one — `init(Config.Scope)` is on
+every factory interface, but the class itself lives in `keycloak-core`, which is not pulled
+in by either SPI artifact.
+
+**Compile for the server's Java version, not yours.** The 26.8.0 container runs Java 21
+(class file version 65). `<maven.compiler.release>21</maven.compiler.release>` is what keeps
+a JDK 25 on your laptop from producing a jar the server refuses — see
+[When it goes wrong](#when-it-goes-wrong) for what that failure looks like.
+
+The `keycloak-parent` BOM import is what lets the dependencies above omit their `<version>`,
+including `jboss-logging`, whose version has to match what the server boots with (3.6.3.Final
+here).
+
+## 2. The provider and the factory
+
+The provider does the work. One instance is created per request, so keep it cheap and keep
+state in the factory.
+
+```java title="src/main/java/io/example/keycloak/HelloEventListenerProvider.java"
+package io.example.keycloak;
+
+import org.jboss.logging.Logger;
+import org.keycloak.events.Event;
+import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.admin.AdminEvent;
+
+public class HelloEventListenerProvider implements EventListenerProvider {
+
+    private static final Logger log = Logger.getLogger(HelloEventListenerProvider.class);
+
+    private final String prefix;
+
+    public HelloEventListenerProvider(String prefix) {
+        this.prefix = prefix;
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        log.infof("%s type=%s realm=%s client=%s user=%s",
+                prefix, event.getType(), event.getRealmName(), event.getClientId(), event.getUserId());
+    }
+
+    @Override
+    public void onEvent(AdminEvent adminEvent, boolean includeRepresentation) {
+        log.infof("%s admin op=%s resource=%s",
+                prefix, adminEvent.getOperationType(), adminEvent.getResourcePath());
+    }
+
+    @Override
+    public void close() {
+    }
+}
+```
+
+The factory is created once per server. `getId()` is the name you will use everywhere —
+in configuration keys, in the realm's listener list, in `serverinfo` — so choose it once and
+never change it.
+
+```java title="src/main/java/io/example/keycloak/HelloEventListenerProviderFactory.java"
+package io.example.keycloak;
+
+import org.keycloak.Config;
+import org.keycloak.events.EventListenerProvider;
+import org.keycloak.events.EventListenerProviderFactory;
+import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.provider.ServerInfoAwareProviderFactory;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class HelloEventListenerProviderFactory
+        implements EventListenerProviderFactory, ServerInfoAwareProviderFactory {
+
+    public static final String ID = "hello";
+
+    private String prefix;
+
+    @Override
+    public EventListenerProvider create(KeycloakSession session) {
+        return new HelloEventListenerProvider(prefix);
+    }
+
+    @Override
+    public void init(Config.Scope config) {
+        prefix = config.get("prefix", "HELLO");
+    }
+
+    @Override
+    public void postInit(KeycloakSessionFactory factory) {
+    }
+
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public String getId() {
+        return ID;
+    }
+
+    @Override
+    public Map<String, String> getOperationalInfo() {
+        Map<String, String> info = new LinkedHashMap<>();
+        info.put("version", "1.0.0");
+        info.put("prefix", prefix);
+        return info;
+    }
+}
+```
+
+`ServerInfoAwareProviderFactory` is optional and you should implement it anyway. It is five
+lines, and it converts "is my jar loaded?" from a guess into a query — including *which build*
+is loaded and *what configuration it resolved*. Step 5 and the stale-jar failure below both
+depend on it.
+
+## 3. The file everyone forgets
+
+The service file's **name** is the fully-qualified factory *interface*; its **contents** are
+your factory *implementation*. Getting that the wrong way round is as silent as omitting it.
+
+```bash
+mkdir -p src/main/resources/META-INF/services
+echo io.example.keycloak.HelloEventListenerProviderFactory \
+  > src/main/resources/META-INF/services/org.keycloak.events.EventListenerProviderFactory
+```
+
+Build it:
+
+```bash
+mvn -q package
+unzip -l target/hello-spi-1.0.0.jar
+```
+
+```
+       54  META-INF/services/org.keycloak.events.EventListenerProviderFactory
+     1756  io/example/keycloak/HelloEventListenerProvider.class
+     2255  io/example/keycloak/HelloEventListenerProviderFactory.class
+```
+
+4,431 bytes, 14 entries, no dependencies inside it. That is what a correctly built Keycloak
+extension looks like. **If the `META-INF/services` line is missing from that listing, stop
+here** — nothing downstream will tell you about it.
+
+## 4. Deploy it
+
+Mount a directory over `/opt/keycloak/providers` so you can swap jars without rebuilding
+the image:
+
+```bash
+mkdir -p ~/kc-providers
+cp target/hello-spi-1.0.0.jar ~/kc-providers/
+
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -v ~/kc-providers:/opt/keycloak/providers \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+`start-dev` runs the build step for you when it detects that providers or build-time options
+changed. You will see it announce itself:
+
+```
+Updating the configuration and installing your custom providers, if any. Please wait.
+...
+WARN [org.keycloak.services] KC-SERVICES0047: hello (io.example.keycloak.HelloEventListenerProviderFactory)
+     is implementing the internal SPI eventsListener...
+INFO [io.quarkus.deployment.QuarkusAugmentor] (main) Quarkus augmentation completed in 10250ms
+INFO [io.quarkus] (main) Keycloak 26.8.0 on JVM started in 8.633s
+```
+
+On a production distribution you run that step yourself with `bin/kc.sh build` after copying
+the jar. Either way, **copying a jar is not deploying it** — until the rebuild runs, the
+server's view of its own providers is whatever it was at the last build.
+
+## 5. Prove it loaded — three checks
+
+Do all three. They fail independently.
+
+**Check one: the server lists it.** `getOperationalInfo()` pays for itself here.
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh config credentials \
+  --server http://localhost:8080 --realm master --user admin --password admin
+docker exec kc /opt/keycloak/bin/kcadm.sh get serverinfo \
+  | jq '.providers.eventsListener.providers'
+```
+
+```json
+{
+  "workflow-event-listener": { "order": 0 },
+  "hello": {
+    "order": 0,
+    "operationalInfo": { "version": "1.0.0", "prefix": "HELLO" }
+  },
+  "jboss-logging": { "order": 0 },
+  "email": { "order": 0 }
+}
+```
+
+The same list is in the admin console under **Realm info → Provider info** on the master
+realm. Note that `kcadm.sh get serverinfo --fields providers` returns `{ "providers": { } }`
+— the `--fields` filter does not descend into nested maps, so pipe the whole document through
+`jq` instead.
+
+**Check two: the log line.** The `KC-SERVICES0047` warning at startup means the
+`ServiceLoader` found your class. No warning, no provider.
+
+**Check three: it actually runs.** Covered in step 7, once a realm is pointed at it. A
+provider can be registered and never invoked, which looks exactly like a provider that was
+never registered.
+
+## 6. Configure it without recompiling
+
+`init(Config.Scope)` reads options named after the SPI and your factory id. The 26.x syntax
+uses **double dashes as separators** between the three parts:
+
+```
+--spi-<spi-name>--<provider-id>--<option>=<value>
+     events-listener     hello      prefix
+```
+
+The SPI name is the camelCase name from `serverinfo` (`eventsListener`) converted to
+kebab-case (`events-listener`). Two equivalent ways to set it, both verified:
+
+```bash
+# as a command-line argument
+docker run ... quay.io/keycloak/keycloak:26.8.0 start-dev \
+  --spi-events-listener--hello--prefix=P2
+
+# as an environment variable: upper case, dashes to underscores
+docker run ... -e KC_SPI_EVENTS_LISTENER__HELLO__PREFIX=ENVVAR ...
+```
+
+Read the result back rather than assuming — a misspelled option name is accepted in silence
+and your default stays in place:
+
+```json
+"hello": { "order": 0, "operationalInfo": { "version": "1.0.0", "prefix": "P2" } }
+```
+
+The same mechanism disables a provider entirely: `--spi-events-listener--hello--enabled=false`.
+
+## 7. Turn it on for a realm
+
+Being loaded is not being used. An event listener runs only for realms that list it.
+
+**Admin console:** Realm settings → **Events** → **Event listeners**, add `hello`, Save. The
+user-events and admin-events toggles on the neighbouring tabs control whether events are
+generated at all.
+
+**`kcadm.sh`:**
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh update events/config -r master \
+  -s 'eventsEnabled=true' \
+  -s 'adminEventsEnabled=true' \
+  -s 'eventsListeners=["jboss-logging","hello"]'
+```
+
+That `eventsListeners` array **replaces** the existing list, so include every listener you
+want to keep. Trigger a login and a failure:
+
+```bash
+curl -s -o /dev/null -d client_id=admin-cli -d username=admin -d password=admin \
+  -d grant_type=password http://localhost:8080/realms/master/protocol/openid-connect/token
+curl -s -o /dev/null -d client_id=admin-cli -d username=admin -d password=nope \
+  -d grant_type=password http://localhost:8080/realms/master/protocol/openid-connect/token
+docker logs kc 2>&1 | grep HelloEventListenerProvider
+```
+
+```
+INFO [io.example.keycloak.HelloEventListenerProvider] (executor-thread-1) HELLO admin op=UPDATE resource=events/config
+INFO [io.example.keycloak.HelloEventListenerProvider] (executor-thread-1) HELLO type=LOGIN realm=master client=admin-cli user=c66f2a4e-5b54-4472-9113-c9daafef85f4
+INFO [io.example.keycloak.HelloEventListenerProvider] (executor-thread-1) HELLO type=LOGIN_ERROR realm=master client=admin-cli user=c66f2a4e-5b54-4472-9113-c9daafef85f4
+```
+
+Note the thread name: `onEvent` runs **inline on the request thread**. Anything slow in there
+— an HTTP call, a blocking write — is latency on every login. That constraint is the whole
+design problem of a real event listener, and the reason
+[Keycloak's default event store needs replacing at scale](/blog/scaling-keycloak-event-storage/).
+
+## 8. The edit–build–restart loop, measured
+
+There is no hot reload for providers. The loop is a rebuild, and these are the numbers from
+this run:
+
+| Step | Time |
+|---|---|
+| `mvn package` (incremental, 2 classes) | 5s |
+| `docker restart` → server answering, **jar changed** | 25s |
+| `docker restart` → server answering, **nothing changed** | 9s |
+| Full edit → verified change live | **30s** |
+
+The difference between rows 2 and 3 is the Quarkus augmentation: ~10s, plus a slower first
+start. `start-dev` skips it entirely when neither the providers directory nor any build-time
+option has changed — if you see "Updating the configuration and installing your custom
+providers" on a restart where you changed nothing, something *did* change, and it is worth
+finding out what.
+
+Thirty seconds per iteration is tolerable for packaging work and miserable for logic bugs.
+For those, attach a debugger instead and keep the server up:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 -p 127.0.0.1:8787:8787 \
+  -v ~/kc-providers:/opt/keycloak/providers \
+  -e DEBUG=true -e DEBUG_PORT='*:8787' \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.0 start-dev
+```
+
+```
+Listening for transport dt_socket at address: 8787
+```
+
+Attach your IDE to `localhost:8787` as a remote JVM and put a breakpoint in `onEvent`.
+
+## 9. Ship it: bake the provider into an image
+
+For anything beyond your laptop, do the build once at image-build time and run with
+`--optimized`, so a server that is starting cannot decide to re-augment itself:
+
+```dockerfile title="Dockerfile"
+FROM quay.io/keycloak/keycloak:26.8.0 AS builder
+COPY hello-spi-1.0.0.jar /opt/keycloak/providers/
+RUN /opt/keycloak/bin/kc.sh build --db=dev-file
+
+FROM quay.io/keycloak/keycloak:26.8.0
+COPY --from=builder /opt/keycloak/ /opt/keycloak/
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+```
+
+```bash
+docker build -t hello-spi-kc:26.8.0 .
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_SPI_EVENTS_LISTENER__HELLO__PREFIX=OPTIMIZED \
+  hello-spi-kc:26.8.0 start --optimized --hostname-strict=false --http-enabled=true
+```
+
+Startup logs contain **no** augmentation lines at all, and `serverinfo` reports
+`"prefix": "OPTIMIZED"` — proving that `--spi-…` options are read at *runtime* even though
+the provider was registered at *build* time. Set `--db`, `--features` and the other
+build-time options in the `kc.sh build` line; everything else can stay in the environment.
+
+The guard rail is worth knowing. Run that image with the providers directory emptied — a
+volume mount shadowing it, a Helm chart that forgot the jar — and 26.8.0 refuses to start:
+
+```
+A provider JAR was updated since the last build, please rebuild for this to be fully utilized.
+```
+
+Exit code 2, no stack trace, nothing started. That is the good outcome: the alternative is a
+cluster running happily with your authenticator missing.
+
+## When it goes wrong
+
+**Server starts, provider absent, log says nothing.** The `META-INF/services` file is
+missing, misnamed, or names a class that is not in the jar. This is the one that burns an
+afternoon, because every signal is green: the container is healthy, there is no warning, and
+`serverinfo` simply has no entry under your SPI. `unzip -l` the jar and check the file is
+there and spelled as the *interface*.
+
+**Container exits 1 with a class file version error.**
+
+```
+ERROR: io/example/keycloak/HelloEventListenerProviderFactory has been compiled by a more
+recent version of the Java Runtime (class file version 69.0), this version of the Java
+Runtime only recognizes class file versions up to 65.0
+```
+
+Your JDK is newer than the server's. 26.8.0 runs Java 21 — class file 65. Set
+`<maven.compiler.release>21</maven.compiler.release>` rather than trusting whatever JDK your
+shell picked up; the stack trace above this line runs through
+`java.util.ServiceLoader` and `DefaultProviderLoader`, which is a useful tell that the
+problem is your jar and not the server.
+
+**An old build is running and you can prove you deployed the new one.** Two jars are in
+`providers/`. Copying `hello-spi-1.0.1.jar` next to `hello-spi-1.0.0.jar` does not replace
+anything, and the only hint is a warning most people scroll past:
+
+```
+WARN [io.quarkus.arc.deployment.SplitPackageProcessor] Detected a split package usage ...
+- "io.example.keycloak" found in [/opt/keycloak/providers/hello-spi-0.9.0.jar,
+                                 /opt/keycloak/providers/hello-spi-1.0.0.jar]
+```
+
+In both runs we tried, the **alphabetically first filename won** — so `0.9.0` beat `1.0.0`,
+and `serverinfo` reported `"version": "0.9.0-STALE"` while the current jar sat untouched
+beside it. Delete before you copy, and put a version string in `getOperationalInfo()` so the
+server can tell you which build it is actually running.
+
+**`KC-SERVICES0047 … is implementing the internal SPI`.** Expected. 131 of 139 SPIs are
+internal. It is a compatibility warning, not a deployment error.
+
+**The provider is listed but never runs.** It is loaded and the realm has not been told to
+use it. For event listeners that is the `eventsListeners` array in step 7; for authenticators
+it is a binding in a flow; for required actions it is the Required actions tab. Loading and
+wiring are separate steps for every SPI.
+
+**`NoSuchFileException` on startup after removing a jar.** Older versions failed this way,
+and the documented fix is `./kc.sh -Dquarkus.launch.rebuild=true --help` followed by a fresh
+build. On 26.8.0 we got the readable "A provider JAR was updated since the last build"
+message instead.
+
+## When not to write an SPI
+
+An SPI is a maintenance commitment against interfaces that are explicitly allowed to change
+in a minor release. Before taking it on, check whether the configuration already exists:
+
+| You want to | Try first |
+|---|---|
+| React to logins, registrations, admin changes | Realm **Events** config, or [Keycloak Workflows](/tutorials/workflows/getting-started/) for lifecycle automation |
+| Add or reshape a token claim | A built-in [protocol mapper](/tutorials/getting-started/your-first-token/) on a client scope |
+| Change the order of authentication steps | A [custom authentication flow](/tutorials/authentication/custom-flows/) — no code at all |
+| Restrict what an admin can do | [Fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/) |
+| Change how a page looks | A theme, not a provider |
+
+Write an SPI when the behaviour you need genuinely is not expressible in configuration: a
+credential type Keycloak does not have, a user store it cannot federate, an event
+destination with real delivery semantics. Then pin the version, keep the provider thin, and
+put the logic somewhere you can unit test without a server.
+
+## Next steps
+
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) — the
+  server this page deploys onto, in more detail.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
+  where a custom authenticator would plug in, once you can package one.
+- [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+  — the no-code answer to a large share of "I need an event listener" problems.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  read before writing a protocol mapper.
+- [Scaling Keycloak event storage](/blog/scaling-keycloak-event-storage/) — what a serious
+  event listener has to deal with, and why `onEvent` running inline matters.
+- [Keycloak as an identity and access management system](/docs/keycloak/iam/) — where
+  extension points sit in the wider model.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Service Provider Interfaces](https://www.keycloak.org/docs/latest/server_development/index.html#_providers),
+  [registering provider implementations](https://www.keycloak.org/docs/latest/server_development/index.html#registering-provider-implementations),
+  and [configuring providers](https://www.keycloak.org/server/configuration-provider).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
