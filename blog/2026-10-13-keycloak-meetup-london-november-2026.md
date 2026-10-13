@@ -30,7 +30,7 @@ keywords: [keycloak meetup london, keycloak user group uk, keycloak event london
 
 ## What's actually planned
 
-Short talks, workshops on Keycloak topics, and an open discussion. **The speaker list is not published yet**, so we are not going to pretend we know what the talks are. The format is deliberately loose: this is the first one, and the point of a first meetup is to find out what the people in the room actually want from it.
+Short talks, workshops on Keycloak topics, and an open discussion. **The speaker list is not published yet**. If you have a topic you'd like to hear more about, or have a talk ready to go, reach out to us. The format is deliberately loose: this is the first one, and the point of a first meetup is to find out what the people in the room actually want from it.
 
 What that means in practice is that the open discussion is likely to be the most useful hour of the afternoon, and it is worth turning up with a specific question rather than a general interest. The things people tend to want to compare notes on:
 
