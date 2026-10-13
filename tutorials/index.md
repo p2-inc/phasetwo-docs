@@ -114,6 +114,15 @@ giving them the realm:
 
 Realm keys, auditing and the `kcadm` cookbook build on that one. *(Coming soon.)*
 
+**Authorizing AI agents and MCP servers** — the tokens an agent presents, and what your
+server has to check before trusting one:
+
+1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+2. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+3. [Secure an MCP server with Keycloak](/tutorials/emerging/mcp-server-auth/)
+
+Token exchange and agent delegation build on the same audience rules. *(Coming soon.)*
+
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
 ## A note on scope
