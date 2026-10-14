@@ -100,5 +100,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["emerging/mcp-server-auth"],
     },
+    {
+      type: "category",
+      label: "Extending Keycloak",
+      link: { type: "generated-index" },
+      items: ["extending/first-spi"],
+    },
   ],
 };

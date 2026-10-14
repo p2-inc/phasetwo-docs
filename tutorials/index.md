@@ -123,6 +123,17 @@ server has to check before trusting one:
 
 Token exchange and agent delegation build on the same audience rules. *(Coming soon.)*
 
+**Extending Keycloak with your own code** — when the configuration runs out, a provider jar
+is the next step:
+
+1. [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/)
+2. [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
+   how far you get without writing any code
+3. [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/)
+
+Custom authenticators, event listeners, user storage and REST endpoints all build on that
+last one. *(Coming soon.)*
+
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
 ## A note on scope
