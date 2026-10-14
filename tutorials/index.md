@@ -70,6 +70,16 @@ Step-up authentication and magic links are next. *(Coming soon.)*
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 
+**Storing data on a user** — what Keycloak will and will not keep on an account, and why a
+custom attribute goes missing:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/)
+3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+
+Validators, progressive profiling and the registration form build on the second one.
+*(Coming soon.)*
+
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
 account list honest:
 
@@ -103,6 +113,15 @@ giving them the realm:
 2. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
 
 Realm keys, auditing and the `kcadm` cookbook build on that one. *(Coming soon.)*
+
+**Authorizing AI agents and MCP servers** — the tokens an agent presents, and what your
+server has to check before trusting one:
+
+1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+2. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+3. [Secure an MCP server with Keycloak](/tutorials/emerging/mcp-server-auth/)
+
+Token exchange and agent delegation build on the same audience rules. *(Coming soon.)*
 
 **Extending Keycloak with your own code** — when the configuration runs out, a provider jar
 is the next step:
