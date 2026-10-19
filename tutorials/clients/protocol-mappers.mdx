@@ -1,0 +1,442 @@
+---
+id: protocol-mappers
+title: "Keycloak Protocol Mappers: A Complete Field Guide"
+description: Every built-in Keycloak protocol mapper, what it emits, its priority, and where to put it — with measured token sizes and the five ways a mapper fails silently.
+keywords:
+  - keycloak protocol mappers
+  - keycloak protocol mapper
+  - keycloak add claim to token
+  - keycloak custom claim
+  - keycloak token mapper
+  - keycloak mapper priority
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl`, `jq` and `kcadm.sh`
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Protocol Mappers: A Complete Field Guide
+
+A **protocol mapper** is the only thing that puts a claim in a Keycloak token. Storing an
+attribute on a user does not emit it; adding a user to a group does not emit it; granting a
+role emits it only because a mapper in the built-in `roles` client scope is already doing the
+work. Keycloak 26.8.1 ships **24 OIDC protocol mappers and 14 SAML ones**, each mapper lives
+either on one client or on a shared client scope, and each carries a fixed **priority** that
+decides which mapper wins when two write the same claim.
+
+This page is the list the official documentation does not print. Its
+[OIDC token and SAML assertion mappings](https://www.keycloak.org/docs/latest/server_admin/index.html#_protocol-mappers)
+chapter says "the function of a mapper should be self-explanatory from its name", and its
+*Priority order* section explains that priorities exist without publishing a single value.
+Everything below was read out of a running server and tested against it.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`), on **2026-10-19**. Every
+mapper id, priority, default switch, byte count and log line below was read from that server,
+not from documentation. The mapper inventory comes from `GET /admin/serverinfo`, so you can
+re-run it against your own version and diff the result.
+
+:::
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+Then a realm with something to map — a user with a custom attribute, a group, a realm role
+and a client role:
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+$K create realms -s realm=mappers -s enabled=true
+$K create clients -r mappers -s clientId=field-guide -s publicClient=false \
+  -s secret=secret -s directAccessGrantsEnabled=true
+$K create clients -r mappers -s clientId=billing -s publicClient=false -s secret=secret
+```
+
+Declare the custom attributes in the realm's user profile **before** creating the user.
+On Keycloak 26 an attribute the user profile does not know about is discarded on write, with
+a 2xx and no warning — see
+[managed vs unmanaged attributes](/tutorials/users/user-profile/) for the whole trap.
+
+```bash
+docker exec -i kc tee /tmp/profile.json >/dev/null <<'JSON'
+{"attributes":[
+ {"name":"username","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"email","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"firstName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"lastName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"department","permissions":{"view":["admin","user"],"edit":["admin"]}},
+ {"name":"team","multivalued":true,"permissions":{"view":["admin","user"],"edit":["admin"]}}
+],"groups":[]}
+JSON
+$K update users/profile -r mappers -f /tmp/profile.json
+
+$K create users -r mappers -s username=ada -s enabled=true \
+  -s email=ada@example.com -s firstName=Ada -s lastName=Lovelace \
+  -s emailVerified=true \
+  -s 'attributes.department=["platform"]' -s 'attributes.team=["sre","identity"]'
+$K set-password -r mappers --username ada --new-password pass
+```
+
+Get a token at any point with:
+
+```bash
+curl -s -d client_id=field-guide -d client_secret=secret \
+  -d username=ada -d password=pass -d grant_type=password -d scope=openid \
+  http://127.0.0.1:8080/realms/mappers/protocol/openid-connect/token \
+  | jq -r .access_token | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+```
+
+## Every OIDC protocol mapper in Keycloak 26.8.1
+
+Sorted by priority — the order in which they actually run. `id`, `access`, `userinfo`,
+`intro` and `lw` are the five destination switches and the column shows each mapper's
+**default**; `—` means the mapper does not offer that switch at all.
+
+| Mapper id | Admin console name | Prio | What it emits | id / access / userinfo / intro / lw |
+|---|---|---|---|---|
+| `oidc-sub-mapper` | Subject (sub) | **-10** | `sub` — the user id. Runs first so anything else can overwrite it | — / on / — / on / off |
+| `oidc-acr-mapper` | Authentication Context Class Reference (ACR) | 0 | `acr`, the achieved level of authentication | on / on / — / on / off |
+| `oidc-address-mapper` | User Address | 0 | the OIDC `address` object from six separate user attributes | on / on / on / on / off |
+| `oidc-allowed-origins-mapper` | Allowed Web Origins | 0 | `allowed-origins` from the client's Web Origins | — / on / — / on / off |
+| `oidc-amr-mapper` | Authentication Method Reference (AMR) | 0 | `amr` — how the user actually authenticated | on / on / — / — / off |
+| `oidc-audience-mapper` | Audience | 0 | adds one named client, or a literal string, to `aud` | off / on / — / on / off |
+| `oidc-claims-param-token-mapper` | Claims parameter Token | 0 | honours the OIDC `claims` request parameter | on / — / on / — / — |
+| `oidc-claims-param-value-idtoken-mapper` | Claims parameter with value ID Token | 0 | the `claims` parameter's value form, ID token only | on / — / — / — / — |
+| `oidc-full-name-mapper` | User's full name | 0 | `name`, as first + space + last | on / on / on / on / off |
+| `oidc-group-membership-mapper` | Group Membership | 0 | group names, full path or leaf name | on / on / on / on / off |
+| `oidc-hardcoded-claim-mapper` | Hardcoded claim | 0 | a constant. The one mapper whose value never depends on the user | on / on / on / on / off |
+| `oidc-nonce-backwards-compatible-mapper` | Nonce backwards compatible | 0 | `nonce` on access and refresh tokens, for pre-24 clients | — / — / — / — / — |
+| `oidc-organization-membership-mapper` | Organization Membership | 0 | `organization`, optionally with id, domain and attributes | on / on / on / on / off |
+| `oidc-session-state-mapper` | Session State (session_state) | 0 | `session_state`, the legacy sibling of `sid` | on / on / on / on / off |
+| `oidc-sha256-pairwise-sub-mapper` | Pairwise subject identifier | 0 | a salted SHA-256 `sub`, different per sector identifier | — / — / — / — / — |
+| `oidc-usermodel-attribute-mapper` | User Attribute | 0 | **the workhorse.** Any user-profile attribute, to any claim | on / on / on / on / off |
+| `oidc-usermodel-property-mapper` | User Property | 0 | only the built-in fields — `email`, `firstName`, `lastName`, `emailVerified`, `id` | on / on / on / on / off |
+| `oidc-usersessionmodel-note-mapper` | User Session Note | 0 | a session note: `auth_time`, impersonator id, service-account client host | on / on / on / on / off |
+| `oidc-organization-group-membership-mapper` | Organization Group Membership | 10 | organization-scoped group membership | on / on / on / on / off |
+| `oidc-role-name-mapper` | Role Name Mapper | 10 | renames one role in the token. Does not add it | — / — / — / — / — |
+| `oidc-hardcoded-role-mapper` | Hardcoded Role | 20 | grants a role in the token that the user does not hold | — / — / — / — / — |
+| `oidc-audience-resolve-mapper` | Audience Resolve | **30** | every client the user holds a client role on, into `aud` | — / on / — / on / off |
+| `oidc-usermodel-client-role-mapper` | User Client Role | **40** | client roles, by default into `resource_access.*.roles` | on / on / on / on / off |
+| `oidc-usermodel-realm-role-mapper` | User Realm Role | **40** | realm roles, by default into `realm_access.roles` | on / on / on / on / off |
+
+Three things to take from the shape of that table.
+
+**The priorities are not decorative.** Role mappers run at 40 so that Audience Resolve at 30
+has already computed audiences, and `sub` runs at -10 so the pairwise mapper at 0 can
+overwrite it — which is why the docs note you do not have to delete the built-in `sub` mapper
+to use pairwise identifiers.
+
+**Five mappers have no destination switches at all.** `oidc-role-name-mapper`,
+`oidc-hardcoded-role-mapper` and `oidc-sha256-pairwise-sub-mapper` modify something another
+mapper will later emit; they are transforms, not emitters. Looking for the "Add to ID token"
+toggle on one of them is a dead end.
+
+**`User Property` is not a cheaper `User Attribute`.** It reads the five built-in columns on
+the user record only. For anything you declared in the user profile, you want
+`oidc-usermodel-attribute-mapper`.
+
+:::note The Script Mapper is not in this list
+
+The documentation describes a *Script Mapper*. It does not appear among the 24, and enabling
+the `scripts` preview feature does not add it — we checked, the count stays at 24. A script
+mapper type is registered only once you **deploy a script provider JAR** to
+`/opt/keycloak/providers/`. Until then there is nothing to select.
+
+:::
+
+For SAML clients the equivalent set is 14 mappers — `saml-user-attribute-mapper`,
+`saml-role-list-mapper`, `saml-group-membership-mapper`, `saml-audience-mapper` and so on.
+All sit at priority 0 except `saml-organization-group-membership-mapper` at 10, so collisions
+between SAML mappers are resolved by nothing you can configure. Read your own server's list
+with:
+
+```bash
+$K get serverinfo --fields 'protocolMapperTypes(saml(id,name,priority))'
+```
+
+## Where should the mapper live?
+
+This is the decision the docs do not frame, and the one that causes duplicate claims. There
+are three places, and they differ in *who gets the claim* and *when*:
+
+| Put it on | Reaches | Fires | Use when |
+|---|---|---|---|
+| The client's **dedicated** scope (`<client>-dedicated`) | that one client | always | the claim is meaningful only to this application |
+| A **shared** client scope, attached as **default** | every client the scope is attached to | always | three services need the same claim and you do not want three copies |
+| A **shared** client scope, attached as **optional** | those clients | **only when the client asks for it by name** in the `scope` parameter | the claim is sensitive, large, or wanted by one caller in ten |
+
+The optional case is worth measuring, because "I added the mapper and the claim isn't there"
+is nearly always this:
+
+```bash
+SC=$($K create client-scopes -r mappers -s name=finance -s protocol=openid-connect \
+  -s 'attributes."include.in.token.scope"=true' -i)
+$K create client-scopes/$SC/protocol-mappers/models -r mappers \
+  -s name=cost-center -s protocol=openid-connect \
+  -s protocolMapper=oidc-hardcoded-claim-mapper \
+  -s 'config."claim.name"=cost_center' -s 'config."claim.value"=CC-4471' \
+  -s 'config."jsonType.label"=String' -s 'config."access.token.claim"=true'
+FG=$($K get clients -r mappers -q clientId=field-guide --fields id --format csv --noquotes)
+$K update clients/$FG/optional-client-scopes/$SC -r mappers
+```
+
+```
+scope=openid            scope claim: "openid email profile"           cost_center absent
+scope=openid finance    scope claim: "openid finance email profile"   cost_center "CC-4471"
+```
+
+In the admin console the same three places are **Clients → _client_ → Client scopes →
+`<client>-dedicated` → Add mapper**, and **Client scopes → _scope_ → Mappers** for the shared
+ones, with the Default/Optional choice made on the client's **Client scopes** tab.
+
+### Check what you already emit before adding anything
+
+A brand-new OIDC client is not empty. On a stock realm it inherits six default client scopes
+carrying **23 mappers that always run**, plus five optional scopes carrying six more. Nothing
+in the console tells you that before you add the 24th. List yours first:
+
+```bash
+for s in profile email roles basic web-origins acr \
+         phone address microprofile-jwt organization offline_access; do
+  echo "== $s"
+  ID=$($K get client-scopes -r mappers --fields id,name --format csv --noquotes \
+       | grep ",$s$" | cut -d, -f1)
+  $K get client-scopes/$ID/protocol-mappers/models -r mappers \
+    --fields name,protocolMapper --format csv --noquotes
+done
+```
+
+`profile` is 14 of the 23 on its own — `preferred_username`, `name`, `given_name`,
+`family_name`, `locale` and nine more. `roles` holds three: `realm_access.roles`,
+`resource_access.${client_id}.roles` **and** Audience Resolve. `basic` holds `sub` and
+`auth_time`. `offline_access` holds none. A second mapper writing `preferred_username` does
+not error — it produces a race you will read about in the next section.
+
+## The five destination switches
+
+Every emitting mapper has up to five booleans, and they are independent. Measured on one
+`oidc-usermodel-attribute-mapper` for `department`:
+
+| Switch | Config key | Effect when on |
+|---|---|---|
+| Add to ID token | `id.token.claim` | claim appears in `id_token` |
+| Add to access token | `access.token.claim` | claim appears in the access token |
+| Add to userinfo | `userinfo.token.claim` | claim returned by `/protocol/openid-connect/userinfo` |
+| Add to token introspection | `introspection.token.claim` | claim returned by `/token/introspect` |
+| Add to lightweight access token | `lightweight.claim` | claim survives when the client issues lightweight tokens (default **off**) |
+
+Two measured surprises.
+
+**Introspection is not gated the way you expect on a normal token.** With
+`introspection.token.claim` left unset, `team`, `groups_full` and the rest still came back
+from `/token/introspect`, because introspection of a *regular* access token reflects the
+token's own contents. The switch earns its keep only for lightweight tokens, where the point
+is a claim that is absent from the token but available on introspection.
+
+**UserInfo is the strictest surface.** A claim with only `access.token.claim=true` is absent
+from `/userinfo` even though the bearer token presented to it carries the claim.
+
+## Priority order, measured
+
+The docs state that mappers run lowest priority first and that priority belongs to the
+implementation, not the configuration. What follows from that — and is not stated anywhere —
+is that **when two mappers write the same claim, the higher priority number wins**, because
+it runs later and overwrites.
+
+Two mappers on claim `prio`, a hardcoded claim (priority 0) and a realm role mapper
+(priority 40):
+
+```
+"prio": ["offline_access","analyst","uma_authorization","default-roles-mappers"]
+```
+
+The role mapper won on all three runs. The hardcoded value never appeared.
+
+Now the case that matters more, because it is the one people create by accident — **two
+mappers at the same priority**. A hardcoded claim and a user attribute mapper, both priority
+0, both writing `collision`:
+
+```
+run 1  "collision": "platform"       <- the attribute mapper won
+run 2  "collision": "platform"
+run 3  "collision": "platform"
+```
+
+Stable, so far so good. Then we deleted both and recreated them with the names swapped, so
+the hardcoded mapper now sorts last alphabetically **and** was created last:
+
+```
+run 1-5  "collision": "platform"     <- the attribute mapper won again
+```
+
+Neither the mapper name nor the creation order changed the outcome. There is no setting that
+does. The practical rule is not "learn the tiebreak" — it is **never create one**. Two
+mappers on one claim name is a bug whichever one happens to win today.
+
+## Getting the value right: `jsonType.label` and `multivalued`
+
+`jsonType.label` decides the JSON type of the emitted claim. Six hardcoded mappers, all with
+`claim.value` set, differing only in the type label:
+
+| `jsonType.label` | `claim.value` | Emitted |
+|---|---|---|
+| `String` | `42` | `"42"` |
+| *(unset)* | `42` | `"42"` — string is the default |
+| `int` | `42` | `42` |
+| `long` | `42` | `42` |
+| `boolean` | `true` | `true` |
+| `JSON` | `{"tier":"gold","seats":5}` | `{"tier": "gold", "seats": 5}` — parsed, not escaped |
+| `int` | `not-a-number` | **claim absent. No error, no log line.** |
+
+That last row is the sharp edge. A cast that fails drops the claim silently, and nothing in
+the server log records it — we grepped. If a numeric claim is intermittently missing,
+suspect a value that is not numeric for some users rather than the mapper.
+
+`multivalued` is the matching trap on the attribute side. The user above has
+`team = ["sre","identity"]`:
+
+```
+multivalued unset  ->  "team_wrong": "sre"          first value only
+multivalued true   ->  "team": ["sre","identity"]
+```
+
+This one *does* log, and the line is worth knowing by sight:
+
+```
+WARN [org.keycloak.services] KC-SERVICES0046: Multiple values found '[sre, identity]'
+for protocol mapper 'team-wrong' but expected just single value
+```
+
+### Dotted claim names nest
+
+A `claim.name` containing a dot produces a nested object. To get a literal dot in the key,
+escape it with a backslash:
+
+| `claim.name` | Emitted |
+|---|---|
+| `acme.org.dept` | `{"acme": {"org": {"dept": "platform"}}}` |
+| `acme\.flat` | `{"acme.flat": "platform"}` |
+
+Namespaced claims like `https://acme.example/dept` therefore need escaping on every dot, or
+Keycloak builds you a four-level object.
+
+## What mappers cost: measured token sizes
+
+Access token size is the reason to care about which mappers are on. Same realm, same user,
+`scope=openid`, mappers added one at a time:
+
+| Configuration | Access token | Claims |
+|---|---|---|
+| Stock confidential client, default scopes only | **1,293 bytes** | 19 |
+| + User Attribute (`department`) | 1,325 bytes | 20 |
+| + Group Membership, full path | 1,371 bytes | 21 |
+| + Audience (the client itself) | 1,382 bytes | 21 |
+| Same client, **lightweight access token** | **751 bytes** | 8 |
+
+Groups and roles are what actually grow a token — a user in forty groups pays for all forty,
+every request. If you are heading for the 8 KB header limit, the lever is a lightweight access
+token, not trimming attributes.
+
+### Lightweight access tokens strip more than PII
+
+Apply the `use-lightweight-access-token` client policy executor and the token drops to eight
+claims. What the docs list as unremovable — `exp`, `iat`, `jti`, `iss`, `typ`, `azp`, `sid`,
+`scope`, `cnf` — is exactly what is left. **`sub` and `aud` are both gone**, which breaks most
+resource servers and breaks introspection. Measured:
+
+```
+lightweight, nothing opted in         751 bytes,  8 claims   (no sub, no aud)
++ lightweight.claim on sub, aud,
+  and the department mapper           882 bytes, 11 claims   (sub, aud, department back)
+```
+
+So the migration to lightweight tokens is not one switch. It is one switch plus an audit of
+every mapper whose claim your services read, setting `lightweight.claim=true` on each —
+including the built-in `sub` mapper, which lives on the **`basic`** client scope, not on your
+client.
+
+## Verify it worked, without logging anyone in
+
+Keycloak will render the exact token a given user would receive, from the admin API. This is
+the fastest mapper debugging tool in the product and almost nobody uses it:
+
+```bash
+U=$($K get users -r mappers -q username=ada --fields id --format csv --noquotes)
+FG=$($K get clients -r mappers -q clientId=field-guide --fields id --format csv --noquotes)
+$K get clients/$FG/evaluate-scopes/generate-example-access-token \
+  -r mappers -q userId=$U -q scope=openid
+```
+
+It applies the full mapper chain, priorities included, and returns the token body. In the
+console it is **Clients → _client_ → Client scopes → Evaluate**. Change `-q scope=...` to see
+what an optional scope adds.
+
+## Troubleshooting
+
+**The claim is missing and the mapper looks right.** In order: is the mapper on a client scope
+attached as *optional* and the client never asks for it; is the user profile actually storing
+the attribute ([check it](/tutorials/users/user-profile/)); is `jsonType.label` set to `int`
+against a non-numeric value; is the destination switch for the surface you are reading set.
+
+**Only the first of several values arrives.** `multivalued` is off. Look for `KC-SERVICES0046`
+in the server log.
+
+**Introspection returns `{"active": false}` on a token you just issued.** The client calling
+`/token/introspect` is not in the token's `aud`. The server logs
+`INTROSPECT_TOKEN_ERROR ... reason="Client 'x' is not in the token audience"`, the HTTP status
+is 200, and the response is indistinguishable from an expired token. Add an
+`oidc-audience-mapper` naming the client itself. The same audience rule is why a valid token
+gets a 401 from a resource server —
+[the aud trap](/tutorials/getting-started/your-first-token/) covers it end to end.
+
+**A client appears in `aud` that you never configured.** `oidc-audience-resolve-mapper`, in
+the default `roles` scope, adds every client the user holds a client role on. In our realm
+`billing` was in `aud` before any audience mapper existed. Adding an explicit Audience mapper
+for a client that already resolves is a no-op.
+
+**A claim changed value after you added an unrelated mapper.** Two mappers are writing it.
+Search every scope attached to the client, not just the dedicated one — the built-in scopes
+are where the other one usually is.
+
+**The server warns about `Full scope allowed`.** Unrelated to mappers but it fires on the same
+request: the client switch is deprecated, and leaving it on means role mappers emit every role
+the user has rather than the ones the client needs. See
+[roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/).
+
+## Next steps
+
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  what the claims a mapper emits actually mean to a consumer.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  the objects the role and group mappers read from.
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — why the
+  attribute a mapper points at is not there.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — the other side of every claim on this page.
+- [Secure an MCP server with Keycloak](/tutorials/emerging/mcp-server-auth/) — audience
+  mapping where getting it wrong is the whole failure mode.
+- [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/),
+  and our [JWT decoder](/tools/jwt-decoder/) to read one while you work.
+- [Keycloak multi-tenancy: realms, groups, or organizations?](/tutorials/authorization/multi-tenancy/)
+  — the objects the two organization mappers read from.
+- Official reference:
+  [OIDC token and SAML assertion mappings](https://www.keycloak.org/docs/latest/server_admin/index.html#_protocol-mappers),
+  [Priority order](https://www.keycloak.org/docs/latest/server_admin/index.html#_protocol-mappers_priority)
+  and [Using lightweight access token](https://www.keycloak.org/docs/latest/server_admin/index.html#_using_lightweight_access_token).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

@@ -96,6 +96,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Clients, scopes, and mappers",
+      link: { type: "generated-index" },
+      items: ["clients/protocol-mappers"],
+    },
+    {
+      type: "category",
       label: "Emerging standards",
       link: { type: "generated-index" },
       items: ["emerging/mcp-server-auth"],
