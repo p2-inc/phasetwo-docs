@@ -58,7 +58,7 @@ module.exports = {
       type: "category",
       label: "Users, profiles, and lifecycle",
       link: { type: "generated-index" },
-      items: ["users/user-profile"],
+      items: ["users/user-profile", "users/personal-data-gdpr"],
     },
     {
       type: "category",

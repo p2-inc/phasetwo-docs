@@ -76,6 +76,7 @@ custom attribute goes missing:
 1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
 2. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/)
 3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+4. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
 
 Validators, progressive profiling and the registration form build on the second one.
 *(Coming soon.)*

@@ -1,0 +1,556 @@
+---
+id: personal-data-gdpr
+title: "What Personal Data Keycloak Stores (and How to Erase It)"
+description: A tested inventory of the personal data Keycloak keeps about a user, what DELETE /users/{id} actually removes, and the three places it leaves behind.
+keywords:
+  - keycloak personal data
+  - keycloak gdpr
+  - keycloak delete user
+  - keycloak right to erasure
+  - keycloak admin events representation
+  - keycloak event_entity
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `kcadm.sh`, `curl`, and reading SQL output
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# What Personal Data Keycloak Stores (and How to Erase It)
+
+Keycloak keeps personal data about a user in **four classes** — profile, credentials,
+sessions, and events — spread across 25 database tables. `DELETE /admin/realms/{realm}/users/{id}`
+removes the first three completely. It does **not** touch the fourth. After deleting a user
+on Keycloak 26.8.1 the realm still held that person's id and IP address in `event_entity`,
+their id in four rows of `admin_event_entity`, and **their email address and phone number in
+plain JSON** inside two stored admin-event representations.
+
+So a complete erasure is four steps, not one:
+
+1. `DELETE /admin/realms/{realm}/users/{id}` — profile, credentials, sessions, consents.
+2. Audit the database for the user id *and* their email address.
+3. Remove the event rows the delete left behind.
+4. Turn off representation capture so the copy is never made again.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`) on **PostgreSQL 16**.
+Every row count, status code and SQL result below is copied from a real run on
+**2026-10-19**. The official
+[Personal data collected by Keycloak](https://www.keycloak.org/docs/latest/server_admin/index.html#ref-personal-data-collected_server_administration_guide)
+section is the reference for *what* Keycloak collects — four bullet points of prose. It names
+no table, no endpoint and no retention setting, and the Server Administration Guide does not
+use the word "erasure" anywhere. This page is the inventory and the procedure.
+
+This is an engineering guide to what the software stores and how to remove it. What your
+organisation is obliged to erase under Article 17, and within what deadline, is a decision
+for whoever holds the controller role — not for this page.
+
+:::
+
+## Build a realm that holds every class
+
+You cannot audit an empty database. This creates a realm, a user with a custom attribute, a
+password, a link to an external identity provider, and one login — which is enough to touch
+every table a normal account touches.
+
+```bash
+docker network create kcnet
+docker run -d --name kcdb --network kcnet \
+  -e POSTGRES_PASSWORD=kc -e POSTGRES_USER=kc -e POSTGRES_DB=keycloak postgres:16
+docker run -d --name kc --network kcnet -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_DB=postgres -e KC_DB_URL="jdbc:postgresql://kcdb:5432/keycloak" \
+  -e KC_DB_USERNAME=kc -e KC_DB_PASSWORD=kc \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+Use Postgres rather than the dev-mode H2 file. The point of this exercise is to look at rows,
+and you want to look at them the way production stores them.
+
+```bash
+alias kcadm='docker exec kc /opt/keycloak/bin/kcadm.sh'
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+kcadm create realms -s realm=erasure-demo -s enabled=true
+kcadm update events/config -r erasure-demo \
+  -s eventsEnabled=true -s adminEventsEnabled=true -s adminEventsDetailsEnabled=true
+```
+
+Those three event switches are off by default. Turn them on here, because the whole second
+half of this page is about what they cost you.
+
+Next, declare the custom attribute in the realm's user profile. Skip this and `phoneNumber`
+is silently discarded on a `201 Created` — see
+[managed vs unmanaged attributes](/tutorials/users/user-profile/) for why:
+
+```bash
+kcadm get users/profile -r erasure-demo > up.json
+jq '.attributes += [{"name":"phoneNumber","displayName":"Phone",
+      "permissions":{"view":["admin","user"],"edit":["admin","user"]},
+      "multivalued":false}]' up.json > up2.json
+docker cp up2.json kc:/tmp/up2.json
+kcadm update users/profile -r erasure-demo -f /tmp/up2.json
+```
+
+Then a client to log in through, and an identity provider for the user to be linked to. The
+provider never has to work — the link row is what we are after:
+
+```bash
+kcadm create clients -r erasure-demo -s clientId=portal -s enabled=true \
+  -s publicClient=true -s directAccessGrantsEnabled=true -s standardFlowEnabled=false
+
+kcadm create identity-provider/instances -r erasure-demo \
+  -s alias=corp-idp -s providerId=oidc -s enabled=true \
+  -s 'config={"clientId":"x","clientSecret":"y",
+       "authorizationUrl":"https://idp.example.de/auth",
+       "tokenUrl":"https://idp.example.de/token"}'
+```
+
+Now the user:
+
+```bash
+USER_ID=$(kcadm create users -r erasure-demo -s username=anja -s enabled=true \
+  -s email=anja@example.de -s firstName=Anja -s lastName=Keller -s emailVerified=true \
+  -s 'attributes={"phoneNumber":"+49 30 123456"}' -i)
+
+kcadm set-password -r erasure-demo --userid $USER_ID --new-password 'Str0ngPassw0rd!'
+kcadm create "users/$USER_ID/federated-identity/corp-idp" -r erasure-demo \
+  -s identityProvider=corp-idp -s userId=ext-4471 -s userName=anja@example.de
+
+curl -s -o /dev/null -d grant_type=password -d client_id=portal \
+  -d username=anja -d password='Str0ngPassw0rd!' \
+  http://127.0.0.1:8080/realms/erasure-demo/protocol/openid-connect/token
+```
+
+That last login is what creates the session row and the login event.
+
+## Which tables actually hold this person?
+
+Do not take a diagram's word for it. Ask the schema. This walks every text column in all 101
+tables and counts rows containing a given string:
+
+```sql title="audit.sql"
+SELECT set_config('audit.needle', :'needle', false);
+DO $$
+DECLARE r record; c bigint; needle text := current_setting('audit.needle');
+BEGIN
+  CREATE TEMP TABLE IF NOT EXISTS hits(tbl text, col text, n bigint) ON COMMIT PRESERVE ROWS;
+  DELETE FROM hits;
+  FOR r IN SELECT table_name, column_name FROM information_schema.columns
+           WHERE table_schema='public' AND data_type IN ('character varying','text','character')
+  LOOP
+    BEGIN
+      EXECUTE format('SELECT count(*) FROM public.%I WHERE %I LIKE %L',
+                     r.table_name, r.column_name, '%' || needle || '%') INTO c;
+    EXCEPTION WHEN OTHERS THEN c := 0;
+    END;
+    IF c > 0 THEN INSERT INTO hits VALUES (r.table_name, r.column_name, c); END IF;
+  END LOOP;
+END $$;
+SELECT tbl AS "table", col AS "column", n AS rows FROM hits ORDER BY tbl, col;
+```
+
+```bash
+docker exec kcdb psql -U kc -d keycloak -v needle="$USER_ID" -f /tmp/audit.sql
+```
+
+The `set_config` line is not decoration. psql does not substitute `:'needle'` inside a
+dollar-quoted `DO $$ … $$` body, so passing the value in through a session setting is what
+makes the script take a parameter at all. This is a table scan over every text column; it is
+fine on a demo realm and is not something to point at a production database during business
+hours.
+
+```console
+        table         |    column     | rows
+----------------------+---------------+------
+ admin_event_entity   | resource_path |    3
+ credential           | user_id       |    1
+ event_entity         | user_id       |    1
+ federated_identity   | user_id       |    1
+ offline_user_session | user_id       |    1
+ user_attribute       | user_id       |    1
+ user_entity          | id            |    1
+ user_role_mapping    | user_id       |    1
+(8 rows)
+```
+
+**Run it a second time with the email address**, not the id. This is the step people skip,
+and it finds a different set of rows:
+
+```console
+        table        |       column       | rows
+---------------------+--------------------+------
+ admin_event_entity  | representation     |    2
+ federated_identity  | federated_username |    1
+ user_entity         | email              |    1
+ user_entity         | email_constraint   |    1
+(4 rows)
+```
+
+An id-only audit misses `admin_event_entity.representation` entirely, because the JSON stored
+for a user *creation* has no `id` field in it — only the name, email and attributes. Search
+both, always.
+
+Three details in that output are worth stopping on.
+
+**`offline_user_session` is not only for offline sessions.** Since persistent user sessions
+became the default, ordinary online sessions are rows in it too, distinguished by
+`offline_flag`:
+
+```console
+     user_session_id      | offline_flag
+--------------------------+--------------
+ CEbmBlaglH1NPWGFaV6qwjz_ | 0
+```
+
+Its `data` column carries an IP address and a base64 device note — operating system, browser,
+device class. A session row is personal data about where and on what your user was, not
+simply that they were logged in.
+
+**Credentials are hashed, not encrypted.** The docs say credential information is "encrypted
+and saved in a database". What `credential.secret_data` actually holds is readable JSON
+containing a base64 hash and its salt:
+
+```console
+password|{"value":"3w2rI4Op3Y8Ev4KHGBMM4FWWcJXzfJ5CCfLgIXEI7ZM=","salt":"nJqIK7NLJY8/u93D5+BkjA==",...}
+```
+
+Argon2id with a per-credential salt is not reversible, so the practical answer to "can an
+admin read the password" is still no. But if you are writing a record of processing
+activities, write "hashed", because that is what is in the column.
+
+**The full map is wider than one user exercises.** Twenty-five tables carry a
+user-identifying column:
+
+| What it holds | Tables |
+|---|---|
+| Profile and account | `user_entity`, `user_attribute`, `user_required_action` |
+| Credentials | `credential`, `user_ver_credential`, `issued_ver_credential` |
+| Group and role membership | `user_group_membership`, `user_role_mapping` |
+| External identity links | `federated_identity`, `broker_link` |
+| Consents | `user_consent` |
+| Sessions | `offline_user_session`, `auth_session` |
+| Brute-force counters | `login_failure` |
+| Events | `event_entity`, `admin_event_entity` |
+| Pending organization invitations | `org_invitation` |
+| Cached federated users | the seven `fed_user_*` tables |
+
+Reproduce it on your own schema with a query over `information_schema.columns` rather than
+trusting the list above to survive an upgrade:
+
+```sql
+SELECT table_name, string_agg(column_name, ', ' ORDER BY column_name)
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND (column_name ILIKE '%user_id%' OR column_name ILIKE '%username%'
+       OR column_name ILIKE '%email%')
+GROUP BY table_name ORDER BY table_name;
+```
+
+## What `DELETE /users/{id}` removes, and what it leaves
+
+```bash
+kcadm delete "users/$USER_ID" -r erasure-demo
+```
+
+Re-run both audits. The id audit drops from eight tables to three:
+
+```console
+       table        |     column     | rows
+--------------------+----------------+------
+ admin_event_entity | representation |    1
+ admin_event_entity | resource_path  |    4
+ event_entity       | user_id        |    1
+(3 rows)
+```
+
+And the email audit drops from four tables to one — which is still one too many:
+
+```console
+       table        |     column     | rows
+--------------------+----------------+------
+ admin_event_entity | representation |    2
+(1 row)
+```
+
+The delete did a lot of real work. Profile, attributes, credential, federated identity link,
+role mappings, session and the brute-force counter all went, and they went by cascade without
+leaving orphans. Four rows survive:
+
+```console
+ operation_type | resource_type |              resource_path
+----------------+---------------+--------------------------------------------
+ CREATE         | USER          | users/$USER_ID
+ ACTION         | USER          | users/$USER_ID/reset-password
+ CREATE         | USER          | users/$USER_ID/federated-identity/corp-idp
+ DELETE         | USER          | users/$USER_ID
+```
+
+(The id is substituted for readability; in the raw table it is the literal UUID.)
+
+Note the fourth row. **Deleting the user writes a new admin event naming the user you just
+deleted**, and with representations on it carries their username in its body:
+
+```console
+ DELETE | USER | users/... | {"id":"8c109053-fbdf-4ee1-8aec-99a99e631d50","username":"anja2"}
+```
+
+So the audit trail of an erasure is itself a record about the data subject, and it is created
+by the act of erasing.
+
+And one of the surviving representations is the one that matters:
+
+```console
+{"username":"anja","firstName":"Anja","lastName":"Keller","email":"anja@example.de",
+ "emailVerified":true,"attributes":{"phoneNumber":["+49 30 123456"]},"enabled":true}
+```
+
+That is the full profile, verbatim, in a table the user delete does not touch. `Include
+representation` is a one-switch feature in the Admin Console and the Server Administration
+Guide describes it only in terms of database size: "it can lead to storing a lot of
+information in the database." The size is the smaller problem. The copy is the problem.
+
+## Two calls that look like targeted erasure and are not
+
+Keycloak's event endpoints filter on read. They do not filter on delete, and they do not tell
+you so.
+
+```console
+$ curl -s -H "Authorization: Bearer $TOK" \
+    "$KC/admin/realms/erasure-demo/events?user=$BRUNO" | jq length
+2
+
+$ curl -s -o /dev/null -w '%{http_code}' -X DELETE -H "Authorization: Bearer $TOK" \
+    "$KC/admin/realms/erasure-demo/events?user=$BRUNO"
+204
+```
+
+Two events matched the filter. The realm had four, belonging to two different users. After
+the `204`:
+
+```console
+ user_id | type | count
+---------+------+-------
+(0 rows)
+```
+
+All four are gone. `DELETE /admin/realms/{realm}/admin-events` behaves identically — a
+`resourcePath` filter that returns one event on `GET` took the realm from eight admin events
+to zero on `DELETE`.
+
+The REST API reference is honest about this if you read it closely: both endpoints are
+documented as **"Delete all events"** and **"Delete all admin events"**, with `realm` as their
+only parameter. The trap is the asymmetry. The query string you tested with `GET` is accepted
+without complaint by `DELETE`, returns the same `204` it would have returned anyway, and
+destroys an audit log you may be required to keep. Nothing in the response distinguishes the
+two outcomes.
+
+**So there is no supported per-subject event deletion in Keycloak.** Treat `DELETE /events`
+as a maintenance operation for a whole realm, never as a step in handling one person's
+request.
+
+## Finish the erasure
+
+With no API for it, the remaining options are a targeted database delete, or waiting out a
+retention period. Try them in this order.
+
+**First, check whether retention already solves it.** If your `eventsExpiration` is 30 days
+and the erasure deadline you work to is longer than that, the rows age out on their own and
+you have nothing to do. Login-event expiry is a field on the events config:
+
+```bash
+kcadm update events/config -r erasure-demo -s eventsExpiration=2592000
+```
+
+Admin events have an expiry too, and it is in a different place — which is worth knowing
+before you conclude they are kept forever. The obvious call fails:
+
+```console
+$ kcadm update events/config -r erasure-demo -s adminEventsExpiration=7776000
+Invalid json representation for RealmEventsConfigRepresentation.
+Unrecognized field "adminEventsExpiration" at line 1 column 2745.
+```
+
+It is a **realm attribute**, not a field on the events config, which is also how the Admin
+Console's own "Admin events settings" tab writes it:
+
+```bash
+kcadm update realms/erasure-demo -s 'attributes.adminEventsExpiration=7776000'
+kcadm get realms/erasure-demo | jq '.attributes.adminEventsExpiration'
+```
+
+```console
+"7776000"
+```
+
+It works — setting it to a value already in the past took a realm from 11 admin events to 0.
+Note that the narrower read gives you nothing:
+
+```console
+$ kcadm get realms/erasure-demo --fields attributes
+{
+  "attributes" : { }
+}
+```
+
+Ask for the full representation and filter client-side, or you will conclude the setting did
+not save. The cleanup runs on a scheduled task every **900 seconds** by default, so expect a
+lag of up to fifteen minutes rather than an immediate drop.
+
+Retention policy is a larger subject than erasure and deserves its own treatment; for the
+bulk and performance side of purging, see
+[user events in Keycloak](/blog/user-events-in-keycloak/).
+
+**Second, if retention does not cover it, delete the rows directly.** This is unsupported.
+Keycloak owns its schema and nothing obliges it to keep these two tables stable across
+versions. Both are append-only logs with no foreign keys pointing into the identity tables,
+which makes them about the safest pair of tables in the schema to touch — but take a backup,
+run it in a transaction, and check the counts before you commit.
+
+```sql
+BEGIN;
+DELETE FROM event_entity
+ WHERE realm_id = (SELECT id FROM realm WHERE name = 'erasure-demo')
+   AND user_id = 'a023ae99-4afc-40b6-9eb2-1234da769181';
+
+DELETE FROM admin_event_entity
+ WHERE realm_id = (SELECT id FROM realm WHERE name = 'erasure-demo')
+   AND (resource_path LIKE 'users/a023ae99-4afc-40b6-9eb2-1234da769181%'
+        OR representation LIKE '%anja@example.de%');
+COMMIT;
+```
+
+```console
+DELETE 1
+DELETE 4
+COMMIT
+```
+
+Both clauses on `admin_event_entity` earn their place. `resource_path` catches the four events
+*about* this user; `representation` catches an event about some other resource that happens to
+carry their data in its JSON body — a realm update, or an invitation. Scope by `realm_id` as
+well, or a shared database will erase the same id in realms you did not mean to touch.
+
+**Third, verify.** Re-run both audits — the one on the id and the one on the email address:
+
+```console
+ table | column | rows
+-------+--------+------
+(0 rows)
+```
+
+Zero on both. That is the end state to record, and re-running the audit is what makes the
+claim checkable rather than assumed.
+
+## Stop making the copy
+
+Everything above is cleanup for a copy that did not have to exist. One switch prevents it:
+
+```bash
+kcadm update events/config -r erasure-demo \
+  -s adminEventsEnabled=true -s adminEventsDetailsEnabled=false
+```
+
+Create a user now and the admin event is still recorded — who did what, to which resource —
+but the body is gone:
+
+```console
+ operation_type | resource_type | representation
+----------------+---------------+----------------
+ CREATE         | USER          | NULL
+```
+
+You keep the audit trail and lose the duplicate of the profile. If you need representations
+for genuine forensic reasons, cap them instead, with the server option the admin guide
+documents for this:
+
+```bash
+kc.sh start --spi-events-store--jpa--max-field-length=2500
+```
+
+A truncated representation is still personal data and still needs erasing. It is a size
+control, not a privacy control.
+
+| Setting | Where it lives | Effect on erasure |
+|---|---|---|
+| `adminEventsDetailsEnabled` | events config | `false` means no profile copy is ever stored |
+| `eventsExpiration` | events config | Login events age out without intervention |
+| `adminEventsExpiration` | **realm attribute** | Admin events age out; cleanup runs every 900 s |
+| `--spi-events-store--jpa--max-field-length` | server option | Caps representation size only |
+
+## What this page does not reach
+
+Honest limits, because an erasure you reported as complete and was not is worse than one you
+scoped openly:
+
+- **Backups.** Deleting rows from the live database does nothing to yesterday's snapshot or
+  to the write-ahead log. Your erasure procedure needs a documented answer for restores —
+  usually "the backup ages out on its own schedule and a restore re-runs the erasure", which
+  is a decision to write down rather than discover during an incident.
+- **Server logs.** The default `jboss-logging` event listener writes events to the server log
+  with the username and IP in the line, outside the database entirely:
+  `type="LOGIN_ERROR" ... ipAddress="172.18.0.1" ... username="carla"`. Whatever ships those
+  logs off-box has its own retention, and the SQL above will never touch it.
+- **Caches and running sessions.** The audit reads committed rows. Clear caches or restart
+  before treating a count of zero as final.
+- **Federated users.** The seven `fed_user_*` tables are Keycloak's local store for users
+  whose source is an external system such as LDAP. Removing the Keycloak-side rows does not
+  erase the record in the system of record, which is where that erasure has to happen. Not
+  tested here — this page ran against a local user store only.
+- **Pending invitations.** `org_invitation` holds a name, an email address and a signed invite
+  link for someone who has **no user account at all**. `GET /users?email=…` returns `[]` for
+  them, so a search of your users misses them entirely. They are erased with
+  `DELETE /admin/realms/{realm}/organizations/{org}/invitations/{id}`, which is a separate
+  endpoint from anything under `/users`.
+
+## Named failure modes
+
+- **"I deleted the user, so we are done."** You are done with three classes out of four. Run
+  the audit.
+- **The audit comes back clean and you only searched the user id.** The representation stored
+  for a user creation has no id in it, only the name and email. Search the email address too,
+  and any other direct identifier you hold.
+- **`DELETE /events?user=…` returned 204.** You deleted every event in the realm. Check before
+  you report, and restore from backup if you had a retention obligation.
+- **`adminEventsExpiration` "does not save".** It saved. `--fields attributes` does not return
+  it; read the full realm representation.
+- **Expiry set, nothing happened yet.** The scheduled cleanup runs every 900 seconds. Wait
+  fifteen minutes before concluding the setting is broken.
+- **A representation reappears after you purged it.** Representation capture is still on, and
+  the next admin action on any user writes a fresh one. Turn off
+  `adminEventsDetailsEnabled` first, then purge — in that order, or you are chasing your own
+  tail.
+- **The same id erased in the wrong realm.** `event_entity` and `admin_event_entity` are
+  shared across realms in one database. Always scope by `realm_id`.
+
+## Next steps
+
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — which custom
+  attributes are stored at all, which is the first half of knowing what you hold.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the realm this page audits.
+- [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) — how long a
+  session row stays before it expires on its own.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/) —
+  restricting who can read the personal data you just inventoried.
+- [User events in Keycloak: best practices, management, and purging](/blog/user-events-in-keycloak/)
+  — the bulk and performance side of the same two tables.
+- [Scaling Keycloak event storage](/blog/scaling-keycloak-event-storage/) — what happens when
+  these tables are never purged at all.
+- [Audit log documentation](/docs/audit-logs/) — the event types and what each one records.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Personal data collected by Keycloak](https://www.keycloak.org/docs/latest/server_admin/index.html#ref-personal-data-collected_server_administration_guide),
+  [Configuring auditing to track events](https://www.keycloak.org/docs/latest/server_admin/index.html#configuring-auditing-to-track-events),
+  and the
+  [Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html) for the
+  delete endpoints discussed above.
+- Clean up: `docker rm -f kc kcdb && docker network rm kcnet`.
+
+<ProductionNote />
