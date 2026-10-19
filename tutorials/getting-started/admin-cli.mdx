@@ -1,0 +1,487 @@
+---
+id: admin-cli
+title: "Use kcadm.sh: the Keycloak Admin CLI"
+description: "Drive the Keycloak admin API from the command line with kcadm.sh: authenticate, CRUD, find the id you need, and write scripts that survive a second run."
+keywords:
+  - keycloak admin api
+  - how to use keycloak rest api
+  - kcadm.sh
+  - keycloak admin cli
+  - keycloak admin rest api
+difficulty: intermediate
+time: 25 minutes
+keycloak_version: "26.8.1"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Use kcadm.sh: the Keycloak Admin CLI
+
+`kcadm.sh` is an HTTP client for the **Keycloak admin REST API** with the authentication
+done for you. Four commands cover nearly everything:
+
+```bash
+kcadm.sh create ENDPOINT [-s field=value ...]   # POST
+kcadm.sh get    ENDPOINT                        # GET
+kcadm.sh update ENDPOINT [-s field=value ...]   # PUT
+kcadm.sh delete ENDPOINT                        # DELETE
+```
+
+`ENDPOINT` is pasted onto the end of `SERVER/admin/realms/REALM/`, so `get users` is a GET
+on `/admin/realms/demo/users`. That is the whole mental model: learn `kcadm.sh` and you have
+learned the Keycloak REST API, because every command is one request to a URL you can predict.
+
+The official reference lists the commands. This page is the other half — where the ids come
+from, why your second run fails, what each error message actually means, and how to
+authenticate from CI without writing a password into a log.
+
+:::info Tested against
+Keycloak **26.8.1**, `start-dev`, single node. Every command, output, error string and exit
+code below was copied from a real run on that version.
+:::
+
+## Prerequisites
+
+A running Keycloak. If you don't have one, see
+[Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/) or:
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+The CLI ships inside the server distribution at `/opt/keycloak/bin/kcadm.sh` — there is no
+separate download. Running it in the container is the fastest way to start:
+
+```bash
+kcadm() { docker exec kc /opt/keycloak/bin/kcadm.sh "$@"; }
+```
+
+Every `kcadm.sh` below works the same way if you have unpacked the zip and put
+`$KEYCLOAK_HOME/bin` on your `PATH`.
+
+## Step 1 — Log in, and know what that put on disk
+
+```bash
+kcadm.sh config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+```
+Logging into http://localhost:8080 as user admin of realm master
+```
+
+That login is **stateful**. It wrote `~/.keycloak/kcadm.config`, mode `0600`, containing the
+server URL, the realm, the client id, an access token and a refresh token:
+
+```json
+{
+  "serverUrl" : "http://localhost:8080",
+  "realm" : "master",
+  "endpoints" : {
+    "http://localhost:8080" : {
+      "master" : {
+        "clientId" : "admin-cli",
+        "token" : "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6...",
+        "refreshToken" : "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lk..."
+```
+
+Two consequences people meet the hard way:
+
+- **That file is a credential.** Anyone who can read it can administer your server until the
+  refresh token expires. Keycloak creates `~/.keycloak` with tight permissions, but it does
+  not fix them if the directory already existed.
+- **It is a single session, not a connection string.** Two scripts sharing one config file
+  will fight over the refresh token. Give each job its own `--config /path/to/its.config`, or
+  use `--no-config` and authenticate per command.
+
+Check a session without using it:
+
+```bash
+kcadm.sh config credentials --status
+```
+
+```
+Logged in (server: http://localhost:8080, realm: master, expired: false, timeToExpiry: 46s from now)
+```
+
+:::warning `--status` always exits 0
+Logged out, it prints `You are not logged in` — and still returns exit code **0**. It is a
+report, not a test. A CI preflight written as `kcadm.sh config credentials --status || login`
+never calls `login`. Gate on a real command instead:
+`kcadm.sh get serverinfo --fields systemInfo > /dev/null`.
+:::
+
+`timeToExpiry: 46s` is the **access** token; the master realm issues 60-second access tokens
+to `admin-cli` and `kcadm.sh` refreshes silently. What you actually have to care about is the
+refresh token, which dies with the SSO session — 30 minutes idle, 10 hours maximum, by
+default:
+
+```bash
+kcadm.sh get realms/master --fields ssoSessionIdleTimeout,ssoSessionMaxLifespan,accessTokenLifespan
+```
+
+```json
+{
+  "accessTokenLifespan" : 60,
+  "ssoSessionIdleTimeout" : 1800,
+  "ssoSessionMaxLifespan" : 36000
+}
+```
+
+A migration script that logs in, spends 40 minutes reading a CSV, and then starts writing
+will fail on its first write — not its first command. The two messages that means are in
+[Troubleshooting](#troubleshooting-what-the-error-actually-means) below.
+
+### Pick the right authentication for the job
+
+| You are | Use | Notes |
+|---|---|---|
+| A human at a terminal | `--user admin` and no `--password` | Prompts. Keeps the password out of your shell history |
+| A human, scripted | `--user admin`, password in `KC_CLI_PASSWORD` | The env var is read when `--password` is omitted |
+| CI, or any machine | `--client ci --secret …` (service account) | No human account, no password rotation, and it can be scoped |
+| CI, hardened | `--client ci --keystore …` (Signed JWT) | No shared secret on the runner at all |
+| Anything short-lived | add `--no-config` | Nothing is written to disk; every command re-authenticates |
+
+The `--secret`, `--password` and `--trustpass` options all have environment-variable
+equivalents (`KC_CLI_CLIENT_SECRET`, `KC_CLI_PASSWORD`, `KC_CLI_TRUSTSTORE_PASSWORD`) so the
+value never appears in `ps` output or a CI log. Over anything but localhost, use `https` —
+these commands carry bearer tokens.
+
+## Step 2 — Every command is a URL
+
+This is worth proving to yourself once, because it turns the admin API reference into
+something you can use directly. These two are the same request:
+
+```bash
+kcadm.sh get realms/demo --fields realm,enabled
+kcadm.sh get http://localhost:8080/admin/realms/demo --fields realm,enabled
+```
+
+```json
+{
+  "realm" : "demo",
+  "enabled" : true
+}
+```
+
+A relative `ENDPOINT` is resolved against `SERVER/admin/realms/REALM/`; anything starting
+with `http` is used as-is. `-r REALM` switches the realm in the middle of the path, which is
+how one admin session administers many realms.
+
+**The 404 message is the best debugging tool in the CLI** — it prints the URL it built:
+
+```bash
+kcadm.sh get usres -r demo
+```
+
+```
+Resource not found for url: http://localhost:8080/admin/realms/demo/usres
+```
+
+So when a command fails, you are never guessing which request went out. Match that URL
+against the
+[admin REST API reference](https://www.keycloak.org/docs-api/latest/rest-api/index.html) and
+the mismatch is usually obvious.
+
+### The flags that matter
+
+| Flag | On | What it does |
+|---|---|---|
+| `-s name=value` | create, update | Set one field. The value is parsed as JSON if it can be, otherwise sent as text |
+| `-f FILE`, `-f -` | create, update | Send a JSON body from a file or stdin |
+| `-i` | create | Print **only** the new id — made for `$(…)` |
+| `-o` | create | Print the whole created resource |
+| `-o N` | **get** | `first=N` — paging offset. Same letter, unrelated meaning |
+| `-l N` | get | `max=N` — page size |
+| `-q name=value` | get | Add a query parameter |
+| `--fields a,b` | get | Trim the response to the fields you want |
+| `--format csv --noquotes` | get | Bare values, for shell variables |
+| `-n` | update | Skip the read-before-write |
+| `-r REALM` | all | Target realm |
+| `--config PATH` / `--no-config` | all | Which session file, or none |
+
+The `-o` overload is a real trap: on `create` it means *output the result*, on `get` it means
+*offset*. They are different commands with different parsers.
+
+About `-n`: by default `update` does a GET, merges your `-s` values into the result, and PUTs
+the whole thing back. `-n` skips the GET. It is **not** a "replace the resource" switch — we
+checked. On a realm, a client and a user, a `-n` update that set only two fields left every
+other field intact, because the server's own update is a partial update:
+
+```bash
+kcadm.sh update realms/demo -n -s realm=demo -s enabled=true
+kcadm.sh get realms/demo --fields realm,displayName,registrationAllowed,enabled
+```
+
+```json
+{
+  "realm" : "demo",
+  "displayName" : "Demo Realm",
+  "enabled" : true,
+  "registrationAllowed" : true
+}
+```
+
+Use `-n` to save a round trip, or for the few endpoints that accept PUT but not GET. Do not
+reach for it expecting a reset.
+
+## Step 3 — Find the id (where the time actually goes)
+
+Almost every admin API path wants an internal UUID, and almost everything you know about an
+object is its name. This is the single biggest source of 404s:
+
+```bash
+kcadm.sh get clients/demo-app -r demo
+```
+
+```
+Resource not found for url: http://localhost:8080/admin/realms/demo/clients/demo-app
+```
+
+`demo-app` is the `clientId`. The path wants `id`. Three ways across that gap:
+
+```bash
+# 1. Capture it at creation time
+CID=$(kcadm.sh create clients -r demo -s clientId=demo-app -s publicClient=true -i)
+
+# 2. Look it up by its business key
+CID=$(kcadm.sh get clients -r demo -q clientId=demo-app --fields id --format csv --noquotes)
+
+# 3. Let the dedicated command do it: get-roles, add-roles and remove-roles
+#    accept --cclientid, --uusername and --gname instead of ids
+kcadm.sh add-roles -r demo --uusername service-account-ci \
+  --cclientid realm-management --rolename view-users
+```
+
+Two traps live in option 2.
+
+**A user lookup is a prefix search unless you say otherwise.** With users `u1` … `u120` in
+the realm, the obvious lookup does not find `u1`:
+
+```bash
+kcadm.sh get users -r demo -q username=u1 --fields id,username --format csv --noquotes | head -1
+```
+
+```
+90d38a89-3f7c-4d8e-8ed3-65a5b150d294,u10
+```
+
+A delete script built on `| head -1` would have removed the wrong user. Add `-q exact=true`.
+
+**`get users` returns 100 rows and says nothing about the rest.** The realm has 112 users:
+
+```bash
+kcadm.sh get users -r demo --fields username --format csv --noquotes | wc -l   # 100
+kcadm.sh get users -r demo -l 500 --fields username --format csv --noquotes | wc -l   # 112
+kcadm.sh get users/count -r demo                                               # 112
+```
+
+There is no warning, no truncation marker, and the default is silent. Page explicitly with
+`-l` and `-o`, and check `users/count` when the number matters. Note that `-l` only applies
+where the endpoint understands `max` — `get realms -l 1` still returns every realm.
+
+## Step 4 — Write a script that survives its second run
+
+`create` is not idempotent, and it fails loudly:
+
+```bash
+kcadm.sh create clients -r demo -s clientId=demo-app -s publicClient=true
+```
+
+```
+Client demo-app already exists
+```
+
+Exit code **1**. Every failure above returns 1, which is what you want under `set -e` — and
+also what breaks a re-run of a half-finished provisioning script. The shape that works is
+look-up, create-if-absent, then an unconditional `update` to converge the rest:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REALM=demo
+CLIENT_ID=web-app
+
+id=$(kcadm.sh get clients -r "$REALM" -q clientId="$CLIENT_ID" \
+       --fields id --format csv --noquotes)
+
+if [ -z "$id" ]; then
+  id=$(kcadm.sh create clients -r "$REALM" -s clientId="$CLIENT_ID" -s publicClient=true -i)
+  echo "created $CLIENT_ID ($id)"
+else
+  echo "exists $CLIENT_ID ($id)"
+fi
+
+kcadm.sh update "clients/$id" -r "$REALM" \
+  -s 'redirectUris=["https://app.example.com/*"]' \
+  -s 'webOrigins=["https://app.example.com"]' \
+  -s enabled=true
+```
+
+Run twice:
+
+```
+created web-app (490e7d54-50ef-4894-af95-76f54edb80bc)
+exists  web-app (490e7d54-50ef-4894-af95-76f54edb80bc)
+```
+
+The desired state lives in the `update`, not the `create`, so editing a redirect URI and
+re-running does the right thing on a realm that already has the client.
+
+Two syntax notes for the `-s` values above. A JSON array has to survive the shell, so single
+quotes around the whole pair: `-s 'redirectUris=["https://app.example.com/*"]'`. And for
+anything larger than a few fields, send a document instead:
+
+```bash
+kcadm.sh create roles -r demo -f - <<'EOF'
+{ "name": "editor", "description": "can edit" }
+EOF
+```
+
+```
+Created new role with id 'editor'
+```
+
+## Step 5 — Authenticate from CI without a human account
+
+Create a confidential client with a service account, and give that account the one role it
+needs:
+
+```bash
+CIID=$(kcadm.sh create clients -r demo -s clientId=ci \
+  -s serviceAccountsEnabled=true -s standardFlowEnabled=false -s publicClient=false -i)
+
+SECRET=$(kcadm.sh get clients/$CIID/client-secret -r demo \
+  --fields value --format csv --noquotes)
+```
+
+Log in as the client — no user, no password:
+
+```bash
+kcadm.sh config credentials --config /tmp/ci.config \
+  --server http://localhost:8080 --realm demo --client ci --secret "$SECRET"
+```
+
+```
+Logging into http://localhost:8080 as service-account-ci of realm demo
+```
+
+It authenticates, and it can do nothing at all:
+
+```bash
+kcadm.sh get users --config /tmp/ci.config -r demo --fields username
+```
+
+```
+HTTP 403 Forbidden
+```
+
+That is correct, and it is the reason to use a service account: it starts with zero
+privileges. Grant exactly what the job needs from the realm's `realm-management` client —
+`view-users`, `manage-users`, `manage-clients`, `view-realm`, or `realm-admin` for the lot:
+
+```bash
+kcadm.sh add-roles -r demo --uusername service-account-ci \
+  --cclientid realm-management --rolename view-users
+```
+
+Same command, now:
+
+```json
+[ {
+  "username" : "alice"
+}, {
+  "username" : "u10"
+} ]
+```
+
+For a runner where you would rather leave nothing behind, authenticate per command:
+
+```bash
+kcadm.sh get users --no-config --server http://localhost:8080 \
+  --realm demo --client ci --secret "$SECRET" -l 2 --fields username
+```
+
+:::warning `KC_CLI_CLIENT_SECRET` is ignored by `--no-config`
+With `--no-config`, `KC_CLI_PASSWORD` is still honoured for a user login, but the same
+command authenticating a **client** from `KC_CLI_CLIENT_SECRET` returns `HTTP 401
+Unauthorized` on 26.8.1 — the secret has to be passed as `--secret`. If you need both the
+env var and a service account, use `config credentials` with a private `--config` file, where
+`KC_CLI_CLIENT_SECRET` works, and delete the file at the end of the job.
+:::
+
+## Troubleshooting: what the error actually means
+
+Every one of these strings is verbatim from 26.8.1.
+
+| Message | Exit | What it means |
+|---|---|---|
+| `Resource not found for url: …` | 1 | The URL in the message is what was requested. Usually a name where a UUID belongs, or a typo in `ENDPOINT` |
+| `HTTP 403 Forbidden` | 1 | Authenticated, not authorized. Add the `realm-management` role the operation needs |
+| `HTTP 401 Unauthorized` | 1 | Not authenticated at all. With `--no-config`, check the credential flags — see the warning above |
+| `Client demo-app already exists` | 1 | `create` is not idempotent. See [step 4](#step-4--write-a-script-that-survives-its-second-run) |
+| `Failed to refresh access token - Session not active [invalid_grant]` | 1 | The SSO session behind your config file ended. Log in again |
+| `Session has expired. Login again with 'kcadm.sh config credentials'` | 1 | Same cause, reported before the request was attempted |
+| `No server specified. Use --server, or 'kcadm.sh config credentials'.` | 1 | No config file, or the wrong `--config` path |
+| `Invalid json representation for UserRepresentation. Unrecognized field "usrname" …` | 1 | A misspelled field name. The message names it |
+| `Cannot parse the JSON [unknown_error]` | 1 | A value that is nearly JSON. `-s enabled=yes` produces this; `true` and `false` are JSON, `yes` is not |
+| `error-invalid-length` | 1 | A user profile validator rejected the value, and the message does not say which field. Usernames shorter than 3 characters hit this one |
+
+`error-invalid-length` is worth dwelling on, because it is a message key rather than a
+sentence: creating users `u1` … `u120` in a loop silently produced 111 users, because `u1`
+through `u9` are two characters long and the default username validator has `length` min 3. If a batch
+run comes out short, re-run one failing item without `2>/dev/null` and read the key.
+
+One more exit-code detail for scripts: a *server* error exits **1**, but a malformed command
+exits **2** (`kcadm.sh get serverinfo -F ''` → `Fields spec is null or empty!`). Both are
+non-zero, so `set -e` catches either, but if you branch on `$?` the two mean different things
+— a 2 is a bug in your script, not a problem on the server.
+
+A related silence: `-s 'attributes.department=["eng"]'` on a user **succeeds, returns 0, and
+stores nothing** unless the attribute is declared in the realm's user profile. That is the
+user profile, not the CLI — [managed vs unmanaged
+attributes](/tutorials/users/user-profile/) explains which setting turns it back on.
+
+## Where kcadm.sh stops being the right tool
+
+Be honest about the ceiling before you build a 500-line provisioning script on it:
+
+- **There is no plan, diff, or dry run.** You cannot ask what a command would change. If you
+  need drift detection, Terraform or realm import/export is the tool, and kcadm is how you
+  inspect the result.
+- **There is no transaction.** A script that fails on step 9 of 12 leaves nine changes
+  applied. Write the steps to be re-runnable (step 4) rather than hoping for a rollback.
+- **One config file, one thread.** Parallelism needs `--config` per worker or `--no-config`.
+- **Startup cost is a JVM.** Several hundred milliseconds per invocation, which is invisible
+  for 20 commands and painful for 20,000. At that size, get a token once and call the REST
+  API directly — the URLs are the ones `kcadm.sh` has been printing at you all along:
+
+  ```bash
+  TOKEN=$(curl -s -X POST http://localhost:8080/realms/master/protocol/openid-connect/token \
+    -d client_id=admin-cli -d username=admin -d password=admin -d grant_type=password \
+    | jq -r .access_token)
+
+  curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8080/admin/realms/demo/roles
+  ```
+
+## Next steps
+
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the same three objects, with the console clicks beside every command.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  what the token `kcadm.sh` is holding for you actually contains.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+  — scoping that CI service account to one group or one client rather than the whole realm.
+- [What identity and access management means in Keycloak](/docs/keycloak/iam/) for the
+  vocabulary behind the endpoints.
+- Official reference:
+  [Admin CLI](https://www.keycloak.org/docs/latest/server_admin/index.html#admin-cli) and the
+  [admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
+- Clean up: `docker rm -f kc`, and remove any `--config` files your scripts wrote — they hold
+  live refresh tokens.
+
+<ProductionNote />
