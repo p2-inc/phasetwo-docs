@@ -32,6 +32,7 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 1. [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/)
 2. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
 3. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+4. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
 
 **Securing an application** — get a token, then learn to trust it:
 
@@ -112,8 +113,10 @@ giving them the realm:
 
 1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
 2. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — how to
+   grant that scoped role, and everything else, from a script
 
-Realm keys, auditing and the `kcadm` cookbook build on that one. *(Coming soon.)*
+Realm keys and auditing build on the same track. *(Coming soon.)*
 
 **Authorizing AI agents and MCP servers** — the tokens an agent presents, and what your
 server has to check before trusting one:
