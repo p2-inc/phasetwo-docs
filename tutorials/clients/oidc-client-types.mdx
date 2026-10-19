@@ -1,0 +1,620 @@
+---
+id: oidc-client-types
+title: "Keycloak Client Types: Public, Confidential, Bearer-Only"
+description: How to create an OIDC client in Keycloak and pick the right type — public, confidential, or the deprecated bearer-only — with tested commands and the exact errors each one throws.
+keywords:
+  - keycloak client types
+  - keycloak public vs confidential client
+  - keycloak bearer only client
+  - keycloak confidential client
+  - keycloak create oidc client
+  - keycloak client authentication
+difficulty: beginner
+time: 25 minutes
+keycloak_version: "26.8.1"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Client Types: Public, Confidential, Bearer-Only
+
+Keycloak has **two** client types you can choose and **one** that only survives in the API:
+
+1. **Public** — `Client authentication` **off**. No secret, because the code runs somewhere a
+   secret cannot be kept. Single-page apps, mobile apps, CLI tools.
+2. **Confidential** — `Client authentication` **on**. Authenticates to the token endpoint with
+   a secret, a signed JWT, or a client certificate. Anything running on a server you control.
+3. **Bearer-only** — deprecated. It cannot obtain a token, it cannot start a browser login,
+   and the current admin console has no control that creates one. For an API that only
+   *validates* tokens, create a confidential client with every flow switched off instead.
+
+The field in the client representation is `publicClient`. The admin console toggle is called
+**Client authentication** and it is the inverse: `Client authentication` on means
+`publicClient: false`.
+
+:::info Tested against
+Keycloak **26.8.1**, started with the `docker run` below. Every command, error string and
+JSON body on this page is copied from an actual run on that version.
+:::
+
+Keycloak's own
+[Creating an OpenID Connect client](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc_clients)
+is the right reference for what each field on the Settings tab means. It does not tell you
+which type to pick, what the capability switches do to the token endpoint, or what the server
+returns when you pick wrong. That is this page. It also no longer mentions bearer-only at all,
+which is its own kind of answer and is covered in step 3.
+
+## Which type do you need?
+
+| What you are shipping | Type | Capability config | Why |
+|---|---|---|---|
+| React, Vue, Angular, Svelte SPA | **Public** | Standard flow | The bundle is downloadable; a secret in it is published |
+| Mobile or desktop app | **Public** | Standard flow | Same, plus the binary is on someone else's device |
+| CLI tool that logs a human in | **Public** | Standard flow, or Device authorization grant | No server to hold a secret |
+| Server-rendered web app (Spring, Django, Rails, Next.js server side) | **Confidential** | Standard flow | The secret stays on your server |
+| Backend job, daemon, cron, service-to-service call | **Confidential** | Service account roles | Client credentials grant, no user involved |
+| API / resource server that only validates incoming tokens | **Confidential**, all flows off | Nothing enabled | It never asks for a token; it is a name in `aud` — see step 4 |
+| Admin API automation | **Confidential** | Service account roles | Give the service account admin roles, not a human's password |
+
+Two rules cover most of the mistakes:
+
+**If the code can be read by whoever runs it, it is public.** Shipping a secret inside a
+JavaScript bundle does not make a client confidential, it makes the secret public. A public
+client is not a weaker client; it is an honest one, and PKCE is what protects it.
+
+**A client is not an application, it is an identity.** One deployment legitimately has two:
+a public client for the browser front end, a confidential client for the backend it calls.
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+$K create realms -s realm=demo -s enabled=true
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+
+KC=http://localhost:8080/realms/demo/protocol/openid-connect
+```
+
+Set the email and both names. A user missing them picks up a `VERIFY_PROFILE` required action
+and every token request answers `Account is not fully set up`, which reads like a password
+problem and is not. You also want `jq` or `python3` to read tokens.
+
+If none of this is familiar yet, start with
+[your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) and
+come back.
+
+## Step 1 — Create a public client
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. In the `demo` realm: **Clients** → **Create client**.
+2. **Client type** `OpenID Connect`, **Client ID** `spa-public` → **Next**.
+3. Leave **Client authentication** **off**. That is the whole decision. → **Next**.
+4. **Valid redirect URIs** `http://localhost:5173/*`, **Web origins**
+   `http://localhost:5173` → **Save**.
+5. **Advanced** → **Advanced settings** → **Proof Key for Code Exchange Code Challenge
+   Method** → `S256` → **Save**. See the warning below for why this is not optional.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+$K create clients -r demo \
+  -s clientId=spa-public \
+  -s publicClient=true \
+  -s standardFlowEnabled=true \
+  -s directAccessGrantsEnabled=true \
+  -s serviceAccountsEnabled=false \
+  -s 'redirectUris=["http://localhost:5173/*"]' \
+  -s 'webOrigins=["http://localhost:5173"]' \
+  -s 'attributes."pkce.code.challenge.method"=S256'
+```
+
+</details>
+
+Be explicit about every capability switch rather than taking the defaults. A bare
+`create clients -s clientId=x` through the Admin REST API produces `publicClient: false`,
+`standardFlowEnabled: true`, `directAccessGrantsEnabled: false`,
+`serviceAccountsEnabled: false` and **no redirect URIs** — a confidential client that cannot
+complete a login. Name every switch and the client is the same whoever creates it.
+
+### Verify it worked
+
+A public client gets a token with no secret:
+
+```bash
+curl -s -X POST $KC/token -d grant_type=password -d scope=openid \
+  -d client_id=spa-public -d username=alice -d password=s3cret
+```
+
+```json
+{
+ "access_token": "eyJhbGciOiJS…",
+ "expires_in": 300,
+ "refresh_expires_in": 1800,
+ "refresh_token": "eyJhbGciOiJI…",
+ "token_type": "Bearer",
+ "id_token": "eyJhbGciOiJS…",
+ "session_state": "MPdn5EL0vFAB3GMumoXcl_7K",
+ "scope": "openid email profile"
+}
+```
+
+(The password grant is used here because it is one line. Do not use it in an app —
+[get a token the proper way](/tutorials/getting-started/your-first-token/).)
+
+And it cannot act as itself, because it has no credential to act with:
+
+```bash
+curl -s -X POST $KC/token -d grant_type=client_credentials -d client_id=spa-public
+```
+
+```json
+{"error":"unauthorized_client","error_description":"Public client not allowed to retrieve service account"}
+```
+
+:::warning A public client ignores a client secret, silently
+Sending a secret to a public client's token endpoint does not fail. It is ignored, and the
+token comes back exactly as before:
+
+```bash
+curl -s -X POST $KC/token -d grant_type=password -d scope=openid \
+  -d client_id=spa-public -d client_secret=totally-made-up \
+  -d username=alice -d password=s3cret | jq -r 'keys[]'
+```
+
+```
+access_token
+expires_in
+id_token
+not-before-policy
+refresh_expires_in
+refresh_token
+scope
+session_state
+token_type
+```
+
+So "our backend sends the client secret" is not evidence that a client is confidential. The
+only evidence is `publicClient: false` on the client, or a token request **without** the
+secret being refused. Test the negative.
+:::
+
+### PKCE is not on by default, and that is the one thing you must change
+
+Keycloak does not require PKCE of a public client unless you ask it to. With
+`pkce.code.challenge.method` set to `S256` as above, an authorization request that omits the
+challenge is rejected at the authorization endpoint:
+
+```bash
+curl -s -o /dev/null -D - "$KC/auth?client_id=spa-public&response_type=code\
+&scope=openid&redirect_uri=http://localhost:5173/cb&state=xyz" | grep -i '^location'
+```
+
+```
+Location: http://localhost:5173/cb?error=invalid_request
+  &error_description=Missing+parameter%3A+code_challenge_method&state=xyz&iss=…
+```
+
+And downgrading to `plain` is rejected too:
+
+```
+Location: http://localhost:5173/cb?error=invalid_request
+  &error_description=Invalid+parameter%3A+code+challenge+method+is+not+matching+the+configured+one&state=xyz&iss=…
+```
+
+Without that attribute both requests succeed and the authorization code is exchangeable by
+anyone who intercepts it. Set it on every public client you create.
+
+## Step 2 — Create a confidential client
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+1. **Clients** → **Create client**, **Client ID** `web-confidential` → **Next**.
+2. Turn **Client authentication** **on**.
+3. Capability config: leave **Standard flow** on, turn **Service account roles** on, leave
+   **Direct access grants** off → **Next**.
+4. **Valid redirect URIs** `http://localhost:8081/*` → **Save**.
+5. The secret is on the **Credentials** tab, which only exists once Client authentication
+   is on.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+$K create clients -r demo \
+  -s clientId=web-confidential \
+  -s publicClient=false \
+  -s standardFlowEnabled=true \
+  -s serviceAccountsEnabled=true \
+  -s directAccessGrantsEnabled=false \
+  -s 'redirectUris=["http://localhost:8081/*"]'
+
+CONF_ID=$($K get clients -r demo -q clientId=web-confidential \
+  --fields id --format csv --noquotes)
+
+SECRET=$($K get clients/$CONF_ID/client-secret -r demo \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+```
+
+</details>
+
+The id returned by `create` is the client's internal UUID, not the `clientId`. Admin API
+paths want the UUID; tokens and app configuration want `web-confidential`. Mixing them up is
+the usual source of a 404 from the admin API.
+
+### Verify it worked
+
+Turning on **Service account roles** is what enables the client credentials grant:
+
+```bash
+curl -s -X POST $KC/token -d grant_type=client_credentials \
+  -d client_id=web-confidential -d client_secret=$SECRET
+```
+
+Decoding the access token it returns:
+
+```json
+{
+ "aud": "account",
+ "azp": "web-confidential",
+ "typ": "Bearer",
+ "preferred_username": "service-account-web-confidential",
+ "client_id": "web-confidential"
+}
+```
+
+There is no human in that token. The service account is a real, hidden user in the realm
+named `service-account-<clientId>`, and roles you grant it are what the token carries. Grant
+them to the service account, not to the client's "own" roles.
+
+Now the negative test that proves the client really is confidential:
+
+```bash
+curl -s -X POST $KC/token -d grant_type=client_credentials -d client_id=web-confidential
+curl -s -X POST $KC/token -d grant_type=client_credentials -d client_id=web-confidential -d client_secret=wrong
+```
+
+Both answer identically, which is deliberate — a wrong secret and a missing secret must not
+be distinguishable:
+
+```json
+{"error":"unauthorized_client","error_description":"Invalid client or Invalid client credentials"}
+```
+
+A shared secret is the default, not the only option. The realm in 26.8.1 offers five client
+authenticators: `client-secret`, `client-secret-jwt`, `client-jwt` (signed JWT with your own
+key pair), `client-x509` (mutual TLS) and `federated-jwt`. List them yourself with:
+
+```bash
+$K get authentication/client-authenticator-providers -r demo
+```
+
+Anything other than `client-secret` removes the rotation problem, because there is no shared
+string to rotate.
+
+## Step 3 — Bearer-only, and what happened to it
+
+Bearer-only was the third access type in Keycloak's old admin console: a client that never
+logs anybody in and only validates tokens that arrive at an API. The adapters that used it
+are gone, the access-type radio button is gone, and the current
+[server administration guide](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc_clients)
+does not mention it anywhere in its OIDC client chapter. Keycloak's own admin console help
+text calls it what it is:
+
+> Bearer-only is a deprecated client type.
+
+The flag is still in the API, and still settable:
+
+```bash
+$K create clients -r demo -s clientId=legacy-bearer -s bearerOnly=true
+$K get clients -r demo -q clientId=legacy-bearer \
+  --fields clientId,bearerOnly,publicClient,standardFlowEnabled
+```
+
+```json
+[ {
+  "clientId" : "legacy-bearer",
+  "bearerOnly" : true,
+  "publicClient" : false,
+  "standardFlowEnabled" : true
+} ]
+```
+
+Note `standardFlowEnabled: true` sitting next to `bearerOnly: true`. It is meaningless: the
+browser login below is refused anyway, because `bearerOnly` is checked before the capability
+switches are. In the 26.8.1 admin console a client with this flag
+set renders without its **Capability config**, **Login settings**, **Logout settings** and
+**Client scopes** panels, and carries a tooltip reading "This is a special OIDC type. This
+client only allows bearer token requests and cannot participate in browser logins." There is
+no input anywhere in the console that sets the flag, so a bearer-only client can be read and
+deleted in the UI but not created or un-set there.
+
+What it actually does at the token endpoint:
+
+```bash
+BID=$($K get clients -r demo -q clientId=legacy-bearer --fields id --format csv --noquotes)
+BSEC=$($K get clients/$BID/client-secret -r demo \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+
+curl -s -X POST $KC/token -d grant_type=client_credentials \
+  -d client_id=legacy-bearer -d client_secret=$BSEC
+```
+
+```json
+{"error":"invalid_client","error_description":"Bearer-only not allowed"}
+```
+
+And at the authorization endpoint, the server renders an error page reading:
+
+```
+Bearer-only applications are not allowed to initiate browser login
+```
+
+To be fair to it: a bearer-only client is not inert. It still has a secret, and it can still
+call the introspection endpoint, which is the one runtime thing a resource server does. So
+existing ones keep working — and Keycloak still ships two of its own in every realm it
+creates:
+
+```bash
+$K get clients -r demo | jq -r '.[] | select(.bearerOnly) | .clientId'
+```
+
+```
+broker
+legacy-bearer
+realm-management
+```
+
+`broker` and `realm-management` are Keycloak's built-ins and are supposed to be there; leave
+them alone. The type is not being removed from the server, it is being removed from the set
+of things *you* should pick. Do not create new ones.
+
+## Step 4 — The modern replacement for bearer-only
+
+For an API that only validates tokens, create an ordinary confidential client with every flow
+turned off:
+
+```bash
+$K create clients -r demo \
+  -s clientId=orders-api \
+  -s publicClient=false \
+  -s standardFlowEnabled=false \
+  -s implicitFlowEnabled=false \
+  -s directAccessGrantsEnabled=false \
+  -s serviceAccountsEnabled=false
+```
+
+In the console that is: **Client authentication** on, every switch in **Capability config**
+off. It refuses to issue anything, which is the point:
+
+```bash
+OID=$($K get clients -r demo -q clientId=orders-api --fields id --format csv --noquotes)
+OSEC=$($K get clients/$OID/client-secret -r demo \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['value'])")
+
+curl -s -X POST $KC/token -d grant_type=client_credentials \
+  -d client_id=orders-api -d client_secret=$OSEC
+curl -s -X POST $KC/token -d grant_type=password -d client_id=orders-api \
+  -d client_secret=$OSEC -d username=alice -d password=s3cret
+```
+
+```json
+{"error":"unauthorized_client","error_description":"Client not enabled to retrieve service account"}
+{"error":"unauthorized_client","error_description":"Client not allowed for direct access grants"}
+```
+
+The client exists so that the API has a **name other clients' tokens can be addressed to**,
+somewhere to hang its roles, and a credential for introspection.
+
+### Getting the API into `aud`
+
+Freshly created, a token issued to the SPA is not addressed to your API:
+
+```
+# decoded access token from spa-public
+aud: account   azp: spa-public
+```
+
+`azp` is who asked for the token. `aud` is who it is for. They are not the same claim and the
+difference is where most 401s come from. Two ways to fix it, both tested:
+
+**1. Give the user a client role on the API.** Keycloak's built-in `audience resolve` mapper
+adds any client whose roles appear in the token to `aud` automatically:
+
+```bash
+$K create clients/$OID/roles -r demo -s name=orders:read -s 'description=Read orders'
+$K add-roles -r demo --uusername alice --cclientid orders-api --rolename orders:read
+```
+
+The next token for the same SPA, unchanged otherwise:
+
+```
+aud: ["orders-api", "account"]
+resource_access: {"orders-api": {"roles": ["orders:read"]}, "account": {…}}
+```
+
+Remove the role assignment and `aud` drops back to `account` — the audience follows the role,
+nothing else changed. This is the route to prefer, because the token now says both who it is
+for and what it may do.
+
+**2. Add an audience mapper**, when the API has no roles to hand out:
+
+```bash
+SID=$($K get clients -r demo -q clientId=spa-public --fields id --format csv --noquotes)
+$K create clients/$SID/protocol-mappers/models -r demo \
+  -s name=orders-api-audience \
+  -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=orders-api' \
+  -s 'config."access.token.claim"=true'
+```
+
+### The introspection rule that changed in 26.6.2
+
+If your API validates tokens by calling the introspection endpoint, this one will cost you an
+afternoon. Before the audience is right:
+
+```bash
+AT=$(curl -s -X POST $KC/token -d grant_type=password -d scope=openid \
+  -d client_id=spa-public -d username=alice -d password=s3cret \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['access_token'])")
+
+curl -s -u "orders-api:$OSEC" -X POST $KC/token/introspect --data-urlencode "token=$AT"
+```
+
+```json
+{"active":false}
+```
+
+No error, no reason, just an inactive token that `jwt.io` will happily tell you is valid. The
+explanation is only in the server log:
+
+```
+reason="Client 'orders-api' is not in the token audience", token_issued_for="spa-public", …
+```
+
+Since **26.6.2** the introspection endpoint requires the *calling* client to be in the
+token's `aud`, where previously any authenticated client could introspect any token. After
+the client role from above, the same call returns:
+
+```json
+{
+ "active": true,
+ "aud": ["orders-api", "account"],
+ "azp": "spa-public",
+ "client_id": "spa-public",
+ "username": "alice",
+ "typ": "Bearer"
+}
+```
+
+Two consequences worth knowing before you go looking for them:
+
+- **A client cannot introspect its own access token** unless something put it in its own
+  `aud`. Being `azp` is not enough. This surprises people mid-upgrade.
+- **Refresh and offline tokens are exempt** from the audience check — their `aud` is the
+  realm, not a set of clients — and can only be introspected by the client they were issued
+  for.
+
+There is a compatibility escape hatch, server-wide
+(`allow-token-introspection-without-audience-check`) or per client
+(**Advanced** → **OpenID Connect Compatibility Modes** → **Allow token introspection without
+audience check**, which is the client attribute
+`allow.token.introspection.without.audience.check`). Both are **already deprecated**, both
+log a warning on every request, and both will be removed. Use one to get an upgrade finished,
+then fix the audience. The upgrade note is in Keycloak's
+[upgrading guide](https://www.keycloak.org/docs/latest/upgrading/index.html).
+
+:::tip You may not need a client for your API at all
+If your resource server validates the JWT signature locally against the realm's JWKS — which
+is faster and does not depend on Keycloak being reachable on every request — it needs no
+credential and therefore no client of its own. Register one when you want introspection,
+client roles in `resource_access`, or a name to put in `aud`. See
+[validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/).
+:::
+
+## When it goes wrong
+
+| What you see | What it means |
+|---|---|
+| `unauthorized_client` / `Invalid client or Invalid client credentials` | Confidential client, and the secret is missing, wrong, or stale after a rotation. Identical for all three cases on purpose |
+| `unauthorized_client` / `Public client not allowed to retrieve service account` | `client_credentials` against a public client. A public client has no credentials to grant |
+| `unauthorized_client` / `Client not enabled to retrieve service account` | Confidential client with **Service account roles** off |
+| `unauthorized_client` / `Client not allowed for direct access grants` | **Direct access grants** is off. It is off by default through the API |
+| `invalid_client` / `Bearer-only not allowed` | A `bearerOnly: true` client tried to get a token. Replace it per step 4 |
+| `Bearer-only applications are not allowed to initiate browser login` | Same client, hit at the authorization endpoint |
+| `Invalid parameter: redirect_uri` | Checked **before** the flow check, so a client with no redirect URIs reports this rather than "standard flow is disabled". Fix the URI first, then re-read the error |
+| `invalid_request` / `Missing parameter: code_challenge_method` | PKCE is required on this client and the app is not sending a challenge. Correct behaviour — fix the app, not the client |
+| `{"active": false}` from introspection on a token that is plainly valid | The introspecting client is not in `aud`. Server log says so; the response does not |
+| Login works, API returns 401 | Almost always `aud` versus `azp`. Decode the token before suspecting the signature |
+| `"attributes" : { }` on a client you know has attributes | `kcadm get --fields` flattens nested maps to empty. Re-read the client without `--fields` |
+
+## Verify your setup
+
+You have chosen deliberately if you can answer these for every client in the realm:
+
+1. **Can it keep a secret?** If no, it must be `publicClient: true`. If yes, it should not be.
+2. **If it is public, is `pkce.code.challenge.method` set to `S256`?** It is not set by default.
+3. **If it is confidential, does a token request without the secret fail?** Run it. A client
+   that still issues tokens is public, whatever your code sends.
+4. **Does any flow it does not use remain enabled?** Each one is an extra way to obtain a
+   token in its name.
+5. **Is every API your tokens are sent to present in `aud`?** Not just in `azp`.
+
+Two commands review the whole realm. First the types and flows:
+
+```bash
+$K get clients -r demo --format csv \
+  --fields clientId,publicClient,bearerOnly,standardFlowEnabled,directAccessGrantsEnabled,serviceAccountsEnabled
+```
+
+```
+"account",true,false,true,false,false
+"admin-cli",true,false,false,true,false
+"broker",false,true,true,false,false
+"legacy-bearer",false,true,true,false,false
+"orders-api",false,false,false,false,false
+"realm-management",false,true,true,false,false
+"spa-public",true,false,true,true,false
+"web-confidential",false,false,true,false,true
+```
+
+Then PKCE, which has to be a second pass — `--fields` renders every nested map as `{}`, so
+asking it for `attributes` returns `"attributes" : { }` on every client in the realm whether
+or not they have any. That is a filter artefact, not an empty client:
+
+```bash
+$K get clients -r demo \
+  | jq -r '.[] | select(.publicClient) | "\(.clientId)\t\(.attributes["pkce.code.challenge.method"] // "NOT SET")"'
+```
+
+```
+account	NOT SET
+account-console	S256
+admin-cli	NOT SET
+spa-public	S256
+```
+
+Keycloak sets `S256` on its own browser-facing consoles. That is the clearest statement
+available of what it expects on yours. Any public client of your own answering `NOT SET` is
+the thing to fix this week; any `bearerOnly: true` that is not `broker` or `realm-management`
+is a client to plan a replacement for.
+
+## Next steps
+
+- [Your first Keycloak realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+  — the shorter path through the same console screens, if this one was a level too deep.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  what `azp`, `aud` and `resource_access` look like in full.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — local JWKS validation versus introspection, which is the decision behind step 4.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  client roles, which are what put the API in `aud` above.
+- [Secure an MCP server with Keycloak](/tutorials/emerging/mcp-server-auth/) — a resource
+  server built exactly the way step 4 describes.
+- [Securing applications with JavaScript](/docs/securing-applications/javascript/) — a public
+  client wired into a browser app.
+- Official reference:
+  [Managing OpenID Connect clients](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc_clients)
+  and the [upgrading guide](https://www.keycloak.org/docs/latest/upgrading/index.html) for the
+  26.6.2 introspection change.
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
