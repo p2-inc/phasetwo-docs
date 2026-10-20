@@ -42,6 +42,16 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 
 More framework-by-framework guides are next. *(Coming soon.)*
 
+**Registering an application** — which kind of client it needs, and what the server does
+when you pick wrong:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Keycloak client types: public, confidential, bearer-only](/tutorials/clients/oidc-client-types/)
+3. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+
+Protocol mappers, client scopes and service accounts build on the second one.
+*(Coming soon.)*
+
 **Deciding who may do what** — the four ways Keycloak models permissions, and what each one
 puts in the token:
 

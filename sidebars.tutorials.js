@@ -63,6 +63,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Clients, scopes, and mappers",
+      link: { type: "generated-index" },
+      items: ["clients/oidc-client-types"],
+    },
+    {
+      type: "category",
       label: "Sessions and tokens",
       link: { type: "generated-index" },
       items: ["sessions/timeouts"],
