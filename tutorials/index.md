@@ -56,11 +56,12 @@ Protocol mappers, client scopes and service accounts build on the second one.
 puts in the token:
 
 1. [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/)
-2. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
-3. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+2. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   how any of that reaches the token
+3. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
+4. [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
 
-Client scopes, protocol mappers and fine-grained authorization build on the first one.
-*(Coming soon.)*
+Client scopes and fine-grained authorization build on the same objects. *(Coming soon.)*
 
 **Adding a second factor, or dropping the password** — turn MFA on for everyone, not just
 the people who opt in, then go passwordless:
@@ -77,7 +78,9 @@ Step-up authentication and magic links are next. *(Coming soon.)*
 2. [Decoding a JWT — header, payload, and signature](/tutorials/jwts/decoding-jwt-structure/)
 3. [JWT security best practices](/tutorials/jwts/jwt-security-best-practices/)
 4. [Benefits and drawbacks of JWTs](/tutorials/jwts/jwt-benefits-drawbacks/)
-5. [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/)
+5. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   how a claim gets into a token in the first place
+6. [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/)
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 
@@ -115,8 +118,9 @@ Inactivity policies build on the same engine. *(Coming soon.)*
 2. [Keycloak multi-tenancy: realms, groups, or organizations?](/tutorials/authorization/multi-tenancy/)
 3. [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/)
 
-Client scopes and fine-grained authorization build on the same track.
-*(Coming soon.)*
+What each tenant model puts in the token is
+[protocol mappers](/tutorials/clients/protocol-mappers/). Client scopes and fine-grained
+authorization build on the same track. *(Coming soon.)*
 
 **Delegating realm administration** — give someone admin rights over part of a realm without
 giving them the realm:
