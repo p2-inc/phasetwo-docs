@@ -50,6 +50,20 @@ The speed is the easy sell. The security benefit is the one that compounds. A pa
 
 That last point is what matters for credential stuffing, the automated replay of leaked passwords that every public login page faces. A customer who signs in with a passkey has nothing for that attack to guess. Keep in mind that as long as the password path stays open for an account, an attacker can still try it, so passkeys reduce your exposure as adoption grows rather than eliminating it on day one. The rest of the defenses still matter: see [Credential Stuffing and Account Takeover](/docs/security/credential-stuffing).
 
+## Will your customers understand it?
+
+Most of them already know more than you might expect. In the [FIDO Alliance's 2025 consumer survey](https://fidoalliance.org/fido-alliance-champions-widespread-passkey-adoption-and-a-passwordless-future-on-world-passkey-day-2025/) of 1,389 adults across five countries, 74% had heard of passkeys and 69% had turned them on for at least one account. About half already considered them more secure (53%) or more convenient (54%) than passwords.
+
+The word itself is the hard part. Microsoft found that "passkey" was often unfamiliar, but "face, fingerprint, or PIN" was well understood, so its screens connect the two. It also tested how to pitch them: a message about faster sign-in drew 27% click-through and one about security 24%, while "easier" did noticeably worse. And customers enroll when you ask them, not on their own: about a quarter of the people who saw Microsoft's prompt engaged with it, while enrollment from account settings was under 1% of the total.
+
+That plays out differently depending on who your customer is:
+
+- **The customer who has never heard the word.** Think of the least technical person who buys from you. They have never set up a passkey on purpose, but they unlock their phone with their face or fingerprint every day. Show them "Sign in with your face, fingerprint, or screen lock," not "Create a passkey." Keep their password and email recovery working so they are never stuck, and never make the passkey a condition of signing in.
+- **The average customer.** They have probably already been offered a passkey by Google, Apple, or a large retailer, and may have accepted. Ask once, right after a successful sign-in, and lead with speed, the message that tested best. If they decline, do not ask again on every visit.
+- **The technical customer.** They want control. They will register more than one passkey, keep them in a password manager, or use a hardware security key, and they will look for a place to see and remove their passkeys. Keycloak's [Account Console](/docs/keycloak/account-console) covers that, and this is the one group for whom settings-based enrollment works.
+
+Across all three, the pattern is the same: a plain-language prompt at the right moment does more than any amount of availability in a settings page.
+
 ## Introducing passkeys in Keycloak
 
 On Keycloak 26.7 and later, passwordless passkeys are a realm setting rather than a flow you build. **Realm settings → Login → Enable Passkeys** turns them on for the stock browser flow, which then offers a passkey option and tags the username field for browser autofill. Users who have not registered a passkey sign in exactly as before.
@@ -57,7 +71,7 @@ On Keycloak 26.7 and later, passwordless passkeys are a realm setting rather tha
 The rollout that works is gradual:
 
 1. **Turn on passkeys without removing passwords.** Existing customers keep signing in the way they know, and passkeys appear as an option.
-2. **Invite enrollment at a calm moment, not at a gate.** Microsoft's finding that nearly everyone who starts registration finishes it comes with a design lesson in the same post: offer the passkey after a successful sign-in, when the user has a reason to say yes. Do not put registration between a customer and their checkout. Users can add a passkey from the [Account Console](/docs/keycloak/account-console), or you can set the **Webauthn Register Passwordless** required action on the users you want to enroll.
+2. **Prompt enrollment right after sign-in, not at a gate.** Microsoft invites users to enroll immediately after they authenticate, and nearly everyone who starts registration finishes it. Do not put registration between a customer and their checkout. In Keycloak, do this as an application-initiated action: after sign-in, show your own short prompt, and if the customer says yes, send them to the authorization endpoint with `kc_action=webauthn-register-passwordless`. Keycloak shows the registration page with a cancel option and reports the outcome back to your application in `kc_action_status`. Avoid setting **Webauthn Register Passwordless** as a required action on users instead: a required action has to be completed before the user can continue, which is exactly the gate to avoid. The [Account Console](/docs/keycloak/account-console) lets users add and remove passkeys themselves, but expect few to find it unprompted.
 3. **Leave the default mediation alone.** The default, conditional mediation, offers passkeys through the browser's autofill without an extra dialog, which is the fastest experience for users who have one and invisible to users who do not.
 4. **Measure before and after.** Record time from the login page loading to the user landing back in your application, and the share of sign-in attempts that succeed, split by method. Those are the two numbers every published study uses, and they are the ones your own customers will feel.
 
