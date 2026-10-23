@@ -11,7 +11,19 @@ At present, Keycloak supports reCaptcha for registration. You can use reCaptcha 
 
 We recommend v3 as it is more user friendly, but v2 is also supported.
 
-Presently, only registration has this flow built-in. For this to be applied to the login flow, you need to create a custom authenticator. If you need this, please contact support for assistance.
+Presently, only registration has this flow built-in. For a CAPTCHA on the login form, use [Cloudflare Turnstile](./turnstile.md), which is included in every Phase Two cluster and covers login, registration, and steps that send email. Where you place its steps decides whether a failed challenge actually blocks a login, so run the test below either way.
+
+## Test that the CAPTCHA fails closed
+
+A CAPTCHA only helps if a request without a valid token is rejected. Attack scripts post the login or registration form directly without ever rendering the page, so they never produce a token. Before you rely on any CAPTCHA, including a custom authenticator, send the form without one:
+
+1. Open the login or registration page in a browser and copy the form's `action` URL, which includes the `session_code`, `execution`, and `tab_id` parameters.
+1. Post the form fields to that URL with `curl`, leaving out the CAPTCHA response field.
+1. Confirm the response is the form again with an error, not a redirect to your application. Then check the realm's events: there should be no `LOGIN` or `REGISTER` event for that attempt.
+
+If the attempt succeeds, the CAPTCHA is failing open. It may log a failure while still letting the request through. That failure is silent: legitimate users see the widget and everything looks normal.
+
+Also check where the CAPTCHA is bound. If it is only in a flow assigned to one client through an authentication flow override, every other client, including the built-in `account-console` and `security-admin-console`, still uses the realm's default browser flow without it. See [Sign-in Methods, Grant Types and Clients](../authentication/sign-in-methods.md).
 
 ### Enabling reCaptcha with Google
 

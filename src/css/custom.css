@@ -1151,6 +1151,16 @@ a.support:hover {
   font-family: var(--ifm-font-family-base);
 }
 
+/* ...except code. The rule above reaches the Prism token spans inside code blocks, which breaks column alignment. */
+pre,
+pre *,
+code,
+code *,
+kbd,
+samp {
+  font-family: var(--ifm-font-family-monospace);
+}
+
 /* Code blocks dark theme */
 [data-theme="dark"] .prism-code {
   background-color: #1a1a1a;
@@ -2806,4 +2816,38 @@ table.tw-table-pricing th {
 }
 .comparison-prose strong {
   color: #fff;
+}
+
+/*
+  Blog typography, aligned with the docs. Docusaurus sizes the post title at 3rem and the sidebar
+  title and year headings at the h3 size, which this theme sets to 32-36px. The class names are
+  CSS-module hashes, so match on their stable prefixes.
+*/
+article [class*="title_"]:is(h1) {
+  font-size: var(--p2-markdown-h1-first-font-size);
+  line-height: 1.2;
+}
+
+aside [class*="sidebarItemTitle_"] {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+aside [class*="yearGroupHeading_"] {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-content-secondary);
+  margin: 24px 0 8px;
+}
+
+aside [class*="sidebarItemLink_"] {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+aside [class*="sidebarItem_"] {
+  margin-top: 0.6rem;
 }
