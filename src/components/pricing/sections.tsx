@@ -273,6 +273,24 @@ const Sections: {
         },
       },
       {
+        name: "Edge rate limit (per IP)",
+        description:
+          "A web application firewall in front of your cluster caps the requests a single IP address can send across all paths, in requests per five minutes. Addresses over the limit get a 429 until their rate drops. Enterprise and Custom plans can arrange a different limit.",
+        links: [
+          {
+            href: "/docs/security/rate-limiting",
+            icon: "mdi:book-open-variant",
+            label: "Documentation",
+          },
+        ],
+        tiers: {
+          starter: "1,000",
+          premium: "2,000",
+          enterprise: "4,000",
+          custom: "Custom",
+        },
+      },
+      {
         name: "Private network connectivity (2)",
         description:
           "Connect your backend infrastructure to your Keycloak cluster over a private network link, keeping authentication traffic off the public internet entirely. A custom add-on: not self-service, scoped with our team, and available for an additional fee.",
