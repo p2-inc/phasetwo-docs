@@ -1,19 +1,22 @@
 ---
 slug: keycloak-disable-admin-cli-account-clients
-title: "Should you disable admin-cli and account in a production Keycloak realm?"
+title: "Which Keycloak clients should be enabled when you go live?"
 date: 2026-10-23
 authors: [rtufisi]
 tags: [keycloak, security, authentication, production, clients]
-description: Disabling Keycloak's built-in clients is mostly the wrong lever. Turn off Direct Access Grants everywhere, remove what each client actually exposes, and put a CAPTCHA in front of the flows bots hit. Measured on Keycloak 26.8.1.
+description: Automated scanners probe every default Keycloak client the day your realm goes public. Which clients and grant types to leave on, which to turn off, and why disabling clients is mostly the wrong lever. Measured on Keycloak 26.8.1.
 keywords:
   - keycloak admin-cli disable
+  - keycloak go live clients
   - keycloak account client security
   - keycloak direct access grants
   - keycloak credential stuffing
   - keycloak cloudflare turnstile captcha
 ---
 
-Mostly no, and the question points at the wrong lever. Every Keycloak realm ships with the same six client IDs, so the first thing an automated attacker does after finding `/realms/<name>/.well-known/openid-configuration` is post `grant_type=password&client_id=admin-cli` to the token endpoint and read the error. The probe costs nothing, it arrives from a different IP every time, and with LLM-driven tooling the follow-up is a dictionary run that adapts to whatever your realm answers. The exposure is not that `admin-cli` *exists*. It is that `admin-cli` is a public client with **Direct Access Grants** on and full scope on, and any other client configured that way is exactly as dangerous. Turning the password grant off everywhere is mandatory. Disabling clients is a secondary, case-by-case call, and for `account` it is usually the wrong one.
+The day a Keycloak realm is reachable from the internet, automated scanners find it. They read `/realms/<name>/.well-known/openid-configuration`, try every client ID that ships with every realm against the token endpoint and the login pages, and start replaying username and password pairs leaked from other sites. The traffic arrives from a different residential IP on almost every request, so it looks nothing like one noisy attacker. What you are trying to stop is not a single brute-force run. It is account takeover through credential stuffing, plus the enumeration that tells an attacker which of your users exist.
+
+So the go-live question is not "should I disable admin-cli?" It is "which clients, and which grant types, should be on at all?" The short answer: the password grant off on every client, enforced by policy; only the clients you actually use exposed; a CAPTCHA on every flow that renders a login page; and `account` left enabled. Disabling a client is one tool among several, and for `account` it is usually the wrong one.
 
 Everything below was reproduced against **Keycloak 26.8.1**, and every error string is copied out of a real response.
 
@@ -21,14 +24,20 @@ Everything below was reproduced against **Keycloak 26.8.1**, and every error str
 
 ## What the probe sees
 
-One request, `POST /realms/prod/protocol/openid-connect/token` with `grant_type=password`, `client_id=admin-cli` and a wrong password, against four states of the same realm:
+This is the first request a scanner sends: `POST /realms/prod/protocol/openid-connect/token` with `grant_type=password`, `client_id=admin-cli` and a wrong password. Here is what it gets back from four states of the same realm:
 
-| Realm state | Response | What the attacker learns |
+| Realm state | Status and error | What the attacker learns |
 |---|---|---|
-| Defaults | `400 {"error":"invalid_grant","error_description":"Invalid user credentials"}` | Password grant is live. Start the dictionary. |
-| Direct Access Grants off on `admin-cli` | `400 {"error":"unauthorized_client","error_description":"Client not allowed for direct access grants"}` | Client exists, door shut. Try the other five IDs. |
-| `admin-cli` disabled | `401 {"error":"invalid_client","error_description":"Invalid client or Invalid client credentials"}` | Same answer as a client that never existed. |
-| Client policy rejecting the grant | `400 {"error":"invalid_grant","error_description":"resource owner password credentials grant is prohibited."}` | No client here takes a password. Move on. |
+| Defaults | `400` `invalid_grant`: "Invalid user credentials" | Password grant is live. Start the dictionary. |
+| Direct Access Grants off on `admin-cli` | `400` `unauthorized_client`: "Client not allowed for direct access grants" | Client exists, door shut. Try the other five IDs. |
+| `admin-cli` disabled | `401` `invalid_client`: "Invalid client or Invalid client credentials" | Same answer as a client that never existed. |
+| Client policy rejecting the grant | `400` `invalid_grant`: "resource owner password credentials grant is prohibited." | No client here takes a password. Move on. |
+
+The full body of the default response, for reference:
+
+```json
+{"error":"invalid_grant","error_description":"Invalid user credentials"}
+```
 
 A wrong password and an unknown username return the same body, so usernames do not leak. Which clients exist, and which accept passwords, does.
 
@@ -70,7 +79,7 @@ client application needs, to the client role scope
 
 So the hardening is per realm:
 
-- **Reject the password grant with a client policy.** A client profile with the `reject-ropc-grant` executor, *Auto-configure* on, bound to a policy with the `any-client` condition. Every client then answers `resource owner password credentials grant is prohibited.`, and any client created or updated afterwards has Direct Access Grants switched off for you. Set *Auto-configure* explicitly: left unset, client creation fails with a null pointer on 26.8.1. The same executor ships inside the built-in `oauth-2-1-for-public-client` and `oauth-2-1-for-confidential-client` profiles.
+- **Reject the password grant with a [client policy](/docs/security/client-policies).** A client profile with the `reject-ropc-grant` executor, *Auto-configure* on, bound to a policy with the `any-client` condition. Every client then answers `resource owner password credentials grant is prohibited.`, and any client created or updated afterwards has Direct Access Grants switched off for you. Set *Auto-configure* explicitly: left unset, client creation fails with a null pointer on 26.8.1. The same executor ships inside the built-in `oauth-2-1-for-public-client` and `oauth-2-1-for-confidential-client` profiles.
 - **Automation uses service accounts.** A confidential client, `client_credentials` only, with the specific `realm-management` roles it needs. A `provisioner` client holding only `manage-users` lists users with `200` and is refused on `/clients` with `403`, which is the shape a user-sync job should have. `realm-admin` belongs to people behind MFA, not to a secret in a pipeline.
 - **Full scope allowed off** on every application client, enforced with the `full-scope-disabled` executor if you have many.
 - **Non-master realms: disable `admin-cli`** once nothing runs `kcadm` against them. In master, keep it only while tooling depends on it and restrict `/admin/*` and `/realms/master/*` at the edge. On a Phase Two cluster, admin-path [IP restrictions](/docs/self-service/restrictions) do this and master is not exposed to customers.
@@ -95,33 +104,35 @@ If you keep self-service, the residual risk is a hijacked session changing crede
 
 ## security-admin-console, realm-management, broker
 
-`security-admin-console` is a bigger surface than either client above: in a non-master realm it is the realm-scoped admin UI at `/admin/<realm>/console/`, public, PKCE, Full scope allowed on. If no realm-scoped administrator uses it, disable it; the login redirect then renders Keycloak's `Client disabled.` page. Otherwise keep it and block the path at the edge.
+`security-admin-console` is a bigger surface than either client above: in a non-master realm it is the realm-scoped admin UI at `/admin/<realm>/console/`, public, PKCE, Full scope allowed on. If no realm-scoped administrator uses it, disable it; the login redirect then renders Keycloak's `Client disabled.` page. Otherwise keep it and block the path at the edge. On a Phase Two cluster, keep it enabled: the dashboard's Console link signs in through it. Restrict `/admin/*` with [IP restrictions](/docs/self-service/restrictions) instead.
 
 `realm-management` and `broker` are bearer-only role containers. There is no flow to attack, and the admin roles and the broker `read-token` role hang off them. Leave them alone.
 
 ## Rate limiting is not enough: put a CAPTCHA in the flow
 
-Per-IP limits assume the attacker has an IP. Per-user lockout assumes they want one user. Credential stuffing today has neither property, which is why a CAPTCHA earns its place: it taxes the automation, not the address. Keycloak's built-in reCAPTCHA only covers [registration](/docs/security/recaptcha), so for login you need an extension. The [Cloudflare Turnstile integration](https://github.com/p2-inc/keycloak-magic-link/blob/main/README.md#cloudflare-turnstile-captcha) in our open-source `keycloak-magic-link` extension is the one we recommend and ship on every Phase Two cluster. It is three authenticators sharing one configuration (site key, secret, action), which is what makes it a flow edit rather than a project:
+Per-IP limits assume the attacker has an IP. Per-user lockout assumes they want one user. Credential stuffing today has neither property, which is why a CAPTCHA earns its place: it taxes the automation, not the address. Keycloak's built-in reCAPTCHA only covers [registration](/docs/security/recaptcha), so for login you need an extension. The [Cloudflare Turnstile integration](https://github.com/p2-inc/keycloak-magic-link/blob/main/README.md#cloudflare-turnstile-captcha) in our open-source `keycloak-magic-link` extension is the one we recommend. It is included in every Phase Two cluster and stays off until you add your own Cloudflare keys and place it in your flows; [Cloudflare Turnstile](/docs/security/turnstile) walks through it. It is three authenticators sharing one configuration (site key, secret, action), which is what makes it a flow edit rather than a project:
 
-- **Cloudflare Turnstile Username Password Form** replaces the stock login form with the widget embedded in the page. Unconfigured, it behaves exactly like the original. Its *Verify email on CAPTCHA failure* option turns a failed challenge into a forced email verification instead of a hard block, so a real user on a flaky network still gets in and a bot does not.
-- **Condition - Turnstile Failed** gates a 2FA subflow on the CAPTCHA result: Required means only sessions that failed the challenge are asked for a second factor, Disabled means 2FA for everyone with a factor enrolled. Adaptive friction from one requirement toggle.
-- **Cloudflare Turnstile validation** is a standalone challenge page to place before any step that sends email, such as magic link or email OTP, so bots cannot turn your SMTP relay into a flood.
-- **The registration form action** validates the challenge on sign-up and skips it for users who are already identified, so invitations keep working while bulk account creation, and the abusive takeovers that follow it, stop.
+- **Cloudflare Turnstile Username Password Form** replaces the stock login form with the widget embedded in the page. Unconfigured, it behaves exactly like the original. On its own it does not block anything: it checks the challenge after the password is accepted and only records a failure on the session, so a scripted login with a valid password still gets tokens. Pair it with one of the next two steps. Its *Verify email on CAPTCHA failure* option is the other way to make it block: a failed challenge stops the login at email verification, at the cost of marking the account's email as unverified, real users included.
+- **Condition - Turnstile Failed** gates a 2FA subflow on the CAPTCHA result: Required means only sessions that failed the challenge are asked for a second factor, Disabled means 2FA for everyone with a factor enrolled. Adaptive friction from one requirement toggle. Use a factor every user already has, such as email OTP. With an OTP Form step, a user who has no authenticator yet is sent to set one up, so an attacker holding the password enrolls their own.
+- **Cloudflare Turnstile validation** is a standalone challenge page. Placed before the login form, it refuses a submission without a valid token outright, which is the simplest way to stop scripted logins. Place it before any step that sends email too, such as magic link or email OTP, so bots cannot turn your SMTP relay into a flood.
+- **The registration form action** validates the challenge on sign-up, so bulk account creation, and the abusive takeovers that follow it, stop.
 
 Setup is two settings: `https://challenges.cloudflare.com` in `frame-src` under *Security Defenses*, and the `cloudflare-turnstile` login theme on the realm or one client. No image puzzles, which matters when the people solving it are your customers.
 
 This closes the loop with the first section. A CAPTCHA protects flows that render a page. The token endpoint renders nothing, so with the password grant enabled an attacker simply takes the path without one. The two controls only work together.
 
-## The checklist
+## Go-live defaults for every client
+
+This is what each client should look like on the day you launch. The rest of the launch list is in the [go-live checklist](/docs/getting-started/launch-checklist).
 
 | Client | Default | Production |
 |---|---|---|
 | `admin-cli` | public, password grant on, full scope on | Password grant off, policy-enforced. Disable in non-master realms once nothing uses it. |
-| `security-admin-console` | public, PKCE, full scope on | Disable where no realm-scoped admins exist, or block `/admin/*` at the edge. |
+| `security-admin-console` | public, PKCE, full scope on | Disable where no realm-scoped admins exist, or block `/admin/*` at the edge. On Phase Two, keep it and use IP restrictions. |
 | `account` | public, role container, API audience | Keep enabled. Remove `manage-account` and `manage-account-links` from default roles if self-service is unwanted. |
 | `account-console` | public, PKCE | Disable or deny-flow when self-service is unwanted. |
 | `realm-management`, `broker` | bearer-only | Leave alone. |
-| Your application clients | whatever you clicked | Password grant off, full scope off, PKCE, Turnstile on login and registration. |
+| Your application clients | whatever you clicked | Password grant off, full scope off, PKCE, Turnstile on login and registration, placed so a failed challenge blocks. |
 
 ---
 

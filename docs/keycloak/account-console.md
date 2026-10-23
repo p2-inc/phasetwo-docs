@@ -56,6 +56,15 @@ If your goal is:
 
 For implementation details and theme tradeoffs, see the Keycloakify documentation on the [Account Theme](https://docs.keycloakify.dev/theme-types/account-theme).
 
+## `account` and `account-console` are different clients
+
+Two built-in clients are involved, and they need different treatment:
+
+- **`account-console`** is the public client behind the Account Console UI. It has its own login page, which uses the realm's browser flow. If your users have no reason to use it, it is one more login page for automated attacks to use against their accounts.
+- **`account`** is not a login surface. It holds the `manage-account`, `manage-account-links` and `view-profile` roles and is the audience the Account REST API at `/realms/{realm}/account/` checks for.
+
+**Keep `account` enabled.** Disabling it does shut the Account REST API off (every call returns `404 {"error":"account management not enabled"}`), but other parts of Keycloak expect it. When an admin sends an _execute actions_ or _verify email_ message without naming a client, Keycloak 26 finds `account` unavailable and creates a confidential `_system` client to issue the link instead, logging `Client 'account' not available. Creating system client '_system' for system operations`. The next security review then finds a client nobody created. Removing the roles, described below, closes the API without that side effect.
+
 ## Best practice: block the UI and remove account-management permissions
 
 If your goal is to fully prevent end users from using Keycloak's account management experience, the strongest approach is to do both:
@@ -88,6 +97,8 @@ After that, direct access to the Account Console UI will return an access denied
 
 This is the best control when your primary goal is: "No customer should manage users via the Keycloak UI."
 
+A simpler alternative is to turn the `account-console` client's **Enabled** switch off, after which its login redirect shows Keycloak's _Client disabled_ page. Either way, disable `account-console`, not `account`.
+
 ## Option 2: Remove account-management roles
 
 Blocking the UI does not by itself remove the permissions that back account-management operations. If you also want to prevent users from making authorized calls to the account endpoints, remove the default `account` client roles that grant those capabilities.
@@ -110,6 +121,18 @@ In the Admin UI, review the realm's **Default roles** and any user or group role
 
 If users or groups already have them directly, you should remove those mappings as well.
 
+### What changes as you remove them
+
+These results come from removing the roles from `default-roles-{realm}` and calling the Account REST API with a fresh token, in Keycloak 26.8.1:
+
+| Default roles include | Read profile (`GET /realms/{realm}/account/`) | Update profile (`POST`) |
+|---|---|---|
+| `manage-account` and `view-profile` (the default) | `200` | `204` |
+| `view-profile` only | `200` | `403` |
+| Neither | `401`, because the token no longer has the `account` audience | `401` |
+
+Tokens issued before the change keep their roles until they expire, so expect the old behavior for up to one access token lifespan.
+
 ## Recommended combinations
 
 Choose the combination that matches your intent:
@@ -124,11 +147,18 @@ If the requirement is not "no self-service at all" but rather "no direct Keycloa
 
 Phase Two's [Admin Portal](../admin-portal/index.md) lets you expose selected profile and security functions with role-based visibility. For example, you can control whether users can view profile details, update passwords, manage two-factor authentication, or manage linked identities. See [Access Control](../admin-portal/access-control.md).
 
+If you keep any self-service, through the Account Console or your own application, the remaining risk is a hijacked session being used to change the account's credentials or email address. Reduce it by:
+
+- **requiring re-authentication for credential changes**, by starting them as an application-initiated action with `kc_action` and a low `max_age`, so the user must sign in again immediately before the change
+- **keeping SSO Session Idle short**, so an abandoned session cannot be picked up later. See [Tokens and Sessions](../security/tokens-and-sessions.md)
+- **requiring the current password** when a user changes their password
+
 ## Summary
 
 To block end users from managing themselves through Keycloak directly:
 
-- put a **Deny access** flow on the `account-console` client
+- put a **Deny access** flow on the `account-console` client, or disable it
 - remove default `account` client roles like `manage-account`
+- keep the `account` client itself enabled
 
 That combination blocks the built-in UI and reduces or removes authorization to the underlying account-management endpoints as well.

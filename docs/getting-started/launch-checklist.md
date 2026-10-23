@@ -48,18 +48,35 @@ Our compliance posture, including completed penetration tests, is published at [
 - **Password policy set** — see [Password Policy](../security/password-policy.md), and [Password Blacklist](../security/password-blacklist.md) if you want to reject common or breached passwords.
 - **Multi-factor authentication enabled** where appropriate: [OTP](../authentication/otps.md), [WebAuthn](../authentication/webauthn.md), or [passkeys](../authentication/passkeys.md).
 - **MFA enabled on administrator accounts**, not only end-user accounts.
-- **Brute force detection enabled** and tuned to your traffic. See [Brute Force Detection](../security/brute-force-detection.md).
-- **Bot protection on registration and login.** See [reCAPTCHA](../security/recaptcha.md).
+- **Passkey fallback tested, if you offer passkeys.** A user whose passkey fails or who cancels the prompt still has a way in, and enrollment is a prompt users can decline rather than a required action. See [When a passkey doesn't work](../authentication/passkeys.md#when-a-passkey-doesnt-work).
+- **Brute force detection enabled** and tuned to your traffic. It is per user, so it does not stop credential stuffing on its own. See [Brute Force Detection](../security/brute-force-detection.md).
+- **Bot protection on registration and login.** [Cloudflare Turnstile](../security/turnstile.md) is included in every cluster and covers both, once you add your Cloudflare keys and place its steps so a failed challenge blocks the login. Keycloak's built-in [reCAPTCHA](../security/recaptcha.md) covers registration only.
 - **Custom flows reviewed.** Confirm every alternative execution in a custom flow is deliberate and no path bypasses a step you rely on. See [Understanding Flows](../authentication/understanding-flows.md).
 - **Default roles and permissions minimized.**
 - **Break-glass admin account created.** Do not rename or remove the realm's `admin` user, which the dashboard's Console link depends on — setting _Email as username_ can rename it inadvertently. Create a second account with the `realm-management` client roles as a backup. See [Realms](../self-service/realms.md#issues-with-access-to-the-admin-console).
 
+## Attack surface
+
+Automated scanners find a public realm within days and try every way in, so check each of these before you launch. [Credential Stuffing and Account Takeover](../security/credential-stuffing.md) explains the attacks behind them.
+
+- **Password grant off on every client**, and enforced realm-wide with a [client policy](../security/client-policies.md) so a new client cannot turn it back on. This includes the built-in `admin-cli`. See [Sign-in Methods, Grant Types and Clients](../authentication/sign-in-methods.md).
+- **Backend services use service accounts.** A confidential client with the client credentials grant and only the roles it needs, not a user's password. See [Moving integrations off password logins](../api/service-accounts.md#moving-integrations-off-password-logins).
+- **Only the clients you use are reachable.** Disable `account-console` if you do not offer Keycloak's self-service UI, but keep `account` enabled. See [Account Console](/docs/keycloak/account-console). Keep `security-admin-console` enabled, because the dashboard's Console link signs in through it, and restrict admin paths with [IP restrictions](../self-service/restrictions.md) instead.
+- **CAPTCHA bound to the realm's default browser flow**, not only to per-client flow overrides, which leave every other client open (see [the per-client override trap](../authentication/sign-in-methods.md#the-per-client-override-trap)). Tested to fail closed: a login posted without a CAPTCHA token must be rejected. See [reCAPTCHA](../security/recaptcha.md#test-that-the-captcha-fails-closed).
+- **Full scope allowed off** on application clients, so tokens carry only the roles each client needs. See [Client Policies](../security/client-policies.md).
+- **Rate limits understood** for your tier, and any high-volume integration checked against them. See [Rate Limiting](../security/rate-limiting.md).
+- **Successful logins and lockouts recorded.** Make sure `LOGIN`, `LOGIN_ERROR`, and the lockout event types are saved, and that event retention is long enough for you to investigate an incident after the fact. See [Audit Logs](/docs/audit-logs).
+- **A response plan for compromised accounts**, written down before you need it. See [Credential Stuffing and Account Takeover](../security/credential-stuffing.md).
+
 ## Tokens and sessions
+
+These are covered in more depth in [Tokens and Sessions](../security/tokens-and-sessions.md).
+
 
 - **Access token lifespan** set deliberately, typically in the range of a few minutes to a quarter hour.
 - **Session lifetimes set** — SSO Session Idle and Max, and the client session equivalents — and aligned with how long your applications expect a user to stay signed in.
-- **Refresh token reuse disabled.** In Realm Settings, under Tokens, enable _Revoke Refresh Token_ and set _Refresh Token Max Reuse_ to `0` so a refresh token cannot be replayed.
-- **Offline access limited** to clients that genuinely need it.
+- **Refresh token reuse disabled.** In Realm Settings, under Tokens, enable _Revoke Refresh Token_ and set _Refresh Token Max Reuse_ to `0` so a refresh token cannot be replayed. Your applications must then make sure only one refresh runs at a time, or users are logged out unexpectedly. See [Concurrent refreshes](../security/tokens-and-sessions.md#concurrent-refreshes).
+- **Offline access limited** to clients that genuinely need it, kept as an optional scope rather than a default one, and capped with an offline session maximum. Offline sessions outlive a normal logout and an admin logout, so they must be revoked separately. See [Offline sessions](../security/tokens-and-sessions.md#offline-sessions).
 - **Logout implemented end to end**, including back-channel logout for clients, so a logout in one application takes effect in the others.
 
 ## Customization and extensions
