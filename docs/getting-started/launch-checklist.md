@@ -48,6 +48,7 @@ Our compliance posture, including completed penetration tests, is published at [
 - **Password policy set** — see [Password Policy](../security/password-policy.md), and [Password Blacklist](../security/password-blacklist.md) if you want to reject common or breached passwords.
 - **Multi-factor authentication enabled** where appropriate: [OTP](../authentication/otps.md), [WebAuthn](../authentication/webauthn.md), or [passkeys](../authentication/passkeys.md).
 - **MFA enabled on administrator accounts**, not only end-user accounts.
+- **Passkey fallback tested, if you offer passkeys.** A user whose passkey fails or who cancels the prompt still has a way in, and enrollment is a prompt users can decline rather than a required action. See [When a passkey doesn't work](../authentication/passkeys.md#when-a-passkey-doesnt-work).
 - **Brute force detection enabled** and tuned to your traffic. It is per user, so it does not stop credential stuffing on its own. See [Brute Force Detection](../security/brute-force-detection.md).
 - **Bot protection on registration and login.** [Cloudflare Turnstile](../security/turnstile.md) is included in every cluster and covers both, once you add your Cloudflare keys and place its steps so a failed challenge blocks the login. Keycloak's built-in [reCAPTCHA](../security/recaptcha.md) covers registration only.
 - **Custom flows reviewed.** Confirm every alternative execution in a custom flow is deliberate and no path bypasses a step you rely on. See [Understanding Flows](../authentication/understanding-flows.md).

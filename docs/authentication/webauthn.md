@@ -49,11 +49,17 @@ That label will be used when the user is challenged on previous authentication a
 
 ### Passwordless
 
-Because of the superior security inherent in many devices, it is becoming popular to use WebAuthn as a replacement for passwords. This section will describe a configuration for using WebAuthn to implement a passwordless login flow.
+Because of the superior security inherent in many devices, it is becoming popular to use WebAuthn as a replacement for passwords.
+
+:::tip Start with Enable Passkeys
+For most realms, you do not need this hand-built flow. The **Enable Passkeys** setting under **Realm settings → Login** adds passkey sign-in to the standard login page and keeps the password field as a fallback. See [Passkeys](./passkeys.md).
+:::
+
+The flow below removes the password from the login page entirely. Use it only when you have deliberately decided to go passwordless, and give users another way in, such as a [magic link](./magic-links.md) as an alternative step, so that a user whose passkey fails is not locked out. See [When a passkey doesn't work](./passkeys.md#when-a-passkey-doesnt-work).
 
 #### Required action
 
-Again, prior to authentication setup, go to the **Required actions** tab and enable the _Webauthn Register Passwordless_ action. If you wish to make it mandatory that your users set up a WebAuthn device instead of using a password, also turn on _Set as default action_.
+Again, prior to authentication setup, go to the **Required actions** tab and enable the _Webauthn Register Passwordless_ action. If you wish to make it mandatory that your users set up a WebAuthn device instead of using a password, also turn on _Set as default action_. That forces every user to register before they can continue, so consider prompting users with an application-initiated action instead; see [Getting users to enroll](./passkeys.md#getting-users-to-enroll).
 
 ![Keycloak Authentication Passwordless Required Actions](/docs/auth-webauthn-passwordless-ra.png)
 
