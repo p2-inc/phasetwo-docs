@@ -77,10 +77,28 @@ The rollout that works is gradual:
 
 The full setup, including passkeys as a second factor instead of a replacement and the ways each setup can fail quietly, is in [Passkeys and WebAuthn in Keycloak](/tutorials/authentication/passkeys-webauthn). If you want to know which credential type you actually want, start with [Keycloak passkeys and WebAuthn: what's the difference?](/blog/webauthn-keycloak). The [Passkeys](/docs/authentication/passkeys) docs cover the Phase Two specifics.
 
+## When a passkey doesn't work
+
+Passkeys are supported in every current major browser and operating system, but "supported" is not "works every time for every customer." Plan for the attempts that fail, because a customer who cannot get in will not wait for you to fix it. The common causes:
+
+- **An older browser or operating system** that does not support passkeys, or a managed work device where they are turned off by policy.
+- **An in-app browser.** A customer who taps your link inside a social or messaging app often lands in that app's embedded browser, which may not support passkeys at all. Your own mobile app has the same problem if it shows login in an embedded web view; use the system browser for sign-in instead, which is the recommended practice for OAuth in native apps anyway.
+- **The passkey is on a different device.** A passkey saved to a phone is not automatically on the customer's work laptop. Signing in with a phone by scanning a QR code works, but it needs Bluetooth on both devices and the phone nearby.
+- **The passkey was deleted** from the device or password manager, while Keycloak still has it registered.
+- **The customer cancels the prompt, or the fingerprint or face check fails.** The browser reports a timeout, a cancellation and a refusal as the same generic error, so your login page cannot tell them apart. Treat them all as "offer another way."
+
+None of these should end in a dead end. The fallback design that works:
+
+1. **Keep the password on the same page.** Keycloak's **Enable Passkeys** setting already does this. The login page keeps the username and password fields and adds the passkey option next to them, so a customer whose passkey fails can type their password without going anywhere.
+2. **Offer a passwordless fallback if you have dropped passwords.** In a flow where the passkey is one of several alternative steps, Keycloak shows a **Try another way** link that lets the customer pick a different method. A [magic link](/docs/authentication/magic-links) or an email one-time code is the natural choice, because every customer has an inbox and nothing to remember.
+3. **Say it in plain language.** "Use your password instead" or "Email me a sign-in link" next to the passkey button, not an error code. The customer who never wanted a passkey should not have to understand why it failed.
+4. **Keep recovery independent of the passkey.** **Forgot password** or an emailed link must work for a customer who has lost every device. Never make the passkey the only way back into an account. Encourage customers to use passkeys that sync across their devices, so one lost phone is not a lost account.
+5. **Measure the fallback rate.** Track how often a passkey attempt ends with the customer signing in another way, by browser and platform. A rising rate on one platform is usually an in-app browser or an operating system update, and it is much cheaper to find in a dashboard than in support tickets.
+
+Treat the passkey as the fast path, not the only path. The speed gains in the published numbers come from the customers for whom it works, and the fallback is what keeps the rest from abandoning.
+
 ## What to watch for
 
-- **Account recovery.** A customer who loses their only device needs a way back in. Keep email-based recovery working, and encourage users to register passkeys that sync across their devices.
-- **Shared and older devices.** Some customers will sign in from a device that cannot hold a passkey. The password path, or a [magic link](/docs/authentication/magic-links), covers them.
 - **Direct grant.** Passkeys only work in browser flows. A client with Direct Access Grants enabled accepts a password at the token endpoint with no passkey step at all. Turn it off; see [Sign-in Methods, Grant Types and Clients](/docs/authentication/sign-in-methods).
 
 ## Do this next
