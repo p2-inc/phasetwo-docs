@@ -32,7 +32,7 @@ The standard browser flow already contains a **WebAuthn Authenticator** step, di
 
 How you set the requirement decides whether the passkey is optional or mandatory:
 
-- **Optional:** set **WebAuthn Authenticator** to **Alternative**. Users who have registered a passkey for 2FA can use it, or another second factor they have set up, after their password. Invite users to register one with `kc_action=webauthn-register`, as described below.
+- **Optional:** set **WebAuthn Authenticator** to **Alternative**. Users who have registered a passkey for 2FA are asked for it after their password. Users who have both a passkey and an authenticator app are shown one of them with a **Try another way** link to pick the other. Users with no second factor sign in with their password alone and are not sent to enroll. Invite users to register a passkey with `kc_action=webauthn-register`, as described below.
 - **Mandatory:** set **WebAuthn Authenticator** to **Required** and disable that sub-flow's **Condition - user configured**, so users without a passkey are sent to register one. The [tutorial](/tutorials/authentication/passkeys-webauthn) walks through this setup and how to confirm each change took effect. There are two steps named *Condition - user configured* in the browser flow; change only the one inside **Browser - Conditional 2FA**.
 
 ## Getting users to enroll
@@ -63,9 +63,9 @@ How the standard login page handles these, with **Enable Passkeys** on:
 |---|---|
 | The browser doesn't support passkeys, or autofill isn't available | Nothing visible. The passkey autofill is skipped and the password field works as usual. |
 | The user dismisses the passkey autofill | Nothing visible. They stay on the login page and can type their password. |
-| The user clicks **Sign in with Passkey** and then cancels, or the passkey fails | The page shows an error ("Invalid username or password") with no login form. Returning to the previous page shows "Page has expired" with a link to continue, and starting again from your application also works. |
+| The user clicks **Sign in with Passkey** and then cancels, or the passkey fails | The login page reloads with a message that the passkey operation was not allowed or timed out and to try again. The password field is still there. |
 
-The last row is worth planning for. Users who click the button and back out need one or two extra steps to get back to the password field, and the error message doesn't explain what happened. If that matters for your users, test it on the devices they use, and consider whether your theme should reword that message or rely on the autofill path, which fails silently.
+In every case the user stays on a page where they can still type their password. The same message appears when a user's passkey for a second factor isn't on the device they're using.
 
 To keep everyone able to sign in:
 
