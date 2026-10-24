@@ -1,7 +1,7 @@
 ---
 slug: azure-ad-b2c-end-of-sale
 title: "What Azure AD B2C's end of sale actually means"
-date: 2026-10-29
+date: 2026-10-26
 authors: [gpatil]
 tags: [keycloak, migration, azure, ciam, comparison]
 description: Azure AD B2C is end of sale, not end of life — supported to at least May 2030. What the March 2026 P2 date really was, and the three destinations worth considering.
