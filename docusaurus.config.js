@@ -725,6 +725,12 @@ module.exports = {
                     icon: "scale",
                   },
                   {
+                    to: "keycloak-alternatives/azure-ad-b2c",
+                    label: "vs Azure AD B2C",
+                    sub: "Where to land after B2C's end of sale",
+                    icon: "scale",
+                  },
+                  {
                     to: "blog/open-source-iam",
                     label: "Open-Source IAM",
                     sub: "The roundup",
