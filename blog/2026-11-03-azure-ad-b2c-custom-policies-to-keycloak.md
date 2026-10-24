@@ -2,6 +2,7 @@
 slug: azure-ad-b2c-custom-policies-to-keycloak
 title: "Porting Azure AD B2C custom policies to Keycloak"
 date: 2026-11-03
+unlisted: true
 authors: [jpatzer]
 tags: [keycloak, migration, azure, authentication, spi]
 description: A concept-by-concept map from Azure AD B2C custom policies (IEF) to Keycloak 26.8 — user journeys, technical profiles, claims transformations — and the three things that need Java.
@@ -187,8 +188,7 @@ enough without a translation layer in the middle.
 about is silently discarded on write, and the write still succeeds. That behaviour and the
 four `unmanagedAttributePolicy` values are covered properly in [managed vs unmanaged
 attributes](/tutorials/users/user-profile/); it is the single most expensive thing to discover
-late in a B2C migration, and it comes up again in [migrating users without password
-hashes](/blog/migrate-azure-ad-b2c-users-to-keycloak/).
+late in a B2C migration.
 
 ## Technical profiles: four kinds, four destinations
 

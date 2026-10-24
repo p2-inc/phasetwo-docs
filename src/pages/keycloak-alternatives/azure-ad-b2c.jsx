@@ -335,12 +335,7 @@ const sections = [
         <p>
           What has no clean equivalent: the parts of the Identity Experience Framework that are a
           programming language rather than a configuration — long claims-transformation chains,
-          and orchestration that branches on computed values. Those become Java. The
-          concept-by-concept version, with the configuration to go with it, is in{" "}
-          <Link to="/blog/azure-ad-b2c-custom-policies-to-keycloak/" className="ilink">
-            porting Azure AD B2C custom policies to Keycloak
-          </Link>
-          .
+          and orchestration that branches on computed values. Those become Java.
         </p>
       </>
     ),
@@ -382,11 +377,7 @@ const sections = [
           owe whichever platform you pick.
         </p>
         <p>
-          The patterns, with the decision table and the rough timelines, are in{" "}
-          <Link to="/blog/migrate-azure-ad-b2c-users-to-keycloak/" className="ilink">
-            migrating Azure AD B2C users without password hashes
-          </Link>
-          . We also do this as a service — see{" "}
+          We do this as a service — see{" "}
           <Link to="/support/migrate-to-keycloak/" className="ilink">
             migrate to Keycloak
           </Link>
@@ -520,11 +511,7 @@ const faqs = [
         As ranges rather than promises: a simple tenant with one or two built-in user flows and a
         couple of social identity providers is a few weeks. A tenant with custom policies, several
         enterprise federations and custom claims is two to four months. The custom-policy rewrite
-        dominates the estimate, and user migration is usually the predictable part — see{" "}
-        <Link to="/blog/migrate-azure-ad-b2c-users-to-keycloak/" className="ilink">
-          migrating Azure AD B2C users without password hashes
-        </Link>
-        .
+        dominates the estimate, and user migration is usually the predictable part.
       </p>
     ),
     text: "As ranges rather than promises: a simple tenant with one or two built-in user flows and a couple of social identity providers is a few weeks. A tenant with custom policies, several enterprise federations and custom claims is two to four months. The custom-policy rewrite dominates the estimate.",
@@ -538,11 +525,7 @@ const faqs = [
         with no converter — and explicitly says third-party identity providers configured through
         custom policies are not supported there. On Keycloak, user journeys become authentication
         flows and most technical profiles become configuration; the parts of the Identity Experience
-        Framework that behave like a programming language become Java. See{" "}
-        <Link to="/blog/azure-ad-b2c-custom-policies-to-keycloak/" className="ilink">
-          porting Azure AD B2C custom policies to Keycloak
-        </Link>
-        .
+        Framework that behave like a programming language become Java.
       </p>
     ),
     text: "They are rewritten, not converted, on every destination. Microsoft's migration guide maps custom policies to Entra External ID's custom authentication extensions, a different model with no converter, and says third-party identity providers configured through custom policies are not supported there. On Keycloak, user journeys become authentication flows and most technical profiles become configuration; the rest becomes Java.",

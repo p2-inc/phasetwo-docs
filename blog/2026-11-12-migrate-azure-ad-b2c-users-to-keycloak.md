@@ -2,6 +2,7 @@
 slug: migrate-azure-ad-b2c-users-to-keycloak
 title: "Migrating Azure AD B2C users without password hashes"
 date: 2026-11-12
+unlisted: true
 authors: [gpatil]
 tags: [keycloak, migration, azure, users, identity-providers]
 description: Azure AD B2C exports no password hashes. The three patterns that move users to Keycloak anyway — and why the usual just-in-time bridge is the wrong default for B2C specifically.
