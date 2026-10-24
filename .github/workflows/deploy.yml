@@ -18,6 +18,8 @@ concurrency:
 env:
   NODE_VERSION: 22
   CUSTOM_DOMAIN: phasetwo.io
+  # Google Tag Manager container; read by docusaurus.config.js. Unset means no tag.
+  GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
 
 jobs:
   test:
