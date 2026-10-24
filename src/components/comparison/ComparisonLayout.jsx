@@ -16,6 +16,7 @@ const VENDOR_LINKS = [
   { key: "ping-identity", label: "vs. Ping Identity", to: "/keycloak-alternatives/ping-identity/" },
   { key: "frontegg", label: "vs. FrontEgg", to: "/keycloak-alternatives/frontegg/" },
   { key: "onelogin", label: "vs. OneLogin", to: "/keycloak-alternatives/onelogin/" },
+  { key: "azure-ad-b2c", label: "vs. Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/" },
 ];
 
 // Render a feature-matrix cell from a compact value:
@@ -353,7 +354,7 @@ export default function ComparisonLayout({
                     </tbody>
                   </table>
                   <div className="cmp-foot">
-                    <span><span className="num" style={{ color: "#fff", fontWeight: 700 }}>{matrix.savings || "~80%"}</span> avg. cost reduction on switch</span>
+                    <span><span className="num" style={{ color: "#fff", fontWeight: 700 }}>{matrix.savings || "~80%"}</span> {matrix.savingsLabel || "avg. cost reduction on switch"}</span>
                     <button type="button" className="btn btn-primary" style={{ padding: "8px 14px", fontSize: 13 }} onClick={openModal}><Icon name="calendar" /> Book a savings review</button>
                   </div>
                 </div>
