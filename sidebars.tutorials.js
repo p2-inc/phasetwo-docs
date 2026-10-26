@@ -115,6 +115,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Data protection and exit",
+      link: { type: "generated-index" },
+      items: ["data-protection/exit-export"],
+    },
+    {
+      type: "category",
       label: "Extending Keycloak",
       link: { type: "generated-index" },
       items: ["extending/first-spi"],
