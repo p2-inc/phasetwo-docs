@@ -65,7 +65,11 @@ module.exports = {
       type: "category",
       label: "Clients, scopes, and mappers",
       link: { type: "generated-index" },
-      items: ["clients/oidc-client-types"],
+      items: [
+        "clients/oidc-client-types",
+        "clients/protocol-mappers",
+        "clients/audience",
+      ],
     },
     {
       type: "category",
@@ -100,12 +104,6 @@ module.exports = {
       label: "Realm administration",
       link: { type: "generated-index" },
       items: ["admin/fine-grained-permissions-v2"],
-    },
-    {
-      type: "category",
-      label: "Clients, scopes, and mappers",
-      link: { type: "generated-index" },
-      items: ["clients/protocol-mappers"],
     },
     {
       type: "category",
