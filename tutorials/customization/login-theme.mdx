@@ -1,0 +1,461 @@
+---
+id: login-theme
+title: Build a Custom Keycloak Login Theme
+description: Build a Keycloak login theme from two files, brand it without forking a template, and package it as a JAR — with the upgrade cost of each approach measured.
+keywords:
+  - keycloak login theme
+  - how to customize keycloak login page
+  - keycloak custom login theme
+  - keycloak theme.properties
+  - keycloak theme jar
+  - keycloakify
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl` and `kcadm.sh`
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Build a Custom Keycloak Login Theme
+
+A custom Keycloak login theme is **two files in a directory**:
+
+1. `themes/<name>/login/theme.properties`, containing one line — `parent=keycloak.v2` —
+   plus a `styles` line naming your stylesheet.
+2. `themes/<name>/login/resources/css/<name>.css`, your CSS.
+
+Point a realm at `<name>` and you are done. Everything else in this page is the part that
+goes wrong: your stylesheet silently **replaces** Keycloak's instead of adding to it, a
+typo in the theme name falls back to the default with one line in the server log, and a JAR
+missing one metadata file deploys cleanly and does nothing at all.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1`, `start-dev`, H2 dev database,
+single container). Every command, log line and byte count below is copied from a real run on
+2026-10-26. The official
+[Keycloak theme guide](https://www.keycloak.org/ui-customization/themes) is the reference for
+what each `theme.properties` key means; this page is which values to actually set, what each
+approach costs you at the next upgrade, and the five ways it fails without telling you.
+
+:::
+
+## What you'll build
+
+A login theme called `acme` that inherits Keycloak's current default look, applies a brand
+colour, changes the sign-in button's wording, and adds a support link under the form —
+without copying a single upstream template. Then the same theme packaged as a JAR and
+deployed to `providers/`, which is how it ships to a real server.
+
+## Pick the approach before you write any CSS
+
+There are three ways to change the login page and they differ by an order of magnitude in
+what they cost you every time Keycloak releases.
+
+| Approach | You maintain | Can change | Upgrade cost |
+|---|---|---|---|
+| **Child theme, CSS + messages only** | 1 properties file, 1 stylesheet, 1 message bundle | Colours, spacing, logo, wording | Near zero — you inherit every template |
+| **Child theme + a few template overrides** | The above, plus each `.ftl` you copied | Page structure | You re-diff each copied template against upstream, every release |
+| **[Keycloakify](https://www.keycloakify.dev/)** (React) | A front-end project | Anything | Bump one dependency, rebuild — but see the cost below |
+
+The decision is not aesthetic. On 26.8.1 the default login theme `keycloak.v2` ships **39
+FreeMarker templates totalling 2,374 lines**. Every one you copy is a line of upstream code
+you have taken ownership of. Start in the first row and move down only when a specific thing
+you need is genuinely impossible there.
+
+:::tip The first row covers more than people expect
+
+Keycloak's own legacy `keycloak` login theme overrides **zero** templates — its entire
+difference from `base` is a `theme.properties` file, a stylesheet and a message bundle. If
+Keycloak can ship a visually distinct theme that way, your brand probably can too.
+
+:::
+
+## Step 1: a server, and a directory it can see
+
+Mount a host directory into the container's `themes/` so you can edit files and reload the
+page:
+
+```bash
+mkdir -p /tmp/acme/login/resources/css /tmp/acme/login/messages
+
+docker rm -f kc 2>/dev/null
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -v /tmp/acme:/opt/keycloak/themes/acme \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+The directory name under `themes/` **is** the theme name. There is no registration step for a
+directory-deployed theme.
+
+:::note You do not need the caching flags in dev mode
+
+The official guide tells you to start with
+`--spi-theme--static-max-age=-1 --spi-theme--cache-themes=false --spi-theme--cache-templates=false`.
+Those are correct and necessary for `start` — but `start-dev` already disables theme caching.
+Verified: with plain `start-dev`, editing a message bundle and re-requesting the page returned
+the new string with no restart. Starting `start-dev` with `--spi-theme--cache-themes=true`
+instead, the same edit returned the **old** string until the container was restarted. Reach
+for the flags when you are debugging a theme on a production-mode server, not before.
+
+:::
+
+Then create a realm and a client to look at:
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 --realm master --user admin --password admin
+$K create realms -s realm=demo -s enabled=true
+$K create clients -r demo -s clientId=demo-app -s publicClient=true \
+  -s 'redirectUris=["http://localhost:3000/*"]'
+```
+
+Keep this URL handy — it is the login page, fetchable with `curl`, which is how you verify
+everything below without a browser:
+
+```bash
+URL='http://127.0.0.1:8080/realms/demo/protocol/openid-connect/auth?client_id=demo-app&response_type=code&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F'
+```
+
+## Step 2: the two files
+
+```bash
+cat > /tmp/acme/login/theme.properties <<'EOF'
+parent=keycloak.v2
+
+styles=css/styles.css css/acme.css
+EOF
+
+cat > /tmp/acme/login/resources/css/acme.css <<'EOF'
+:root {
+  --acme-brand: #0b5fff;
+}
+.login-pf-page .pf-v5-c-button.pf-m-primary {
+  background-color: var(--acme-brand);
+}
+.login-pf-page .pf-v5-c-login__main {
+  border-top: 4px solid var(--acme-brand);
+}
+EOF
+```
+
+Two things in `theme.properties` are worth more than the rest of the file:
+
+**`parent=keycloak.v2`, not `parent=base`.** The official walkthrough uses `parent=base`.
+`base` is marked `abstract=true` and ships no styling whatsoever — you inherit 46 templates
+and an unstyled page, and you are now writing a design system. `keycloak.v2` is the default
+login theme on 26.x (the server reports it as *"Cleaner and more modern, v2 supports
+automatic light/dark mode switching. (Default for Login)"*), and inheriting it means your
+theme starts where every screenshot of Keycloak starts.
+
+**`styles` replaces the parent's value. It does not append to it.** This is the single most
+common way a first theme ends up looking broken, and it is worth proving rather than
+asserting. With `styles=css/acme.css` alone, the login page's stylesheet links are:
+
+```html
+<link href="/resources/<ver>/common/keycloak/vendor/patternfly-v5/patternfly.min.css" ...>
+<link href="/resources/<ver>/common/keycloak/vendor/patternfly-v5/patternfly-addons.css" ...>
+<link href="/resources/<ver>/login/acme/css/acme.css" ...>
+```
+
+Keycloak's own `styles.css` is gone. Compare the default theme on the same server:
+
+```html
+<link href="/resources/<ver>/common/keycloak/vendor/patternfly-v5/patternfly.min.css" ...>
+<link href="/resources/<ver>/common/keycloak/vendor/patternfly-v5/patternfly-addons.css" ...>
+<link href="/resources/<ver>/login/keycloak.v2/css/styles.css" ...>
+```
+
+PatternFly survived because it comes from `stylesCommon`, which you did not override. Your
+own `styles` line wiped the one stylesheet that lays the page out. Naming both files —
+`styles=css/styles.css css/acme.css` — fixes it, and the file you did not write resolves
+through the parent:
+
+```bash
+curl -s "http://127.0.0.1:8080/resources/<ver>/login/acme/css/styles.css" | wc -c
+# 4243 — byte-identical to keycloak.v2/login/resources/css/styles.css
+```
+
+The URL is namespaced under `acme`, but the bytes come from `keycloak.v2`. Order matters:
+yours last wins.
+
+:::note `import=common/keycloak` is inherited
+
+Most examples, including the official one, carry `import=common/keycloak`. With
+`parent=keycloak.v2` it is redundant — the parent already declares it. Removing the line
+changed nothing about which stylesheets loaded or whether they returned 200. Keep it if you
+set `parent=base`; it is noise otherwise.
+
+:::
+
+## Step 3: point a realm at it
+
+Admin console: **Realm settings → Themes → Login theme**. Equivalently:
+
+```bash
+$K update realms/demo -s loginTheme=acme
+```
+
+Your theme appears in that dropdown because the server scanned `themes/` at startup. Confirm
+without clicking:
+
+```bash
+$K get serverinfo | jq '[.themes.login[].name]'
+# ["acme","keycloak","keycloak.v2"]
+```
+
+**A single client can override the realm's theme**, which is how you brand one tenant's
+login page without a realm per tenant. It is a client attribute, not a top-level field:
+
+```bash
+CID=$($K get clients -r demo -q clientId=demo-app --fields id --format csv --noquotes)
+$K update clients/$CID -r demo -s 'attributes.login_theme=acme'
+```
+
+With the realm left on `keycloak.v2`, that client alone rendered the `acme` theme. Clear it
+with `-s 'attributes.login_theme=""'` to fall back to the realm's.
+
+## Change the wording without touching a template
+
+Every visible string on the login page comes from a message bundle, so copy is a
+one-line file, not a template fork:
+
+```bash
+echo 'doLogIn=Sign in to Acme' > /tmp/acme/login/messages/messages_en.properties
+curl -s "$URL" | grep -A2 'id="kc-login"' | tail -1
+#   Sign in to Acme
+```
+
+The default is `Sign In`. The key names are the ones in
+`base/login/messages/messages_en.properties` inside the server's theme JAR; the ones you will
+want first are `loginTitle`, `loginAccountTitle`, `doLogIn`, `doForgotPassword` and
+`doRegister`. Add `messages_de.properties`, `messages_fr.properties` and so on per locale —
+`base` declares 39 of them.
+
+## Add to the page without forking a template
+
+`keycloak.v2` ships a designated extension point for this. Its `footer.ftl` is three lines,
+and the middle one is a comment from upstream telling you to override it:
+
+```html
+<#macro content>
+<#-- The footer at the bottom of the "login-box". You can override this file in your custom theme to declare a custom login footer element -->
+</#macro>
+```
+
+So:
+
+```bash
+cat > /tmp/acme/login/footer.ftl <<'EOF'
+<#macro content>
+  <div id="acme-footer" class="pf-v5-u-font-size-sm pf-v5-u-color-200 pf-v5-u-pt-md">
+    Trouble signing in? <a href="https://example.com/help">Contact Acme support</a>
+  </div>
+</#macro>
+EOF
+
+curl -s "$URL" | grep -A2 'acme-footer'
+#   <div id="acme-footer" class="pf-v5-u-font-size-sm pf-v5-u-color-200 pf-v5-u-pt-md">
+#     Trouble signing in? <a href="https://example.com/help">Contact Acme support</a>
+#   </div>
+```
+
+Three lines of upstream taken ownership of, not 2,374.
+
+## What overriding a real template costs
+
+Copy `login.ftl` and you now maintain 56 lines of someone else's code. That sounds cheap
+until you measure how fast it moves. Comparing `keycloak.v2/login` between **26.7.5**
+(released 2026-09-30) and **26.8.1** (released 2026-10-13) — two weeks apart:
+
+| Change | Count | Which |
+|---|---:|---|
+| Templates added | 6 | `divider`, `login-idp-link-confirm`, `login-oid4vp`, `login-update-profile`, `login-verify-email`, `qr-code` |
+| Templates modified | 3 | `login-config-totp` (36 lines), `oid4vc-credential-offer` (32), `social-providers` (105) |
+| `theme.properties` keys changed or added | 5 | including `kcFormSocialAccountListButtonClass`, `pf-m-secondary` → `pf-m-tertiary` |
+| Lines changed in `styles.css` | 64 | — |
+
+A theme that inherits picks all of that up for free. A theme that copied the template set at
+26.7.5 is now carrying three stale copies and missing six pages upstream restyled — and
+nothing warns you, because a stale copy renders perfectly.
+
+If you must override, prefer the small, structurally stable files. On 26.8.1 the shortest are
+`footer.ftl` (3 lines), `divider.ftl` (7), `password-commons.ftl` (8) and `qr-code.ftl` (12).
+The ones to avoid are `template.ftl` (289), `user-profile-commons.ftl` (237) and
+`field.ftl` (161) — the three that render everything else.
+
+## Ship it as a JAR
+
+A mounted directory is a development convenience. Production wants an artifact:
+
+```bash
+mkdir -p /tmp/jarbuild/META-INF /tmp/jarbuild/theme
+cp -r /tmp/acme /tmp/jarbuild/theme/acme
+
+cat > /tmp/jarbuild/META-INF/keycloak-themes.json <<'EOF'
+{
+  "themes": [
+    { "name": "acme", "types": ["login"] }
+  ]
+}
+EOF
+
+cd /tmp/jarbuild && jar cf /tmp/acme-theme.jar META-INF theme
+docker cp /tmp/acme-theme.jar kc:/opt/keycloak/providers/
+docker restart kc
+```
+
+Restart the container **without** the `-v /tmp/acme:/opt/keycloak/themes/acme` mount before
+you believe this worked. With both present, a theme named `acme` resolves either way and you
+cannot tell which one the server used.
+
+**`META-INF/keycloak-themes.json` is not optional and its absence is silent.** Built without
+it, the same JAR deployed to `providers/` produced:
+
+```bash
+$K get serverinfo | jq '[.themes.login[].name]'
+# ["keycloak","keycloak.v2"]
+```
+
+No warning, no error, nothing in the server log mentioning the file. The `name` in that JSON
+is the theme name, and it must match the directory under `theme/` in the archive. With the
+file present, the same restart returned `["acme","keycloak","keycloak.v2"]`.
+
+Note the server's startup line *"Updating the configuration and installing your custom
+providers, if any"* — anything in `providers/` requires a restart, so the live-edit loop
+above is worth keeping for development even if you ship JARs.
+
+## When to use Keycloakify instead
+
+Once you want real components rather than CSS over PatternFly,
+[Keycloakify](https://www.keycloakify.dev/) builds a React application and emits it as a
+standard Keycloak theme JAR. Phase Two publishes a shadcn/Tailwind starter you can build in
+one command:
+
+```bash
+git clone https://github.com/p2-inc/keycloakify-starter-shadcn
+cd keycloakify-starter-shadcn
+pnpm install && pnpm run build-keycloak-theme
+```
+
+That took **32 seconds** end to end and produced two JARs in `dist_keycloak/`:
+
+| Artifact | Size | For |
+|---|---:|---|
+| `keycloak-theme-for-kc-22-to-25.jar` | 2.3 MB | Keycloak 22–25 |
+| `keycloak-theme-for-kc-all-other-versions.jar` | 2.3 MB | 26.x and later |
+
+Copy the second into `providers/`, restart, and the theme name `keycloakify-starter` appears
+alongside the built-ins. It renders.
+
+Now the part a starter's README will not tell you. Requesting the same login page under each
+theme on the same server:
+
+| Theme | HTML | `<form>` in the HTML | JS to first paint |
+|---|---:|---|---:|
+| `keycloak.v2` | 6,722 bytes | yes | none |
+| `acme` (child theme) | 6,777 bytes | yes | none |
+| `keycloakify-starter` | 12,891 bytes | **no** | 116 kB gzipped |
+
+Keycloakify's generated templates are a bootstrap: the HTML contains no form, no username
+input, and no submit button. React renders them. The page pulls `index-*.js` (144,777 bytes
+raw / 46,919 gzipped) which in turn imports `KcPage-*.js` (211,501 / 69,286), and the theme
+carries 1.4 MB of uncompressed assets.
+
+That is a real trade and it has two sides. You get component-driven development, a Storybook
+preview of every page variation, and 40 generated templates you never hand-maintain — the
+upgrade problem measured above largely goes away, since you bump a dependency and rebuild.
+You give up a login page that works without JavaScript, and you add a front-end build to the
+path between "change a colour" and "it is live". For a brand colour and a logo, the two-file
+child theme is the right answer and stays the right answer.
+
+## Verify it worked
+
+Four checks, none of which require opening a browser:
+
+```bash
+# 1. The server can see the theme
+$K get serverinfo | jq '[.themes.login[].name]'
+
+# 2. The realm is actually using it
+$K get realms/demo --fields loginTheme --format csv --noquotes
+
+# 3. Your stylesheet is linked, and so is the parent's
+curl -s "$URL" | grep -oE 'href="[^"]*\.css[^"]*"'
+
+# 4. Every linked stylesheet returns 200
+for p in $(curl -s "$URL" | grep -oE '/resources/[^"]*\.css'); do
+  printf '%s %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8080$p")" "$p"
+done
+```
+
+Check 4 is the one people skip. A 404 on a stylesheet produces a page that renders — badly —
+with no error anywhere.
+
+## Troubleshooting
+
+**The page looks unstyled, or half-styled.** Your `styles` line replaced the parent's instead
+of extending it. List the parent's stylesheet first:
+`styles=css/styles.css css/acme.css`.
+
+**The theme is not in the dropdown.** For a directory: the path must be
+`themes/<name>/login/`, with `login` as a subdirectory of the theme, not the other way round.
+For a JAR: `META-INF/keycloak-themes.json` is missing or its `name` does not match the
+directory under `theme/` in the archive. Both fail silently. `$K get serverinfo | jq
+'[.themes.login[].name]'` is the fastest way to tell which.
+
+**The theme is selected but the page is unchanged.** A theme name that does not resolve falls
+back to the built-in and returns HTTP 200. The only evidence is one line in the server log:
+
+```
+ERROR [org.keycloak.theme.DefaultThemeManager] (executor-thread-1) Failed to find LOGIN theme nope, using built-in themes
+```
+
+`docker logs kc 2>&1 | grep DefaultThemeManager` after every rename.
+
+**Edits do not take effect.** On `start`, theme caching is on — restart, or start with
+`--spi-theme--static-max-age=-1 --spi-theme--cache-themes=false --spi-theme--cache-templates=false`.
+On `start-dev` it is already off, so if edits still are not landing, you are editing a file
+the container cannot see: check the `-v` mount, or that you are not editing a copy baked into
+a JAR in `providers/`.
+
+**It works for you and not for your users.** Static theme resources are served with
+`Cache-Control: max-age=2592000` — 30 days — outside dev mode. The cache key is the
+`/resources/<version>/` path segment, which changes when the server's resource version
+changes, so a redeploy busts it. A hot-fixed CSS file on an unchanged version does not.
+
+**One client looks wrong and the rest are fine.** Check that client's `login_theme`
+attribute. A per-client override outranks the realm setting and is easy to forget.
+
+## Next steps
+
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) — the
+  container this page starts from, in more detail.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  what the realm and client created above actually are.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — every
+  `$K` command here, explained.
+- [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
+  same `providers/` directory, for behaviour rather than appearance.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
+  changes *which* of those 39 pages a user sees, which is often the actual requirement.
+- [Keycloak as an identity and access management system](/docs/keycloak/iam/) — where themes
+  sit in the wider model.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Themes](https://www.keycloak.org/ui-customization/themes) and the
+  [Server Developer Guide](https://www.keycloak.org/docs/latest/server_development/index.html).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote>
+  Everything above runs on any Keycloak instance. Phase Two's hosted clusters ship a
+  Keycloakify-based theme covering login, account, admin and email, with branding applied
+  from realm attributes so a colour change needs no rebuild — see our open-source{" "}
+  <a href="/extensions/themes/">Keycloak themes</a> if you would rather start from one than
+  from an empty directory.
+</ProductionNote>
