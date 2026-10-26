@@ -25,6 +25,7 @@ This section is the **guide**. If you want the endpoint-by-endpoint reference, t
 | [**API keys**](/docs/management-api/api-keys)            | Create an API secret, exchange it for a token, and make your first call. Start here.                             |
 | [**Automation recipes**](/docs/management-api/recipes)   | Worked end-to-end examples: provision a cluster, onboard a tenant, add a custom domain, rotate credentials.      |
 | [**Terraform provider**](/docs/management-api/terraform) | Manage the same resources declaratively instead of scripting the API. **Experimental — test environments only.** |
+| [**AI agents**](/docs/management-api/ai-agents) | Let Claude configure Keycloak on your cluster with the Keycloak Skills plugin and the Phase Two MCP server. |
 | [**API reference**](/api/management-api-index)           | All 82 endpoints, with schemas and try-it.                                                                       |
 
 ## What this API is not
