@@ -86,6 +86,7 @@ module.exports = {
         "management-api/api-keys",
         "management-api/recipes",
         "management-api/terraform",
+        "management-api/ai-agents",
       ],
     },
     {
