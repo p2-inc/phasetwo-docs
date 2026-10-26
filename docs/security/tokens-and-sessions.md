@@ -1,6 +1,7 @@
 ---
 id: tokens-and-sessions
 title: Tokens and Sessions
+description: Keycloak token lifespans, refresh token rotation, offline sessions, and what a stolen token or session cookie gets an attacker, with the settings that limit it.
 ---
 
 Every successful sign-in creates a session in Keycloak and hands the application a set of tokens. How long each lasts, and how refresh tokens are handled, decides two things you care about in production: how long a stolen token stays useful, and whether real users get signed out when they should not. This page covers the settings and the client-side handling that goes with them. Behavior described here was checked against Keycloak 26.8.1.
@@ -106,6 +107,25 @@ export function refreshTokens(): Promise<Tokens> {
 | `1` | A refresh token can be used twice, so one duplicate refresh succeeds instead of ending the session | You need relief from duplicate refreshes while the client-side fix ships |
 
 `1` is a mitigation, not a fix. In testing with _Max Reuse_ at `1`, both duplicate refreshes succeeded, but each returned a different new refresh token, and continuing with the one that was not issued last sometimes failed with `Stale token` and ended the client session. An application that keeps whichever response arrived last can still sign users out, less often. Single-flight refreshes in the client are what make the problem go away, and once they are in place you can return to `0`.
+
+## Stolen tokens and replay
+
+A token is a bearer credential: whoever holds it can use it. What a stolen one is worth depends on which token it is and how your services check it.
+
+| Stolen | What the attacker gets | What limits it |
+|---|---|---|
+| Access token | API access until it expires | The access token lifespan. Logging the user out does not recall it from a service that validates tokens locally |
+| Refresh token | New access tokens until the session ends | Refresh token rotation, which turns a replay into a detected reuse; session idle and max lifespans |
+| Offline token | New access tokens for as long as the offline session lives, 30 days idle by default | Removing `offline_access` from clients that don't need it; revoking offline sessions explicitly |
+| Session cookies from a phishing proxy | A signed-in browser session, without needing the password or the second factor | Phishing-resistant sign-in with passkeys; short SSO idle times; re-authentication for sensitive actions |
+
+**Logout ends the session, not the access token.** In testing, after an admin logout of the user, the session's refresh token failed with `Session not active`, token introspection returned `{"active":false}`, and the userinfo endpoint rejected the access token. The access token itself was unchanged and still had nearly its full lifespan left. A resource server that validates the signature and `exp` locally, which is what most do, keeps accepting it until it expires. If you need revocation to take effect immediately for some APIs, have those APIs introspect the token, or keep the access token lifespan short. See [Validating tokens](/tutorials/securing-applications/validating-tokens) for the trade-off.
+
+**Sender-constrained tokens make a stolen token useless on its own.** With DPoP, the client proves possession of a private key on every request, and the token is bound to that key, so a copied token fails without it. DPoP is enabled by default in Keycloak 26.8.1, and the client must support it. [RFC 9700 for Keycloak](./oauth-security-bcp.md) covers DPoP and mTLS-bound tokens alongside the rest of the OAuth security guidance.
+
+**Session cookies are the target of phishing proxies.** An adversary-in-the-middle proxy relays the login, including a TOTP or email code, and keeps the session cookies Keycloak sets afterwards. Shorter SSO idle times and re-authentication before credential changes limit what the attacker can do with them. Passkeys stop the theft in the first place. See [Phishing-resistant login](./phishing-resistant-login.md).
+
+After an account takeover, end both the regular and the offline sessions. The admin logout does not touch offline sessions. The steps are in [Credential Stuffing and Account Takeover](./credential-stuffing.md#respond).
 
 ## Related
 
