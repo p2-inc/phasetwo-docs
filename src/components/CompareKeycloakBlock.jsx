@@ -14,6 +14,7 @@ const LINKS = [
   { key: "ping-identity", label: "vs. Ping Identity", to: "/keycloak-alternatives/ping-identity/" },
   { key: "frontegg", label: "vs. FrontEgg", to: "/keycloak-alternatives/frontegg/" },
   { key: "onelogin", label: "vs. OneLogin", to: "/keycloak-alternatives/onelogin/" },
+  { key: "azure-ad-b2c", label: "vs. Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/" },
 ];
 
 export default function CompareKeycloakBlock({ exclude }) {

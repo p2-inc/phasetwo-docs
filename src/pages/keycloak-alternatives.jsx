@@ -11,9 +11,9 @@ const DASH = "https://dash.phasetwo.io/";
 const PAGE_META = {
   title: "Keycloak Alternatives — Phase Two",
   description:
-    "Compare Keycloak to the leading commercial IAM platforms — Auth0, Okta, WorkOS, Ping Identity, FrontEgg, and OneLogin. See why managed open-source Keycloak is a flexible, cost-predictable alternative.",
+    "Compare Keycloak to the leading commercial IAM platforms — Auth0, Okta, WorkOS, Ping Identity, FrontEgg, OneLogin, and Azure AD B2C. See why managed open-source Keycloak is a flexible, cost-predictable alternative.",
   keywords:
-    "keycloak alternatives, auth0 alternatives, okta alternatives, open source iam, keycloak vs auth0, keycloak vs okta, managed keycloak",
+    "keycloak alternatives, auth0 alternatives, okta alternatives, azure ad b2c alternative, open source iam, keycloak vs auth0, keycloak vs okta, managed keycloak",
   url: "https://phasetwo.io/keycloak-alternatives/",
 };
 
@@ -24,6 +24,7 @@ const ROWS = [
   { vendor: "Ping Identity", to: "/keycloak-alternatives/ping-identity/", pricing: "Enterprise contracts; quote-based", deployment: "Cloud + self-managed options", onPrem: true, knownFor: "Large-enterprise IAM suites" },
   { vendor: "FrontEgg", to: "/keycloak-alternatives/frontegg/", pricing: "Per-MAU tiers; B2B feature gating", deployment: "Cloud SaaS only", onPrem: false, knownFor: "Embedded B2B user management" },
   { vendor: "OneLogin", to: "/keycloak-alternatives/onelogin/", pricing: "Per-user, per-module", deployment: "Cloud SaaS only", onPrem: false, knownFor: "Workforce SSO & access management" },
+  { vendor: "Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/", pricing: "Per-MAU, 50k free; end of sale since May 2025", deployment: "Azure only", onPrem: false, knownFor: "Customer identity on Azure" },
 ];
 
 const VENDOR_LOGOS = [
@@ -33,6 +34,7 @@ const VENDOR_LOGOS = [
   { name: "Ping Identity", src: "/customer-logos/ping-identity.svg" },
   { name: "FrontEgg", src: "/customer-logos/frontegg.svg" },
   { name: "OneLogin", src: "/customer-logos/onelogin.svg" },
+  { name: "Azure AD B2C", src: "/customer-logos/azure-ad-b2c.svg" },
 ];
 
 const CARDS = [
@@ -42,6 +44,7 @@ const CARDS = [
   { to: "/keycloak-alternatives/ping-identity/", logo: "/customer-logos/ping-identity.svg", title: "vs Ping Identity", desc: "Open-source alternative to Ping — without the suite contract.", cta: "Compare" },
   { to: "/keycloak-alternatives/frontegg/", logo: "/customer-logos/frontegg.svg", title: "vs FrontEgg", desc: "Open-source alternative to FrontEgg — B2B without per-MAU cost.", cta: "Compare" },
   { to: "/keycloak-alternatives/onelogin/", logo: "/customer-logos/onelogin.svg", title: "vs OneLogin", desc: "Open-source alternative to OneLogin — no per-module pricing.", cta: "Compare" },
+  { to: "/keycloak-alternatives/azure-ad-b2c/", logo: "/customer-logos/azure-ad-b2c.svg", title: "vs Azure AD B2C", desc: "Where to land after B2C's end of sale — and what it costs.", cta: "Compare" },
   { to: "/blog/open-source-iam/", icon: "file-text", title: "Open-Source IAM", desc: "The roundup — why open standards beat vendor lock-in.", cta: "Read" },
   { to: "/hosting/", icon: "cloud", title: "Managed Hosting", desc: "Run Keycloak with Phase Two — fixed cost, zero ops burden.", cta: "Learn more" },
 ];
@@ -66,6 +69,11 @@ const FAQS = [
     q: "Can I migrate off Auth0, Okta, or WorkOS to Keycloak?",
     a: <p>Yes. Keycloak can import your users and broker authentication to your existing provider during a phased cutover, so you can migrate incrementally without disrupting users. We've built tooling and a process for exactly this — see <Link to="/support/migrate-to-keycloak/" className="ilink">Migrate to Keycloak</Link>.</p>,
     text: "Yes. Keycloak can import your users and broker authentication to your existing provider during a phased cutover, so you can migrate incrementally without disrupting users.",
+  },
+  {
+    q: "What should Azure AD B2C customers migrate to?",
+    a: <p>Azure AD B2C is end of sale, not end of life — Microsoft supports it until at least May 2030. There are three realistic destinations: stay until 2030, move to Microsoft Entra External ID, or move to Keycloak. Because B2C custom policies have no converter on any destination, a tenant built on them is rebuilding its authentication logic whichever it picks. See <Link to="/keycloak-alternatives/azure-ad-b2c/" className="ilink">Keycloak vs. Azure AD B2C</Link>.</p>,
+    text: "Azure AD B2C is end of sale, not end of life — Microsoft supports it until at least May 2030. There are three realistic destinations: stay until 2030, move to Microsoft Entra External ID, or move to Keycloak. Because B2C custom policies have no converter on any destination, a tenant built on them is rebuilding its authentication logic whichever it picks.",
   },
   {
     q: "Is Keycloak a good alternative to commercial IAM?",

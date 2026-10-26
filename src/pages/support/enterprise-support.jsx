@@ -148,6 +148,10 @@ const ENGAGE_CARDS = [
         label: "vs FrontEgg",
         url: "/keycloak-alternatives/frontegg/",
       },
+      {
+        label: "vs Azure AD B2C",
+        url: "/keycloak-alternatives/azure-ad-b2c/",
+      },
     ],
     learnMore: {
       label: "Migrate to Keycloak",
