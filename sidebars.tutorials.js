@@ -65,7 +65,7 @@ module.exports = {
       type: "category",
       label: "Clients, scopes, and mappers",
       link: { type: "generated-index" },
-      items: ["clients/oidc-client-types"],
+      items: ["clients/oidc-client-types", "clients/service-accounts"],
     },
     {
       type: "category",

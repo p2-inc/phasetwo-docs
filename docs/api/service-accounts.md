@@ -5,6 +5,8 @@ title: Access Service Accounts
 
 It is recommended to create one (or more) service accounts in order to call the Phase Two and Keycloak admin APIs. A service account can be thought of as a special type of user that is associated with each Client in Keycloak, but does not have user status in your application.
 
+This page covers getting a service account working against our APIs. For the underlying open-source Keycloak mechanics — the client credentials grant, role scope mappings, and authenticating with a signed JWT instead of a secret — see [Keycloak service accounts and the client credentials grant](/tutorials/clients/service-accounts/).
+
 ### Creating a client
 
 Each OIDC client has a built-in service account which allows it to obtain an access token. You can create an configure such a client in the **Client** section by selecting the _Create client_ button. This will guide you through a wizard to set up your client. The important values to choose are:
