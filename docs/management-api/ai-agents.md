@@ -38,6 +38,12 @@ To add the MCP server on its own, without the skills:
 claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
 ```
 
+## No cluster yet? Ask the agent for one {#no-cluster-yet}
+
+You don't need a cluster before you start. With the plugin installed, ask the agent to "spin up a Phase Two cluster". It identifies you from your sign-in, finds the organization that will own the cluster, lets you pick a region and name, and creates a **Starter** cluster with a 30-day free trial. It gives you the checkout link to open and complete yourself, then waits until the cluster is active and offers to create your first realm.
+
+From there, keep going in the same session: "now add passwordless login by magic link".
+
 ## What it can do on your cluster
 
 On a Phase Two hosted cluster the MCP server covers:
