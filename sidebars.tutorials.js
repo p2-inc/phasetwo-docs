@@ -119,5 +119,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["extending/first-spi"],
     },
+    {
+      type: "category",
+      label: "Customization",
+      link: { type: "generated-index" },
+      items: ["customization/login-theme"],
+    },
   ],
 };
