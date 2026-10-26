@@ -1,6 +1,7 @@
 ---
 id: credential-stuffing
 title: Credential Stuffing and Account Takeover
+description: Credential stuffing prevention for Keycloak. How leaked passwords reach your realm, how to close every path, find taken-over accounts, and respond.
 ---
 
 Credential stuffing is the most common attack against a public Keycloak realm. The attacker does not guess passwords. They replay email and password pairs leaked from other sites, betting that some of your users reused a password. Each account is usually tried once, from a pool of addresses that changes constantly, by a script that never renders your login page. That shape is what defeats the defenses most realms rely on: per-user lockout never trips, per-IP limits barely register, and a CAPTCHA that is only checked in the browser is never seen.
@@ -54,7 +55,17 @@ Edge rules also see less than you might expect. A browser login carries `client_
 
 - **Offer MFA or passkeys** to users. They protect only browser sign-in, which is another reason to turn off direct grant, whose flow has no WebAuthn step.
 - **Limit offline access.** In a default realm, a direct grant on `admin-cli` with `scope=offline_access` returns an offline token valid for 30 days. Remove the `offline_access` scope from clients that don't need it. See [Tokens and Sessions](./tokens-and-sessions.md).
-- **Reject known-breached passwords** at registration and password change with a [password blacklist](./password-blacklist.md).
+- **Reject known-breached passwords** at registration and password change. See the next section for what this does and does not cover.
+
+### Reject breached passwords, and know what a list can't do
+
+Account takeover prevention has a part Keycloak can't see on its own: whether a password has already leaked somewhere else. Keycloak's [password blacklist](./password-blacklist.md) policy rejects any password on a list you supply, such as the [Pwned Passwords](https://haveibeenpwned.com/Passwords) corpus, and that is worth doing. Three limits apply:
+
+- **It only runs when a password is set.** Keycloak evaluates password policies on registration, password change and admin reset, never on sign-in. In our testing, a user whose password was set before a stricter policy was added kept signing in with it, while setting a new non-compliant password was refused. A list you add today does nothing for the passwords your users already have.
+- **It is only as current as the file.** A static list cannot know about a password that leaked last week. Refresh it on a schedule.
+- **It cannot tell you which existing accounts are exposed.** Keycloak stores password hashes, so there is nothing to compare against a leak later. If you need that, you need a check at the moment the plaintext is available: a breached-password service called during registration and password change, for example the Pwned Passwords range API, which takes the first five characters of the password's SHA-1 hash and never receives the password. Keycloak has no built-in integration for this, so it means a custom password policy or authenticator, or a third-party identity-threat service.
+
+Check at registration and password change, not on every sign-in. A per-login check multiplies the calls by your login volume and adds an external dependency to every sign-in, for little gain over checking when the password is chosen. To force existing users onto checked passwords, set a password age policy or require an update, and expect support load when you do.
 
 ### Watch for confirmation leaks
 
