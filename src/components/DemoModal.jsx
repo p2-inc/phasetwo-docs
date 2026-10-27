@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
+import { track } from "../analytics";
 
 const BOOKING_URLS = {
   us: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true",
@@ -37,6 +38,19 @@ export default function DemoModal({
   const turnstileContainerRef = useRef(null);
   const turnstileWidgetIdRef = useRef(null);
   const autoDismissRef = useRef(null);
+  const openTrackedRef = useRef(false);
+
+  // Once per open. The calendar booking itself happens inside Google's iframe
+  // and is not observable from here; the form submission below is.
+  useEffect(() => {
+    if (!isOpen) {
+      openTrackedRef.current = false;
+      return;
+    }
+    if (openTrackedRef.current) return;
+    openTrackedRef.current = true;
+    track("demo_modal_open", { view });
+  }, [isOpen, view]);
 
   // Close on Escape key
   useEffect(() => {
@@ -183,6 +197,7 @@ export default function DemoModal({
       }
 
       setSuccess("Request received. We will follow up shortly.");
+      track("demo_request", { method: "form" });
       autoDismissRef.current = setTimeout(() => {
         onClose();
       }, 8000);

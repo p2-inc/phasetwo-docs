@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Layout from "@theme-original/Layout";
-import useTrackPageViews from "../../useTrackPageViews";
 import ExecutionEnvironment from "@docusaurus/ExecutionEnvironment";
+import { applyTermsFeedConsent, readTermsFeedConsent } from "../../analytics";
 
 if (ExecutionEnvironment.canUseEventListeners) {
   document.addEventListener("DOMContentLoaded", function () {
@@ -17,15 +17,16 @@ if (ExecutionEnvironment.canUseEventListeners) {
       website_name: "Phase Two, Inc",
     });
   });
+  // TermsFeed fires this after it has saved a choice, with the accepted levels
+  // on the event. Consent Mode follows it; the tag itself is already loaded.
+  document.addEventListener("cc_userConsentSaved", (event) => {
+    applyTermsFeedConsent(event.details || readTermsFeedConsent());
+  });
 }
 if (ExecutionEnvironment.canUseDOM) {
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  (window.dataLayer = window.dataLayer || []),
-    gtag("js", new Date()),
-    gtag("config", "UA-160183620-1", {});
-  window.gtag = gtag;
+  // Returning visitor: replay the stored choice before the first hit goes out.
+  // The inline default in the <head> waits up to 500ms for exactly this.
+  applyTermsFeedConsent(readTermsFeedConsent());
 }
 
 function CookieAndAnalytics() {
@@ -44,9 +45,6 @@ function CookieAndAnalytics() {
 }
 
 export default function LayoutWrapper(props) {
-  useTrackPageViews();
-
-  useEffect(() => {}, []);
   return (
     <>
       <Layout {...props}>

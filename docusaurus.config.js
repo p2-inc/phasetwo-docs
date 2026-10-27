@@ -1,5 +1,29 @@
 const path = require("path");
 
+// Google Tag Manager container for phasetwo.io. The production build gets it from
+// the GTM_CONTAINER_ID Actions variable; unset, as in a local build, the site loads
+// no Google tag at all and src/analytics.js pushes into an array nobody reads.
+const GTM_CONTAINER_ID = process.env.GTM_CONTAINER_ID || "";
+
+// Consent Mode defaults go in before the container loads. Every storage type starts
+// denied; src/theme/Layout updates it from the TermsFeed banner, and the 500ms wait
+// lets a returning visitor's stored choice land before the first hit.
+const consentDefaultScript = [
+  "window.dataLayer = window.dataLayer || [];",
+  "function gtag(){dataLayer.push(arguments);}",
+  "gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500});",
+].join("");
+
+// The standard GTM loader, verbatim apart from the container id.
+const gtmLoaderScript = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_CONTAINER_ID}');`;
+
+const googleTagHeadTags = GTM_CONTAINER_ID
+  ? [
+      { tagName: "script", attributes: {}, innerHTML: consentDefaultScript },
+      { tagName: "script", attributes: {}, innerHTML: gtmLoaderScript },
+    ]
+  : [];
+
 module.exports = {
   // future: {
   //   experimental_faster: true,
@@ -31,6 +55,7 @@ module.exports = {
       process.env.TURNSTILE_SITE_KEY || "0x4AAAAAACjXlnccRgW3nXgA",
   },
   headTags: [
+    ...googleTagHeadTags,
     {
       tagName: "link",
       attributes: {
@@ -88,12 +113,6 @@ module.exports = {
       type: "text/javascript",
       charset: "UTF-8",
       defer: true,
-    },
-    {
-      type: "text/javascript",
-      src: "https://www.googletagmanager.com/gtag/js?id=UA-160183620-1",
-      async: true,
-      "data-cookie-consent": "tracking",
     },
     {
       src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
@@ -722,6 +741,12 @@ module.exports = {
                     to: "keycloak-alternatives/onelogin",
                     label: "vs OneLogin",
                     sub: "Open-source alternative to OneLogin",
+                    icon: "scale",
+                  },
+                  {
+                    to: "keycloak-alternatives/azure-ad-b2c",
+                    label: "vs Azure AD B2C",
+                    sub: "Where to land after B2C's end of sale",
                     icon: "scale",
                   },
                   {

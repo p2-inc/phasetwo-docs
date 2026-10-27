@@ -152,6 +152,17 @@ is the next step:
 Custom authenticators, event listeners, user storage and REST endpoints all build on that
 last one. *(Coming soon.)*
 
+**Branding the pages your users actually see** — the login screen is the one Keycloak page
+every user looks at:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Build a custom Keycloak login theme](/tutorials/customization/login-theme/) — colours,
+   wording and a logo, without forking an upstream template
+3. [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
+   same `providers/` directory, for behaviour rather than appearance
+
+Email templates and the account console build on the same theme system. *(Coming soon.)*
+
 **Getting your data back out** — what an export actually contains, and proving you could
 leave:
 

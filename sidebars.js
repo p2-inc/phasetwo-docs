@@ -86,6 +86,7 @@ module.exports = {
         "management-api/api-keys",
         "management-api/recipes",
         "management-api/terraform",
+        "management-api/ai-agents",
       ],
     },
     {
@@ -175,7 +176,14 @@ module.exports = {
       link: { type: "doc", id: "security/index" },
       items: [
         "security/credential-stuffing",
+        "security/password-spraying",
         "security/brute-force-detection",
+        "security/layer-7-floods",
+        "security/email-abuse",
+        "security/username-enumeration",
+        "security/phishing-resistant-login",
+        "security/detecting-attacks",
+        "security/oauth-security-bcp",
         "security/rate-limiting",
         "security/turnstile",
         "security/recaptcha",
