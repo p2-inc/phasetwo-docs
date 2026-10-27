@@ -1,0 +1,446 @@
+---
+id: exit-export
+title: "Export a Keycloak Realm, Users, and Credentials"
+description: A tested exit runbook — export a Keycloak realm with users and password hashes, import it on another server, and verify people can still log in.
+keywords:
+  - keycloak export realm
+  - kc.sh export
+  - keycloak import realm
+  - keycloak export users with passwords
+  - keycloak migrate realm to another server
+  - keycloak realm export credentials
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Shell access to the host running Keycloak, or to its database
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Export a Keycloak Realm, Users, and Credentials
+
+There is exactly one command that exports a Keycloak realm **with the password hashes**, and
+the flag that matters is `--users`:
+
+```bash
+kc.sh export --dir /opt/keycloak/data/export --realm myrealm --users realm_file
+```
+
+Use `realm_file` and you get **one** file containing the realm and every user. Use the
+default, `different_files`, and the users go into separate `myrealm-users-N.json` files — on
+a 2,003-user realm that is 41 of them. Copy only `myrealm-realm.json` out of the container
+and the import on the other side prints `Import finished successfully`, creates the realm,
+restores every client and secret, and gives you **zero users**. Exit code 0. No warning.
+
+That silent failure is the reason this page exists. Below: the three export paths and what
+each one can and cannot carry, a tested move of a 2,003-user realm between two servers, four
+verification checks that would have caught the empty import, and the measured list of what
+does not come with you.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`) on **PostgreSQL 16**, two
+separate server + database pairs, on a 2-vCPU host. Every timing, byte count, log line and
+error message below is copied from a real run on **2026-10-26**.
+
+The reference for the commands is Keycloak's
+[Importing and exporting realms](https://www.keycloak.org/server/importExport) guide, and it
+is accurate — this page does not restate it. The Server Administration Guide has one
+subsection on import (`partialImport` through `kcadm.sh`) and no section on export at all.
+Neither tells you which path carries credentials, what the other two drop, or how to prove
+the move worked.
+
+This page is about mechanics. Whether an exit obligation applies to you, on what deadline,
+and in what format is a contract question for whoever owns the agreement — not a Keycloak
+question, and not one this page answers.
+
+:::
+
+## The three paths, and what each one carries
+
+| | Admin API (`partial-export`) | `kc.sh export` | `pg_dump` |
+|---|---|---|---|
+| Server stays up | Yes | Documented as no | Yes |
+| Scope | One realm, config only | One realm, or all | Whole server |
+| Users | **Never** | Yes, with `--users` | Yes |
+| Password hashes | **Never** | Yes | Yes |
+| Client / IdP / LDAP secrets | Masked `**********` | **Cleartext** | Cleartext |
+| Realm signing keys | Masked | **Cleartext** | Cleartext |
+| Sessions, offline tokens | No | No | Yes |
+| Event and admin-event records | No | No | Yes |
+| Portable to another Keycloak | Config only | Yes | Same version only |
+
+Two rows decide everything. **The Admin API will never give you a password hash**, so no
+amount of scripting against `/admin/realms/{realm}/users` produces a usable export. And
+**`kc.sh export` writes your realm's private signing keys and every client secret to disk in
+cleartext**, so the output file is key material from the moment it is created.
+
+## Set up two servers to move a realm between
+
+```bash
+docker network create kcnet
+
+docker run -d --name kcdb --network kcnet \
+  -e POSTGRES_PASSWORD=kc -e POSTGRES_USER=kc -e POSTGRES_DB=keycloak postgres:16
+docker run -d --name kc --network kcnet -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_DB=postgres -e KC_DB_URL="jdbc:postgresql://kcdb:5432/keycloak" \
+  -e KC_DB_USERNAME=kc -e KC_DB_PASSWORD=kc \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+Repeat with `kcdb2` / `kc2` on port 8081 and `jdbc:postgresql://kcdb2:5432/keycloak` for the
+destination. Then build something worth moving — a realm, a confidential client with a
+secret, an identity provider, and users with passwords:
+
+```bash
+alias kcadm='docker exec kc /opt/keycloak/bin/kcadm.sh'
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+kcadm create realms -s realm=acme -s enabled=true -s sslRequired=NONE
+kcadm create clients -r acme -s clientId=portal -s enabled=true -s publicClient=false \
+  -s directAccessGrantsEnabled=true -s secret=s3cr3t-portal \
+  -s 'redirectUris=["https://portal.example.com/*"]'
+kcadm create users -r acme -s username=user1 -s enabled=true -s email=user1@example.de
+kcadm set-password -r acme --username user1 --new-password 'Passw0rd-1'
+```
+
+For a realistic export you want more than three users. `partialImport` creates them in one
+call — 2,000 users with argon2 passwords took **1m 23s** against this server:
+
+```bash
+python3 -c '
+import json
+users=[{"username":"bulk%05d"%i,"enabled":True,"email":"bulk%05d@example.de"%i,
+ "credentials":[{"type":"password","value":"Passw0rd-bulk-%05d"%i,"temporary":False}]}
+ for i in range(2000)]
+json.dump({"ifResourceExists":"SKIP","users":users}, open("bulk.json","w"))'
+
+TOKEN=$(curl -s -X POST http://127.0.0.1:8080/realms/master/protocol/openid-connect/token \
+  -d client_id=admin-cli -d username=admin -d password=admin -d grant_type=password \
+  | jq -r .access_token)
+curl -s -X POST "http://127.0.0.1:8080/admin/realms/acme/partialImport" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  --data-binary @bulk.json
+```
+
+```console
+{"overwritten":0,"added":2000,"skipped":0}
+```
+
+## Export the realm
+
+Keycloak's guide says the server must not be running when you export, and that a consistent
+result requires every node stopped. Take that seriously on a cluster: stop a node, or export
+from a restored copy of the database. The shape that keeps your service up is to point an
+idle Keycloak container at the same database and run `export` in that one.
+
+```bash
+docker exec kc /opt/keycloak/bin/kc.sh export \
+  --dir /tmp/exp --realm acme --users realm_file
+```
+
+```console
+2026-10-26 07:58:06,304 INFO  [org.keycloak.services] (main)
+  KC-SERVICES0035: Export finished successfully
+
+real    0m16.071s
+```
+
+One file, 1.87 MB, 2,003 users with their credentials:
+
+```console
+$ docker exec kc ls -la /tmp/exp
+-rw-r--r-- 1 keycloak root 1911845 Oct 26 07:58 acme-realm.json
+```
+
+Two measurements for sizing. Exporting the `master` realm alone — two users — took **9.7s**,
+so roughly ten seconds of that is JVM startup and the marginal cost of the 2,000 extra users
+was about **3 ms each**. Below a few thousand users the fixed cost dominates and the realm
+size barely matters. I did not test six-figure realms; Keycloak's own guidance there is about
+memory, not time — above 50,000 users it tells you to use `--users different_files` rather
+than a single file, which is the one case where the multi-file layout is the right answer.
+
+Three flags to get right:
+
+- **`--realm acme`.** Omit it and Keycloak exports *every* realm including `master` — and
+  with `--users realm_file` that writes your admin account's password hash to
+  `master-realm.json`. Verified: the file contains `"username": "admin"` with `secretData`
+  populated.
+- **`--users realm_file`.** The default is `different_files`, which splits users at 50 per
+  file. It is also rejected outright in single-file mode:
+
+  ```console
+  $ kc.sh export --file /tmp/acme.json --realm acme --users skip
+  Property '--users' can be used only when exporting to a directory,
+  or value set to 'same_file' when exporting to a file.
+  ```
+
+- **`--optimized`**, if your image was built with `kc.sh build`. Without it the export ran a
+  Quarkus re-augmentation first — "Changes detected in configuration. Updating the server
+  image", 8.9s — and that rewritten build persists and affects the next server start. On a
+  production container that is a side effect you did not ask for.
+
+Then get the file off the box. It is signing keys and secrets in cleartext, so treat the
+copy, the intermediate host and the temp directory accordingly:
+
+```bash
+docker cp kc:/tmp/exp ./exp
+```
+
+## Import it on the destination
+
+```bash
+docker cp ./exp kc2:/tmp/exp
+docker exec kc2 /opt/keycloak/bin/kc.sh import --dir /tmp/exp
+```
+
+```console
+2026-10-26 07:58:39,636 INFO  KC-SERVICES0030: Full model import requested.
+  Strategy: OVERWRITE_EXISTING
+2026-10-26 07:58:45,683 INFO  Realm 'acme' imported
+2026-10-26 07:58:45,690 INFO  KC-SERVICES0032: Import finished successfully
+
+real    0m26.891s
+```
+
+`OVERWRITE_EXISTING` is the default and it means what it says — a realm of the same name on
+the destination is replaced. Pass `--override false` to skip instead of replace.
+
+## Verify it worked — four checks
+
+The import log tells you almost nothing. Run all four of these; the first one alone is what
+catches the empty-users failure.
+
+**1. User count on both sides.**
+
+```console
+$ curl -s -H "Authorization: Bearer $TOKEN_SRC" .../admin/realms/acme/users/count
+2003
+$ curl -s -H "Authorization: Bearer $TOKEN_DST" .../admin/realms/acme/users/count
+2003
+```
+
+**2. Somebody logs in with their old password.** Pick a user from the middle of the set, not
+the one you created by hand:
+
+```bash
+curl -s -X POST http://127.0.0.1:8081/realms/acme/protocol/openid-connect/token \
+  -d client_id=portal -d client_secret=s3cr3t-portal \
+  -d username=bulk01999 -d password='Passw0rd-bulk-01999' -d grant_type=password
+```
+
+A token comes back. The argon2 hash moved intact, and so did the client secret you
+authenticated the request with.
+
+**3. The signing keys are the same keys.** Realm key material is in the export, so the `kid`
+set is identical on both servers — which means a token minted before the move still verifies
+against the new server's JWKS:
+
+```console
+$ curl -s http://127.0.0.1:8080/realms/acme/protocol/openid-connect/certs | jq -r '.keys[].kid'
+uHjv8AcrkS-gUWin788xxGfDH9NTJDFwb6p4FA41drc
+vW6YqiMdDJ6cBsrgndiOWW9W0-FbOdVS4ZEnTQcDBUM
+$ curl -s http://127.0.0.1:8081/realms/acme/protocol/openid-connect/certs | jq -r '.keys[].kid'
+uHjv8AcrkS-gUWin788xxGfDH9NTJDFwb6p4FA41drc
+vW6YqiMdDJ6cBsrgndiOWW9W0-FbOdVS4ZEnTQcDBUM
+```
+
+That the old keys follow you is convenient during a cutover and a reason to rotate once it
+is done — the destination realm is signing with a key that existed, in a file, on at least
+one machine that is no longer yours.
+
+**4. The `sub` claim is unchanged.** Keycloak preserves user ids through an export, so the
+subject your applications have been storing in their own tables still matches:
+
+```console
+sub on new server: f873cdbf-e7ad-4228-8a2b-6652b61ea8c7
+original user id:  f873cdbf-e7ad-4228-8a2b-6652b61ea8c7
+```
+
+This is the single biggest thing the JSON path gets right, and nothing in the output tells
+you it happened. If ids were regenerated, every foreign key to a Keycloak user in every
+application you own would break at cutover.
+
+## What does not come with you
+
+Measured on the same realm, before and after the import.
+
+| | Source | After realm import |
+|---|---|---|
+| Users | 2,003 | 2,003 |
+| Offline sessions on `portal` | 1 | **0** |
+| Active login sessions | present | **gone** |
+| Event records | 3 | **not in the export** |
+
+The export file carries the event *configuration* — `eventsEnabled`, `enabledEventTypes`,
+`adminEventsEnabled` are all there — and none of the event *records*. Your audit trail does
+not move; the switch that produces it does. The same is true of revoked-token state and
+workflow state.
+
+Sessions are the honest cost of the JSON path: **everyone is logged out at cutover, and every
+offline token is dead.** For an interactive application that is a login prompt. For a mobile
+app or a daemon holding an offline refresh token it is a re-consent flow you have to plan for.
+Note that since Keycloak 25 ordinary sessions are persisted alongside offline ones — in this
+realm `offline_user_session` held 7 rows with `offline_flag=0` and 1 with `offline_flag=1` —
+and the realm export carries neither kind.
+
+## When sessions matter: the database-dump path
+
+If you control both ends and both run the same Keycloak version, a database dump moves
+everything the realm export drops.
+
+```console
+$ docker exec kcdb pg_dump -U kc -d keycloak -f /tmp/kc.sql
+real    0m0.262s          # 1.5 MB for 2,004 users
+
+$ docker exec kcdb2 psql -U kc -d postgres -c "DROP DATABASE keycloak" \
+                                            -c "CREATE DATABASE keycloak OWNER kc"
+$ docker exec kcdb2 psql -U kc -d keycloak -q -f /tmp/kc.sql
+real    0m2.358s
+```
+
+The destination server then starts in **7.3s** with no `Initializing database schema` and no
+`Created temporary admin user` — it inherits the source's schema, its `master` realm and its
+administrators. Sessions and events come across intact: offline session count 1, event
+records 3.
+
+Two consequences nobody writes down.
+
+**It replaces the destination server, not just a realm.** The admin account you were using on
+the destination is gone, replaced by the source's. There is no realm-scoped version of this.
+
+**Session rows surviving is not the same as tokens surviving.** An offline refresh token
+minted by the source, redeemed against the destination after a full dump restore:
+
+```console
+{"error":"invalid_grant",
+ "error_description":"Invalid token issuer. Expected 'http://127.0.0.1:8081/realms/acme'"}
+```
+
+The row was there. The token was refused because the issuer URL changed. Restart the same
+server with `KC_HOSTNAME` set to the old base URL and the identical token redeems:
+
+```console
+REDEEMED, new access token issued, expires_in 299
+```
+
+So the dump path keeps offline tokens alive **only if the issuer URL survives the move** —
+a DNS cutover onto the same hostname, not a new one. If the hostname changes, the JSON path
+and the dump path cost you exactly the same thing, and the JSON path is the one Keycloak
+supports between servers. Version skew is the other limit: a dump carries the Liquibase
+schema with it, so restoring into an older Keycloak is not a supported operation. I tested
+26.8.1 to 26.8.1 only.
+
+## The one thing the Admin API can do that nothing documents
+
+The Admin API will not *read* a password hash. `GET /users/{id}/credentials` returns the
+algorithm parameters and withholds the hash itself:
+
+```console
+[{"id":"8644dedf-...","type":"password","createdDate":1793000909961,
+  "credentialData":"{\"hashIterations\":5,\"algorithm\":\"argon2\",...}"}]
+```
+
+No `secretData`. `GET /users?briefRepresentation=false` has no `credentials` key at all.
+
+But `partialImport` will *write* one. Take a user object straight out of a
+`kc.sh export` file, strip the `id` fields, and POST it to a live server:
+
+```bash
+python3 -c '
+import json
+u=json.load(open("acme-realm.json"))["users"][0]
+u.pop("id",None)
+u["credentials"]=[{k:v for k,v in c.items() if k not in ("id","createdDate")}
+                  for c in u["credentials"]]
+json.dump({"ifResourceExists":"OVERWRITE","users":[u]}, open("one.json","w"))'
+
+curl -s -X POST ".../admin/realms/acme/partialImport" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  --data-binary @one.json
+```
+
+```console
+{"overwritten":0,"added":1,"skipped":0,
+ "results":[{"action":"ADDED","resourceType":"USER","resourceName":"rehashed2"}]}
+```
+
+That user then logs in with the original password. Leave the credential `id` in and you get
+`409 {"errorMessage":"Duplicate resource error"}` instead.
+
+The asymmetry is the useful part: **hashes come out only through `kc.sh export` or the
+database, but they go in through a live server's API.** That is how you move users in batches
+with the destination serving traffic, instead of in one offline import.
+
+## Named failure modes
+
+- **`Import finished successfully` and the realm has no users.** You copied
+  `myrealm-realm.json` and left the `myrealm-users-N.json` files behind. Re-export with
+  `--users realm_file`, or copy the whole directory.
+- **`acme-users-10.json` sorts before `acme-users-2.json`.** The numbering is not
+  zero-padded, so any shell glob or `cat` that assumes numeric order is wrong. Hand the
+  directory to `kc.sh import --dir`; do not assemble the files yourself.
+- **`Property '--users' can be used only when exporting to a directory`.** You combined
+  `--file` with a `--users` value other than `same_file`. Use `--dir`.
+- **Unknown option: `--dir`.** The subcommand comes first. `kc.sh export --dir …`, never
+  `kc.sh --dir … export`.
+- **The export is gone when the container restarts.** `/tmp` and `/opt/keycloak/data/export`
+  inside a container are not a destination. `docker cp` it out, or mount a volume, in the same
+  step that produces it.
+- **"Changes detected in configuration. Updating the server image."** The export triggered a
+  rebuild that persists. Add `--optimized` next time.
+- **The destination lost its own admin account.** You used the database-dump path. It
+  replaces the whole server.
+- **Everything imported and the IdP login is broken.** The export carries the broker's
+  `clientSecret` in cleartext, but the *remote* identity provider still has the old
+  `redirect_uri` registered. Nothing in Keycloak can fix that end.
+- **LDAP users are missing.** The federation component travels — including
+  `bindCredential`, in cleartext — but the directory's contents do not. Users sourced from
+  LDAP re-import themselves on first lookup against the live directory; local-only
+  attributes on them are a separate concern this page did not test.
+
+## A realistic exit timeline
+
+The commands above move a 2,003-user realm in under a minute of machine time. What takes the
+day is everything around them:
+
+| Step | Measured / estimated |
+|---|---|
+| Export realm, 2,003 users | 16s |
+| Copy out of the container | seconds |
+| Import on destination | 27s |
+| Four verification checks | minutes |
+| Re-point every client's issuer URL | the actual work |
+| Re-consent offline-token holders | the actual risk |
+
+Do the export and the verification first, on a copy, long before you need them. An exit
+runbook you have never run is an assumption.
+
+## Next steps
+
+- [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
+  — the other half of a data-protection runbook: the four tables an export does not touch.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the client
+  for every Admin API call above.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  the realm this page exports.
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — why a custom
+  attribute can be missing from the export because it was never stored.
+- [Keycloak production readiness checklist](/blog/keycloak-production-checklist/) — why
+  `kc.sh export` is not a backup.
+- [Data residency vs data sovereignty for your identity provider](/blog/data-residency-vs-data-sovereignty-identity-provider/)
+  — what it means that whoever can run this export holds the realm's signing key.
+- [Audit log documentation](/docs/audit-logs/) — the event records that do not travel with a
+  realm export.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Importing and exporting realms](https://www.keycloak.org/server/importExport) and the
+  [Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
+- Clean up: `docker rm -f kc kc2 kcdb kcdb2 && docker network rm kcnet`.
+
+<ProductionNote />
