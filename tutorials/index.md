@@ -48,9 +48,10 @@ when you pick wrong:
 1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
 2. [Keycloak client types: public, confidential, bearer-only](/tutorials/clients/oidc-client-types/)
 3. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+4. [Keycloak service accounts and the client credentials grant](/tutorials/clients/service-accounts/)
+   — when the client *is* the caller and there is no user at all
 
-Protocol mappers, client scopes and service accounts build on the second one.
-*(Coming soon.)*
+Client scopes and audience configuration build on the same track. *(Coming soon.)*
 
 **Deciding who may do what** — the four ways Keycloak models permissions, and what each one
 puts in the token:
