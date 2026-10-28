@@ -196,9 +196,15 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Hosting",
+      label: "Self-Hosting",
       link: { type: "doc", id: "hosting/index" },
-      items: ["hosting/kubernetes", "hosting/connect"],
+      items: [
+        "hosting/docker",
+        "hosting/database",
+        "hosting/kubernetes",
+        "hosting/upgrading",
+        "hosting/on-prem",
+      ],
     },
     {
       type: "category",

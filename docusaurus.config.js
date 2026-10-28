@@ -1298,6 +1298,9 @@ module.exports = {
           // Each goes to the page that now covers its subject, not to a generic parent:
           // a redirect to something unrelated is treated as a soft 404 and is worth
           // about as much as the 404 it replaced.
+          // The Phase Two Connect page was folded into the Self-Hosting section's
+          // on-prem distribution page.
+          { from: "/docs/hosting/connect", to: "/docs/hosting/on-prem/" },
           { from: "/hosting/backups", to: "/docs/self-service/backups-and-data-retention/" },
           { from: "/hosting/version-upgrades", to: "/docs/self-service/upgrades/" },
           { from: "/hosting/monitoring", to: "/hosting/dedicated-clusters/" },
