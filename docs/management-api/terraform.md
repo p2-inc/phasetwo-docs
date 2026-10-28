@@ -45,7 +45,7 @@ terraform {
 }
 
 provider "phasetwo" {
-  environment = "app" # or "app-staging"
+  environment = "app"
 }
 ```
 
@@ -64,7 +64,7 @@ the client-credentials exchange for you.
 | `client_id`     | `PHASETWO_CLIENT_ID`     |                                                              |
 | `client_secret` | `PHASETWO_CLIENT_SECRET` | Sensitive                                                    |
 | `access_token`  | `PHASETWO_ACCESS_TOKEN`  | Use a token you already hold instead; **not refreshed**      |
-| `environment`   | `PHASETWO_ENVIRONMENT`   | `app` (default) or `app-staging`                             |
+| `environment`   | `PHASETWO_ENVIRONMENT`   | `app` (default)                                              |
 | `base_url`      | `PHASETWO_BASE_URL`      | Self-hosted or local; the auth root, overrides `environment` |
 | `realm`         | `PHASETWO_REALM`         | Defaults to `self`                                           |
 

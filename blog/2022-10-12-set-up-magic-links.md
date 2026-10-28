@@ -5,6 +5,10 @@ authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, magic_links]
 ---
 
+:::info
+This post was published in 2022, and some screenshots, hostnames, and product names have changed since. For current instructions, see [Magic Links](/docs/authentication/magic-links/).
+:::
+
 Someone who is reading this article is probably very different that the average internet user when it comes to passwords. Developers and IT admins, either because of security savvy or compliance, use password managers, multi-factor authentication (MFA) mechanisms, or prefer sites that offer passwordless authentication. Furthermore, they are keenly aware of the weaknesses in their personal "attack surface", and search for ways to balance convenience with risk.
 
 But you are here because you want to find a way to implement magic links quickly. First, some background.

@@ -6,6 +6,10 @@ authors: [gpatil]
 tags: [open_source, release, keycloak, phase_two, passwordless]
 ---
 
+:::info
+This post was published in 2022, and some screenshots, hostnames, and product names have changed since. For current configuration, see [Magic Links](/docs/authentication/magic-links/) and the [tutorials](/tutorials/).
+:::
+
 Today we're making two announcements: A new, highly-requested feature, and the open sourcing of the extension at the same time. We've received a lot of requests from customers to implement "magic link" login functionality that would allow users to login to an application using a link sent to their email or over some other secure channel.
 
 <!--truncate-->

@@ -25,9 +25,9 @@ Following user creation and authentication, invitees will be prompted to accept 
 
 #### Admin Portal
 
-If you plan to use the Admin Portal to manage invitations, then you must configure the invitation template because there is no `redirectUri` field provided like in the Keycloak admin UI. In order to configure this template easily in the Phase Two deployments, enable the `attributes` theme for emails in the Realm Settings > Themes > Email Theme.
+If you plan to use the Admin Portal to manage invitations, then you must configure the invitation template because there is no `redirectUri` field provided like in the Keycloak admin UI. On Phase Two deployments, make sure the `phasetwo-ui` theme is active for both the admin console and emails (Realm Settings > Themes).
 
-Once the attributes theme is set, go to (Extensions) Styles > [Emails](https://phasetwo.io/docs/getting-started/email/#content-templates), select the `invitation-email` template and configure the `{{link}}` you would like to have in your email for the user to click on. 
+Then go to **Extensions > Styles > Email**, select the **Organization Invitation** template, and configure the `{{link}}` you would like to have in your email for the user to click on. See [Content templates](../getting-started/email.md#content-templates).
 
 ### Options for user registration
 

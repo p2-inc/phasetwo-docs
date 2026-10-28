@@ -6,6 +6,10 @@ authors: [gpatil]
 tags: [release, keycloak, phase_two, cockroach, cockroachdb]
 ---
 
+:::info
+This post was published in 2022, and some screenshots, hostnames, and product names have changed since. The dashboard has changed a lot since this post. See the [Dashboard documentation](/docs/self-service/) for how it works today.
+:::
+
 We've been pretty quiet over the summer. Since we released the [Organizations](https://github.com/p2-inc/keycloak-orgs) and [Magic Link](https://github.com/p2-inc/keycloak-magic-link) extensions and open sourced them, there has been a lot of interest in using Phase Two.
 
 We were flattered by the inbound interest, but our small team wasn't able to keep up with demand for trial accounts. Rather than scramble against that demand, we opted to pause new accounts, and instead build a [self-service tool](https://phasetwo.io/docs/self-service/) to allow anyone to quickly provision a new deployment a try it out.

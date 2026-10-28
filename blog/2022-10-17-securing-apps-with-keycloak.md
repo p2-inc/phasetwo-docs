@@ -6,6 +6,10 @@ authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, sso, authentication, authorization]
 ---
 
+:::info
+This post was published in 2022, and some screenshots, hostnames, and product names have changed since. For current examples, see [Securing Applications](/docs/securing-applications/), the [tutorials](/tutorials/), and the [examples repository](https://github.com/p2-inc/examples).
+:::
+
 There are a lot of guides out there, official and unofficial, for how to secure applications with Keycloak. The subject is rather broad, so it's difficult to know where to start. To begin, we'll be focusing on Keycloak's use of OpenID Connect (OIDC), and how to use that standard, along with some helpful libraries, to secure a simple but instructive application.
 
 For the purposes of the sample, we'll actually be using two common applications, a frontend single-page application (SPA) written in JavaScript, and a backend REST API written for Node.js. The language we selected for the sample is JavaScript, but the principles apply no matter the implementation technology you choose.
@@ -76,7 +80,7 @@ npm install
 KC_REALM=<your-realm-name> KC_URL=<your-keycloak-url> npm start
 ```
 
-Be sure to replace the realm name, and the URL of your Keycloak installation (e.g. `https://usw2.auth.ac/auth/`).
+Be sure to replace the realm name, and the URL of your Keycloak installation (e.g. `https://<your-keycloak-host>/auth/`).
 
 This will install the necessary components using npm, and will start the servers for both applications. Note: the applications use ports 3001 and 3002 by default. If you have other applications running on these ports, you may have to temporarily shut them down.
 

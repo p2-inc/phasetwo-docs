@@ -6,6 +6,10 @@ authors: [gpatil]
 tags: [tutorial, keycloak, phase_two, email]
 ---
 
+:::info
+This post was published in 2022, and some screenshots, hostnames, and product names have changed since. For current instructions, including email branding and templates, see [Email](/docs/getting-started/email/).
+:::
+
 Email is one of the highest touch-points for users with your application. Being able to configure and [customize emails](https://phasetwo.io/blog/customizing-email-templates/) is key to user management and experience.
 
 One of the first things you will need to do when getting a Keycloak Realm ready for use is to set up your email server configuration. There are many system emails that are sent to users in the course of verifying and updating user accounts: Email address verification, magic links, password reset, account update, login failure notifications, identity provider linking, etc.
