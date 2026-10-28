@@ -160,7 +160,6 @@ module.exports = {
       items: [
         "audit-logs/access",
         "audit-logs/admin",
-        "audit-logs/system",
         "audit-logs/api",
         "audit-logs/webhooks",
       ],
@@ -192,7 +191,6 @@ module.exports = {
         "security/tokens-and-sessions",
         "security/password-policy",
         "security/password-blacklist",
-        "security/allow-deny-lists",
         "security/penetration-tests",
       ],
     },

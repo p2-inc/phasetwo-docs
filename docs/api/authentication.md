@@ -4,48 +4,53 @@ sidebar_label: Authentication
 title: Authentication API
 ---
 
-Authentication is achieved by using the `Authentication: Bearer <token>` header in all requests. This is either the access token received from a normal authentication, or by a request directly to the OpenID Connect token endpoint.
-
-It is recommended that you use a Keycloak Admin Client, such as [this one for Javascript](https://github.com/keycloak/keycloak-nodejs-admin-client), as they take care of authentication, getting an access token, and refreshing it when it expires.
-
-### Example requests
-
-#### Client credentials grant example
-
-The `client_credentials` grant type is used if you are following the recommended convention of making a service account to call the APIs. See the previous section on [service accounts](../service-accounts) if you need to set one up.
+Every request to the Phase Two and Keycloak admin APIs needs an access token in the `Authorization` header:
 
 ```
-POST /auth/realms/test-realm/protocol/openid-connect/token
-Host: app.phasetwo.io
+Authorization: Bearer <access_token>
+```
+
+For backend services and integrations, get the token for a [service account](./service-accounts.md) using the client credentials grant. If your own application calls the APIs on behalf of a logged-in user, you can use that user's access token instead, as long as the user has the admin roles the API requires.
+
+A Keycloak admin client library, such as the [Keycloak Admin Client for JavaScript](https://github.com/keycloak/keycloak/tree/main/js/libs/keycloak-admin-client), or one of our [SDKs](./sdks.md), can take care of getting an access token and refreshing it when it expires.
+
+### Client credentials grant example
+
+The `client_credentials` grant is used with a confidential client that has _Client authentication_ and _Service account roles_ turned on. See [Access Service Accounts](./service-accounts.md) to set one up. Replace the host, realm, client ID, and secret with your own.
+
+```
+POST /auth/realms/my-realm/protocol/openid-connect/token
+Host: <your-cluster-host>
 Accept: application/json
-Content-type: application/x-www-form-urlencoded
+Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&client_id=admin-cli&client_secret=fd649804-3a74-4d69-acaa-8f065c6b7da1
+grant_type=client_credentials&client_id=api-client&client_secret=<client-secret>
 ```
 
-#### Password grant example
+Or with curl:
 
-The `password` grant type can be used if normal users are using their credentials to obtain a token manually for the purpose of calling the APIs.
-
-```
-POST /auth/realms/test-realm/protocol/openid-connect/token
-Host: app.phasetwo.io
-Accept: application/json
-Content-type: application/x-www-form-urlencoded
-
-grant_type=password&username=uname@foo.com&password=pwd123AZY&client_id=admin-cli
+```bash
+curl -s https://<your-cluster-host>/auth/realms/my-realm/protocol/openid-connect/token \
+  -d grant_type=client_credentials \
+  -d client_id=api-client \
+  -d client_secret=<client-secret>
 ```
 
 ### Example response
 
-The response to each type will be a JSON document containing the access token and some information about type and expiration.
+The response is a JSON document containing the access token, its type, and its lifetime in seconds.
 
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-  "token_type": "bearer",
-  "expires_in": 60
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expires_in": 300,
+  "token_type": "Bearer",
+  "scope": "profile email"
 }
 ```
 
-The `access_token` value will be used in the `Authorization: Bearer {access_token}` header for all authenticated API requests.
+Use the `access_token` value in the `Authorization: Bearer <access_token>` header of your API requests, and request a new token when it expires. The client credentials grant does not return a refresh token.
+
+### Why not the password grant?
+
+The password grant (direct access grant), where an application sends a user's username and password to the token endpoint, is deprecated by the [OAuth 2.0 Security Best Current Practice](/docs/security/oauth-security-bcp) and skips the protections in your browser login flow, such as second factors. Use a service account for automation instead, and keep _Direct access grants_ turned off on your clients. See [Sign-in Methods and Grant Types](/docs/authentication/sign-in-methods) for more.

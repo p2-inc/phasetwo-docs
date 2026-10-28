@@ -7,7 +7,7 @@ Authentication refers to how your users will securely identify themselves to you
 
 ### Testing
 
-If you have not already, it is important to set up a test application such as the `debug-app` described in the [Getting started](/docs/getting-started) section. This will provide a mechanism to view and debug your authentication flows, validate that the desired user experience is correct, and the information you want passed to the application is present.
+If you have not already, set up a test application, such as one of the examples in [Sample Application](/docs/getting-started/sample). This will provide a mechanism to view and debug your authentication flows, validate that the desired user experience is correct, and the information you want passed to the application is present.
 
 ### Authentication topics
 

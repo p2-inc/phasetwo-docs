@@ -30,13 +30,14 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 Also, here is an unofficial list of OpenID Connect libraries we've heard good things about. Please [email us](mailto:support@phasetwo.io) if you're a library author, and you'd like to see your library linked here, or if you've had success with a library not listed here.
 
 - JavaScript (client-side)
+  - [oidc-spa](https://www.oidc-spa.dev/), which we recommend for many single-page apps. See the [React guide](./react.md#oidc-spa) for an example.
   - [OIDC Client](https://github.com/authts/oidc-client-ts)
   - [React OIDC Context](https://github.com/authts/react-oidc-context)
   - [NextAuth.js](https://next-auth.js.org/) (will become Auth.js)
   - [Auth.js](https://authjs.dev/)
-  - [Keycloak JavaScript Adapter](https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter) (the `keycloak-js` adapter is deprecated by Keycloak)
+  - [Keycloak JavaScript Adapter](https://www.keycloak.org/securing-apps/javascript-adapter) (`keycloak-js`, released by the Keycloak project as a standalone npm package)
 - Node.js (server-side)
-  - [Node.js](https://www.keycloak.org/docs/latest/securing_apps/#_nodejs_adapter)
+  - [Node.js](https://www.keycloak.org/securing-apps/nodejs-adapter)
 - Python
   - [oidc](https://pypi.org/project/oic/)
 - Go

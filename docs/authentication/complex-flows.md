@@ -3,7 +3,7 @@ id: complex-flows
 title: Complex Flows
 ---
 
-It is possible to create complex authentication flows with many options and conditionals. Each application use case is unique, and it may be necessary to combine some of the examples from the other sections in order to meet your specific needs. While no one guide can be comprehensive in this regard, we present a real-world example to facilitate understand of how different authentication methods can work together in a single flow.
+It is possible to create complex authentication flows with many options and conditionals. Each application use case is unique, and it may be necessary to combine some of the examples from the other sections in order to meet your specific needs. While no one guide can be comprehensive in this regard, we present a real-world example to help you understand how different authentication methods can work together in a single flow.
 
 ## Example scenario
 
@@ -17,7 +17,17 @@ As detailed in the previous sections, you may need to enable OTP and WebAuthn re
 
 ### Social providers
 
-For information on setting up social identity providers, we covered setup in the [configuring social providers](../social-login#configuring-social-providers) section.
+For information on setting up social identity providers, we covered setup in the [configuring social providers](./social-login.md#configuring-social-providers) section.
+
+### Enterprise SSO
+
+For users who sign in with their company's identity provider, add the email-first discovery steps described in [Enterprise SSO](./sso.md#flow) before the password form, so those users are redirected and everyone else continues to the password and second-factor steps.
+
+### Second factor
+
+Keep the conditional OTP sub-flow from the default browser flow, and add alternative steps for the other second factors you offer, such as [WebAuthn](./webauthn.md) or [Email OTP](./otps.md#email-otp). Users with more than one second factor set up can pick one with _Try another way_.
+
+For a tested, step-by-step build of a flow like this, see [Build a Custom Keycloak Authentication Flow](/tutorials/authentication/custom-flows/).
 
 ### Login UI
 

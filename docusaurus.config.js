@@ -1180,8 +1180,7 @@ module.exports = {
             // Patterns are matched against the route as generated, which ends in a
             // slash. "/search" alone therefore does NOT exclude "/search/", which is
             // why that URL was still being submitted. The entries below list both
-            // forms for anything without a "/**" suffix -- the same reason "/guides"
-            // and "/docs/affiliate" appear twice further down.
+            // forms for anything without a "/**" suffix.
             "/search",
             "/search/",
             "/blog/tags/**",
@@ -1200,16 +1199,11 @@ module.exports = {
             "/docs/category/**",
             "/api/category/**",
             "/updates/category/**",
-            // Routes with no indexable content of their own. These also carry noindex
-            // (or, for the two "Coming soon!" docs, are simply unwritten); keeping them
-            // out of the sitemap stops us asking Google to crawl a page we know is empty.
-            // Remove each entry as its page gets real content.
+            // Routes with no indexable content of their own. These also carry noindex;
+            // keeping them out of the sitemap stops us asking Google to crawl a page we
+            // know is empty. Remove each entry as its page gets real content.
             "/access", // bare Google Form iframe
             "/pricing", // redirect stub -> /pricing/hosting/
-            "/guides",
-            "/guides/",
-            "/docs/affiliate",
-            "/docs/affiliate/",
           ],
           createSitemapItems: async ({
             defaultCreateSitemapItems,
@@ -1315,6 +1309,17 @@ module.exports = {
           { from: "/support/version-upgrades", to: "/support/" },
           { from: "/support/guidance-for-scale", to: "/support/" },
           { from: "/support/infrastructure-implementation", to: "/support/" },
+          // Stale docs removed in the 2026-10 refresh. Each goes to the page that now
+          // covers its subject: the orphaned API description duplicated the
+          // Authentication API page, IP allow/deny lists shipped as cluster
+          // restrictions, the system audit-event page described events that are
+          // not offered, and the guides section and affiliate page were
+          // "Coming soon!" placeholders.
+          { from: "/docs/api-description", to: "/docs/api/authentication/" },
+          { from: "/docs/security/allow-deny-lists", to: "/docs/self-service/restrictions/" },
+          { from: "/docs/audit-logs/system", to: "/docs/audit-logs/" },
+          { from: "/docs/affiliate", to: "/docs/getting-started/" },
+          { from: "/guides", to: "/tutorials/" },
           // The /articles/ section was folded into /tutorials/. These are high-traffic
           // URLs, so every old path redirects rather than 404s. plugin-client-redirects
           // emits meta-refresh + rel=canonical, which is the strongest signal available
@@ -1424,16 +1429,6 @@ module.exports = {
         include: ["**/*.md", "**/*.mdx"],
         sidebarPath: require.resolve("./api-sidebar.js"),
         docItemComponent: "@theme/ApiItem",
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-docs",
-      {
-        id: "guides",
-        path: "guides",
-        routeBasePath: "guides",
-        include: ["**/*.md", "**/*.mdx"],
-        sidebarPath: require.resolve("./sidebars.guides.js"),
       },
     ],
     [

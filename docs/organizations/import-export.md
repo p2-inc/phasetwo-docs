@@ -19,9 +19,9 @@ If both `skipMissingMember` and `skipMissingIdp`are set to `false` the import wi
 For example,
 
 ```
-curl --location 'https://{$fqdn}/auth/realms/{{$realm}}/orgs/import?skipMissingMember=false&skipMissingIdp=false' \
+curl --location 'https://<your-cluster-host>/auth/realms/<realm>/orgs/import?skipMissingMember=false&skipMissingIdp=false' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{$access_token}}' \
+--header 'Authorization: Bearer <access_token>' \
 --data-raw '{
     "organizations": [
         {
@@ -145,8 +145,8 @@ Using Keycloak a `GET` http call to `orgs/export` the realm representation shoul
 For example,
 
 ```
-curl --location 'https://{$fqdn}/auth/realms/{{$realm}}/orgs/export?exportMembersAndInvitations=true' \
---header 'Authorization: Bearer {{$access_token}}'
+curl --location 'https://<your-cluster-host>/auth/realms/<realm>/orgs/export?exportMembersAndInvitations=true' \
+--header 'Authorization: Bearer <access_token>'
 ```
 
 ## Schemas

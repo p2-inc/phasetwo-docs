@@ -6,38 +6,41 @@ sidebar_label: Events
 
 ## Admin Events
 
-Description of the events associated with the management of organizations:
+Changes to organizations through the Organizations API produce these admin events:
 
-| Path                                                                        | Method   | Event type                | Operation |
-| --------------------------------------------------------------------------- | -------- | ------------------------- | --------- |
-| `/auth/realms/:realmId/orgs`                                                | `POST`   | ORGANIZATION              | CREATE    |
-| `/auth/realms/:realmId/orgs`                                                | `PUT`    | ORGANIZATION              | UPDATE    |
-| `/auth/realms/:realmId/orgs`                                                | `DELETE` | ORGANIZATION              | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/members/:userId`                         | `PUT`    | ORGANIZATION_MEMBERSHIP   | CREATE    |
-| `/auth/realms/:realmId/orgs/:orgId/members/:userId`                         | `DELETE` | ORGANIZATION_MEMBERSHIP   | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName`                         | `POST`   | ORGANIZATION_ROLE         | CREATE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName/:roleName`               | `DELETE` | ORGANIZATION_ROLE         | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName/:roleName`               | `PUT`    | ORGANIZATION_ROLE         | UPDATE    |
-| `/auth/realms/:realmId/orgs/users/:userId/orgs/:orgId/roles`                | `DELETE` | ORGANIZATION_ROLE_MAPPING | DELETE    |
-| `/auth/realms/:realmId/orgs/users/:userId/orgs/:orgId/roles`                | `PATCH`  | ORGANIZATION_ROLE_MAPPING | CREATE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName/users/:userId`           | `DELETE` | ORGANIZATION_ROLE_MAPPING | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName/users/:userId`           | `PUT`    | ORGANIZATION_ROLE_MAPPING | CREATE    |
-| `/auth/realms/:realmId/orgs/:orgId/roles/:roleName/users/:userId`           | `DELETE` | ORGANIZATION_ROLE_MAPPING | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/invitations/:invitationId`               | `POST`   | INVITATION                | CREATE    |
-| `/auth/realms/:realmId/orgs/:orgId/invitations/:invitationId/:invitationId` | `DELETE` | INVITATION                | DELETE    |
-| `/auth/realms/:realmId/orgs/:orgId/domains/:domainName/verify`              | `POST`   | DOMAIN                    | UPDATE    |
-| `/auth/realms/:realmId/orgs/import`                                         | `POST`   | ORGANIZATION_IMPORT       | CREATE    |
+| Path                                                            | Method   | Resource type             | Operation |
+| --------------------------------------------------------------- | -------- | ------------------------- | --------- |
+| `/auth/realms/:realm/orgs`                                      | `POST`   | ORGANIZATION              | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId`                               | `PUT`    | ORGANIZATION              | UPDATE    |
+| `/auth/realms/:realm/orgs/:orgId`                               | `DELETE` | ORGANIZATION              | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/members/:userId`               | `PUT`    | ORGANIZATION_MEMBERSHIP   | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId/members/:userId`               | `DELETE` | ORGANIZATION_MEMBERSHIP   | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/roles`                         | `POST`   | ORGANIZATION_ROLE         | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId/roles`                         | `PUT`    | ORGANIZATION_ROLE         | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId/roles`                         | `PATCH`  | ORGANIZATION_ROLE         | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/roles/:roleName`               | `PUT`    | ORGANIZATION_ROLE         | UPDATE    |
+| `/auth/realms/:realm/orgs/:orgId/roles/:roleName`               | `DELETE` | ORGANIZATION_ROLE         | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/roles/:roleName/users/:userId` | `PUT`    | ORGANIZATION_ROLE_MAPPING | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId/roles/:roleName/users/:userId` | `DELETE` | ORGANIZATION_ROLE_MAPPING | DELETE    |
+| `/auth/realms/:realm/users/:userId/orgs/:orgId/roles`           | `PUT`    | ORGANIZATION_ROLE_MAPPING | CREATE    |
+| `/auth/realms/:realm/users/:userId/orgs/:orgId/roles`           | `PATCH`  | ORGANIZATION_ROLE_MAPPING | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/invitations`                   | `POST`   | INVITATION                | CREATE    |
+| `/auth/realms/:realm/orgs/:orgId/invitations/:invitationId`     | `DELETE` | INVITATION                | DELETE    |
+| `/auth/realms/:realm/orgs/:orgId/domains/:domainName/verify`    | `POST`   | DOMAIN                    | UPDATE    |
+| `/auth/realms/:realm/orgs/import`                               | `POST`   | ORGANIZATION_IMPORT       | CREATE    |
+
+The admin event's `type` combines the resource type and operation, for example `admin.ORGANIZATION-CREATE`. See [Admin events](../audit-logs/admin.md).
 
 ## User events
 
-Description of the events associated with users in the context of a organization.
+Some organization actions also produce user (access) events.
 
-Organization management
+### Organization management
 
-| Path                                                | Method   | Event type     |
-| --------------------------------------------------- | -------- | -------------- |
-| `/auth/realms/:realmId/users/switch-organization`   | `PUT`    | UPDATE_PROFILE |
-| `/auth/realms/:realmId/orgs/:orgId/members/:userId` | `DELETE` | UPDATE_PROFILE |
+| Path                                              | Method   | Event type     |
+| ------------------------------------------------- | -------- | -------------- |
+| `/auth/realms/:realm/users/switch-organization`   | `PUT`    | UPDATE_PROFILE |
+| `/auth/realms/:realm/orgs/:orgId/members/:userId` | `DELETE` | UPDATE_PROFILE |
 
 ### Invitations
 
@@ -47,7 +50,7 @@ Organization management
 
 ![invitation-required-action-error](/docs/organizations/active/events/invitation-required-action-error-event.png)
 
-### Post IdP login ("Add user to org" Authenticator)`
+### Post IdP login ("Add user to org" Authenticator)
 
 **Event type**: `IDENTITY_PROVIDER_POST_LOGIN`
 
