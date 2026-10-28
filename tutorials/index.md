@@ -50,9 +50,11 @@ when you pick wrong:
 3. [Keycloak audience: get the `aud` claim right](/tutorials/clients/audience/) — the claim
    that decides which APIs will accept the token
 4. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+5. [Keycloak service accounts and the client credentials grant](/tutorials/clients/service-accounts/)
+   — when the client *is* the caller and there is no user at all
 
 [Protocol mappers](/tutorials/clients/protocol-mappers/) covers every other claim the same
-objects emit. Client scopes and service accounts build on them too. *(Coming soon.)*
+objects emit. Client scopes build on them too. *(Coming soon.)*
 
 **Deciding who may do what** — the four ways Keycloak models permissions, and what each one
 puts in the token:
@@ -153,6 +155,26 @@ is the next step:
 
 Custom authenticators, event listeners, user storage and REST endpoints all build on that
 last one. *(Coming soon.)*
+
+**Branding the pages your users actually see** — the login screen is the one Keycloak page
+every user looks at:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Build a custom Keycloak login theme](/tutorials/customization/login-theme/) — colours,
+   wording and a logo, without forking an upstream template
+3. [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
+   same `providers/` directory, for behaviour rather than appearance
+
+Email templates and the account console build on the same theme system. *(Coming soon.)*
+
+**Getting your data back out** — what an export actually contains, and proving you could
+leave:
+
+1. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+2. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
+3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+
+Event retention and realm key management build on the same track. *(Coming soon.)*
 
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 

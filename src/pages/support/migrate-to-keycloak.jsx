@@ -124,6 +124,12 @@ const IDP_LOGOS = [
     src: "/customer-logos/onelogin.svg",
     alt: "OneLogin",
   },
+  {
+    href: "/keycloak-alternatives/azure-ad-b2c/",
+    icon: null,
+    src: "/customer-logos/azure-ad-b2c.svg",
+    alt: "Azure AD B2C",
+  },
 ];
 
 export default function MigrateToKeycloak() {

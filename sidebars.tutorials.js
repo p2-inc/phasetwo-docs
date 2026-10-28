@@ -69,6 +69,7 @@ module.exports = {
         "clients/oidc-client-types",
         "clients/protocol-mappers",
         "clients/audience",
+        "clients/service-accounts",
       ],
     },
     {
@@ -113,9 +114,21 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Data protection and exit",
+      link: { type: "generated-index" },
+      items: ["data-protection/exit-export"],
+    },
+    {
+      type: "category",
       label: "Extending Keycloak",
       link: { type: "generated-index" },
       items: ["extending/first-spi"],
+    },
+    {
+      type: "category",
+      label: "Customization",
+      link: { type: "generated-index" },
+      items: ["customization/login-theme"],
     },
   ],
 };
