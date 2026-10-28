@@ -34,7 +34,7 @@ Two things are worth maintaining independently of our backups:
 
 Deleting a cluster does not purge its data immediately. After the deletion takes effect there is a grace period during which the cluster remains available, followed by a longer window in which the data is preserved but the cluster is not running. After that, the data is purged permanently and cannot be recovered by us or by you.
 
-For the current grace and preservation periods, see [Dedicated Clusters](./dedicated-clusters.md#deleting-a-cluster). If you are deleting a cluster and may want the data later, export what you need before the deletion rather than relying on the preservation window.
+For the current grace and preservation periods, see [Billing & Subscriptions](./billing.md#what-happens-to-your-cluster-and-data). If you are deleting a cluster and may want the data later, export what you need before the deletion rather than relying on the preservation window.
 
 ## Recovery objectives and compliance documentation
 
