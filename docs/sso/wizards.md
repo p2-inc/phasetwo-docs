@@ -3,7 +3,7 @@ id: wizards
 title: Wizards
 ---
 
-The identity provider setup wizards give you a guided way to configure SSO and directory sync without working directly in the full Keycloak UI. They are the same flows used in the Admin Portal and in the Phase Two Connect onboarding experience.
+The identity provider setup wizards give you a guided way to configure SSO and directory sync without working directly in the full Keycloak UI. They are the same flows used in the Admin Portal and in [on-prem distributions](../hosting/on-prem.md) of the Phase Two image.
 
 These wizards are useful when you are onboarding a customer alongside their IT administrator, when you want a more repeatable setup path for common providers, or when you need to hand off setup to organization administrators without exposing the full admin console.
 
@@ -16,7 +16,7 @@ These wizards are useful when you are onboarding a customer alongside their IT a
 - A final validation step so you can test the connection before rolling it out to end users
 
 :::info
-The exact set of available wizards depends on your distribution. The base/open distribution includes the generic SAML, OpenID Connect, and LDAP flows. Licensed Phase Two Connect distributions may also include vendor-specific wizards.
+The exact set of available wizards depends on your distribution. The public image includes the generic SAML, OpenID Connect, and LDAP flows. Licensees with a support agreement can get images with the vendor-specific wizards from a private registry. See [On-Prem Distribution](../hosting/on-prem.md#available-wizards).
 :::
 
 ## Supported vendors
