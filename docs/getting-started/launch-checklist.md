@@ -106,7 +106,7 @@ These are covered in more depth in [Tokens and Sessions](../security/tokens-and-
 
 ## Commercial and support
 
-- **Payment method and billing contacts current.** A failed payment puts a cluster on a path to deletion, so keep both up to date. See [Your Organization](../self-service/your-organization.md).
+- **Payment method and billing contacts current.** A failed payment suspends billing on the cluster and, if it isn't resolved, leads to its removal, so keep both up to date. See [Billing & Subscriptions](../self-service/billing.md).
 - **Cluster tier sized for production load**, with headroom for a launch spike.
 - **Load testing coordinated with us in advance**, so we can confirm your cluster is sized for it and distinguish the test from an attack. Email [support@phasetwo.io](mailto:support@phasetwo.io).
 - **Penetration testing scheduled with support**, if you plan to run one. It is not available on Starter clusters. See [Penetration Tests](../security/penetration-tests.md).

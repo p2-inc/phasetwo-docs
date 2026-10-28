@@ -33,6 +33,7 @@ module.exports = {
         "self-service/your-organization",
         "self-service/dedicated-clusters",
         "self-service/create-a-cluster",
+        "self-service/billing",
         "self-service/realms",
         "self-service/regions",
         "self-service/egress-ip-addresses",

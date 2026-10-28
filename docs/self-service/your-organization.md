@@ -27,7 +27,8 @@ In the members list you can perform a couple of actions:
 
 - Click the far right "\*\*\*" menu
   - **Edit roles**: change the roles a user has within a realm or cluster.
-  - **Remove member**: removes their membership, does not delete their account. They will not longer be able to access any associated realms or clusters.
+  - **Remove member**: removes their membership, does not delete their account. They will no longer be able to access any associated realms or clusters.
+  - **Add billing contact** / **Remove billing contact**: choose whether they receive copies of billing emails. See [Billing contacts](./billing.md#billing-contacts).
 - Click the "realm" badges
   - **[Edit roles](#roles)**: change the roles a user has within a realm or cluster.
 
@@ -58,6 +59,7 @@ Or fine-grained, where the names of the roles explain their functionality.
 - `view-invitations`: able to view invites within a team
 - `view-identity-providers`: able to view IdPs within a team
 - `view-clusters`: able to view the cluster(s) that a team owns
+- `view-billing`: able to view the team's payment methods
 
 ### Manage Roles
 
@@ -66,7 +68,12 @@ Or fine-grained, where the names of the roles explain their functionality.
 - `manage-roles`: able to manage roles within a team
 - `manage-invitations`: able to issue and manage invites within a team
 - `manage-identity-providers`: able to setup and managed IdPs within a team
-- `manage-clusters`: able to manage the cluster(s) that a team owns
+- `manage-clusters`: able to manage the cluster(s) that a team owns, including opening the billing portal and cancelling a subscription
+- `manage-billing`: able to add, remove, and set the default payment method for the team
+
+## Billing
+
+Select the **Billing** tab to manage the payment methods your team uses for its clusters: add a card, set the default, or remove one that no subscription is using. Viewing needs `view-billing` and changes need `manage-billing`. See [Billing & Subscriptions](./billing.md).
 
 ## SSO
 

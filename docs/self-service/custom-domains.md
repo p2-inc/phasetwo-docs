@@ -178,5 +178,5 @@ Note that Apple serves association files through its own CDN and can take up to 
 The same files govern passkeys, not only saved passwords. A passkey is bound to a relying party ID — a domain — and that binding is fixed when the credential is created. Changing it later invalidates existing passkeys rather than migrating them, so if passkeys are on your roadmap, settle which domain hosts your login page before enrolling anyone.
 
 :::tip On the Starter plan?
-App association files need Premium or Enterprise. Your custom domains keep working exactly as they are — upgrading adds the ability to serve these files on them, and takes effect immediately with no downtime. [Compare plans](/pricing) or change your plan from **Clusters > Cluster > Config > Subscription**.
+App association files need Premium or Enterprise. Your custom domains keep working exactly as they are — upgrading adds the ability to serve these files on them, and takes effect immediately with no downtime. [Compare plans](/pricing), and email [support@phasetwo.io](mailto:support@phasetwo.io) to change your plan. See [Changing your plan](./billing.md#changing-your-plan).
 :::
