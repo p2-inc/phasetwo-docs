@@ -1,0 +1,472 @@
+---
+id: audience
+title: "Keycloak Audience: Get the aud Claim Right"
+description: How Keycloak decides what goes in the aud claim, the two mechanisms that put it there, and the ways it silently comes out empty. Tested on Keycloak 26.8.1.
+keywords:
+  - keycloak audience
+  - keycloak aud claim
+  - keycloak audience mapper
+  - oidc-audience-mapper
+  - keycloak invalid audience
+  - included client audience
+difficulty: intermediate
+time: 35 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - curl, jq and python3
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Audience: Get the `aud` Claim Right
+
+The `aud` (audience) claim names the services a Keycloak access token may be presented to.
+A resource server that validates the claim will reject anything else, which is why a token
+that looks perfectly valid still comes back 401. Keycloak puts a value in `aud` in exactly
+two ways:
+
+1. **Audience Resolve** — a mapper in the built-in `roles` client scope that adds every client
+   the user holds a *client role* on. This is why `aud` is `"account"` on a brand-new realm,
+   and it runs whether or not you asked for it.
+2. **The Audience protocol mapper** (`oidc-audience-mapper`) — adds one client id, or one
+   literal string such as a URL, regardless of roles.
+
+Nothing else writes the claim. Keycloak never adds the client the token was *issued to* —
+that is `azp`. And when neither mechanism produces anything, Keycloak **omits `aud` entirely**
+rather than issuing an empty array, which is why a strict validator reports a missing claim
+rather than a wrong one.
+
+To put your API in the audience of a token:
+
+1. Decide which mechanism applies — client roles (Audience Resolve) or no roles (Audience
+   mapper).
+2. Put it on a **client scope**, not on the frontend client, so you can turn it on per request.
+3. Attach that scope to the frontend client as **Default** (always) or **Optional** (only when
+   the client sends `scope=<name>`).
+4. Verify with the evaluate endpoint before you issue a single real token.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`), on **2026-10-26**. Every
+`aud` value, error string and log line below is copied from a run against that server. The
+official
+[Audience support](https://www.keycloak.org/docs/latest/server_admin/index.html#audience-support)
+chapter is the reference for what the mechanisms are; it is written entirely in admin-console
+clicks and stops before the failure modes. This page is the CLI sequence, the verification
+step, and the ways the claim comes out wrong.
+
+:::
+
+## Prerequisites
+
+```bash
+docker run -d --name kc -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+A realm with two resource servers, one frontend, and a user. `orders-api` and `billing-api`
+are confidential clients with every flow disabled — they never obtain a token, they only
+appear in one. That is the correct shape for an API; see
+[client types](/tutorials/clients/oidc-client-types/) for why.
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+$K create realms -s realm=aud -s enabled=true
+
+$K create clients -r aud -s clientId=orders-api -s publicClient=false -s secret=secret \
+  -s standardFlowEnabled=false -s directAccessGrantsEnabled=false
+$K create clients -r aud -s clientId=billing-api -s publicClient=false -s secret=secret \
+  -s standardFlowEnabled=false -s directAccessGrantsEnabled=false
+$K create clients -r aud -s clientId=frontend -s publicClient=true \
+  -s standardFlowEnabled=true -s directAccessGrantsEnabled=true
+
+ORDERS=$($K get clients -r aud -q clientId=orders-api --fields id --format csv --noquotes)
+$K create clients/$ORDERS/roles -r aud -s name=orders-read
+
+$K create users -r aud -s username=ada -s enabled=true -s emailVerified=true \
+  -s email=ada@example.com -s firstName=Ada -s lastName=Lovelace
+$K set-password -r aud --username ada --new-password pass
+```
+
+Two shell helpers — one to get a token, one to print only the audiences:
+
+```bash
+tok() { curl -s -X POST http://127.0.0.1:8080/realms/aud/protocol/openid-connect/token \
+  -d client_id=frontend -d grant_type=password -d username=ada -d password=pass \
+  --data-urlencode "scope=$1" ; }
+
+aud() { python3 -c "
+import sys,json,base64
+r=json.load(sys.stdin)
+def d(t):
+    p=t.split('.')[1]; p+='='*(-len(p)%4); return json.loads(base64.urlsafe_b64decode(p))
+a=d(r['access_token'])
+print('access aud :', json.dumps(a.get('aud','<claim absent>')))
+print('id     aud :', json.dumps(d(r['id_token']).get('aud','<claim absent>')))
+" ; }
+```
+
+The password grant is used here because it is one line. Everything about `aud` is identical
+under the authorization code flow — the claim is computed from the client's scopes and the
+user's roles, not from the grant.
+
+## Step 1: read what you already have
+
+```bash
+tok "openid" | aud
+```
+
+```text
+access aud : "account"
+id     aud : "frontend"
+```
+
+Two things are wrong with that before you have configured anything. The access token's
+audience is `account`, a client you did not configure and almost certainly do not run — it is Keycloak's own account console, and it is
+there because every new realm grants users the `default-roles-aud` composite, which carries
+`account` client roles, and Audience Resolve turns any client role into an audience.
+
+The ID token's audience is `frontend`, always, and that is the OIDC specification rather than
+a setting. **An ID token is not an API credential**;
+[your first token](/tutorials/getting-started/your-first-token/) covers why in full.
+
+## Step 2: which mechanism do you need?
+
+| Your situation | Mechanism | Where it goes |
+|---|---|---|
+| The API has client roles and the user holds them | Audience Resolve (already on) | Nothing to add — put the role in a client scope's **Scope** tab |
+| The API has no roles, or authorizes on realm roles | **Audience** mapper, `Included Client Audience` | A client scope's **Mappers** tab |
+| The audience must be a URL, not a client id | **Audience** mapper, `Included Custom Audience` | Same place |
+| One service must call another on the user's behalf | Token exchange (step 7) | The *calling* service's scopes |
+| The client itself must be in `aud` | **Audience** mapper naming that same client | Its dedicated scope. Rarely the right answer |
+
+The last row is worth a sentence of its own. Keycloak deliberately leaves the issuing client
+out of its own access token audience, so `aud` and `azp` stay distinguishable and so an access
+token and an ID token can never be confused. Adding it back is supported and occasionally
+necessary — for example when the same client is both a frontend and a REST service, which the
+official docs explicitly advise against.
+
+## Step 3: Audience Resolve, in and out
+
+Give Ada the client role and look again. No mapper is configured anywhere in this realm:
+
+```bash
+$K add-roles -r aud --uusername ada --cclientid orders-api --rolename orders-read
+tok "openid" | aud
+```
+
+```text
+access aud : ["orders-api", "account"]
+```
+
+The claim became an **array**. This is the single most common cause of a broken validator:
+`aud` is a JSON string when there is one audience and an array when there is more than one,
+so any code doing `token.aud == "orders-api"` works in development and breaks the first time
+a second audience appears. A JWT library's built-in audience check handles both shapes;
+hand-rolled string comparisons do not.
+
+`account` is noise, and the switch that removes it is not an audience setting at all:
+
+```bash
+FE=$($K get clients -r aud -q clientId=frontend --fields id --format csv --noquotes)
+$K update clients/$FE -r aud -s fullScopeAllowed=false
+tok "openid" | aud
+```
+
+```text
+access aud : "<claim absent>"
+```
+
+With **Full scope allowed** off, the client emits only the roles its scopes grant — which is
+currently none — so Audience Resolve resolves nothing and the claim disappears. That is the
+correct baseline. The switch is deprecated anyway; leaving it on logs a warning on every token
+request:
+
+```text
+WARN [...TokenEndpoint.full-scope-allowed] Client 'frontend' in the realm 'aud' has
+'Full scope allowed' switch enabled. This client switch is deprecated and will be removed
+```
+
+Now put the role back, deliberately, through a client scope:
+
+```bash
+$K create client-scopes -r aud -s name=orders-scope -s protocol=openid-connect \
+  -s 'attributes."include.in.token.scope"=true'
+OS=$($K get client-scopes -r aud --fields id,name --format csv --noquotes \
+     | grep orders-scope | cut -d, -f1)
+
+$K create client-scopes/$OS/scope-mappings/clients/$ORDERS -r aud \
+  -b '[{"id":"orders-read","name":"orders-read"}]'
+$K update clients/$FE/optional-client-scopes/$OS -r aud
+```
+
+```bash
+tok "openid"              | aud   # access aud : "<claim absent>"
+tok "openid orders-scope" | aud   # access aud : "orders-api"
+```
+
+Exactly one audience, only when the client asks for it. Attach the scope as a **default**
+client scope instead (`default-client-scopes/$OS`) if every token should carry it.
+
+## Step 4: the Audience mapper, for an API with no roles
+
+`billing-api` has no roles and Ada holds nothing on it, so Audience Resolve will never name
+it. A hardcoded Audience mapper does:
+
+```bash
+$K create client-scopes -r aud -s name=billing-scope -s protocol=openid-connect \
+  -s 'attributes."include.in.token.scope"=true'
+BS=$($K get client-scopes -r aud --fields id,name --format csv --noquotes \
+     | grep billing-scope | cut -d, -f1)
+
+$K create client-scopes/$BS/protocol-mappers/models -r aud \
+  -s name=billing-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=billing-api' \
+  -s 'config."access.token.claim"=true' \
+  -s 'config."introspection.token.claim"=true'
+
+$K update clients/$FE/optional-client-scopes/$BS -r aud
+```
+
+```bash
+tok "openid billing-scope"              | aud  # access aud : "billing-api"
+tok "openid orders-scope billing-scope" | aud  # access aud : ["billing-api", "orders-api"]
+```
+
+The two mechanisms compose, and they deduplicate: adding an Audience mapper for a client that
+Audience Resolve already names leaves `aud` unchanged, not doubled. The difference between them
+is what *else* arrives — Audience Resolve puts the API's roles in `resource_access` too, the
+Audience mapper puts nothing there. An API that authorizes on client roles needs the first one.
+
+## Step 5: a URL audience, and the field that silently wins
+
+Resource servers that follow the OAuth resource-indicator convention expect `aud` to be their
+base URL, not a client id. Keycloak's own SCIM API is one of them — it rejects any token whose
+audience is not the realm's SCIM base URL, as
+[the SCIM setup](/tutorials/scim/getting-started/) walks through. That is the second field on
+the same mapper:
+
+```bash
+BM=$($K get client-scopes/$BS/protocol-mappers/models -r aud --fields id,name \
+     --format csv --noquotes | grep billing-audience | cut -d, -f1)
+
+$K update client-scopes/$BS/protocol-mappers/models/$BM -r aud \
+  -s name=billing-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=' \
+  -s 'config."included.custom.audience"=https://billing.example.com/api' \
+  -s 'config."access.token.claim"=true'
+```
+
+```text
+access aud : "https://billing.example.com/api"
+```
+
+Now the part that costs an afternoon. **If both fields are set, `Included Client Audience`
+wins and the custom value is discarded without a word.** Set both on one mapper and the token
+carries only the client id:
+
+| `included.client.audience` | `included.custom.audience` | `aud` in the token |
+|---|---|---|
+| `billing-api` | *(empty)* | `"billing-api"` |
+| *(empty)* | `https://billing.example.com/api` | `"https://billing.example.com/api"` |
+| `billing-api` | `https://billing.example.com/api` | `"billing-api"` |
+| `billing-api`, client **disabled** | `https://billing.example.com/api` | `<claim absent>` |
+| `billing-ap` *(typo)* | *(empty)* | `<claim absent>` |
+
+Rows four and five are the ones that look like a Keycloak bug and are not. The client field is
+not a value, it is a *lookup*: when it is non-empty Keycloak resolves it to a client and emits
+that client's id, and when the lookup fails — the client is disabled, deleted, or the id has a
+typo — the mapper emits nothing at all. The custom field is never consulted as a fallback.
+A disabled client disappearing from `aud` is documented and deliberate; the silent typo is
+not: the admin REST API accepts the bad id with an HTTP 204 and writes nothing to the log.
+The console offers a picker, so this one bites `kcadm`, Terraform and realm-import users
+specifically.
+
+Use **one** field per mapper. If you need both a client id and a URL, use two mappers. Put
+this one back to the client-id form for the rest of the page:
+
+```bash
+$K update client-scopes/$BS/protocol-mappers/models/$BM -r aud \
+  -s name=billing-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=billing-api' \
+  -s 'config."included.custom.audience"=' \
+  -s 'config."access.token.claim"=true'
+```
+
+## Step 6: verify before you ship
+
+Two checks, neither of which needs the application.
+
+**Generate the token Keycloak would issue**, without issuing one. This is the **Client scopes →
+Evaluate** tab in the console, and it applies the whole mapper chain:
+
+```bash
+U=$($K get users -r aud -q username=ada --fields id --format csv --noquotes)
+$K get clients/$FE/evaluate-scopes/generate-example-access-token -r aud \
+  -q userId=$U -q "scope=openid orders-scope billing-scope" | jq -c .aud
+```
+
+```text
+["billing-api","orders-api"]
+```
+
+**Introspect a real token from the API's own credentials.** Keycloak's introspection endpoint
+enforces the audience rule itself: a client may only introspect a token it is named in.
+
+```bash
+AT=$(tok "openid orders-scope" | jq -r .access_token)
+INTRO=http://127.0.0.1:8080/realms/aud/protocol/openid-connect/token/introspect
+
+curl -s -u orders-api:secret  -d "token=$AT" $INTRO | jq -c '{active,aud}'
+curl -s -u billing-api:secret -d "token=$AT" $INTRO | jq -c '{active,aud}'
+```
+
+```text
+{"active":true,"aud":"orders-api"}
+{"active":false,"aud":null}
+```
+
+Both return **HTTP 200**, and `{"active": false}` is indistinguishable from an expired token.
+The only place the difference is recorded is the server log:
+
+```text
+type="INTROSPECT_TOKEN_ERROR", clientId="billing-api", error="invalid_token",
+reason="Client 'billing-api' is not in the token audience", token_issued_for="frontend"
+```
+
+If a migration needs that check relaxed, the switch is **Allow token introspection without
+audience check**, under the introspecting client's OpenID Connect Compatibility Modes:
+
+```bash
+BAPI=$($K get clients -r aud -q clientId=billing-api --fields id --format csv --noquotes)
+$K update clients/$BAPI -r aud \
+  -s 'attributes."allow.token.introspection.without.audience.check"=true'
+```
+
+With it on, the same call returns `{"active":true,"aud":"orders-api"}`. It is a migration aid,
+not a configuration — the whole point of `aud` is that this check happens.
+
+Refresh tokens are a separate rule and the switch does not relax it: their audience is the
+realm, and only the client in their `azp` may introspect them. Anything else gets
+`reason="Client 'orders-api' is not the client the token was issued for"` and the same
+`{"active": false}`.
+
+## Step 7: when one service calls another
+
+The audience you just narrowed is doing its job: a token minted for `orders-api` cannot be
+replayed against `billing-api`. So how does `orders-api` legitimately call `billing-api` on
+Ada's behalf? Standard token exchange — and its `audience` parameter behaves in a way that
+surprises most people the first time.
+
+```bash
+$K update clients/$ORDERS -r aud \
+  -s 'attributes."standard.token.exchange.enabled"=true'
+
+curl -s -u orders-api:secret \
+  -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
+  -d subject_token="$AT" \
+  -d subject_token_type=urn:ietf:params:oauth:token-type:access_token \
+  -d audience=billing-api \
+  http://127.0.0.1:8080/realms/aud/protocol/openid-connect/token
+```
+
+```json
+{"error":"invalid_request","error_description":"Requested audience not available: billing-api"}
+```
+
+**The `audience` parameter filters; it cannot add.** The exchanged token is built for the
+*requesting* client — `azp` becomes `orders-api` — from `orders-api`'s own client scopes, and
+`audience=` selects a subset of what those scopes already produce. Having `billing-api` in the
+*incoming* token is not enough and does not help. Attach the audience to the caller and it
+works:
+
+```bash
+$K update clients/$ORDERS/default-client-scopes/$BS -r aud
+```
+
+```text
+no audience parameter    -> access aud : ["billing-api", "account"]
+audience=billing-api     -> access aud : "billing-api"
+```
+
+So the rule for a service-to-service hop is: configure the audience on the **service that
+makes the call**, then pass `audience=` to narrow each exchanged token to the single hop it
+is for. The requesting client must be confidential and have **Standard token exchange**
+enabled; a public client cannot exchange at all.
+
+## Step 8: the ID token, and when not to touch it
+
+The Audience mapper offers an `Add to ID token` switch, defaulted off. Turning it on does what
+it says:
+
+```bash
+$K update client-scopes/$BS/protocol-mappers/models/$BM -r aud \
+  -s name=billing-audience -s protocol=openid-connect \
+  -s protocolMapper=oidc-audience-mapper \
+  -s 'config."included.client.audience"=billing-api' \
+  -s 'config."id.token.claim"=true' \
+  -s 'config."access.token.claim"=true'
+
+tok "openid billing-scope" | aud
+```
+
+```text
+access aud : "billing-api"
+id     aud : ["frontend", "billing-api"]
+```
+
+An ID token with two audiences is legal OIDC, and it is also the shape that breaks strict
+relying parties, which expect their own client id and nothing else. Leave the switch off
+unless a specific consumer has asked for it in writing. The access token is where audiences
+belong.
+
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `aud` is `"account"` and nothing else | Audience Resolve on the default `account` roles | Turn off **Full scope allowed**, then grant roles through client scopes |
+| `aud` claim missing entirely | nothing resolved and no mapper fired — Keycloak omits rather than empties | Add the scope to the request, or attach it as a **default** client scope |
+| Validator passes in dev, fails in prod | `aud` is a string with one audience, an array with two | Use a JWT library's `audience=` option; never compare the raw claim |
+| Mapper configured, audience still absent | `Included Client Audience` names a disabled, deleted or misspelled client | Check the id exactly; the API accepts a bad one silently |
+| Custom URL audience ignored | both audience fields set on one mapper; the client field wins | Clear `Included Client Audience`, or use two mappers |
+| `{"active": false}` from introspection on a valid token | the introspecting client is not in `aud` | Add it, or read `INTROSPECT_TOKEN_ERROR` in the server log to confirm |
+| `Requested audience not available` on token exchange | the audience is not among the *requesting* client's scopes | Attach the audience scope to the calling service |
+| `aud` unchanged after sending `resource=` | RFC 8707 resource indicators are off by default and the parameter is ignored, with a 200 | Use an Audience mapper, or start with `--features=resource-indicators` — see [MCP server auth](/tutorials/emerging/mcp-server-auth/) |
+| Audience correct, API still returns 401 | the API is not checking `aud`, or is checking the wrong claim | [Validating tokens in any backend](/tutorials/securing-applications/validating-tokens/) |
+
+Clean up when you are done:
+
+```bash
+docker rm -f kc
+```
+
+## Next steps
+
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — the other half of this page: how a resource server should check `aud`, in five languages.
+- [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+  every mapper, its priority, and the other claims your token is carrying.
+- [Keycloak client types: public, confidential, bearer-only](/tutorials/clients/oidc-client-types/)
+  — getting the resource server's own client right before you name it in an audience.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  `aud` in the context of everything around it.
+- [Secure an MCP server with Keycloak](/tutorials/emerging/mcp-server-auth/) — audience binding
+  where getting it wrong is the entire failure mode.
+- [Keycloak SCIM API: enable it and connect a client](/tutorials/scim/getting-started/) — a
+  worked example of a URL audience, end to end.
+- [Tokens and sessions](/docs/security/tokens-and-sessions/) — lifespans and refresh handling,
+  which decide how long a wrongly-audienced token stays dangerous.
+- Official reference:
+  [Audience support](https://www.keycloak.org/docs/latest/server_admin/index.html#audience-support)
+  and
+  [Token exchange](https://www.keycloak.org/securing-apps/token-exchange).
+
+<ProductionNote />
