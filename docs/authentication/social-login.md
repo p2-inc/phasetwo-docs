@@ -7,15 +7,15 @@ Given the use of the default `browser` flow, configured social identity provider
 
 ### Configuring social providers
 
-In the **Identity provders** section, a new social provider can be added with the _Add provider_ button. There are several built-in options you may select from. Many social providers that don't have built-in options can also be configured using standard OpenID Connect v1.0.
+In the **Identity providers** section, a new social provider can be added by selecting it from the list of providers. There are several built-in options you may select from. Many social providers that don't have built-in options can also be configured using standard OpenID Connect v1.0.
 
 Each provider requires you to do some initial setup on the administrative side of your social login provider. These options are usually referred to as "Applications" or "Login with X". When setting up each social provider, the wizards will take you through the information that is required from the social provider, usually some kind of Client ID and Client Secret.
 
-Complete examples of all social providers is currently outside of the scope of this section, but the following example should be instructive.
+Complete examples of all social providers are outside of the scope of this section, but the following example should be instructive.
 
 #### Example: GitHub
 
-Before you begin the GitHub portion of the setup, select _GitHub_ from the _Add provider_ dropdown button, and copy the _Redirect URI_ from the next page.
+Before you begin the GitHub portion of the setup, select _GitHub_ from the list of providers, and copy the _Redirect URI_ from the next page.
 
 ##### GitHub setup
 
@@ -51,7 +51,7 @@ In some cases, it is desirable to store the tokens granted to your user so that 
 
 There are two fields in the identity provider configuration that may be set to facilitate this use case.
 
-- _Scopes_ A space-separated list of scopes that are sent when asking for authorization. It usually defaults to only `openid`, which causes the minimum data to be shared when These will be dictated by the social provider. In the GitHub example, you may also want to include `repo`, as a granted token with that scope will be authorized to manage the user's repositories.
+- _Scopes_ A space-separated list of scopes that are sent when asking for authorization. The available scopes are defined by the social provider, and the defaults request only the minimum data needed to log in. In the GitHub example, you may also want to include `repo`, as a granted token with that scope will be authorized to manage the user's repositories.
 - _Store tokens_ Enables token storage following authentication.
 
 Once you have set these values, then the token will be available for retrieval. More documentation on using external identity provider tokens can be found in the Keycloak documentation on [retrieving external IDP tokens](https://www.keycloak.org/docs/latest/server_admin/#retrieving-external-idp-tokens).

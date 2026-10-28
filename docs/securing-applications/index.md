@@ -34,9 +34,9 @@ Also, here is an unofficial list of OpenID Connect libraries we've heard good th
   - [React OIDC Context](https://github.com/authts/react-oidc-context)
   - [NextAuth.js](https://next-auth.js.org/) (will become Auth.js)
   - [Auth.js](https://authjs.dev/)
-  - [Keycloak JavaScript Adapter](https://www.keycloak.org/docs/latest/securing_apps/#_javascript_adapter) (the `keycloak-js` adapter is deprecated by Keycloak)
+  - [Keycloak JavaScript Adapter](https://www.keycloak.org/securing-apps/javascript-adapter) (the `keycloak-js` adapter is deprecated by Keycloak)
 - Node.js (server-side)
-  - [Node.js](https://www.keycloak.org/docs/latest/securing_apps/#_nodejs_adapter)
+  - [Node.js](https://www.keycloak.org/securing-apps/nodejs-adapter)
 - Python
   - [oidc](https://pypi.org/project/oic/)
 - Go

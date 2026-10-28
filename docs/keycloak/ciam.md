@@ -64,7 +64,7 @@ Out-of-the-box support for:
 Built for enterprise use, Keycloak supports horizontal scaling and can be extended via:
 
 - Custom authentication flows
-- [Webhooks and event listeners](../introduction/open-source.md#components-and-repos)
+- [Webhooks and event listeners](../audit-logs/webhooks.md)
 - Plugins and service provider interfaces (SPIs)
 
 ### Privacy & Consent Management

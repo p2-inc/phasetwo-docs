@@ -19,7 +19,6 @@ const SECTIONS = [
   { prefix: "/tutorials/", title: "Keycloak tutorials" },
   { prefix: "/updates/", title: "Monthly updates" },
   { prefix: "/articles/", title: "Articles" },
-  { prefix: "/guides/", title: "Guides" },
   { prefix: "/api/", title: "API reference" },
   { prefix: "/blog/", title: "Blog" },
   { prefix: "/keycloak-alternatives/", title: "Keycloak alternatives" },

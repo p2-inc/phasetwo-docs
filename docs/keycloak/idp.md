@@ -22,7 +22,7 @@ IdP Brokers are especially useful in federated identity environments. Common use
 
 By brokering identities, Keycloak enables users to authenticate using their preferred identity provider without the need for redundant credential management.
 
-![CIAM](/docs/keycloak/ciam.png)
+![Keycloak brokering identities from external identity providers](/docs/keycloak/ciam.png)
 
 ---
 

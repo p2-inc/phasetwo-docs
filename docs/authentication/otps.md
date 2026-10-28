@@ -3,40 +3,54 @@ id: otps
 title: One-time Passwords
 ---
 
-A one-time password (OTP) is an automatically generated numeric or alphanumeric string of characters that authenticates a user for a single transaction or login session. An OTP is more secure than a static password, especially a user-created password, which can be weak and/or reused across multiple accounts.
+A one-time password (OTP) is an automatically generated numeric or alphanumeric code that authenticates a user for a single login. An OTP is more secure than a static password, especially a user-created password, which can be weak or reused across multiple accounts.
 
-We currently support authenticator apps such as Google Authenticator and FreeOTP, but many others are likely compatible.
+Phase Two supports two kinds of OTP:
 
-If you need SMS OTP it requires an additional extension. Please [contact support](/contact) for assistance.
+- **Authenticator apps** (TOTP), such as Google Authenticator, Microsoft Authenticator, and FreeOTP. This is built into Keycloak.
+- **Email OTP**, where a 6-digit code is emailed to the user. This is provided by the [keycloak-magic-link](https://github.com/p2-inc/keycloak-magic-link) extension.
+
+If you need SMS OTP, it requires an additional extension. Please [contact support](/contact) for assistance.
+
+## Authenticator apps
 
 ### Configuring OTP
 
-As part of the default `browser` flow, you may have noticed in the forms section that there are conditional steps to determine if the user has an OTP authentication method configured. This means that OTP checking is already built into the default flow. We're done, right? But what if we want to force the user to configure an OTP application?
+The default `browser` flow already contains a conditional OTP step, which asks for a code from users who have set up an authenticator app. To make users set one up, use a required action.
 
 #### Required action
 
-In order to force users to configure OTP, you must go to the **Required actions** tab of the **Authentication** section and set _Enabled_ and _Set as default action_ both to **ON** for _Configure OTP_. This will force the user to set up an OTP method as a barrier to registration and login.
+To force users to configure OTP, go to the **Required actions** tab of the **Authentication** section and turn on both _Enabled_ and _Set as default action_ for _Configure OTP_. New users must then set up an OTP app as part of registration.
 
 ![Keycloak OTP Default Action Configure](/docs/auth-otps-required-action.png)
 
-However, this setting will only apply to new users. For existing users, you must go to the **Users** section, select the user you wish to edit, and add _Configure OTP_ to the _Required user actions_ field.
+The default action only applies to new users. For existing users, go to the **Users** section, select the user, and add _Configure OTP_ to their _Required user actions_.
 
 ![Keycloak Required User Actions Configure OTP](/docs/auth-otps-user-action.png)
 
+To require OTP for every user, including existing ones, without editing each user, change the flow itself so the OTP step is required. See [Set Up TOTP Multi-Factor Authentication](/tutorials/authentication/totp-mfa/) for the flow changes and what to watch out for.
+
 ### Login UI
 
-After updating the required action default or giving a test user the action, nothing will change until the user has successfully passed the username-password challenge. After that, the user is presented with a QR code and instructions for setting up their authenticator application.
+After you set the required action, nothing changes until the user has passed the username and password step. Then the user is shown a QR code and instructions for setting up their authenticator app.
 
 ![Keycloak OTP Setup Instructions](/docs/auth-otps-app-setup.png)
 
-On subsequent logins, users will be prompted to enter the OTP from their app during each authentication attempt.
+On later logins, users are asked for the code from their app.
 
 ![Keycloak OTP Challenge Code Screen](/docs/auth-otps-code-challenge.png)
 
-### Create OTP flow
+## Email OTP
 
-:::caution
+Email OTP sends a 6-digit code to the user's email address, which they type into the login page. It can be used on its own as a password-less login, or after the password as a second factor. Email must be [configured](/docs/getting-started/email#server-configuration) first.
 
-This section is currently under construction. Check back soon for updates.
+### Create an email OTP flow
 
-:::
+1. In **Authentication** > **Flows**, duplicate the `browser` flow and give it a name, such as `browser with email otp`.
+2. In the forms sub-flow:
+   - For **password-less login**, replace the _Username Password Form_ with a _Username Form_, followed by an _Email OTP_ step set to _Required_.
+   - For **email OTP as a second factor**, keep the _Username Password Form_, and add an _Email OTP_ step after it, set to _Required_.
+3. Optionally configure the _Email OTP_ step with the gear icon. _Force create user_ creates a user when an unknown email is entered, and _Email subject with code_ puts the code in the email subject line.
+4. In the _Action_ menu, select _Bind flow_ and choose _Browser flow_.
+
+Email OTP is weaker than an authenticator app or a [passkey](./passkeys.md) as a second factor, because anyone with access to the user's mailbox can complete it. For flows that combine several methods, see [Complex Flows](./complex-flows.md) and [Custom authentication flows](/tutorials/authentication/custom-flows/).

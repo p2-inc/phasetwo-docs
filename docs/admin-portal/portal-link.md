@@ -3,16 +3,18 @@ id: portal-link
 title: Portal Link
 ---
 
-The hosted account management experience can be easily linked to from your application. Branding is automatic using the same variables for customizing the login UI.
+The hosted account management experience can be easily linked to from your application. Branding is automatic, using the same settings you use to customize the login UI.
 
 ### Generating the link
 
-The link is a simple template, similar to the Keycloak Account Management Console.
+The link is a simple template, similar to the Keycloak Account Console:
+
 ```
-  https://{host}/auth/realms/{realm}/portal/
+https://<your-cluster-host>/auth/realms/<realm>/portal/
 ```
 
-For example:
+`<your-cluster-host>` is your cluster's hostname from the [Dashboard](https://dash.phasetwo.io/), or a [custom domain](/docs/self-service/custom-domains) attached to it. For example, with a custom domain of `auth.example.com` and a realm named `foobar`:
+
 ```
-  https://usw2.auth.ac/auth/realms/foobar/portal/
+https://auth.example.com/auth/realms/foobar/portal/
 ```

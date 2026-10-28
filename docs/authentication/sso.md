@@ -17,7 +17,7 @@ Once the identity provider setup is complete, note the alias in the **Identity p
 
 ### Organization setup
 
-In the **Organizations** section, create a new organization or navigate to an existing one. In the **Identity Provider** tab of that organization, select the alias of the identity provider you create that you wish to associate with the organization.
+In the **Organizations** section, create a new organization or navigate to an existing one. In the **Identity Provider** tab of that organization, select the alias of the identity provider you created that you wish to associate with the organization.
 
 <figure>
   <img src="/docs/orgs-list-assigned-idp.png" className="max-w-2xl"  alt="Organization Assigned IdP" />
@@ -37,6 +37,15 @@ In order to restrict the use of the identity provider to specific email domains 
 
 ### Flow
 
+To send users to their organization's identity provider based on their email address, the browser flow needs to ask for the email first and then look up the matching organization. This is done with two steps:
+
+1. _Username Auth Note Form_ asks for the user's email address.
+2. _Home IdP Discovery_ matches the email's domain against your organizations' verified domains, and redirects the user to the identity provider associated with the matching organization. If there is no match, the flow continues, for example to a password form.
+
+[Automatic IdP Redirection](../organizations/automatic-idp-redirection.md#setting-up-an-authentication-flow-for-automatic-idp-redirection) walks through building this flow step by step. Once it's built, bind it to the _Browser flow_ from the _Action_ menu of the flow.
+
 ### Login UI
 
-After binding the SSO flow to the _Browser flow_, go back and reload your login screen. You will see that there is only a field for the email address. This is so that the user must first provide an email address, if that email is associated with an organization's domain, then the user will be redirected to the organization's identity provider for authentication.
+After binding the flow to the _Browser flow_, reload your login screen. At first there is only a field for the email address. If the email belongs to one of an organization's verified domains, the user is redirected to the organization's identity provider. Otherwise, they continue with the rest of the flow, such as entering a password.
+
+If your application already knows which identity provider a user should use, it can skip the email step by passing the provider's alias in the `kc_idp_hint` parameter. See [SSO Without Auth](../sso/sso-without-auth.md#add-identity-provider-redirect-to-your-application).

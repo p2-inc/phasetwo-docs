@@ -14,7 +14,7 @@ All policies are set in the Keycloak Admin Console:
 1. Log in to the Keycloak Admin Console via the Phase Two Dashboard.
 2. Visit the realm you want to configure. Open the console link for the specific realm.
 3. Navigate to the **Authentication** section in the left sidebar.
-4. Click on the **Policies** tab and in the dropdown select you specific policy type.
+4. Open the **Policies** tab, then the **Password policy** tab, and use _Add policy_ to add each rule.
 
 <figure>
   <img src="/docs/security/policy-options.png" className="max-w-xl"  alt="Phase Two Policy Options" />
@@ -37,15 +37,13 @@ Just like in the popular XKCD comic, there is no substitute for a long passphras
 
 Keycloak provides a robust multi-factor authentication system that can be configured to enhance security. It is highly recommended to enable MFA for all accounts, especially those with administrative privileges or sensitive data access.
 
-You have options that include but are not limited to:
+Second factors you can offer include:
 
-- [SSO](../authentication/sso.md)
-- [Social login](../authentication/social-login.md) (e.g., Google, GitHub)
 - [Authenticator apps](../authentication/otps.md) (TOTP)
-- SMS OTP (requires additional extension) - [contact support](/contact)
-- [Email OTP](../authentication/otps.md)
-- [Magic links](../authentication/magic-links.md) (login directly via a link sent to the user's email)
-- [WebAuthn](../authentication/webauthn.md) (hardware tokens, biometrics)
-- [Passkeys](../authentication//webauthn.md)
+- [Email OTP](../authentication/otps.md#email-otp)
+- [WebAuthn](../authentication/webauthn.md) security keys and biometrics
+- SMS OTP (requires an additional extension) - [contact support](/contact)
 
-To configure these, you must configure an Authentication flow and if you want users to be required to set up MFA, you can add a step to the registration required actions.
+You can also remove passwords from the login entirely with [passkeys](../authentication/passkeys.md) or [magic links](../authentication/magic-links.md), or hand authentication to your users' own identity providers with [enterprise SSO](../authentication/sso.md) or [social login](../authentication/social-login.md).
+
+To use these, configure an authentication flow that includes them. To make users set up a second factor, enable the matching [required action](../authentication/otps.md#required-action) and set it as a default action.

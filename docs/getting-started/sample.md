@@ -3,55 +3,43 @@ id: sample
 title: Sample Application
 ---
 
-Most users will want to get started quickly with a sample of how to secure an application. Once you have registered for a Phase Two account, you can clone our demo app repository to see a demonstration of authentication in action.
+The quickest way to see authentication working is to run one of our example applications against your own realm. Once you have a Phase Two cluster and a realm, pick the example that matches your stack from the [p2-inc/examples](https://github.com/p2-inc/examples) repository. Each example is a standalone project with its own README, sample environment file, and in most cases a live deployed version you can try first.
 
-https://github.com/p2-inc/debug-app
+| Stack       | Example                                                                                                                                                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| React       | [oidc-spa](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa) or [oidc-client-ts](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-client-ts) |
+| Next.js     | [NextAuth.js](https://github.com/p2-inc/examples/tree/main/frameworks/nextjs)                                                                                                            |
+| Vue         | [oidc-client-ts](https://github.com/p2-inc/examples/tree/main/frameworks/vue)                                                                                                            |
+| Angular     | [angular-oauth2-oidc](https://github.com/p2-inc/examples/tree/main/frameworks/angular)                                                                                                   |
+| SvelteKit   | [Auth.js](https://github.com/p2-inc/examples/tree/main/frameworks/sveltekit)                                                                                                             |
+| Django      | [mozilla-django-oidc](https://github.com/p2-inc/examples/tree/main/frameworks/django)                                                                                                    |
+| Spring Boot | [Spring Boot + Angular](https://github.com/p2-inc/examples/tree/main/frameworks/spring-boot-keycloak)                                                                                    |
 
 ### Client setup
 
-Before you configure and start the sample application, you must build a Client configuration. In Keycloak, a "Client" is synonymous with an application you are securing.
+Before you start an example, create a client for it in your realm. In Keycloak, a "client" is an application you are securing.
 
-Log into your Keycloak realm, and click on **Clients** in the left navigation, and click _Create client_.
+Open the admin console for your realm, select **Clients** in the left navigation, and click _Create client_.
 
-1. Enter `frontend` as the **Client ID** and click _Next_ (you can name this whatever you want)
-2. In the **Capability config** screen, keep the defaults and click _Save_
-3. In the **Access settings** screen, enter the following values:
-   1. `http://localhost:3001/*` for **Valid redirect URIs**
-   2. `+` in **Valid post logout redirect URIs**
-   3. `+` in **Web origins**
-4. Click _Save_
-5. In the upper right corner, open the **Action** menu and select **Download adapter config**. Click _Download_ and save the file for the next step.
+1. Enter a **Client ID**, for example `frontend`, and click _Next_.
+2. In the **Capability config** screen, leave _Client authentication_ off for a browser app, keep _Standard flow_ on, and click _Next_.
+3. In the **Login settings** screen, enter:
+   1. the example's local URL followed by `/*`, for example `http://localhost:3000/*`, for **Valid redirect URIs**
+   2. `+` for **Valid post logout redirect URIs**
+   3. `+` for **Web origins**
+4. Click _Save_.
 
 ![Keycloak Client Details](/blog/2022-10-17-client-setup.png)
 
-### Sample configuration
+### Run the example
 
-Clone that repo to your local machine. You'll find the applications in the `frontend` and `backend` directory, and a set of supporting files for configuration and deployment.
-
-```
-git clone https://github.com/p2-inc/debug-app.git
-cd debug-app/frontend
-```
-
-Once you have cloned the repo, edit the `keycloak.json` file and switch it with the configuration you downloaded at the end of the Client setup. It should look something like this (you'll need to replace the values in curly braces).
-
-```json
-{
-  "realm": "{realm}",
-  "auth-server-url": "https://{host}/auth/",
-  "ssl-required": "external",
-  "resource": "frontend",
-  "public-client": true,
-  "confidential-port": 0
-}
-```
-
-Then run the server using the included script:
+Clone the repository, change into the example's folder, and copy its sample environment file. Set the Keycloak URL to your realm, for example `https://<your-cluster-host>/auth/realms/<your-realm>`, and the client ID to the one you just created. The exact variable names are in each example's README.
 
 ```bash
-./start.sh
+git clone https://github.com/p2-inc/examples.git
+cd examples/frameworks/reactjs/oidc-spa
 ```
 
-And open [http://localhost:3001/](http://localhost:3001/) in your browser. Once you have logged in, you'll see some information about the user that is contained the "access token" (more about that later).
+Start the app as its README describes, open it in your browser, and log in. You'll see information about the logged-in user from their tokens.
 
-Curious how it works? Most of the functionality for quickly securing an app is contained in `app.js`. More detailed information is contained in the next section, dedicated to securing applications.
+For a walkthrough of the same steps on Keycloak itself, see [Create your first realm, client and user](/tutorials/getting-started/first-realm-client-user/) and [Get your first token](/tutorials/getting-started/your-first-token/). The next section, [Securing Applications](/docs/securing-applications/), covers each framework in more detail.

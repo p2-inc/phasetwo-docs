@@ -3,33 +3,36 @@ id: open-source
 title: Open Source
 ---
 
-The core extensions to Keycloak that Phase Two is built on will always be open source so that you can migrate to your own Keycloak deployment. Below is a list of the relevant extensions and their current status.
+The core extensions to Keycloak that Phase Two is built on will always be open source, so that you can migrate to your own Keycloak deployment. Below is a list of the extensions and where to find them.
 
 ### Components and repos
 
-| Component      | Status             | Repository                                        | Description                                                                               |
-| -------------- | ------------------ | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Events         | :white_check_mark: | https://github.com/p2-inc/keycloak-events         | All event listener implementations.                                                       |
-| Magic Link     | :white_check_mark: | https://github.com/p2-inc/keycloak-magic-link     | Magic Link Authentication. Created with an Authenticator or Resource.                     |
-| Organizations  | :white_check_mark: | https://github.com/p2-inc/keycloak-orgs           | Organizations multi-tenant entities, resources and APIs.                                  |
-| Themes         | :white_check_mark: | https://github.com/p2-inc/keycloak-themes         | Login and email theme customizations via Realm attributes without deploying an extension. |
-| Admin UI       | :white_check_mark: | https://github.com/p2-inc/keycloak-ui             | Admin UI customizations.                                                                  |
-| Admin Portal   | :white_check_mark: | https://github.com/p2-inc/phasetwo-admin-portal   | User self-management for their account and organizations.                                 |
-| User Migration | :white_check_mark: | https://github.com/p2-inc/keycloak-user-migration | User migration storage provider and API client.                                           |
+| Component           | Repository                                             | Description                                                                                                  |
+| ------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Organizations       | https://github.com/p2-inc/keycloak-orgs                | Multi-tenant organizations, with their members, roles, invitations, domains, identity providers, and APIs.   |
+| Events              | https://github.com/p2-inc/keycloak-events              | Event listener implementations, including webhooks.                                                          |
+| Magic Link          | https://github.com/p2-inc/keycloak-magic-link          | Magic link and email OTP authenticators, and a REST resource for creating magic links.                       |
+| Themes and Admin UI | https://github.com/p2-inc/keycloak-themes              | The `phasetwo-ui` login, account, admin, and email theme, plus theme customization through realm attributes. |
+| Admin Portal        | https://github.com/p2-inc/phasetwo-admin-portal        | Self-management for users, and for the admins of their organizations.                                        |
+| IdP Wizards         | https://github.com/p2-inc/idp-wizard                   | Guided setup of identity providers, for SSO admins and organization admins.                                  |
+| SCIM Server         | https://github.com/p2-inc/keycloak-scim-server         | Inbound SCIM provisioning of users and groups.                                                               |
+| Atomic Auth Flows   | https://github.com/p2-inc/keycloak-atomic-auth-flows   | Config-as-code updates to authentication flows, applied safely as a single change.                           |
+| Transactional Email | https://github.com/p2-inc/keycloak-transactional-email | Sending Keycloak emails through a transactional email provider instead of SMTP.                              |
+| User Migration      | https://github.com/p2-inc/keycloak-user-migration      | User migration storage provider that pulls users from a legacy system on first login.                        |
 
 ### Docker
 
-We distribute a [Docker image](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) that combines the above extensions with the Keycloak image. While the online [Self-service tool](/docs/self-service/) is the easiest way to try Phase Two, and includes additional features and extensions, if you want to try it on your own, the Docker image is the fastest way to do it. Documentation and examples for using it are in the [phasetwo-containers](https://github.com/p2-inc/phasetwo-containers) repository. The most recent version of these extension are included.
+We distribute a [Docker image](https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags) that combines these extensions with Keycloak. The [Dashboard](/docs/self-service/) is the easiest way to try Phase Two, and includes additional features. If you want to run it yourself, the Docker image is the fastest way. Documentation and examples for using it are in the [phasetwo-containers](https://github.com/p2-inc/phasetwo-containers) repository, and the image always includes the most recent version of these extensions. See [Self-Hosting](/docs/hosting/) for more.
 
 ### What isn't there
 
-It is important to note that not all of Phase Two's extensions will be available as open source. The extensions that are considered "non-core" relate to functionality that is not essential in order to migrate to your own Keycloak deployment. This includes all changes to the underlying storage architecture that allows Phase Two to achieve larger scale than a standard Keycloak deployment. This also includes the user experience features targeted at IdP onboarding, such as the Phase Two Connect on-prem wizards and dashboards.
+Not all of Phase Two's software is open source. The parts that are not are those that aren't needed to migrate to your own Keycloak deployment. This includes the changes to the underlying storage architecture that let Phase Two run at larger scale than a standard Keycloak deployment, the hosted Dashboard and control plane, and some vendor-specific identity provider wizards.
 
-Also, if you are currently a paying customer, either for the hosted version or Phase Two Connect, and there is an extension that is not yet open sourced, you can request early access. Please [contact us](mailto:support@phasetwo.io) for more information.
+If you are a paying customer and need an extension that is not yet open source, [contact us](mailto:support@phasetwo.io) about early access.
 
 ### Dual licensing
 
-The open source Phase Two extensions are licensed under the [Elastic License v2](https://github.com/elastic/elasticsearch/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). Paid customers for the self-service or hosted offerings are using the license specified in our [SaaS Service Agreement](/company/service-agreement). On-prem and other licensees can refer to their specific service agreements.
+The open source Phase Two extensions are licensed under the [Elastic License v2](https://github.com/elastic/elasticsearch/blob/main/licenses/ELASTIC-LICENSE-2.0.txt). Paying customers of the hosted offering use the license in our [SaaS Service Agreement](/company/service-agreement). On-prem and other licensees can refer to their own service agreements.
 
 #### Open source license
 
@@ -37,4 +40,4 @@ With the Elastic License, you can use and host the Phase Two Keycloak extensions
 
 #### Paid license
 
-Paying customers that have accepted our service agreements can use, host and distribute the Phase Two Keycloak extensions in accordance with the restrictions defined in those agreements. You will have access to extensions that are not available as open source, such as our identity provider vendor wizards. Modifications and additional extensions are permitted. You may not use, host or distribute the extensions in a way that is competitive to Phase Two.
+Paying customers that have accepted our service agreements can use, host and distribute the Phase Two Keycloak extensions in accordance with the restrictions defined in those agreements. You will have access to extensions that are not available as open source, such as some vendor-specific identity provider wizards. Modifications and additional extensions are permitted. You may not use, host or distribute the extensions in a way that is competitive to Phase Two.

@@ -22,26 +22,30 @@ In the **Realm settings** section, in the **Login** tab, you will find several i
 
 ### User profile
 
-By default, only username, email, first name and last name are collected. It is possible to add more requirements for your users.
+By default, only username, email, first name and last name are collected. You can collect more.
 
-In the **Realm settings** section, in the **General** tab, you must turn on _User Profile Enabled_ in order to allow additional fields. Once you save the configuration, another tab called **User profile** will appear. You can add additional fields, control who can view and manage those fields, set requirements, and add validation.
+In the **Realm settings** section, open the **User profile** tab. Since Keycloak 24 the declarative user profile is always on, so there is no toggle to enable first. You can add attributes, control who can view and edit them, make them required, and add validation. See [Managed vs Unmanaged Attributes](/tutorials/users/user-profile/) for how Keycloak treats attributes that aren't defined in the user profile.
 
 ![Keycloak Realm User Profile](/docs/getting-started-configuration-user-profile.png)
 
 ## Themes
 
-In the **Realm settings** section, select the **Themes** tab.
+In the **Realm settings** section, select the **Themes** tab. Phase Two ships a single theme, `phasetwo-ui`, that covers the login, account, admin console, and email themes. Select it for each of them to get all of the branding and extension features described in these docs.
 
 ### Login
 
-The `Attributes` login theme is the Phase Two default that allows customizing the login UI without deploying a custom theme. This must be selected in order to use the options detailed in the [customizing UI](../customizing-ui) section.
+The `phasetwo-ui` login theme lets you customize the login UI without deploying a custom theme. It must be selected to use the options in the [customizing UI](../customizing-ui) section. The older `attributes` and `attributes-v2` login themes still work but don't receive new features.
 
 ### Admin console
 
-If you are not seeing an **Extensions** section at the bottom of the left nav, you need to set the _Admin console theme_ to `phasetwo.v2`. This theme contains all of the admin UI for managing the Phase Two extensions. You must log out and log back into the Admin UI in order for this change to take effect.
+If you don't see an **Extensions** section at the bottom of the left navigation, set the _Admin theme_ to `phasetwo-ui`. This theme contains the admin UI for managing the Phase Two extensions, such as Organizations and Styles. Log out and log back in to the admin console for the change to take effect.
+
+:::note
+Realms that used the older `phasetwo.v2` admin theme need to be switched to `phasetwo-ui`. The `phasetwo.v2` theme is no longer included, and a realm left on it falls back to the default Keycloak admin console without the Phase Two extension screens.
+:::
 
 ### Email
 
-The `Attributes` email theme is the Phase Two default that allows the use of the email template UI detailed in the [emails](../email#content-templates) section.
+The `phasetwo-ui` email theme enables the email branding and template editing described in the [emails](../email#content-templates) section.
 
 ![Keycloak Realm Themes](/docs/getting-started-configuration-themes.png)

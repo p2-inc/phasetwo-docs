@@ -3,54 +3,63 @@ id: sso-without-auth
 title: SSO Without Auth
 ---
 
-Many Phase Two customers use their own authentication and user management systems, and only rely on Phase Two for its comprehensive SSO support. It is not required to use both in order to get the full power of our SSO integrations and customer self-management portal.
+Many Phase Two customers use their own authentication and user management systems, and rely on Phase Two only for its SSO support. You don't have to use both to get the full power of our SSO integrations and the customer self-management portal.
 
 ### Authentication flow setup
 
-In order to set up Phase Two for SSO only, there are a few steps you must take.
+To use Phase Two for SSO only, the browser flow should never ask for a password. It should send users either to the identity provider your application names, or to the one that matches their email domain.
 
-1. When you are setting up your customer IdP, make a note of the alias you use. It is required to make it unique, and it is also recommended to make it something that is memorable and easy to associate with the customer. For example, `acme-corp-saml`.
-2. In the **Authentication** section of the Admin UI, select the **SSO Only** flow, and then use the **Bind flow** function of the action menu in the upper right to bind this flow to the **Browser flow**.
+1. When you set up your customer's identity provider, note the alias you use. It must be unique, and we recommend making it easy to associate with the customer, for example `acme-corp-saml`.
+2. In the **Authentication** section of the admin console, duplicate the `browser` flow and name it, for example, `sso only`.
+3. In the new flow, keep the _Cookie_ and _Identity Provider Redirector_ steps. The redirector sends users straight to the identity provider named in the login request.
+4. In the forms sub-flow, delete the _Username Password Form_ and the conditional 2FA sub-flow, and add the _Username Auth Note Form_ followed by the _Home IdP Discovery_ step, both _Required_. This is the fallback for logins that don't name an identity provider: users enter their email and are redirected to their organization's identity provider by email domain. See [Automatic IdP Redirection](../organizations/automatic-idp-redirection.md#setting-up-an-authentication-flow-for-automatic-idp-redirection) for this part of the flow in detail.
+5. In the _Action_ menu, select _Bind flow_ and bind the new flow to the _Browser flow_.
 
 ### Add identity provider redirect to your application
 
-1. Import the [keycloak-js](https://www.npmjs.com/package/keycloak-js) Javascript library into your code, and initialze as documented in the [Securing Applications](../../securing-applications/javascript/) section.
+1. Add the [keycloak-js](https://www.npmjs.com/package/keycloak-js) library to your application and initialize it, as described in the [JavaScript](../securing-applications/javascript.md) section. Don't use `onLoad: "login-required"`, because your application, not Keycloak, decides when a user needs to sign in.
 
 ```javascript
-var keycloak = new Keycloak();
+import Keycloak from "keycloak-js";
+
+const keycloak = new Keycloak({
+  url: "https://<your-cluster-host>/auth",
+  realm: "<realm>",
+  clientId: "<client-id>",
+});
+
 keycloak
-  .init()
-  .then(function (authenticated) {
+  .init({ pkceMethod: "S256" })
+  .then((authenticated) => {
     console.log(authenticated ? "authenticated" : "not authenticated");
   })
-  .catch(function () {
+  .catch(() => {
     console.log("failed to initialize");
   });
 ```
 
-2. When you want to send the user to their SSO provider, set the `idpHint` parameter to the alias you used in Step 1. Refer to the documentation on [options](https://www.keycloak.org/docs/latest/securing_apps/#login-options) to control other features. Note that if you do not specify an `idpHint` parameter in the options variable, the login flow will automatically fall back to using the email domain rules you have specified to help the user find their SSO IdP using their email address.
+2. When you want to send the user to their SSO provider, set the `idpHint` option to the alias from Step 1. See the keycloak-js [login options](https://www.keycloak.org/securing-apps/javascript-adapter) for the other options. If you leave out `idpHint`, the flow falls back to asking for the user's email and matching it against your organizations' email domains.
 
 ```javascript
-// call the login function with the following options in order to initiate the SSO login flow
-var options = { prompt: "login", idpHint: "acme-corp-saml" };
-keycloak.login(options);
+// start the SSO login for this user's identity provider
+keycloak.login({ prompt: "login", idpHint: "acme-corp-saml" });
 ```
 
-3. Once the user has complete the SSO login flow, the keycloak-js library will handle processing the secure token flow with Phase Two, and will then redirect the user to the page where you initiated the login flow (or where you directed it to based on the `redirectUri` value in the options variable). In order to capture the information received from the user IdP, you must register the `onAuthSuccess` callback function. It is also good practice to register `onAuthError` to catch problems with the user SSO authentication process.
+3. After the user completes the SSO login, keycloak-js completes the token exchange with Phase Two and returns the user to the page where you started the login, or to the `redirectUri` you passed in the options. Register the `onAuthSuccess` callback to read the information received from the user's identity provider, and `onAuthError` to catch problems with the SSO login.
 
 ```javascript
-keycloak.onAuthSuccess = function () {
-  token = keycloak.tokenParsed;
+keycloak.onAuthSuccess = () => {
+  const token = keycloak.tokenParsed;
   // do something with the result
   console.log("Email", token["email"]);
   console.log("First Name", token["given_name"]);
   console.log("Last Name", token["family_name"]);
 };
-keycloak.onAuthError = function (errorData) {
+keycloak.onAuthError = (errorData) => {
   // do something with the error
   console.log("Error", errorData.error);
   console.log("Description", errorData.error_description);
 };
 ```
 
-Note that this is very similar to the normal login process when you are using Phase Two as the primary source of user authentication. However, the significant difference is that the keycloak-js adapter is not initialized in a way that requires login (thus making the page inaccessible), and it is your responsibility to store the association between your user and their IdP alias.
+This is very similar to the normal login process when Phase Two is the primary source of user authentication. The significant difference is that keycloak-js is not initialized in a way that requires login, so your pages stay accessible, and it is your responsibility to store the association between your users and their identity provider alias.

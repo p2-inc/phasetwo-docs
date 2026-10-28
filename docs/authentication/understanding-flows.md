@@ -5,9 +5,7 @@ title: Understanding Flows
 
 An authentication flow defines the experience your user will go through in securely identifying themselves to your application. It is a container of challenges, screens, and actions, during log in, registration, and other workflows. When we refer to a named flow in the documentation, we are simply referring to such a container, some of which are built-in, and some can be created and configured by you.
 
-The topic of flows is covered extensively in the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_admin/index.html#_authentication-flows) on authentication flows. In order to facilitate getting setup quickly, we have defined a set of example flows that you can use or extend to build several common flows.
-
-In each of the sections, we will show you how to use the example flows to setup your own unique authentication flow.
+The topic of flows is covered extensively in the [Keycloak documentation](https://www.keycloak.org/docs/latest/server_admin/index.html#_authentication-flows) on authentication flows. The pages in this section show how to build common flows, usually by duplicating the built-in `browser` flow and changing its steps. For a deeper, tested walkthrough, see [Build a Custom Keycloak Authentication Flow](/tutorials/authentication/custom-flows/).
 
 ### Authentication admin
 
@@ -21,12 +19,12 @@ You will notice many different flow types in this section. Other than for advanc
 
 #### Binding flows
 
-The new flows you build can be saved in this UI, and will be selected by assignment called _Binding_ the new flow to the _Browser flow_. The documentation will refer to this process, which can be achieved using the _Action_ menu on the upper right of each flow.
+A new flow does nothing until it is _bound_. Binding a flow to the _Browser flow_ makes it the flow used for browser logins in the realm. Bind a flow with _Bind flow_ in the _Action_ menu in the upper right of the flow, or see all bindings at once in the **Flows** tab's _Used by_ column. A single client can also use a different flow through its **Advanced** tab, under _Authentication flow overrides_; see [Sign-in Methods and Grant Types](./sign-in-methods.md#which-flow-runs) for when that is safe.
 
 ![Keycloak Authentication Bind Flow](/docs/auth-understanding-flows-binding.png)
 
 ### Required actions
 
-In addition to authentication flows, required actions are common tasks that can be assigned to individual users or set as default for all users. These are assigned manually or based on rules. Required actions are actions a user must perform during the authentication process. A user will not be able to complete the authentication process until these actions are complete. For example, an admin may schedule users to reset their passwords every month. An update password required action would be set for all these users. The configuration of these actions is done in the **Required actions** tab.
+In addition to authentication flows, required actions are common tasks that can be assigned to individual users or set as default for all users. These are assigned manually or based on rules. Required actions are actions a user must perform during the authentication process. A user will not be able to complete the authentication process until these actions are complete. For example, a user may be required to verify their email address, update their password, or set up an authenticator app before they can continue. The configuration of these actions is done in the **Required actions** tab.
 
 ![Keycloak Authentication Flow Required Actions](/docs/auth-understanding-flows-required-actions.png)

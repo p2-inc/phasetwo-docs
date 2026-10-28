@@ -3,7 +3,7 @@ id: index
 title: Getting Started
 ---
 
-This section is intended to provide articles that are related to Keycloak implementation and usage.
+Start here to set up your first realm: the basic realm configuration, branding the login UI, sending email, and the checklist to run through before you launch. For step-by-step walkthroughs of Keycloak itself, see the [Tutorials](/tutorials/).
 
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';
