@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Phase Two Cluster Management API",
-    "description": "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Hosts\n\nTwo hostnames are involved, and both differ by environment: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.\n\n| Environment | Console host (tokens) | API host (operations) |\n|---|---|---|\n| Production *(default)* | `app.phasetwo.io` | `api.phasetwo.io` |\n| Staging | `app-staging.phasetwo.io` | `api-staging.phasetwo.io` |\n\nEverything below defaults to production. To work against staging, pick `api-staging` (or `app-staging`) in the server selector **and** select the `oidcClientCredentialsStaging` security scheme -- the token endpoint is a separate field that the server selector cannot retarget. The two must match: a token minted in one environment is not valid in the other.\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
+    "description": "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Hosts\n\nTwo hostnames are involved: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.\n\n| Console host (tokens) | API host (operations) |\n|---|---|\n| `app.phasetwo.io` | `api.phasetwo.io` |\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
     "version": "2.0.0"
   },
   "servers": [
@@ -12,10 +12,9 @@
       "variables": {
         "apiHost": {
           "default": "api",
-          "description": "`api` for production, `api-staging` for staging. Must match the environment of the console host that issued your token.",
+          "description": "The API host.",
           "enum": [
-            "api",
-            "api-staging"
+            "api"
           ]
         }
       }
@@ -26,10 +25,9 @@
       "variables": {
         "consoleHost": {
           "default": "app",
-          "description": "`app` for production, `app-staging` for staging. This is the same host you use to log into the Phase Two console, and the host that mints your access token.",
+          "description": "The same host you use to log into the Phase Two console, and the host that mints your access token.",
           "enum": [
-            "app",
-            "app-staging"
+            "app"
           ]
         }
       }
@@ -38,9 +36,6 @@
   "security": [
     {
       "oidcClientCredentials": []
-    },
-    {
-      "oidcClientCredentialsStaging": []
     }
   ],
   "tags": [
@@ -111,7 +106,7 @@
           "clusters"
         ],
         "summary": "Create a dedicated cluster.",
-        "description": "Starts creation of a dedicated cluster for an organization. Provisioning begins once payment is settled, and the response tells you what is needed to get there \u2014 exactly one of three shapes:\n\n- `link` set: redirect the browser to this Stripe Checkout URL to complete payment setup. This is what you get whenever `payment_method_id` is omitted.\n- `cluster` set: an existing `payment_method_id` was charged successfully and the cluster is created; no further action is needed.\n- `requires_action` true, with `client_secret` and `cluster_id`: the payment method needs additional authentication (3DS/SCA). Complete the returned PaymentIntent client secret inline with Stripe.js; the cluster already exists and provisions once payment confirms.",
+        "description": "Starts creation of a dedicated cluster for an organization. Provisioning begins once payment is settled, and the response tells you what is needed to get there — exactly one of three shapes:\n\n- `link` set: redirect the browser to this Stripe Checkout URL to complete payment setup. This is what you get whenever `payment_method_id` is omitted.\n- `cluster` set: an existing `payment_method_id` was charged successfully and the cluster is created; no further action is needed.\n- `requires_action` true, with `client_secret` and `cluster_id`: the payment method needs additional authentication (3DS/SCA). Complete the returned PaymentIntent client secret inline with Stripe.js; the cluster already exists and provisions once payment confirms.",
         "operationId": "cluster.create",
         "requestBody": {
           "description": "The cluster to create.",
@@ -419,7 +414,7 @@
           "clusters"
         ],
         "summary": "Create a deployment from a realm export.",
-        "description": "Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported \u2014 the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier.",
+        "description": "Creates a new deployment on this cluster from an exported Keycloak realm JSON file. The realm is imported asynchronously; poll the returned deployment until its state leaves PENDING. Importing users is not supported — the file must not contain a `users` array. The cluster must be ACTIVE, and the number of deployments is limited by the cluster's tier.",
         "operationId": "cluster.deployment.import",
         "requestBody": {
           "content": {
@@ -1595,7 +1590,7 @@
           "extensions"
         ],
         "summary": "Set the change-password redirect for a custom domain.",
-        "description": "Password managers fetch /.well-known/change-password to offer a \"change password\" action. Send a null or empty url to clear it, which returns the path to 404 \u2014 spec-safe, and simply means the site does not advertise the convention.",
+        "description": "Password managers fetch /.well-known/change-password to offer a \"change password\" action. Send a null or empty url to clear it, which returns the path to 404 — spec-safe, and simply means the site does not advertise the convention.",
         "operationId": "cluster.wellKnown.changePassword.set",
         "requestBody": {
           "content": {
@@ -1794,7 +1789,7 @@
           "clusters"
         ],
         "summary": "Change the cluster's primary hostname.",
-        "description": "Switches the cluster's primary hostname to an already-provisioned domain: either the cluster's default `<name>.global.auth.ac` address or one of its custom domains that already has an issued TLS certificate. This does not provision a new domain \u2014 use the custom domains API to add one first. The candidate host must be reachable before the switch is applied.",
+        "description": "Switches the cluster's primary hostname to an already-provisioned domain: either the cluster's default `<name>.global.auth.ac` address or one of its custom domains that already has an issued TLS certificate. This does not provision a new domain — use the custom domains API to add one first. The candidate host must be reachable before the switch is applied.",
         "operationId": "cluster.host.update",
         "requestBody": {
           "description": "The domain to switch to.",
@@ -2842,7 +2837,7 @@
           "billing"
         ],
         "summary": "Remove a payment method.",
-        "description": "Detaches a saved card from this organization's Stripe customer. Fails with a 409 if the payment method is in use by an active subscription \u2014 switch that subscription to another card first. Requires manage-billing.",
+        "description": "Detaches a saved card from this organization's Stripe customer. Fails with a 409 if the payment method is in use by an active subscription — switch that subscription to another card first. Requires manage-billing.",
         "operationId": "org.paymentMethod.delete",
         "parameters": [
           {
@@ -3018,7 +3013,7 @@
           "orgs"
         ],
         "summary": "Create an API secret for this organization.",
-        "description": "Creates a new OIDC client-credentials client for this organization, with the alias and roles you specify. Use the returned client ID and client secret with the OAuth2 client credentials grant to obtain access tokens for this API \u2014 see the API's top-level authentication description. The client secret is returned only in this response and cannot be retrieved again; store it securely. Each organization may have at most 10 API secrets.",
+        "description": "Creates a new OIDC client-credentials client for this organization, with the alias and roles you specify. Use the returned client ID and client secret with the OAuth2 client credentials grant to obtain access tokens for this API — see the API's top-level authentication description. The client secret is returned only in this response and cannot be retrieved again; store it securely. Each organization may have at most 10 API secrets.",
         "operationId": "org.apiSecret.create",
         "requestBody": {
           "description": "Alias and roles for the new API secret.",
@@ -3293,7 +3288,7 @@
             }
           },
           "domain": {
-            "description": "Custom domain recorded at provision time, when one was given. This is not the live hostname \u2014 use `cluster.host.update` to change which domain the cluster serves.",
+            "description": "Custom domain recorded at provision time, when one was given. This is not the live hostname — use `cluster.host.update` to change which domain the cluster serves.",
             "type": "string"
           },
           "status": {
@@ -3885,7 +3880,7 @@
         "type": "object",
         "properties": {
           "name": {
-            "description": "Variable name. Must not start with `KC_` unless it starts with `KC_SPI_` \u2014 only custom SPI configuration may be set.",
+            "description": "Variable name. Must not start with `KC_` unless it starts with `KC_SPI_` — only custom SPI configuration may be set.",
             "type": "string"
           },
           "value": {
@@ -3893,7 +3888,7 @@
             "type": "string"
           },
           "type": {
-            "description": "How the value is stored \u2014 as plain text or as a secret.",
+            "description": "How the value is stored — as plain text or as a secret.",
             "type": "string",
             "allOf": [
               {
@@ -3945,7 +3940,7 @@
             }
           },
           "resourceType": {
-            "description": "What kind of resource this is \u2014 determines whether versions are Keycloak-version-dependent.",
+            "description": "What kind of resource this is — determines whether versions are Keycloak-version-dependent.",
             "type": "string",
             "allOf": [
               {
@@ -3967,7 +3962,7 @@
             "type": "string"
           },
           "resourceType": {
-            "description": "What kind of resource this is \u2014 determines whether versions are Keycloak-version-dependent.",
+            "description": "What kind of resource this is — determines whether versions are Keycloak-version-dependent.",
             "type": "string",
             "allOf": [
               {
@@ -3990,7 +3985,7 @@
             "type": "string"
           },
           "valid": {
-            "description": "Whether this version is approved for deployment. This is the human approval decision, not the scanner's verdict \u2014 see `scan_state`.",
+            "description": "Whether this version is approved for deployment. This is the human approval decision, not the scanner's verdict — see `scan_state`.",
             "type": "boolean"
           },
           "label": {
@@ -4582,7 +4577,7 @@
           },
           "current_period_end": {
             "format": "int64",
-            "description": "End of the period currently being billed \u2014 the next renewal or cancellation date, as epoch milliseconds.",
+            "description": "End of the period currently being billed — the next renewal or cancellation date, as epoch milliseconds.",
             "type": "integer"
           },
           "status": {
@@ -4742,20 +4737,10 @@
     "securitySchemes": {
       "oidcClientCredentials": {
         "type": "oauth2",
-        "description": "OIDC client credentials grant against **production**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.",
+        "description": "OIDC client credentials grant. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token`.",
         "flows": {
           "clientCredentials": {
             "tokenUrl": "https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token",
-            "scopes": {}
-          }
-        }
-      },
-      "oidcClientCredentialsStaging": {
-        "type": "oauth2",
-        "description": "OIDC client credentials grant against **staging**. Obtain a client ID/secret pair via the `org.apiSecret.create` operation, then exchange them for an access token at `https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token`. Use the scheme whose environment matches the server you selected.",
-        "flows": {
-          "clientCredentials": {
-            "tokenUrl": "https://app-staging.phasetwo.io/auth/realms/self/protocol/openid-connect/token",
             "scopes": {}
           }
         }
