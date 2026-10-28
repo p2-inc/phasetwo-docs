@@ -5,11 +5,15 @@ module.exports = function (context, options) {
     injectHtmlTags() {
       return {
         headTags: [
+          // Served from static/ rather than the CDN: the unpinned CDN URL
+          // resolved to tailwindcss@1.0.2, so that exact file is vendored to
+          // keep the cascade unchanged, without a third-party origin in the
+          // render-blocking path.
           {
             tagName: "link",
             attributes: {
               rel: "stylesheet",
-              href: "https://cdn.jsdelivr.net/npm/tailwindcss/dist/preflight.min.css",
+              href: `${context.baseUrl}css/tailwind-preflight-1.0.2.min.css`,
             },
           },
         ],

@@ -24,6 +24,11 @@ const googleTagHeadTags = GTM_CONTAINER_ID
     ]
   : [];
 
+// Manrope is the body and heading face; Inter and JetBrains Mono are used by the
+// comparison pages, diagrams and code labels.
+const GOOGLE_FONTS_URL =
+  "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap";
+
 module.exports = {
   // future: {
   //   experimental_faster: true,
@@ -71,19 +76,22 @@ module.exports = {
         crossorigin: "anonymous",
       },
     },
+    // One request for all three families, loaded without blocking render:
+    // every face is display=swap, so text already paints in the fallback
+    // font first; the stylesheet only has to arrive before the swap.
     {
       tagName: "link",
       attributes: {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&display=swap",
+        rel: "preload",
+        as: "style",
+        href: GOOGLE_FONTS_URL,
+        onload: "this.onload=null;this.rel='stylesheet'",
       },
     },
     {
-      tagName: "link",
-      attributes: {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
-      },
+      tagName: "noscript",
+      attributes: {},
+      innerHTML: `<link rel="stylesheet" href="${GOOGLE_FONTS_URL}">`,
     },
     {
       tagName: "link",
@@ -99,13 +107,6 @@ module.exports = {
         href: "https://www.googletagmanager.com",
       },
     },
-    {
-      tagName: "link",
-      attributes: {
-        rel: "preconnect",
-        href: "https://challenges.cloudflare.com",
-      },
-    },
   ],
   scripts: [
     {
@@ -114,11 +115,8 @@ module.exports = {
       charset: "UTF-8",
       defer: true,
     },
-    {
-      src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
-      async: true,
-      defer: true,
-    },
+    // Turnstile is not loaded here: src/turnstile.js loads it when a form
+    // that needs it opens.
   ],
   themeConfig: {
     announcementBar: {

@@ -1,6 +1,7 @@
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
 import { track } from "../analytics";
+import { loadTurnstile } from "../turnstile";
 
 const BOOKING_URLS = {
   us: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3HYxGRAHxbaDmYfOdNgQbf1IoNPiE47X0DCaUEFyVt4V0nSpL3FOAJ-IBSUjqIeX__LE8anWKU?gv=true",
@@ -96,6 +97,8 @@ export default function DemoModal({
 
     let cancelled = false;
     let waitTimer;
+
+    loadTurnstile();
 
     const renderTurnstile = () => {
       if (cancelled) return;
