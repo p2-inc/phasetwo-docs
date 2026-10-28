@@ -26,7 +26,7 @@ In the AppAuth iOS example, here are a set of the changes you would need to make
 ```
 static NSString *const kRedirectURI = @"io.phasetwo.appauth:/oauth2redirect/keycloak";  // This is the redirect URI you will use to interact with the AppAuth library. This is linked to the URL Scheme.
 static NSString *const kClientID = @"AppAuth-iOS-Example"; // This is the Client ID you set in Keycloak when you created the Client for your native app.
-static NSString *const kIssuer = @"https://phasetwo.us-west-2.aws.auth.ac/realms/merman"; // Full URL to your Keycloak realm. 
+static NSString *const kIssuer = @"https://<your-keycloak-host>/auth/realms/<your-realm>"; // Full URL to your Keycloak realm. 
 ```
 
 URL Scheme for this would be: `io.phasetwo.appauth`
