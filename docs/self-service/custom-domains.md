@@ -53,7 +53,7 @@ If you fail to setup your DNS records within 48 hours, the request will expire a
 
 Your custom domain serves Keycloak's login pages, but there is nothing at its root: someone who types `auth.example.com` into a browser has no realm or application in mind. You can send those visitors to your application instead. Each custom domain has a **Root URL redirect** setting under Clusters > Cluster > Config > Domains.
 
-When it is set, a request for `https://auth.example.com/` is answered with a `302` redirect to the URL you chose. The same applies to `/auth` and `/auth/`, so clusters using the `/auth` path behave the same way. The query string is not passed through. Changes take effect within seconds, and clearing the field removes the redirect.
+When it is set, a request for `https://auth.example.com/` is answered with a `302` redirect to the URL you chose. The same applies to `/auth` and `/auth/`, so clusters using the `/auth` path behave the same way. The query string is not passed through. Changes take effect within a few minutes, and clearing the field removes the redirect.
 
 The rules for the redirect target:
 
