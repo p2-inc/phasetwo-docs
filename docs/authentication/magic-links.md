@@ -15,7 +15,7 @@ Magic links are provided by the open source [keycloak-magic-link](https://github
 | **Magic Link continuation** | Enters their email and follows the emailed link. The login completes in the original browser tab, which waits until the link has been opened.             |
 | **Email OTP**               | Enters their email, then types a 6-digit code that is emailed to them. See [One-time Passwords](./otps.md#email-otp).                                     |
 
-For codes sent by text message, see [SMS OTP](./otps.md#sms-otp).
+For codes sent by text message, we recommend the extension described in [SMS OTP](./otps.md#sms-otp). Please [contact support](/contact) for assistance.
 
 ### Configuring magic links
 

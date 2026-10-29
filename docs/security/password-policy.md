@@ -42,7 +42,7 @@ Second factors you can offer include:
 - [Authenticator apps](../authentication/otps.md) (TOTP)
 - [Email OTP](../authentication/otps.md#email-otp)
 - [WebAuthn](../authentication/webauthn.md) security keys and biometrics
-- [SMS OTP](../authentication/otps.md#sms-otp) (requires an additional extension)
+- [SMS OTP](../authentication/otps.md#sms-otp) (we recommend an additional extension) - [contact support](/contact) for help
 
 You can also remove passwords from the login entirely with [passkeys](../authentication/passkeys.md) or [magic links](../authentication/magic-links.md), or hand authentication to your users' own identity providers with [enterprise SSO](../authentication/sso.md) or [social login](../authentication/social-login.md).
 

@@ -10,7 +10,7 @@ Phase Two supports two kinds of OTP:
 - **Authenticator apps** (TOTP), such as Google Authenticator, Microsoft Authenticator, and FreeOTP. This is built into Keycloak.
 - **Email OTP**, where a 6-digit code is emailed to the user. This is provided by the [keycloak-magic-link](https://github.com/p2-inc/keycloak-magic-link) extension.
 
-Keycloak has no built-in SMS sending. For codes sent by text message, see [SMS OTP](#sms-otp), which uses an additional extension.
+Keycloak has no built-in SMS sending. For codes sent by text message, we recommend an additional extension, described in [SMS OTP](#sms-otp). Please [contact support](/contact) for assistance.
 
 ## Authenticator apps
 
@@ -57,7 +57,7 @@ Email OTP is weaker than an authenticator app or a [passkey](./passkeys.md) as a
 
 ## SMS OTP
 
-SMS OTP sends a code to the user's mobile phone as a second factor. Keycloak doesn't include it, so we use the open source [SMS authenticator](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/sms-authenticator) from [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins). It isn't part of the Phase Two image. On a managed cluster, [contact support](/contact) and we will add it to your cluster. If you [self-host](/docs/hosting/), download the `sms-authenticator` jar for your Keycloak version from the project's [releases](https://github.com/netzbegruenung/keycloak-mfa-plugins/releases) and add it to the `providers` directory.
+SMS OTP sends a code to the user's mobile phone as a second factor. Keycloak doesn't include it, so we recommend the open source [SMS authenticator](https://github.com/netzbegruenung/keycloak-mfa-plugins/tree/main/sms-authenticator) from [netzbegruenung/keycloak-mfa-plugins](https://github.com/netzbegruenung/keycloak-mfa-plugins). It isn't part of the Phase Two image. On a managed cluster, [contact support](/contact) for help adding it to your cluster. If you [self-host](/docs/hosting/), download the `sms-authenticator` jar for your Keycloak version from the project's [releases](https://github.com/netzbegruenung/keycloak-mfa-plugins/releases) and add it to the `providers` directory.
 
 The extension doesn't send messages itself. It makes an HTTP POST to your SMS provider's API, so you need an account with a provider such as Twilio, Vonage, or AWS SNS behind an HTTP endpoint, and you configure the request shape (URL, authentication, and the names of the message and phone-number fields) to match that provider's API.
 
@@ -77,5 +77,7 @@ The extension adds its own login pages: `login-sms.ftl` for entering the code, `
 ### Security considerations
 
 SMS is the weakest second factor Phase Two can offer. Codes can be intercepted through SIM swapping or phone-number porting, and like any typed code they don't stop a [phishing proxy](/docs/security/phishing-resistant-login). Prefer an authenticator app or a [passkey](./passkeys.md) where your users can use one.
+
+If you need help choosing or setting up a second factor, [contact support](/contact).
 
 SMS also costs money per message, which makes the phone-number and resend steps a target for SMS pumping, where an attacker triggers messages to premium-rate numbers. Protect the login with [rate limiting](/docs/security/rate-limiting) and a CAPTCHA such as [Turnstile](/docs/security/turnstile), and set spend limits and country restrictions with your SMS provider.
