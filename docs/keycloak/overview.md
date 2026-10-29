@@ -27,7 +27,7 @@ The ways in which Keycloak acts as an Identity Broker vary slightly. Review our 
 
 ### Multi-Factor Authentication (MFA)
 
-Increase account security with configurable MFA options, including TOTP (e.g., Google Authenticator), SMS, and custom authenticators. MFA can be enforced globally or per client. These are added and configured via Authentication Flows, allowing you to create custom authentication flows that suit your security requirements. Learn more about [Authentication Flows](../authentication/index.md).
+Increase account security with configurable MFA options, including TOTP (e.g., Google Authenticator), [SMS](../authentication/otps.md#sms-otp) through an extension, and custom authenticators. MFA can be enforced globally or per client. These are added and configured via Authentication Flows, allowing you to create custom authentication flows that suit your security requirements. Learn more about [Authentication Flows](../authentication/index.md).
 
 ### Token-Based Authentication
 

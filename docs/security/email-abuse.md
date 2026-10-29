@@ -70,7 +70,7 @@ An email bomb costs you even when the victim is someone else's user. Every messa
 
 ### A note on SMS
 
-Keycloak has no built-in SMS sending, so there is no out-of-the-box "SMS pumping" surface (an attacker driving premium-rate SMS traffic through a victim's account). If you have added an SMS authenticator through an extension, the same reasoning applies: gate it with a CAPTCHA that fails closed, rate-limit it, and use a provider with spend controls.
+Keycloak has no built-in SMS sending, so there is no out-of-the-box "SMS pumping" surface (an attacker driving premium-rate SMS traffic through a victim's account). If you have added an [SMS authenticator](../authentication/otps.md#sms-otp) through an extension, the same reasoning applies: gate it with a CAPTCHA that fails closed, rate-limit it, and use a provider with spend controls.
 
 ## Detect
 
