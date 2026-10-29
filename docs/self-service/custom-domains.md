@@ -49,6 +49,24 @@ If you fail to setup your DNS records within 48 hours, the request will expire a
   <figcaption>Record timeout.</figcaption>
 </figure>
 
+## Redirecting your domain's root
+
+Your custom domain serves Keycloak's login pages, but there is nothing at its root: someone who types `auth.example.com` into a browser has no realm or application in mind. You can send those visitors to your application instead. Each custom domain has a **Root URL redirect** setting under Clusters > Cluster > Config > Domains.
+
+When it is set, a request for `https://auth.example.com/` is answered with a `302` redirect to the URL you chose. The same applies to `/auth` and `/auth/`, so clusters using the `/auth` path behave the same way. The query string is not passed through. Changes take effect within a few minutes, and clearing the field removes the redirect.
+
+The rules for the redirect target:
+
+- **It must use `https`.**
+- **It must be on the same registered domain** as the custom domain, or as another validated custom domain on the same cluster. `auth.example.com` can redirect to `https://app.example.com` or `https://example.com/start`, but not to a different domain. This keeps the redirect from being usable to send people somewhere you don't control.
+- **The custom domain must be validated first**, meaning its certificate has been issued. The setting is unavailable until then.
+
+Only the root is redirected. Realm paths (`/realms/...`) and the Admin Console (`/admin/...`) work exactly as before. On a [wildcard domain](#wildcard-domains), one setting applies to every subdomain beneath it.
+
+The default `{cluster_name}.global.auth.ac` hostname cannot be redirected, because it is our domain rather than yours. Its root, and the root of any custom domain without a redirect, shows a neutral page rather than a Keycloak login.
+
+To set it through the API, send `PUT /clusters/{clusterId}/domains/{domainId}/root-redirect` with a body of `{"url": "https://app.example.com"}`. Send `{"url": null}` to clear it.
+
 ## Wildcard domains
 
 If you give each of your own customers a branded login URL — `customer1.sso.yourdomain.com`, `customer2.sso.yourdomain.com`, and so on — you do not need a custom domain for each one. A single wildcard domain serves all of them.
