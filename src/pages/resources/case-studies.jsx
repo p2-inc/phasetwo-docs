@@ -4,6 +4,7 @@ import React from "react";
 
 import CardDocument from "../../components/CardDocument";
 import Cta from "../../components/ctas/homepage-dual-line-cta";
+import { loadTurnstile } from "../../turnstile";
 
 const PAGE_META = {
   title: "Case Studies",
@@ -136,6 +137,8 @@ export default function CaseStudies() {
 
     let isCancelled = false;
     let waitForTurnstileTimer;
+
+    loadTurnstile();
 
     const renderTurnstile = () => {
       if (isCancelled) return;
