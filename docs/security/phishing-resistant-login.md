@@ -39,7 +39,7 @@ None of these stop an AitM proxy. The proxy is not script on your page and does 
 | Password | No | Typed into the proxied page and forwarded. |
 | TOTP (authenticator app) | No | The user reads the code from their phone and types it into the proxied page. The proxy replays it within its validity window. |
 | Email OTP | No | Same as TOTP. The code arrives by email and is typed into the proxied page. |
-| SMS code | No | Same as TOTP, plus SIM-swap risk. Not built into Keycloak; it needs an extension. |
+| SMS code | No | Same as TOTP, plus SIM-swap risk. Not built into Keycloak; it needs an [extension](../authentication/otps.md#sms-otp). |
 | Push approval | Usually no | The user approves a login that the proxy started. Number matching helps against push fatigue, not against a proxy, because the proxy shows the user the number. Not built into Keycloak. |
 | Magic link, standard | Mostly yes, but weak | See below. The link goes to the real domain, so the session is created in the browser that opens it, not in the proxy. |
 | Magic link continuation | No | See below. The login completes on the page that started it, which is the proxied page. |
