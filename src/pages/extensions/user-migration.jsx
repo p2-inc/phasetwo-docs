@@ -10,9 +10,9 @@ const CONTENT = {
   repo: "p2-inc/keycloak-user-migration",
   docsHref: "/docs/user-migration/",
   meta: {
-    title: "Keycloak User Migration — Lazy Migration from Legacy IdPs",
+    title: "Keycloak User Migration — Slow (Lazy) Migration from Legacy IdPs",
     description:
-      "Federation provider that validates first-login credentials against your legacy IdP, then transparently migrates users to Keycloak. No mass password reset.",
+      "Slow, lazy user migration for Keycloak: validates first-login credentials against your legacy IdP, then transparently migrates users to Keycloak. No mass password reset.",
   },
   hero: {
     h1: "Move to Keycloak without forcing a password reset.",
