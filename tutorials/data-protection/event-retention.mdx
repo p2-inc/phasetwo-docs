@@ -362,10 +362,11 @@ Login events are a large, low-value-per-row stream that is mostly useful for the
 weeks. Keeping admin events longer than user events is the normal shape, and the split
 Keycloak forces on you happens to make it easy.
 
-**Nothing above is satisfied by 12 months of rows in `event_entity`.** Once the required
-window is longer than a few weeks of your login volume, the answer is not a bigger
-expiration — it is getting the events off the authentication database and setting a short
-expiration locally. Keycloak's Event Listener SPI is the supported seam; the open-source
+**A long window is an argument for moving the events, not for raising the number.** Once the
+retention you need is longer than a few weeks of your login volume, `event_entity` is the
+wrong place to hold it: the table grows without bound in the database your logins depend on,
+and the queries an auditor asks for are analytics queries against it. The answer is to get
+the events off the authentication database and keep the local expiration short. Keycloak's Event Listener SPI is the supported seam; the open-source
 [keycloak-events](https://github.com/p2-inc/keycloak-events) extension implements it both as
 webhooks and as an `EventStoreProvider` that writes structured log lines instead of rows. The
 long-form version of that argument, with the pipeline behind it, is in
