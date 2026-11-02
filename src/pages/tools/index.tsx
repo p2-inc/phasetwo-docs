@@ -61,6 +61,27 @@ const TOOLS: Tool[] = [
     desc: "Decode PEM, DER, and SAML metadata certificates and CSRs. Validity, SANs, key usage, SHA-1/SHA-256 fingerprints, and chain order checks.",
     available: true,
   },
+  {
+    to: "/tools/oidc-playground",
+    icon: "mdi:play-network-outline",
+    title: "OIDC Playground",
+    desc: "Run the authorization code + PKCE flow against Keycloak or any OIDC provider step by step: authorize URL, token exchange, verified tokens, userinfo, refresh, and logout.",
+    available: true,
+  },
+  {
+    to: "/tools/oidc-url-inspector",
+    icon: "mdi:link-variant",
+    title: "Authorize URL Inspector",
+    desc: "Paste an authorize or callback URL to lint PKCE, state, nonce, and redirect_uri, flag implicit flows, and explain OAuth and Keycloak errors in plain English.",
+    available: true,
+  },
+  {
+    to: "/tools/pkce-generator",
+    icon: "mdi:dice-multiple-outline",
+    title: "PKCE Generator",
+    desc: "Generate a code_verifier and S256 code_challenge, or compute the challenge for a verifier you paste.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {
