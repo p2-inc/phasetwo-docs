@@ -99,6 +99,20 @@ custom attribute goes missing:
 Validators, progressive profiling and the registration form build on the second one.
 *(Coming soon.)*
 
+**Bringing in users you already have** — the directory keeps the accounts; Keycloak keeps the
+protocols:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Connect Keycloak to LDAP or Active Directory](/tutorials/identity-providers/ldap/) — the
+   two settings you cannot change afterwards, and the four ways a federation fails quietly
+3. [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+   what to do with the groups once they are in
+4. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   getting directory attributes into the token
+
+Social login, external IdP brokering and SAML federation build on the same track.
+*(Coming soon.)*
+
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
 account list honest:
 

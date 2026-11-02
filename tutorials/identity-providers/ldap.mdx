@@ -1,0 +1,595 @@
+---
+id: ldap
+title: "Connect Keycloak to LDAP or Active Directory"
+description: Federate an LDAP or Active Directory user store into Keycloak — the two settings to decide first, a tested kcadm setup, group mapping, and the four silent failures.
+keywords:
+  - keycloak ldap
+  - keycloak ldap user federation
+  - keycloak active directory integration
+  - keycloak ad attributes mapping
+  - keycloak ldap group mapper
+  - can keycloak act as an ldap server
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - An LDAP or AD bind account that can read your user subtree
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Connect Keycloak to LDAP or Active Directory
+
+Keycloak federates an existing directory through the **LDAP user storage provider**, which
+covers OpenLDAP, 389/RHDS, eDirectory, Tivoli and Microsoft Active Directory. You point it at
+a subtree, it maps directory entries onto Keycloak users, and passwords are validated by a
+bind against the directory — Keycloak never imports them. Four things decide whether it works
+on the first try: **Users DN**, **Search scope**, **Edit mode** and **Import users**. The last
+two cannot be changed afterwards without redoing the mappers.
+
+**No, Keycloak cannot act as an LDAP server.** The traffic goes one way. A stock 26.8.1 server
+reports exactly two user storage providers:
+
+```bash
+curl -s "$KC/admin/serverinfo" -H "Authorization: Bearer $TOKEN" \
+  | jq -r '.providers.storage.providers | keys[]'
+```
+
+```
+kerberos
+ldap
+```
+
+Applications that only speak LDAP cannot bind against Keycloak. They either move to OIDC/SAML,
+or they keep binding to the directory while Keycloak federates it — which is the arrangement
+this page builds.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`) against OpenLDAP 2.4.57
+(`osixia/openldap:1.5.0`), on **2026-11-02**. Every command, response body and error string
+below is copied from that run. Vendor preset values are read from the 26.8.1 admin console
+source. The Active Directory specifics are from the upstream documentation and the product's
+own field help, **not** measured here — there is no AD in this lab, and that distinction is
+marked where it matters.
+
+Upstream reference:
+[Configuring federated LDAP storage](https://www.keycloak.org/docs/latest/server_admin/index.html#_ldap).
+That guide says what each field does. This page is what to set, in what order, and what
+breaks.
+
+:::
+
+## What you'll build
+
+A realm whose users live in a directory: two accounts and two groups in LDAP, imported into
+Keycloak, logging in with their directory password, and arriving in the access token with
+their group membership attached.
+
+```
+ou=people,dc=example,dc=org        ou=groups,dc=example,dc=org
+  uid=awhitfield                     cn=engineering  (member: awhitfield, bokonkwo)
+  uid=bokonkwo                       cn=platform     (member: awhitfield)
+        │                                    │
+        └──────── LDAP provider ─────────────┘
+                        │
+              realm "corp" ──► access token: groups: ["engineering","platform"]
+```
+
+## Prerequisites: a directory and a server
+
+If you already have LDAP or AD, use it and skip to the next section — you need the connection
+URL, a bind DN that can read the user subtree, and the DN of that subtree.
+
+Otherwise, two containers on one network. **Keep the memory limit on Keycloak**: it sizes its
+heap at 70% of the memory it can see.
+
+```bash
+docker network create kclab
+
+docker run -d --name ldap --network kclab --memory 512m \
+  -e LDAP_ORGANISATION="Example Org" \
+  -e LDAP_DOMAIN="example.org" \
+  -e LDAP_ADMIN_PASSWORD="adminpw" \
+  osixia/openldap:1.5.0
+
+docker run -d --name kc --network kclab --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+`osixia/openldap` is a test fixture, not a recommendation — it is unmaintained and ships
+OpenLDAP 2.4. It is here because it starts in ten seconds with a usable `dc=example,dc=org`
+suffix. (`bitnami/openldap:2.6`, the other common fixture, no longer resolves on Docker Hub.)
+
+Seed it:
+
+```bash
+cat > seed.ldif <<'EOF'
+dn: ou=people,dc=example,dc=org
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=awhitfield,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+uid: awhitfield
+cn: Ada Whitfield
+sn: Whitfield
+givenName: Ada
+mail: awhitfield@example.org
+userPassword: Str0ngPass!
+
+dn: uid=bokonkwo,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+uid: bokonkwo
+cn: Ben Okonkwo
+sn: Okonkwo
+givenName: Ben
+mail: bokonkwo@example.org
+userPassword: Str0ngPass!
+
+dn: cn=engineering,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: engineering
+member: uid=awhitfield,ou=people,dc=example,dc=org
+member: uid=bokonkwo,ou=people,dc=example,dc=org
+
+dn: cn=platform,ou=groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: platform
+member: uid=awhitfield,ou=people,dc=example,dc=org
+EOF
+
+docker cp seed.ldif ldap:/tmp/seed.ldif
+docker exec ldap ldapadd -x -H ldap://localhost \
+  -D "cn=admin,dc=example,dc=org" -w adminpw -f /tmp/seed.ldif
+```
+
+Then a realm to federate into, using
+[`kcadm.sh`](/tutorials/getting-started/admin-cli/) inside the container:
+
+```bash
+kcadm() { docker exec kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+kcadm create realms -s realm=corp -s enabled=true
+```
+
+## Decide two things before you click Add
+
+Keycloak generates the initial mapper set from **Vendor**, **Edit mode** and **Import users**
+at the moment the provider is created, and *it does not regenerate them if you change those
+later*. The upstream guide is blunt about it: "Decide the Edit Mode when creating the LDAP
+provider." Getting this wrong means deleting the provider and starting again, which orphans
+every local account already linked to it.
+
+**Import users** (`importEnabled`) decides where the user row lives.
+
+| | Import users ON (default) | Import users OFF |
+|---|---|---|
+| User row | copied into the Keycloak database on first lookup | never stored; every lookup queries LDAP |
+| Local attributes, custom profile fields | can be stored | cannot — only LDAP-mapped data |
+| Role and group mappings | stored locally | only what an LDAP mapper supplies |
+| Username/email case | folded to lower case | preserved as LDAP has it |
+| Unfiltered admin search | one LDAP query **per imported user** found | one search |
+
+**Edit mode** decides what a write in Keycloak does.
+
+| Edit mode | Attribute write | Password reset | Use when |
+|---|---|---|---|
+| `READ_ONLY` | rejected | rejected | the directory owns the record. The safe default |
+| `WRITABLE` | written back to LDAP | written back to LDAP | Keycloak is a front end for directory self-service |
+| `UNSYNCED` | kept in Keycloak only | kept in Keycloak only | the directory is read-only to you and you accept divergence |
+
+`UNSYNCED` is the one that surprises people: the user ends up with two passwords, the LDAP one
+and the Keycloak one, and only the Keycloak one works. That is sometimes exactly what you
+want during a migration, and a support incident otherwise.
+
+### Vendor presets
+
+Choosing a vendor fills four fields. These are the values the 26.8.1 admin console writes:
+
+| Vendor | Username LDAP attribute | RDN LDAP attribute | UUID LDAP attribute | User object classes |
+|---|---|---|---|---|
+| Active Directory | `cn` | `cn` | `objectGUID` | `person, organizationalPerson, user` |
+| Red Hat Directory Server | `uid` | `uid` | `nsuniqueid` | `inetOrgPerson, organizationalPerson` |
+| Tivoli | `uid` | `uid` | `uniqueidentifier` | `inetOrgPerson, organizationalPerson` |
+| Novell eDirectory | `uid` | `uid` | `guid` | `inetOrgPerson, organizationalPerson` |
+| Other | `uid` | `uid` | `entryUUID` | `inetOrgPerson, organizationalPerson` |
+
+**On Active Directory, change Username LDAP attribute off the preset.** The preset is `cn`,
+which on AD is the display name — so your usernames become `Ada Whitfield`, with a space, and
+every login form has to be typed exactly that way. Keycloak's own field help names the
+alternative: "For Active directory it can be `sAMAccountName` or `cn`." Set **Username LDAP
+attribute** to `sAMAccountName` (or `userPrincipalName` if you want logins to look like email
+addresses) and **leave RDN LDAP attribute at `cn`**, because on AD the RDN genuinely is `cn`.
+They are allowed to differ, and here they must.
+
+## Create the provider
+
+Admin console path: **User federation → Add LDAP providers**. Every field below is labelled
+there exactly as named. The CLI version, which is what you want in version control:
+
+```bash
+REALM_ID=$(kcadm get realms/corp --fields id --format csv --noquotes)
+
+kcadm create components -r corp \
+  -s name=corp-ldap \
+  -s providerId=ldap \
+  -s providerType=org.keycloak.storage.UserStorageProvider \
+  -s parentId=$REALM_ID \
+  -s 'config.enabled=["true"]' \
+  -s 'config.vendor=["other"]' \
+  -s 'config.connectionUrl=["ldap://ldap:389"]' \
+  -s 'config.authType=["simple"]' \
+  -s 'config.bindDn=["cn=admin,dc=example,dc=org"]' \
+  -s 'config.bindCredential=["adminpw"]' \
+  -s 'config.usersDn=["ou=people,dc=example,dc=org"]' \
+  -s 'config.searchScope=["2"]' \
+  -s 'config.usernameLDAPAttribute=["uid"]' \
+  -s 'config.rdnLDAPAttribute=["uid"]' \
+  -s 'config.uuidLDAPAttribute=["entryUUID"]' \
+  -s 'config.userObjectClasses=["inetOrgPerson, organizationalPerson"]' \
+  -s 'config.editMode=["READ_ONLY"]' \
+  -s 'config.importEnabled=["true"]' \
+  -s 'config.syncRegistrations=["false"]' \
+  -s 'config.pagination=["true"]' \
+  -s 'config.connectionPooling=["true"]' \
+  -s 'config.cachePolicy=["DEFAULT"]' \
+  -s 'config.batchSizeForSync=["1000"]' \
+  -s 'config.fullSyncPeriod=["-1"]' \
+  -s 'config.changedSyncPeriod=["-1"]'
+```
+
+```
+Created new component with id 'tzIHihXhSAqrTXwSbfYkzQ'
+```
+
+Keep that id; the sync and mapper endpoints all need it. `searchScope` is `1` for one level
+and `2` for subtree — **use `2` unless you are certain every account sits directly under
+`usersDn`**, see the failure modes below.
+
+Two notes on `kcadm` syntax that cost time. Component config values are `Map<String,List<String>>`,
+so they take `=["value"]`. Protocol mapper config values are plain strings and take `="value"`
+— passing a list there fails with `Cannot parse the JSON` and creates nothing.
+
+## Verify it worked
+
+### 1. Test the connection — and know what the test does not check
+
+```bash
+kcadm create testLDAPConnection -r corp \
+  -s action=testConnection \
+  -s connectionUrl=ldap://ldap:389 \
+  -s bindDn=cn=admin,dc=example,dc=org \
+  -s bindCredential=adminpw \
+  -s useTruststoreSpi=always
+```
+
+Silence and exit 0 is a pass. **`testConnection` passes with a wrong bind password** — we ran
+it with `bindCredential=wrongpw` and it still exited 0, because it only proves the host is
+reachable. The admin console's **Test connection** button calls the same endpoint. The one
+that checks credentials is `testAuthentication`:
+
+```bash
+kcadm create testLDAPConnection -r corp -s action=testAuthentication \
+  -s connectionUrl=ldap://ldap:389 -s bindDn=cn=admin,dc=example,dc=org \
+  -s bindCredential=wrongpw -s useTruststoreSpi=always
+```
+
+```
+AuthenticationFailure
+```
+
+Run both. A green **Test connection** next to a broken bind is the single most common reason
+a provider looks configured and imports nobody.
+
+### 2. Sync, and read the counts
+
+```bash
+curl -s -X POST \
+  "$KC/admin/realms/corp/user-storage/$LDAP_ID/sync?action=triggerFullSync" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```json
+{"ignored":false,"added":2,"updated":0,"removed":0,"failed":0,
+ "status":"2 imported users, 0 updated users"}
+```
+
+That JSON body is the verification step. The admin console shows the `status` string in a
+toast; the counts are the part worth asserting in a script.
+
+### 3. Log in with the directory password
+
+```bash
+curl -s -X POST "$KC/realms/corp/protocol/openid-connect/token" \
+  -d grant_type=password -d client_id=lab-cli \
+  -d username=awhitfield -d password='Str0ngPass!' | jq -r .access_token
+```
+
+Decoded, the first run gives this — and it is wrong:
+
+```json
+{
+  "name": "Ada Whitfield Whitfield",
+  "preferred_username": "awhitfield",
+  "given_name": "Ada Whitfield",
+  "family_name": "Whitfield"
+}
+```
+
+The `first name` mapper Keycloak generated maps **`cn` → `firstName`**, and `cn` on an
+`inetOrgPerson` is the full name. Every token in the realm carries a doubled surname. The fix
+is one field:
+
+```bash
+kcadm update components/$FIRST_NAME_MAPPER_ID -r corp \
+  -s 'config."ldap.attribute"=["givenName"]'
+```
+
+```json
+{ "name": "Ada Whitfield", "given_name": "Ada", "family_name": "Whitfield" }
+```
+
+Check this on day one. It is cosmetic until something downstream matches on `given_name`.
+
+## Map LDAP groups into Keycloak groups
+
+Groups do not come across by default; nothing in the generated mapper set touches them. Add a
+`group-ldap-mapper`:
+
+```bash
+kcadm create components -r corp \
+  -s name=groups \
+  -s providerId=group-ldap-mapper \
+  -s providerType=org.keycloak.storage.ldap.mappers.LDAPStorageMapper \
+  -s parentId=$LDAP_ID \
+  -s 'config."groups.dn"=["ou=groups,dc=example,dc=org"]' \
+  -s 'config."group.name.ldap.attribute"=["cn"]' \
+  -s 'config."group.object.classes"=["groupOfNames"]' \
+  -s 'config."membership.ldap.attribute"=["member"]' \
+  -s 'config."membership.attribute.type"=["DN"]' \
+  -s 'config."membership.user.ldap.attribute"=["uid"]' \
+  -s 'config."user.roles.retrieve.strategy"=["LOAD_GROUPS_BY_MEMBER_ATTRIBUTE"]' \
+  -s 'config."preserve.group.inheritance"=["true"]' \
+  -s 'config.mode=["READ_ONLY"]' \
+  -s 'config."drop.non.existing.groups.during.sync"=["false"]'
+```
+
+On Active Directory the only changes are `group.object.classes=group` and, usually,
+`membership.user.ldap.attribute=cn` to match the RDN.
+
+A mapper sync is a **separate call** from the provider sync, with a direction:
+
+```bash
+curl -s -X POST \
+  "$KC/admin/realms/corp/user-storage/$LDAP_ID/mappers/$GROUP_MAPPER_ID/sync?direction=fedToKeycloak" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```json
+{"ignored":false,"added":2,"updated":0,"removed":0,"failed":0,
+ "status":"2 imported groups, 0 updated groups, 0 removed groups"}
+```
+
+```bash
+kcadm get users/$USER_ID/groups -r corp --fields path
+```
+
+```json
+[ { "path" : "/engineering" }, { "path" : "/platform" } ]
+```
+
+To get them into a token you still need a
+[protocol mapper](/tutorials/clients/protocol-mappers/) on the client — group membership in
+Keycloak is not a claim until something writes it:
+
+```bash
+kcadm create clients/$CLIENT_ID/protocol-mappers/models -r corp \
+  -s name=groups -s protocol=openid-connect \
+  -s protocolMapper=oidc-group-membership-mapper \
+  -s 'config."claim.name"="groups"' -s 'config."full.path"="false"' \
+  -s 'config."access.token.claim"="true"' -s 'config."id.token.claim"="true"'
+```
+
+```json
+{
+  "preferred_username": "awhitfield",
+  "groups": ["engineering", "platform"]
+}
+```
+
+The full mapper set available on a 26.8.1 server, for when you need one of the others:
+`user-attribute-ldap-mapper`, `full-name-ldap-mapper`, `group-ldap-mapper`,
+`role-ldap-mapper`, `hardcoded-ldap-role-mapper`, `hardcoded-ldap-group-mapper`,
+`hardcoded-ldap-attribute-mapper`, `hardcoded-attribute-mapper`, `certificate-ldap-mapper`,
+`kerberos-principal-attribute-mapper`, `msad-user-account-control-mapper`,
+`msad-lds-user-account-control-mapper`.
+
+**On Active Directory, add `msad-user-account-control-mapper`.** Without it a disabled AD
+account stays enabled in Keycloak: the mapper is what reads `userAccountControl` and
+`pwdLastSet` and turns them into a disabled user and an `UPDATE_PASSWORD` required action.
+It is created automatically when you pick the `ad` vendor, which is another reason to get the
+vendor right at creation time rather than switching to it later.
+
+## When it goes wrong
+
+**A sync that imports nothing and reports success.** A wrong `usersDn` produces this, and it
+is the worst failure here because every surface says it worked:
+
+```json
+{"ignored":false,"added":0,"updated":0,"removed":0,"failed":0,
+ "status":"0 imported users, 0 updated users"}
+```
+
+The real answer is in the server log only:
+
+```
+ERROR [org.keycloak.storage.ldap.idm.store.ldap.LDAPOperationManager]
+Could not query server using DN [ou=users,dc=example,dc=org] and filter
+[(&(objectclass=inetOrgPerson)(objectclass=organizationalPerson))]:
+javax.naming.NameNotFoundException: [LDAP: error code 32 - No Such Object]
+```
+
+So: never treat `0 imported users` as "the directory is empty". Check the log, and check the
+filter in it — if the object classes do not match your entries, the DN can be right and the
+result still zero.
+
+**Some users import and others don't.** Almost always **Search scope**. With scope **One
+Level** a user in a sub-OU is invisible, and nothing says so. Add one:
+
+```bash
+docker exec ldap bash -c 'cat > /tmp/sub.ldif <<EOF
+dn: ou=contractors,ou=people,dc=example,dc=org
+objectClass: organizationalUnit
+ou: contractors
+
+dn: uid=dnarayan,ou=contractors,ou=people,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+uid: dnarayan
+cn: Deepa Narayan
+sn: Narayan
+givenName: Deepa
+mail: dnarayan@example.org
+userPassword: Str0ngPass!
+EOF
+ldapadd -x -H ldap://localhost -D "cn=admin,dc=example,dc=org" -w adminpw -f /tmp/sub.ldif'
+```
+
+On a fresh realm with `searchScope=1`, a full sync finds the two users directly under
+`ou=people` and not the third:
+
+```json
+{"added":2,"updated":0,"removed":0,"failed":0,"status":"2 imported users, 0 updated users"}
+```
+
+```bash
+kcadm get users -r corp3 -q username=dnarayan --fields username
+```
+
+```
+[ ]
+```
+
+Switch to `searchScope=2` and re-sync, and the same provider against the same directory finds
+them:
+
+```json
+{"added":1,"updated":2,"removed":0,"failed":0,"status":"1 imported users, 2 updated users"}
+```
+
+**Failover that silently isn't.** Multiple servers go in **Connection URL** separated by
+**spaces**. A comma is not a separator and the three wrong forms fail differently — these are
+measured against a reachable `ldap` and an unresolvable `nosuchhost`:
+
+| Connection URL | Result |
+|---|---|
+| `ldap://nosuchhost:389 ldap://ldap:389` | pass — failover works |
+| `ldap://nosuchhost:389,ldap://ldap:389` | `MalformedURL` — loud, fine |
+| `ldap://ldap:389, ldap://nosuchhost:389` | **`UnknownHost`** — the good server was discarded |
+
+The third is the dangerous one: a trailing comma makes Keycloak drop the first URL entirely,
+so you are left with one server and no warning. All servers in the list must also be replicas
+of the same directory — independent instances generate their own `entryUUID`/`objectGUID`
+values, and failover to one will break every federated link.
+
+**LDAP changed but Keycloak shows the old value.** Two different causes, and the fix differs.
+We changed `sn` and `mail` on a user directly in LDAP, then read the user back:
+
+| | After a direct read | After clearing the user cache | After a full sync |
+|---|---|---|---|
+| `sn` → `lastName` (`Always read value from LDAP` = **on**) | stale | **updated** | updated |
+| `mail` → `email` (`Always read value from LDAP` = **off**) | stale | stale | **updated** |
+
+So if one attribute is current and another isn't, you are looking at the mapper's **Always
+read value from LDAP** flag, not at a broken sync. Clear the realm user cache with
+`POST /admin/realms/{realm}/clear-user-cache` before concluding anything from a stale value.
+
+**Writes rejected in `READ_ONLY` — except the ones that aren't.** Three requests against the
+same federated user:
+
+```
+PUT /users/{id}        {"email": "..."}      → 400 {"errorMessage":"error-user-attribute-read-only"}
+PUT /users/{id}/reset-password                → 400 {"error":"Can't reset password as account is read only"}
+PUT /users/{id}        {"enabled": false}     → 204
+```
+
+`enabled` is not mapped to LDAP on a non-AD vendor, so it is stored locally and the write
+succeeds. That is useful — you can lock someone out of Keycloak without directory access —
+but it is one-way: we ran a full sync afterwards and the user stayed disabled. Nothing in
+LDAP will re-enable them.
+
+**A user deleted from LDAP is still there — then suddenly isn't.** A full sync after deleting
+an entry reports `"removed": 0`; sync never deletes. The user disappears on the next *search*,
+because **Remove invalid users during searches** is on by default. So deprovisioning
+propagates on lookup, not on schedule, and a nightly sync is not a deprovisioning mechanism.
+If you need prompt revocation, revoke sessions too — an issued token outlives the directory
+entry.
+
+**Passwords stored in the clear.** Not a Keycloak bug, but worth one command before you go
+live. OpenLDAP stores `userPassword` exactly as it is given unless the LDAPv3 Password Modify
+extended operation (RFC 3062) is used — which is what the **Enable the LDAPv3 password modify
+extended operation** toggle on the provider turns on. Our seeded entry:
+
+```bash
+docker exec ldap ldapsearch -x -H ldap://localhost \
+  -D "cn=admin,dc=example,dc=org" -w adminpw \
+  -b "uid=awhitfield,ou=people,dc=example,dc=org" userPassword
+```
+
+```
+userPassword:: U3RyMG5nUGFzcyE=     # base64 of "Str0ngPass!" — plaintext
+```
+
+AD, RHDS and FreeIPA hash on write; OpenLDAP and ApacheDS need to be told to. Check, don't
+assume.
+
+**Errors worth recognising in the log.** `[LDAP: error code 49 - Invalid Credentials]` is the
+bind account, reported as `KC-SERVICES0055: Error when authenticating to LDAP`.
+`error code 32 - No Such Object` is a DN that doesn't exist. For anything else, set the
+`org.keycloak.storage.ldap` log category to `TRACE` — it logs every query and its parameters.
+
+## A few things to get right before production
+
+- **Use `ldaps://` or StartTLS**, with the CA in the Keycloak truststore. A simple bind sends
+  the bind password, and every user's password at login, in the clear otherwise.
+- **Give the bind account read-only rights** on the user and group subtrees, nothing else.
+- **Keep one admin in the local Keycloak database.** Keycloak searches local storage before
+  any federation provider and does not fail over when a provider errors — if the directory is
+  unreachable and your only admin is federated, you are locked out of the console.
+- **Avoid unfiltered user searches with Import users on.** Each imported user found triggers
+  its own LDAP query. A screen that lists every user does not behave like one that lists ten.
+- **Mind the two lockout policies.** Keycloak's brute-force detection and the directory's
+  lockout are independent, and failed logins can count against both.
+
+## Next steps
+
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the other half
+  of attribute mapping, and why a custom attribute silently vanishes even when the LDAP mapper
+  is right.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  what to do with the groups you just imported, and why authorizing on a group path is fragile.
+- [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+  every other way directory data reaches a token.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — if the
+  `kcadm` calls above were unfamiliar.
+- [Keycloak as an IAM system](/docs/keycloak/iam/) — where federation sits relative to
+  brokering, and when a directory realm and a customer realm should be two realms.
+- Official reference:
+  [Configuring federated LDAP storage](https://www.keycloak.org/docs/latest/server_admin/index.html#_ldap),
+  [LDAP mappers](https://www.keycloak.org/docs/latest/server_admin/index.html#_ldap_mappers)
+  and [Troubleshooting](https://www.keycloak.org/docs/latest/server_admin/index.html#_ldap_troubleshooting).
+- Clean up: `docker rm -f kc ldap && docker network rm kclab`.
+
+<ProductionNote />
