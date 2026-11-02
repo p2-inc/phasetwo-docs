@@ -26,6 +26,13 @@ const TOOLS: Tool[] = [
     desc: "Decode and inspect any JSON Web Token, verify its signature, and read its claims in plain English. Keycloak-aware.",
     available: true,
   },
+  {
+    to: "/tools/saml-decoder",
+    icon: "mdi:file-code-outline",
+    title: "SAML Decoder",
+    desc: "Decode SAMLResponse and SAMLRequest messages from base64, redirect URLs, or XML, check expiry, and verify the signature. Keycloak-aware.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {
