@@ -116,7 +116,10 @@ module.exports = {
       type: "category",
       label: "Data protection and exit",
       link: { type: "generated-index" },
-      items: ["data-protection/exit-export"],
+      items: [
+        "data-protection/event-retention",
+        "data-protection/exit-export",
+      ],
     },
     {
       type: "category",
