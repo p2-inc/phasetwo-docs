@@ -172,9 +172,10 @@ leave:
 
 1. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
 2. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
-3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+3. [Keycloak event retention: expiration settings for GDPR](/tutorials/data-protection/event-retention/)
+4. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
 
-Event retention and realm key management build on the same track. *(Coming soon.)*
+Realm key management builds on the same track. *(Coming soon.)*
 
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 

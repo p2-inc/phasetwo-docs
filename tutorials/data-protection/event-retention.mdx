@@ -1,0 +1,451 @@
+---
+id: event-retention
+title: "Keycloak Event Retention: Expiration Settings for GDPR"
+description: Keycloak keeps events forever by default. The two expiration settings, where each one lives, when the purge runs, and what deleting 500,000 expired rows actually costs.
+keywords:
+  - keycloak event retention
+  - keycloak eventsExpiration
+  - keycloak admin events expiration
+  - keycloak delete old events
+  - keycloak clear expired events
+  - keycloak event log retention gdpr
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `kcadm.sh` and reading SQL output
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Event Retention: Expiration Settings for GDPR
+
+**Keycloak keeps events forever by default.** Turning on *Save events* starts writing rows
+and gives them no expiry at all — a login recorded today is still in `event_entity` in four
+years unless you configure retention. Keycloak event retention is two settings, in two
+different places, both measured in **seconds**:
+
+| | User events | Admin events |
+|---|---|---|
+| Setting | `eventsExpiration` | `adminEventsExpiration` |
+| Where it lives | realm **events config** — `PUT /admin/realms/{realm}/events/config` | realm **attribute** — `PUT /admin/realms/{realm}` |
+| Unset means | keep forever | keep forever |
+| Cleared by | `ClearExpiredEvents`, every 900 s | `ClearExpiredAdminEvents`, every 900 s |
+| In the admin console | Realm settings → Events → User events settings → Expiration | Realm settings → Events → Admin events settings → Expiration |
+
+The console shows the two Expiration fields side by side and hides the split. The API does
+not: send `adminEventsExpiration` to the events-config endpoint and it is rejected outright.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`) on **PostgreSQL 16**, a
+2-vCPU host, on **2026-11-02**. Every log line, row count and timing below is copied from
+that run. Regulatory citations were re-checked against their sources on the same date.
+
+The Server Administration Guide's
+[Configuring auditing to track events](https://www.keycloak.org/docs/latest/server_admin/index.html#configuring-auditing-to-track-events)
+is the reference for turning events on, and this page does not restate it. On retention it
+says one sentence — "Specify the length of time to store events in the **Expiration**
+field" — names no unit, no default, and no setting for admin events at all. That is the gap
+this page fills.
+
+How long *your* organisation must keep authentication records is a decision for whoever
+holds the controller role. This page is about what the software does with the number once
+you have one.
+
+:::
+
+## Default means forever, and the server will not warn you
+
+Create a realm, turn both event types on, and read the config back:
+
+```bash
+alias kcadm='docker exec kc /opt/keycloak/bin/kcadm.sh'
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+kcadm create realms -s realm=gdpr -s enabled=true -s sslRequired=NONE
+kcadm update events/config -r gdpr \
+  -s eventsEnabled=true -s adminEventsEnabled=true -s adminEventsDetailsEnabled=true
+kcadm get events/config -r gdpr \
+  --fields eventsEnabled,eventsExpiration,adminEventsEnabled,adminEventsDetailsEnabled
+```
+
+```console
+{
+  "eventsEnabled" : true,
+  "adminEventsEnabled" : true,
+  "adminEventsDetailsEnabled" : true
+}
+```
+
+No `eventsExpiration` key. It is not defaulted, not inherited from the master realm, and not
+mentioned anywhere in the response. In the database the column is zero:
+
+```console
+$ SELECT id, name, events_enabled, events_expiration FROM realm;
+                  id                  |  name  | events_enabled | events_expiration
+--------------------------------------+--------+----------------+-------------------
+ 20101847-0727-4dce-a64e-52d4017569f9 | gdpr   | t              |                 0
+```
+
+Zero is the whole story. The cleanup task selects its work with
+
+```sql
+select r.id, r.eventsExpiration from RealmEntity r where r.eventsExpiration > 0
+```
+
+so a realm with no expiration is not merely "not due for cleanup" — it is never considered.
+Backdate every event in the realm by 400 days and watch a full cleanup pass go by:
+
+```console
+2026-11-02 07:34:50,045 DEBUG [org.keycloak.events.jpa.JpaEventStoreProvider] (Timer-0)
+  Cleared 0 expired events in all realms
+2026-11-02 07:34:50,127 DEBUG [org.keycloak.events.jpa.JpaEventStoreProvider] (Timer-0)
+  Cleared 0 expired admin events in all realms
+```
+
+Nothing was deleted, and nothing was logged above DEBUG. **The failure mode of event
+retention is silence.** There is no warning on the realm, no badge in the console, and no
+line in the server log telling you that this realm has been accumulating personal data since
+the day somebody flipped the switch.
+
+## Set retention on both, separately
+
+User events go through the events-config endpoint. Thirty days is `2592000` seconds:
+
+```bash
+kcadm update events/config -r gdpr -s eventsExpiration=2592000
+```
+
+Admin events do not. Try the obvious thing and `kcadm` refuses:
+
+```console
+$ kcadm update events/config -r gdpr -s adminEventsExpiration=604800
+Invalid json representation for RealmEventsConfigRepresentation.
+Unrecognized field "adminEventsExpiration" at line 1 column 2771.
+```
+
+It is a realm attribute. Seven days is `604800` seconds:
+
+```bash
+kcadm update realms/gdpr -s 'attributes.adminEventsExpiration=604800'
+```
+
+Now read it back, and note which call shows it:
+
+```console
+$ kcadm get realms/gdpr --fields attributes
+{
+  "attributes" : { }
+}
+
+$ kcadm get realms/gdpr | jq -r '.attributes.adminEventsExpiration'
+604800
+```
+
+`--fields attributes` returns an empty object for a realm that definitely has 63 attributes.
+The value saved; the projection did not return it. This has sent people round the loop of
+setting it again, so verify with the full representation or go to the database:
+
+```console
+$ SELECT name, value FROM realm_attribute WHERE name = 'adminEventsExpiration';
+         name          | value
+-----------------------+--------
+ adminEventsExpiration | 604800
+```
+
+**Nothing validates the attribute on write.** Set it to `7d` and the API returns 204. The
+error arrives fifteen minutes later, in the server log, at WARN, once per cleanup pass
+forever:
+
+```console
+2026-11-02 07:39:50,078 WARN [org.keycloak.events.jpa.JpaEventStoreProvider] (Timer-0)
+  Unable to parse value '7d' for attribute 'adminEventsExpiration' in realm
+  '20101847-...' (expecting it to be decimal numeric):
+  java.lang.NumberFormatException: For input string: "7d"
+```
+
+Meanwhile admin events never expire. If you set this through the API rather than the
+console, read the server log once afterwards.
+
+### The unit is seconds — here is the proof
+
+The admin console offers minutes, hours and days in a dropdown and converts for you. The API
+takes a bare integer, and nothing in the response says what it means. Insert five events aged
+1, 12, 23, 25 and 48 hours, set `eventsExpiration=86400`, and wait one pass:
+
+```console
+$ -- before
+ age_hours
+-----------
+       1.0
+      12.0
+      23.0
+      25.0
+      48.0
+
+2026-11-02 07:41:49,975 TRACE Deleted 2 events for realm 20101847-... with expiration 86400
+
+$ -- after
+ surviving_age_hours
+---------------------
+                 1.0
+                12.0
+                23.0
+```
+
+86400 behaved as one day, not as 86,400 milliseconds and not as 86,400 minutes. Both settings
+are seconds.
+
+## When the purge runs, and how it is paced
+
+Expiry is not applied on read, and it is not applied when you save the setting. Two scheduled
+tasks do the work, and they are independent of each other:
+
+```console
+$ docker logs kc | grep "Scheduled cluster task ClearExpired"
+DEBUG [org.keycloak.storage.datastore.DefaultDatastoreProviderFactory] (main)
+  Scheduled cluster task ClearExpiredEvents with interval 900000 ms
+DEBUG [org.keycloak.storage.datastore.DefaultDatastoreProviderFactory] (main)
+  Scheduled cluster task ClearExpiredAdminEvents with interval 900000 ms
+```
+
+**900 seconds, from server start.** Four consequences worth knowing:
+
+- A row can outlive its retention period by up to fifteen minutes. If your policy is
+  "deleted within 24 hours", configure 24 hours minus a margin, not exactly 24 hours.
+- The tasks are cluster-aware — one node runs each pass, not all of them.
+- They are DEBUG. On a default log level you see nothing at all, working or broken.
+- The interval is global, not per realm. `KC_SPI_SCHEDULED_INTERVAL=60` (or
+  `--spi-scheduled--interval=60`) shortens it, which is how the timings on this page were
+  taken in minutes instead of hours. It also shortens every other cleanup task on the same
+  schedule, so it belongs in a test environment, not in production.
+
+To watch retention work at all, turn the categories up:
+
+```bash
+docker run ... \
+  -e KC_LOG_LEVEL="info,org.keycloak.services.scheduled:debug,org.keycloak.events.jpa:trace" \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+A pass that does something says so, per realm at TRACE and in total at DEBUG:
+
+```console
+TRACE Deleted 10 admin events for realm 20101847-... with expiration 604800
+DEBUG Cleared 10 expired admin events in all realms
+DEBUG ClearExpiredAdminEvents finished in 56 ms
+```
+
+## Measured: deleting 500,000 expired events
+
+The question behind every retention change on a table that has never been purged is whether
+the first pass takes the server with it. Here is the measurement: 500,000 `LOGIN` rows aged
+48 hours, `eventsExpiration=86400`, a 282 MB `event_entity`, and a `grant_type=password`
+login loop running throughout as a latency probe.
+
+```console
+2026-11-02 07:45:04,805 TRACE Deleted 500000 events for realm 20101847-... with expiration 86400
+2026-11-02 07:45:04,805 DEBUG Cleared 500000 expired events in all realms
+2026-11-02 07:45:04,805 DEBUG ClearExpiredEvents finished in 74844 ms
+```
+
+| | Value |
+|---|---|
+| Rows deleted | 500,000 |
+| Wall time, one pass | 74.8 s (≈6,700 rows/s) |
+| Login p50, during / outside | 33 ms / 43 ms |
+| Login p95, during / outside | 64 ms / 55 ms |
+| Login p99, during / outside | 81 ms / 67 ms |
+| Login max, during / outside | 195 ms / 92 ms |
+
+The purge is deliberately slow. It is not one statement — it selects 500 ids at a time
+ordered by event time, takes a `PESSIMISTIC_WRITE` lock with skip-locked semantics, deletes
+that batch in **its own transaction**, and starts again. 500,000 rows is a thousand
+transactions. It also stops itself: each `clearExpiredEvents()` run carries a **four-minute
+budget**, logs `Batch delete reached time limit after deleting N rows` when it runs out, and
+picks up where it left off on the next pass. At the rate measured here that cap lands around
+1.6 million rows per pass — a backlog larger than that drains over several passes rather than
+in one long lock.
+
+The honest caveat: this is a single node, one database container, two vCPUs, ~13 logins a
+second. It is not a cluster under production load. What it does establish is the *shape* —
+small transactions, bounded duration, no exclusive lock on the table your logins are
+inserting into.
+
+One thing the purge does not do is give the disk back:
+
+```console
+$ SELECT n_live_tup, n_dead_tup, last_autovacuum FROM pg_stat_user_tables
+    WHERE relname = 'event_entity';
+ n_live_tup | n_dead_tup |        last_autovacuum
+------------+------------+-------------------------------
+       4580 |          0 | 2026-11-02 07:45:43.516635+00
+
+$ SELECT pg_size_pretty(pg_relation_size('event_entity'))     AS heap,
+         pg_size_pretty(pg_indexes_size('event_entity'))      AS indexes;
+  heap  | indexes
+--------+---------
+ 140 MB | 143 MB
+```
+
+Autovacuum ran immediately and reclaimed the dead tuples *for reuse*; the 283 MB is still
+allocated. The rows are gone — that is what an erasure obligation asks about — but a disk
+alert is not going to clear until a `VACUUM FULL` or `pg_repack`, both of which want a
+maintenance window.
+
+## "Clear user events" is a different operation, and a blunter one
+
+The console's **Clear user events** button and `DELETE /admin/realms/{realm}/events` do not
+respect retention, do not batch, and do not filter. One statement:
+
+```sql
+delete from EventEntity where realmId = :realmId
+```
+
+Against the same 500,000 rows:
+
+```console
+DELETE http_code=204 time_total=0.588689
+```
+
+589 ms — fast, because `idx_event_time` covers `(realm_id, event_time)` and PostgreSQL only
+has to mark tuples dead. But it is one transaction touching every row in the realm, and both
+the lock footprint and the WAL it generates scale with the table. The batched expiry path
+above is the slow one *on purpose*.
+
+Two things to know before anyone reaches for it:
+
+- **It is all or nothing.** `GET /events` takes `dateFrom` and `dateTo`; `DELETE /events`
+  takes **no query parameters at all**, and ignores any you send:
+
+  ```console
+  $ SELECT count(*) FROM event_entity WHERE realm_id = '20101847-...';
+   1915
+  $ curl -X DELETE ".../admin/realms/gdpr/events?user=nosuchuser&dateTo=2020-01-01"
+  204
+  $ SELECT count(*) FROM event_entity WHERE realm_id = '20101847-...';
+   0
+  ```
+
+  A filter that matches nothing deleted everything. The same is true of
+  `DELETE /admin-events`.
+- **There is no "delete events older than X" API.** Retention is the only built-in way to
+  delete selectively. Anything narrower than "all of them" is SQL you write yourself, with
+  the batching this page just described, or an `EventStoreProvider` that puts the events
+  somewhere else.
+
+Revoking `manage-events` from everyone who does not need it is the cheap control here. Admins
+who only read the Events tab need `view-events`.
+
+## How long should you keep them?
+
+No regulation in this table names a retention period for authentication logs except one. What
+the rest do is set a floor, through the window in which you may have to reconstruct what
+happened.
+
+| Driver | What it actually requires | What it implies for the two settings |
+|---|---|---|
+| GDPR Art. 5(1)(e), storage limitation | Personal data kept "in a form which permits identification of data subjects for no longer than is necessary for the purposes" — no number | A number you chose deliberately and can defend; Art. 5(2) makes you able to *demonstrate* it |
+| GDPR Art. 33, breach notification | 72 hours to notify the supervisory authority, with a description of the breach | You cannot describe what you cannot reconstruct. Weeks, not days |
+| NIS2 Art. 23(4) | Early warning 24 h, notification 72 h, **final report one month** after the notification | One month is the hard floor; six is the comfortable one |
+| DORA Art. 30(3), applicable since 2025-01-17 | Contractual: audit and access rights, incident assistance, exit terms | Whatever the contract says. Ask before you set the number, not after |
+| PCI DSS v4.0.1 Req. 10.5.1 | **12 months of audit log history, the most recent 3 months immediately available** | The only hard number here — and 12 months of login events does not belong in your auth database |
+| ISO/IEC 27001:2022 A.8.15, SOC 2 CC7 | Logging exists, is protected, and is reviewed. No period | Your own policy, applied consistently and evidenced |
+
+Two practical readings of that table:
+
+**The two settings should usually differ.** Admin events are a small, high-value stream —
+who changed which client, who granted which role — and they are the ones an auditor asks for.
+Login events are a large, low-value-per-row stream that is mostly useful for the last few
+weeks. Keeping admin events longer than user events is the normal shape, and the split
+Keycloak forces on you happens to make it easy.
+
+**Nothing above is satisfied by 12 months of rows in `event_entity`.** Once the required
+window is longer than a few weeks of your login volume, the answer is not a bigger
+expiration — it is getting the events off the authentication database and setting a short
+expiration locally. Keycloak's Event Listener SPI is the supported seam; the open-source
+[keycloak-events](https://github.com/p2-inc/keycloak-events) extension implements it both as
+webhooks and as an `EventStoreProvider` that writes structured log lines instead of rows. The
+long-form version of that argument, with the pipeline behind it, is in
+[scaling Keycloak event storage](/blog/scaling-keycloak-event-storage/).
+
+## What retention does not cover
+
+- **The server log.** The `jboss-logging` event listener is enabled by default and writes
+  error events to the server log with the username and IP in the line, regardless of whether
+  *Save events* is on and regardless of expiration. On a realm with `events_enabled = f`:
+
+  ```console
+  2026-11-02 07:56:03,797 WARN [org.keycloak.events] (executor-thread-1)
+    type="LOGIN_ERROR", realmId="66df87e0-...", realmName="master", clientId="admin-cli",
+    userId="50cc178d-...", ipAddress="172.18.0.1", error="invalid_user_credentials",
+    auth_method="openid-connect", grant_type="password", username="admin"
+  ```
+
+  Whatever ships that off-box has its own retention, and `eventsExpiration` will never touch
+  it.
+- **Admin event representations.** With *Include representation* on, an admin event stores
+  the JSON body of the request — which for a user creation is that person's profile. It ages
+  out with the admin event, so a seven-day `adminEventsExpiration` is also a seven-day limit
+  on that copy. If you do not need it, the better answer is not to make the copy:
+  [what personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
+  covers `adminEventsDetailsEnabled`.
+- **Backups.** Deleting the row does nothing to last night's snapshot or to the WAL.
+- **Erasure requests.** Retention is a schedule, not a response to Article 17. A user who
+  asks to be erased today is still in `event_entity` until their rows expire, because
+  `DELETE /users/{id}` does not touch events at all.
+- **Other realms.** `event_entity` and `admin_event_entity` are shared across every realm in
+  the database, keyed by the realm's **id**, not its name. Expiration is configured per realm
+  and that is the only scoping you get for free.
+
+## Named failure modes
+
+- **"I turned on Save events, so retention is on."** It is not. Events are enabled and
+  unbounded until you set an expiration.
+- **`adminEventsExpiration` rejected by the API.** You sent it to `events/config`. It is a
+  realm attribute: `PUT /admin/realms/{realm}`.
+- **The attribute "does not save".** It saved. `--fields attributes` does not project it;
+  read the full realm representation.
+- **Expiry set, nothing deleted.** Wait fifteen minutes. The task runs every 900 s and the
+  first pass may be fourteen minutes away.
+- **Still nothing after an hour, and the log is quiet.** Either the value is not numeric —
+  grep the server log for `Unable to parse value` — or the log level is hiding a working
+  task. `org.keycloak.events.jpa` at TRACE answers both.
+- **Events reappear after a purge.** They are new events. Expiration deletes rows; it does
+  not stop recording. If the volume is the problem, trim `enabledEventTypes` — `CODE_TO_TOKEN`
+  and `CLIENT_LOGIN` are usually the largest and least informative. (`REFRESH_TOKEN` is *not*
+  in the default enabled set, so if you were counting on having that history, you do not.)
+- **You set the expiration in days.** The API takes seconds. `30` means thirty seconds and
+  your audit trail is gone at the next pass.
+- **A clean realm after a "targeted" delete.** `DELETE /events` ignores query parameters.
+  Restore from backup and use the expiration setting.
+- **Retention looks ignored on one node.** The tasks are cluster-aware; another node ran the
+  pass. Check the whole cluster's logs before concluding anything.
+
+## Next steps
+
+- [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
+  — the four classes of personal data, and the one that `DELETE /users/{id}` leaves behind.
+- [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+  — the other half of a data-protection runbook, and why event rows do not travel with a
+  realm export.
+- [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) — the other
+  expiry setting people confuse this one with.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the client
+  for every command above.
+- [User events in Keycloak: best practices, management, and purging](/blog/user-events-in-keycloak/)
+  — the operational side of the same two tables.
+- [Scaling Keycloak event storage](/blog/scaling-keycloak-event-storage/) — what to do when
+  the required retention window is longer than the database wants to hold.
+- [Audit log documentation](/docs/audit-logs/) — the event types, and what each one records.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Configuring auditing to track events](https://www.keycloak.org/docs/latest/server_admin/index.html#configuring-auditing-to-track-events)
+  and the [Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
+- Clean up: `docker rm -f kc kcdb && docker network rm kcnet`.
+
+<ProductionNote />
