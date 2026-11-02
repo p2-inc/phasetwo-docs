@@ -9,10 +9,12 @@
  */
 import {
   compactVerify,
+  importJWK,
   importSPKI,
   importX509,
-  createRemoteJWKSet,
   createLocalJWKSet,
+  createRemoteJWKSet,
+  type JWK,
   type JSONWebKeySet,
 } from "jose";
 import { base64UrlDecode } from "./decode.ts";
@@ -63,7 +65,9 @@ export async function verifyHmac(
 }
 
 /**
- * Verify an RS/ES/PS token against a PEM public key or X.509 certificate.
+ * Verify an RS/ES/PS/EdDSA token against a PEM public key, an X.509
+ * certificate, a single public JWK, or a pasted JWKS document (matched by
+ * `kid`).
  */
 export async function verifyPublicKey(
   token: string,
@@ -79,8 +83,9 @@ export async function verifyPublicKey(
   if (!trimmed)
     return {
       status: "error",
-      message: "Paste a public key or certificate (PEM).",
+      message: "Paste a public key, certificate (PEM), JWK, or JWKS.",
     };
+  if (trimmed.startsWith("{")) return verifyJwkJson(token, alg, trimmed);
   try {
     const key = trimmed.includes("CERTIFICATE")
       ? await importX509(trimmed, alg)
@@ -94,6 +99,38 @@ export async function verifyPublicKey(
     return {
       status: "invalid",
       message: `Could not verify against this key (${describeError(e)}). Check the key format and algorithm.`,
+    };
+  }
+}
+
+async function verifyJwkJson(
+  token: string,
+  alg: string,
+  json: string,
+): Promise<VerifyResult> {
+  let parsed: JWK | JSONWebKeySet;
+  try {
+    parsed = JSON.parse(json) as JWK | JSONWebKeySet;
+  } catch {
+    return { status: "error", message: "That JWK / JWKS is not valid JSON." };
+  }
+  try {
+    if (Array.isArray((parsed as JSONWebKeySet).keys)) {
+      await compactVerify(token, createLocalJWKSet(parsed as JSONWebKeySet));
+      return {
+        status: "valid",
+        message: "Signature is valid against a key from the pasted JWKS.",
+      };
+    }
+    await compactVerify(token, await importJWK(parsed as JWK, alg));
+    return {
+      status: "valid",
+      message: "Signature is valid for the provided JWK.",
+    };
+  } catch (e) {
+    return {
+      status: "invalid",
+      message: `Could not verify against this JWK / JWKS (${describeError(e)}). Check the kid and algorithm.`,
     };
   }
 }

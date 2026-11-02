@@ -135,8 +135,9 @@ export default function VerifyPanel({
       {mode === "publicKey" && (
         <div>
           <p className="mb-2 text-xs text-gray-500">
-            For asymmetric algorithms (RS/ES/PS). Paste a PEM public key or
-            X.509 certificate. {alg ? `Token alg: ${alg}.` : ""}
+            For asymmetric algorithms (RS/ES/PS/EdDSA). Paste a PEM public key,
+            an X.509 certificate, a JWK, or a JWKS document.{" "}
+            {alg ? `Token alg: ${alg}.` : ""}
           </p>
           <textarea
             value={pem}
@@ -144,7 +145,7 @@ export default function VerifyPanel({
             spellCheck={false}
             rows={4}
             placeholder={
-              "-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+              '-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n\nor { "keys": [ ... ] }'
             }
             className="w-full resize-y rounded-lg border border-white/10 bg-black/30 p-2.5 font-mono text-xs text-white outline-none placeholder:text-gray-600 focus:border-p2blue-500"
           />

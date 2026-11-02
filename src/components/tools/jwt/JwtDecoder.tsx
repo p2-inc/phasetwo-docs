@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import {
   parseJwt,
@@ -287,6 +287,24 @@ function DecodedPanel({
 export default function JwtDecoder() {
   const [token, setToken] = useState("");
   const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
+
+  // Accept a token handed over in the URL fragment (#token=...), e.g. from the
+  // JWT Generator. Fragments are never sent to the server, so the token stays
+  // out of request logs; we also strip it from the address bar once read.
+  useEffect(() => {
+    const m = window.location.hash.match(/^#token=([^&]+)/);
+    if (!m) return;
+    try {
+      setToken(decodeURIComponent(m[1]));
+    } catch {
+      setToken(m[1]);
+    }
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
+  }, []);
 
   const parsed = useMemo(() => parseJwt(token), [token]);
   // Date.now() is only read on the client (post-mount interactions), so this
