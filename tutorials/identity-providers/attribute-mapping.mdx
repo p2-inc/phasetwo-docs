@@ -1,0 +1,777 @@
+---
+id: attribute-mapping
+title: "Keycloak Identity Provider Mappers: Map External IdP Claims"
+description: Map attributes and claims from an external IdP into Keycloak users, roles and tokens — the ten mapper types, the sync-mode matrix, and the four silent failures.
+keywords:
+  - keycloak identity provider mapper
+  - attribute mapping keycloak oidc identity brokering
+  - using custom user attributes in keycloak oidc tokens
+  - keycloak idp attribute mapper
+  - keycloak sync mode
+  - keycloak claim to role mapper
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl`, `jq` and `kcadm.sh`
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Identity Provider Mappers: Map External IdP Claims
+
+When a user logs in through an external identity provider, Keycloak copies exactly four
+things onto the local account for free: **username, email, first name and last name**.
+Every other claim in that token — department, employee number, group membership, cost
+centre — is discarded unless an **identity provider mapper** picks it up. And a mapper that
+picks it up still does not put it in the token your application reads: that takes a second,
+separate mapper on the client side.
+
+Two hops, two different mapper systems, and four ways to lose data silently in between.
+This page is the tested walkthrough of both hops, with the sync-mode behaviour measured
+rather than quoted.
+
+:::info Tested against
+
+Keycloak **26.8.1** (`quay.io/keycloak/keycloak:26.8.1 start-dev`), on **2026-11-02**. Every
+mapper id, every claim and every sync-mode result below was read off a running server. The
+lab is two realms on one container, so you can reproduce all of it without an Entra ID,
+Okta or Google account.
+
+:::
+
+## The two hops, in one picture
+
+```
+  external IdP                 Keycloak (your realm)                 your app
+ ┌──────────────┐   claims   ┌──────────────────────┐   claims   ┌──────────┐
+ │ ID token /   │ ─────────► │ identity provider    │            │          │
+ │ assertion /  │            │ mappers              │            │          │
+ │ userinfo     │            │        ↓             │            │          │
+ └──────────────┘            │ local user record    │            │          │
+                             │ (attributes, roles,  │            │          │
+                             │  groups, session)    │            │          │
+                             │        ↓             │            │          │
+                             │ protocol mappers     │ ─────────► │ access / │
+                             │ (client, scopes)     │            │ ID token │
+                             └──────────────────────┘            └──────────┘
+```
+
+Hop 1 runs **once per brokered login**, in the first-broker-login flow, and writes to the
+local user. Hop 2 runs **on every token request** and reads from the local user. Neither
+knows about the other. If you only build hop 1 the claim is in your database and nowhere
+else; if you only build hop 2 the mapper points at an attribute that is never populated.
+
+The official documentation covers hop 1 in about ten lines —
+[Mapping claims and assertions](https://www.keycloak.org/docs/latest/server_admin/index.html#_mappers)
+gives you the click path and the sync-mode definitions, and tells you to hover over the
+mapper type for a description. It does not list the mapper types, and it does not say which
+sync mode you want. Both are below.
+
+## Prerequisites: a broker lab on one container
+
+We need an external IdP. Rather than ask you to register an application with Google, this
+lab uses a second Keycloak realm as the upstream provider — `corp` is "their" IdP, `app` is
+your realm.
+
+```bash
+docker rm -f kc 2>/dev/null
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+### The upstream realm
+
+Declare the custom attributes in the user profile **before** creating the user — on
+Keycloak 26 an attribute the user profile does not know about is dropped on write, with a
+2xx and no warning. [Managed vs unmanaged attributes](/tutorials/users/user-profile/) has
+the whole trap; it bites again on the receiving side later in this page.
+
+```bash
+$K create realms -s realm=corp -s enabled=true
+
+docker exec -i kc tee /tmp/corp-profile.json >/dev/null <<'JSON'
+{"attributes":[
+ {"name":"username","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"email","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"firstName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"lastName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"department","permissions":{"view":["admin","user"],"edit":["admin"]}},
+ {"name":"employee_id","permissions":{"view":["admin","user"],"edit":["admin"]}},
+ {"name":"cost_center","permissions":{"view":["admin","user"],"edit":["admin"]}}
+],"groups":[]}
+JSON
+$K update users/profile -r corp -f /tmp/corp-profile.json
+```
+
+A confidential client for the broker to talk to, with protocol mappers that emit the three
+attributes and the user's groups. Note `hr.employee_id` — a dotted claim name produces a
+**nested** JSON object, which is what Entra ID and Okta do with their extension claims, and
+it is the case people get stuck on:
+
+```bash
+$K create clients -r corp -s clientId=broker-app -s publicClient=false \
+  -s secret=brokersecret -s standardFlowEnabled=true \
+  -s 'redirectUris=["http://127.0.0.1:8080/realms/app/broker/corp/endpoint"]'
+
+CID=$($K get clients -r corp -q clientId=broker-app --fields id --format csv --noquotes)
+
+for pair in department:department employee_id:hr.employee_id cost_center:cost_center; do
+  A=${pair%%:*}; C=${pair##*:}
+  $K create clients/$CID/protocol-mappers/models -r corp \
+    -s name=$A -s protocol=openid-connect \
+    -s protocolMapper=oidc-usermodel-attribute-mapper \
+    -s "config.\"user.attribute\"=$A" -s "config.\"claim.name\"=$C" \
+    -s 'config."id.token.claim"=true' -s 'config."access.token.claim"=true' \
+    -s 'config."userinfo.token.claim"=true' -s 'config."jsonType.label"=String'
+done
+
+$K create clients/$CID/protocol-mappers/models -r corp \
+  -s name=groups -s protocol=openid-connect \
+  -s protocolMapper=oidc-group-membership-mapper \
+  -s 'config."claim.name"=groups' -s 'config."full.path"=false' \
+  -s 'config."id.token.claim"=true' -s 'config."access.token.claim"=true' \
+  -s 'config."userinfo.token.claim"=true'
+```
+
+And a user who has all of it:
+
+```bash
+$K create groups -r corp -s name=platform-admins
+$K create users -r corp -s username=ada -s enabled=true -s email=ada@corp.example \
+  -s firstName=Ada -s lastName=Lovelace -s emailVerified=true \
+  -s 'attributes.department=["platform"]' \
+  -s 'attributes.employee_id=["E-4417"]' \
+  -s 'attributes.cost_center=["CC-900"]'
+$K set-password -r corp --username ada --new-password pass
+
+GID=$($K get groups -r corp -q search=platform-admins --fields id --format csv --noquotes)
+CUID=$($K get users -r corp -q username=ada --fields id --format csv --noquotes)
+$K update users/$CUID/groups/$GID -r corp -n
+```
+
+### Your realm, and the identity provider
+
+```bash
+$K create realms -s realm=app -s enabled=true
+
+docker exec -i kc tee /tmp/app-profile.json >/dev/null <<'JSON'
+{"attributes":[
+ {"name":"username","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"email","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"firstName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"lastName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"department","permissions":{"view":["admin","user"],"edit":["admin"]}},
+ {"name":"employee_id","permissions":{"view":["admin","user"],"edit":["admin"]}}
+],"groups":[]}
+JSON
+$K update users/profile -r app -f /tmp/app-profile.json
+
+$K create clients -r app -s clientId=webapp -s publicClient=true \
+  -s standardFlowEnabled=true -s 'redirectUris=["http://127.0.0.1:9999/*"]'
+
+$K create identity-provider/instances -r app \
+  -s alias=corp -s providerId=oidc -s enabled=true \
+  -s trustEmail=true -s storeToken=true \
+  -s 'config.clientId=broker-app' -s 'config.clientSecret=brokersecret' \
+  -s 'config.clientAuthMethod=client_secret_post' \
+  -s 'config.authorizationUrl=http://127.0.0.1:8080/realms/corp/protocol/openid-connect/auth' \
+  -s 'config.tokenUrl=http://127.0.0.1:8080/realms/corp/protocol/openid-connect/token' \
+  -s 'config.jwksUrl=http://127.0.0.1:8080/realms/corp/protocol/openid-connect/certs' \
+  -s 'config.issuer=http://127.0.0.1:8080/realms/corp' \
+  -s 'config.useJwksUrl=true' -s 'config.validateSignature=true' \
+  -s 'config.defaultScope=openid profile email' \
+  -s 'config.syncMode=IMPORT'
+
+$K add-roles -r app --rname default-roles-app --cclientid broker --rolename read-token
+```
+
+:::warning Changing a URL on a saved provider wipes the secret
+
+`$K update identity-provider/instances/corp ...` on any of `tokenUrl`, `clientId` or
+`clientAuthMethod` returns:
+
+```
+Client secret must be re-entered when the token URL, client ID,
+authentication method, or related destination settings are changed
+```
+
+Pass `-s 'config.clientSecret=...'` alongside every such edit. This is a guard against
+sending your secret to a host you just changed, and it is the reason a "nothing changed but
+it broke" edit produces `identity_provider_login_failure` on the next login.
+
+:::
+
+### A brokered login you can run from a terminal
+
+The whole flow is browser redirects, which makes it awkward to test in a loop. It is
+scriptable: Keycloak's login page is a plain HTML form, so `curl` with a cookie jar is
+enough. Save this as `login.sh` — every verification step below uses it.
+
+```bash
+cat > login.sh <<'EOS'
+set -euo pipefail
+U="${1:-ada}"; P="${2:-pass}"
+J=$(mktemp); rm -f "$J"
+AUTH="http://127.0.0.1:8080/realms/app/protocol/openid-connect/auth?client_id=webapp\
+&response_type=code&scope=openid&redirect_uri=http%3A%2F%2F127.0.0.1%3A9999%2Fcb\
+&kc_idp_hint=corp"
+PAGE=$(curl -s -c "$J" -b "$J" -L "$AUTH")
+ACTION=$(printf '%s' "$PAGE" | grep -o 'action="[^"]*"' | head -1 \
+  | sed 's/action="//;s/"$//' | sed 's/&amp;/\&/g')
+LOC=$(curl -s -c "$J" -b "$J" -o /dev/null -D - -X POST "$ACTION" \
+  --data-urlencode "username=$U" --data-urlencode "password=$P" \
+  | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)
+for i in $(seq 1 8); do
+  case "$LOC" in http://127.0.0.1:9999/*) break ;; esac
+  LOC=$(curl -s -c "$J" -b "$J" -o /dev/null -D - "$LOC" \
+    | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}' | tail -1)
+  [ -z "$LOC" ] && { echo "stalled - a flow is asking for input"; exit 1; }
+done
+CODE=$(printf '%s' "$LOC" | sed -n 's/.*[?&]code=\([^&]*\).*/\1/p')
+curl -s -d client_id=webapp -d grant_type=authorization_code -d "code=$CODE" \
+  -d "redirect_uri=http://127.0.0.1:9999/cb" \
+  http://127.0.0.1:8080/realms/app/protocol/openid-connect/token
+EOS
+```
+
+`kc_idp_hint=corp` skips the "choose a provider" screen —
+[routing users to the right IdP](https://www.keycloak.org/docs/latest/server_admin/index.html#_client_suggested_idp)
+is a topic of its own. If the script prints `stalled`, an authenticator in the
+first-broker-login flow is asking the user something; open the URL in a browser to see
+which.
+
+## Step 1: see what actually arrived
+
+Before writing a single mapper, find out what the upstream sent. Log in once:
+
+```bash
+bash login.sh ada pass > /tmp/tok.json
+```
+
+With `storeToken=true` on the provider and the `broker` client's `read-token` role granted,
+Keycloak will hand you back the upstream token itself:
+
+```bash
+AT=$(jq -r .access_token /tmp/tok.json)
+curl -s -H "Authorization: Bearer $AT" \
+  http://127.0.0.1:8080/realms/app/broker/corp/token \
+  | jq -r .id_token | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+```
+
+```json
+{
+  "iss": "http://127.0.0.1:8080/realms/corp",
+  "aud": "broker-app",
+  "typ": "ID",
+  "email_verified": true,
+  "cost_center": "CC-900",
+  "name": "Ada Lovelace",
+  "groups": [ "platform-admins" ],
+  "hr": { "employee_id": "E-4417" },
+  "preferred_username": "ada",
+  "department": "platform",
+  "given_name": "Ada",
+  "family_name": "Lovelace",
+  "email": "ada@corp.example"
+}
+```
+
+Now look at what Keycloak kept:
+
+```bash
+ID=$($K get users -r app -q username=ada --fields id --format csv --noquotes)
+$K get users/$ID -r app
+```
+
+```json
+{
+  "username": "ada",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "email": "ada@corp.example",
+  "emailVerified": true,
+  "federatedIdentities": [
+    { "identityProvider": "corp", "userId": "1a1517c1-…", "userName": "ada" }
+  ]
+}
+```
+
+There is no `attributes` key at all. `department`, `hr.employee_id`, `cost_center` and
+`groups` were all present in the token and all thrown away.
+
+:::danger The debug logger the docs recommend does nothing here
+
+The mappers section of the server admin guide suggests enabling
+`org.keycloak.social.user_profile_dump` at DEBUG "to investigate the structure of user
+profile JSON data provided by social providers". We ran the whole lab with
+`KC_LOG_LEVEL="INFO,org.keycloak.social.user_profile_dump:debug"` and it emitted **zero
+lines**: on 26.8.1 that logger lives in the social providers' JSON attribute-mapper path,
+not in the generic OIDC broker. For an OIDC or SAML provider, `storeToken` plus the
+`/realms/<realm>/broker/<alias>/token` endpoint above is the way to see the real claim set.
+Turn `storeToken` back off when you are done — it persists upstream access and refresh
+tokens in your database.
+
+:::
+
+## Step 2: every identity provider mapper type
+
+Read them off your own server rather than trusting a list:
+
+```bash
+$K get identity-provider/instances/corp/mapper-types -r app | jq 'keys'
+```
+
+Ten for OIDC, ten for SAML, six shared. **Category** is the stage the mapper runs at:
+a *Preprocessor* runs before the user is located or created, everything else runs after.
+
+| Mapper id | Console name | Category | Config keys |
+|---|---|---|---|
+| `oidc-user-attribute-idp-mapper` | Attribute Importer | Attribute Importer | `claim`, `user.attribute`, `allow.nullable.property` |
+| `oidc-username-idp-mapper` | Username Template Importer | Preprocessor | `template`, `target` |
+| `oidc-role-idp-mapper` | Claim to Role | Role Mapper | `claim`, `claim.value`, `role` |
+| `oidc-advanced-role-idp-mapper` | Advanced Claim to Role | Role Importer | `claims`, `are.claim.values.regex`, `role` |
+| `oidc-advanced-group-idp-mapper` | Advanced Claim to Group | Group Importer | `claims`, `are.claim.values.regex`, `group` |
+| `oidc-user-session-note-idp-mapper` | User Session Note Mapper | User Session | `claims`, `are.claim.values.regex` |
+| `oidc-hardcoded-role-idp-mapper` | Hardcoded Role | Role Importer | `role` |
+| `oidc-hardcoded-group-idp-mapper` | Hardcoded Group | Group Importer | `group` |
+| `hardcoded-attribute-idp-mapper` | Hardcoded Attribute | Attribute Importer | `attribute`, `attribute.value` |
+| `hardcoded-user-session-attribute-idp-mapper` | Hardcoded User Session Attribute | Attribute Importer | `attribute`, `attribute.value` |
+
+The SAML set is the same shape with four substitutions, and one mapper OIDC has no
+equivalent for:
+
+| SAML mapper id | Console name | Differs from OIDC how |
+|---|---|---|
+| `saml-user-attribute-idp-mapper` | Attribute Importer | matches on `attribute.name`, `attribute.friendly.name` and `attribute.name.format` instead of a claim path |
+| `saml-username-idp-mapper` | Username Template Importer | `${ATTRIBUTE.<name>}` substitutions rather than `${CLAIM.<name>}` |
+| `saml-role-idp-mapper` | SAML Attribute to Role | `attribute.name` / `attribute.value` pair |
+| `saml-advanced-role-idp-mapper`, `saml-advanced-group-idp-mapper` | Advanced Attribute to Role / Group | `attributes` map, `are.attribute.values.regex` |
+| `saml-xpath-attribute-idp-mapper` | XPath Attribute Importer | **no OIDC equivalent** — runs an XPath against the assertion for attributes with structured XML values |
+
+There is no SAML user-session-note mapper. If you broker SAML and need a value in the token
+without storing it on the user, you import it to an attribute and accept the write.
+
+## Step 3: import three claims, and watch one disappear
+
+Add three Attribute Importers — a flat claim, a nested claim, and one whose destination is
+not declared in your realm's user profile:
+
+```bash
+add_attr() {   # name  claim  user-attribute  syncMode
+  $K create identity-provider/instances/corp/mappers -r app \
+    -s name="$1" -s identityProviderAlias=corp \
+    -s identityProviderMapper=oidc-user-attribute-idp-mapper \
+    -s "config.syncMode=$4" -s "config.claim=$2" -s "config.\"user.attribute\"=$3"
+}
+add_attr department  department       department   FORCE
+add_attr employee-id hr.employee_id   employee_id  FORCE
+add_attr cost-center cost_center      cost_center  FORCE
+```
+
+In the console this is **Identity providers → corp → Mappers → Add mapper**, with *Sync mode
+override*, *Mapper type* `Attribute Importer`, *Claim* and *User Attribute Name*.
+
+The mappers only run on a login, and hop 1 only runs during the first-broker-login flow for
+a user it is importing — so delete the user and log in again:
+
+```bash
+$K delete users/$ID -r app
+bash login.sh ada pass > /tmp/tok.json
+ID=$($K get users -r app -q username=ada --fields id --format csv --noquotes)
+$K get users/$ID -r app | jq .attributes
+```
+
+```json
+{
+  "department": [ "platform" ],
+  "employee_id": [ "E-4417" ]
+}
+```
+
+Two of three. `cost_center` was in the token, its mapper is configured identically to the
+other two, and it is gone.
+
+### Dot notation reaches nested claims, and a literal dot needs escaping
+
+`hr.employee_id` worked because the Attribute Importer treats `.` as a path separator. The
+same syntax indexes arrays: `contact.address[0].country`. If the upstream genuinely emits a
+claim whose *name* contains a dot — `http://schemas.xmlsoap.org/...` style claims from older
+ADFS deployments do — escape it with a backslash: `claim=urn\.example\.dept`.
+
+### Why `cost_center` vanished, and the one-line fix
+
+`cost_center` is not declared in the `app` realm's user profile, so the write was dropped.
+There is **no log line** — we grepped the whole server log for the string and got zero
+hits — and the login succeeded. This is the single most common "my mapper doesn't work"
+cause on Keycloak 24 and later, and it is invisible from the mapper screen.
+
+Two fixes. Declare the attribute, like you did upstream — or, if you are importing an
+open-ended set of claims from a provider you do not control, turn unmanaged attributes on
+for the realm:
+
+```bash
+docker exec -i kc tee /tmp/app-profile-unmanaged.json >/dev/null <<'JSON'
+{"unmanagedAttributePolicy":"ADMIN_EDIT",
+ "attributes":[
+ {"name":"username","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"email","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"firstName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"lastName","permissions":{"view":["admin","user"],"edit":["admin","user"]}},
+ {"name":"department","permissions":{"view":["admin","user"],"edit":["admin"]}},
+ {"name":"employee_id","permissions":{"view":["admin","user"],"edit":["admin"]}}
+],"groups":[]}
+JSON
+$K update users/profile -r app -f /tmp/app-profile-unmanaged.json
+```
+
+Delete the user, log in again, and all three arrive:
+
+```json
+{ "cost_center": ["CC-900"], "employee_id": ["E-4417"], "department": ["platform"] }
+```
+
+`ADMIN_EDIT` keeps the attribute out of the account console and the registration form while
+leaving it writable by admins and by the import. `ENABLED` exposes it to users too, which
+for an attribute the IdP owns is the wrong answer.
+
+### Claims that only exist in the userinfo response
+
+The Attribute Importer's help text says it reads the claim from "ID, access token **or the
+claim set returned by the user profile endpoint**". That last one is conditional on
+`userInfoUrl` being set on the provider. We added an `office` attribute emitted only by the
+upstream userinfo endpoint and measured both ways:
+
+| `config.userInfoUrl` | `office` imported |
+|---|---|
+| set | yes |
+| empty | no |
+
+Providers that keep group lists out of the ID token to control its size — Entra ID does
+this past 150 groups, with an `_claim_sources` overage pointer — are the usual reason a
+claim you can see in a debugger never reaches a mapper.
+
+## Step 4: the second hop
+
+Nothing above put anything in your application's token. Decode the one `login.sh` just
+returned and `department` is not in it. That needs a **protocol mapper** on the client, a
+completely separate object:
+
+```bash
+WID=$($K get clients -r app -q clientId=webapp --fields id --format csv --noquotes)
+for A in department employee_id; do
+  $K create clients/$WID/protocol-mappers/models -r app \
+    -s name=$A -s protocol=openid-connect \
+    -s protocolMapper=oidc-usermodel-attribute-mapper \
+    -s "config.\"user.attribute\"=$A" -s "config.\"claim.name\"=$A" \
+    -s 'config."id.token.claim"=true' -s 'config."access.token.claim"=true' \
+    -s 'config."jsonType.label"=String'
+done
+
+bash login.sh ada pass | jq -r .access_token | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+```
+
+```json
+{
+  "preferred_username": "ada",
+  "email": "ada@corp.example",
+  "department": "platform",
+  "employee_id": "E-4417"
+}
+```
+
+Note that hop 2 reruns on every token request, including refresh — so a value corrected in
+the database reaches the next token without a re-login, while a value corrected upstream
+does not. [Protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/)
+covers the 24 types, their priorities and the five ways they fail silently; put the mapper
+on a shared client scope rather than per-client as soon as a second client needs the same
+claim.
+
+## Step 5: sync mode, measured
+
+This is the setting that decides whether your brokered data is correct a month from now,
+and it is the one the documentation explains least. It exists in two places: **Sync mode**
+on the provider, and **Sync mode override** on each mapper, where `INHERIT` means "use the
+provider's".
+
+The docs define the three values — `import` writes "data from when the user was first
+created", `force` updates "at each user login", `legacy` uses "the behavior of the previous
+Keycloak version" — and stop. What *previous behaviour* means is the whole question, and it
+is not the same for an attribute mapper as for a role mapper.
+
+### Attribute Importer
+
+Upstream `department` starts as `platform`, changes to `security`, then is removed. Stored
+value on the local user after each login:
+
+| syncMode | 1st login | upstream → `security` | claim removed upstream |
+|---|---|---|---|
+| `IMPORT` | `platform` | **`platform`** | **`platform`** |
+| `LEGACY` | `platform` | `security` | *(absent)* |
+| `FORCE` | `platform` | `security` | *(absent)* |
+
+For attributes, `LEGACY` and `FORCE` are identical. `IMPORT` means the value is a snapshot
+of the user's first ever login and is never corrected again.
+
+### Advanced Claim to Role
+
+Same experiment against a role grant. Ada is in `platform-admins` upstream, which the mapper
+turns into the realm role `app-admin`. She leaves the group, then rejoins it:
+
+```bash
+$K create roles -r app -s name=app-admin
+docker exec -i kc tee /tmp/rm.json >/dev/null <<'JSON'
+{"name":"admins-role","identityProviderAlias":"corp",
+ "identityProviderMapper":"oidc-advanced-role-idp-mapper",
+ "config":{"syncMode":"FORCE","role":"app-admin","are.claim.values.regex":"false",
+           "claims":"[{\"key\":\"groups\",\"value\":\"platform-admins\"}]"}}
+JSON
+$K create identity-provider/instances/corp/mappers -r app -f /tmp/rm.json
+```
+
+| syncMode | 1st login (in group) | after leaving the group | after rejoining |
+|---|---|---|---|
+| `IMPORT` | granted | **still granted** | granted |
+| `LEGACY` | granted | revoked | **never re-granted** |
+| `FORCE` | granted | revoked | granted |
+
+Both non-`FORCE` rows are bugs waiting to be filed against you.
+
+- **`IMPORT`**: a user removed from the upstream admin group keeps `app-admin` in your realm
+  for the life of the account. Offboarding the user in the IdP does not take the privilege
+  away; only deleting the local user does. We re-ran this one three times.
+- **`LEGACY`**: revocation works, re-grant does not. The role is removed the first time the
+  claim stops matching and is never restored, however many times the user logs in with the
+  claim present again. Someone who moves teams and moves back has to be fixed by hand.
+
+`FORCE` is the only mode that keeps the grant in step with the claim in both directions.
+
+:::danger An identity provider created over the API with no `syncMode` behaves as `LEGACY`
+
+We created a provider via the Admin REST API without the `syncMode` key and ran the role
+matrix against it: granted, revoked, never re-granted — the `LEGACY` row exactly. Nothing in
+the API response, the provider screen or the log says which mode is in effect when the key
+is absent. Set `config.syncMode` explicitly on every provider you create from Terraform,
+`kcadm.sh` or a realm import, and set it to `FORCE` unless you have a reason not to.
+
+:::
+
+### Why anyone would want `IMPORT`
+
+One real case: the attribute is seeded from the IdP and then **owned locally** — a display
+name a user can edit in your account console, or a `tenant_id` assigned at first login and
+never changed. `FORCE` would overwrite the local edit on the next login. That is the whole
+list. If the IdP is the system of record, `FORCE`.
+
+### Matching claims, and matching arrays
+
+The `claims` config of the Advanced mappers is a JSON *string* containing an array of
+key/value pairs — note the escaping in the file above; `-s 'config.claims=[...]'` fails with
+`Cannot parse the JSON`. The match succeeds when **every** listed claim matches, and for an
+array-valued claim it succeeds when **any element** matches, which is how `groups:
+["platform-admins"]` satisfies `groups = platform-admins` above.
+
+Set `are.claim.values.regex=true` to treat the values as regular expressions — useful for
+`^ROLE_.*` style conventions, and necessary for the session-note mapper below.
+
+## Step 6: claims you do not want on the user record
+
+A cost centre, a licence tier, an upstream session id — values your app needs in the token
+but which have no business being a permanent attribute on an identity. The
+`oidc-user-session-note-idp-mapper` copies the claim to a **user session note**, which lives
+and dies with the SSO session, and a `User Session Note` protocol mapper puts it in the
+token:
+
+```bash
+docker exec -i kc tee /tmp/sn.json >/dev/null <<'JSON'
+{"name":"cost-center-note","identityProviderAlias":"corp",
+ "identityProviderMapper":"oidc-user-session-note-idp-mapper",
+ "config":{"syncMode":"FORCE","are.claim.values.regex":"true",
+           "claims":"[{\"key\":\"cost_center\",\"value\":\".*\"}]"}}
+JSON
+$K create identity-provider/instances/corp/mappers -r app -f /tmp/sn.json
+
+$K create clients/$WID/protocol-mappers/models -r app \
+  -s name=cost_center -s protocol=openid-connect \
+  -s protocolMapper=oidc-usersessionmodel-note-mapper \
+  -s 'config."user.session.note"=cost_center' -s 'config."claim.name"=cost_center' \
+  -s 'config."id.token.claim"=true' -s 'config."access.token.claim"=true' \
+  -s 'config."jsonType.label"=String'
+```
+
+Two details that are easy to get wrong, and both fail silently:
+
+**An empty value matches nothing.** The console presents *Claims* as key/value rows and
+accepts an empty value, which reads like "any value". It is not — it is a literal
+comparison against the empty string, and the note is never written. To pass any value
+through you must set `are.claim.values.regex=true` and use `.*`:
+
+| `claims` | `are.claim.values.regex` | `cost_center` in token |
+|---|---|---|
+| `[{"key":"cost_center","value":""}]` | `false` | *(absent)* |
+| `[{"key":"cost_center","value":".*"}]` | `true` | `"CC-900"` |
+
+**It needs `FORCE` too.** Session notes are not stored on the user, so under `IMPORT` the
+note is written on the first brokered login and on no login after that — the claim appears
+once and then quietly stops:
+
+```
+INHERIT (provider = IMPORT), repeat login:   cost_center: None
+FORCE, repeat login:                         cost_center: "CC-900"
+FORCE, repeat login again:                   cost_center: "CC-900"
+```
+
+Keycloak maintains two session notes for free, no mapper needed: `identity_provider` (the
+alias used) and `identity_provider_identity` (the username at the upstream). Both are worth
+putting in the token on any realm with more than one provider — auditing a login without
+them means a database query:
+
+```bash
+$K create clients/$WID/protocol-mappers/models -r app \
+  -s name=idp -s protocol=openid-connect \
+  -s protocolMapper=oidc-usersessionmodel-note-mapper \
+  -s 'config."user.session.note"=identity_provider' -s 'config."claim.name"=idp' \
+  -s 'config."id.token.claim"=true' -s 'config."access.token.claim"=true' \
+  -s 'config."jsonType.label"=String'
+```
+
+## Step 7: namespacing usernames across providers
+
+Two providers, two users called `admin`, one realm. The **Username Template Importer** runs
+as a *Preprocessor* — before the local user is located — and rewrites the username that the
+rest of the flow will use:
+
+```bash
+$K create identity-provider/instances/corp/mappers -r app \
+  -s name=username-template -s identityProviderAlias=corp \
+  -s identityProviderMapper=oidc-username-idp-mapper \
+  -s 'config.syncMode=INHERIT' -s 'config.target=LOCAL' \
+  -s 'config.template=${ALIAS}.${CLAIM.preferred_username | lowercase}'
+```
+
+`${ALIAS}` is the provider alias, `${CLAIM.<name>}` any claim, and `| lowercase` /
+`| uppercase` fold the substituted value. `target` picks what gets rewritten:
+
+| `target` | Rewrites |
+|---|---|
+| `LOCAL` (default) | the username written to your database at import |
+| `BROKER_ID` | the federated identity id used to find an existing link |
+| `BROKER_USERNAME` | the federated identity username used to find an existing link |
+
+Measured, with the mapper added to a provider that already had a user imported:
+
+```
+existing user, re-login:  ada        (not renamed)
+fresh import:             corp.ada
+```
+
+**Adding this mapper does not rename anyone.** It applies at import, so an existing
+population keeps its old usernames and new logins get the new form, which is worse than
+either convention on its own. Decide the username template before the first brokered login,
+or plan a migration — and never point `BROKER_ID` at anything but a stable, unique,
+non-reassignable claim. `email` is none of those.
+
+## Verify it worked
+
+The end state of the lab — `login.sh`, decoded:
+
+```json
+{
+  "preferred_username": "corp.ada",
+  "email": "ada@corp.example",
+  "email_verified": true,
+  "department": "platform",
+  "employee_id": "E-4417",
+  "cost_center": "CC-900",
+  "idp": "corp",
+  "realm_access": { "roles": [ "offline_access", "app-admin",
+                               "uma_authorization", "default-roles-app" ] }
+}
+```
+
+and the local user record behind it:
+
+```json
+{
+  "username": "corp.ada",
+  "email": "ada@corp.example",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "attributes": { "department": ["platform"], "employee_id": ["E-4417"] }
+}
+```
+
+`cost_center` is in the token and **not** on the user — that is the session-note path
+working. `app-admin` is a role, not an attribute, so it is in `realm_access` rather than
+`attributes`. Both hops are doing their job.
+
+## Troubleshooting
+
+**The claim is in the token and the attribute is not on the user.** In order: is the
+destination attribute declared in *this* realm's user profile, or unmanaged attributes
+enabled ([the silent drop](/tutorials/users/user-profile/)); is the user already imported,
+so a mapper at `IMPORT` never runs for them; is the claim nested, needing
+`parent.child` rather than `child`; is the claim only in the userinfo response with
+`userInfoUrl` unset.
+
+**It worked once and never again.** `syncMode` is `IMPORT` or `INHERIT` from a provider at
+`IMPORT`. Delete the local user and log in to confirm — if the value appears on a fresh
+import, that is the answer.
+
+**A role is granted that the upstream revoked months ago.** `IMPORT` on a role mapper, per
+the matrix above. Switch to `FORCE`; note that this does not retroactively fix accounts, so
+audit the existing grants once after the change.
+
+**A role will not come back after being removed.** `LEGACY`, or a provider created over the
+API with `syncMode` absent. Switch to `FORCE` and re-grant by hand once.
+
+**The attribute imports but the application never sees it.** You built hop 1 and not hop 2.
+Add the protocol mapper, and check it with
+`clients/<id>/evaluate-scopes/generate-example-access-token` rather than another login — see
+[protocol mappers](/tutorials/clients/protocol-mappers/).
+
+**`identity_provider_login_failure` right after editing the provider.** Either the secret was
+cleared by a URL change (the warning above), or the issuer does not match: the server log
+carries the real reason — `Invalid token issuer. Expected 'http://…'` — and the browser does
+not.
+
+**The brokered login stops at a "Review profile" form.** The first-broker-login flow's
+*Review Profile* authenticator defaults to prompting when a required field is missing from
+the IdP's claims. Attribute mappers run in the same flow, so a username template or an
+email mapper can decide whether that screen appears at all. The flow itself is
+[first login flow](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker_first_login).
+
+**Only the first value of a multi-valued claim arrives.** The Attribute Importer writes a
+list, but the protocol mapper on hop 2 needs `multivalued=true` to emit one.
+
+## Next steps
+
+- [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+  hop 2 in full: all 24 OIDC mappers, priorities, and token size.
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the user
+  profile rules that decide whether an imported attribute is kept.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  what the Claim to Role and Claim to Group mappers write into.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
+  and the [JWT decoder](/tools/jwt-decoder/) for reading the result.
+- [Keycloak multi-tenancy: realms, groups, or organizations?](/tutorials/authorization/multi-tenancy/)
+  — where per-tenant identity providers fit, and the
+  [organizations extension](/extensions/organizations/) that binds a provider to a tenant.
+- [Keycloak as an identity provider broker](/docs/keycloak/idp/) — the concepts behind the
+  brokering model.
+- Official reference:
+  [Mapping claims and assertions](https://www.keycloak.org/docs/latest/server_admin/index.html#_mappers),
+  [Integrating identity providers](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker)
+  and [OIDC v1.0 identity providers](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker_oidc).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

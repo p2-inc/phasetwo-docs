@@ -28,6 +28,12 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Identity providers and federation",
+      link: { type: "generated-index" },
+      items: ["identity-providers/attribute-mapping"],
+    },
+    {
+      type: "category",
       label: "Authentication",
       link: { type: "generated-index" },
       items: [
