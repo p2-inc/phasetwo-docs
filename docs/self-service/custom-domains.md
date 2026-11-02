@@ -178,7 +178,12 @@ Changes reach the edge within about five minutes. **No deploy or cluster restart
 
 ### The change-password path
 
-Password managers also look for `/.well-known/change-password` to offer a "Change password" action on a saved entry, and when they flag a credential as compromised. On Phase Two custom domains this path currently returns a `404`, which is valid: password managers simply treat the site as not advertising the convention and fall back to their default behavior. A configurable per-domain redirect is planned and will appear in the same dashboard panel.
+Password managers also look for `/.well-known/change-password` to offer a "Change password" action on a saved entry, and when they flag a credential as compromised. You can point it at the page where your users change their password, per custom domain, in the same **App Association Files** panel, under **Change password**.
+
+- The URL must use `https` and be on the same domain. A password manager arriving here has a credential saved for this domain, so it is never sent anywhere else. Your realm's account console is a good target, for example `https://auth.example.com/realms/<realm>/account`.
+- The domain must be verified before you can set one.
+- When it is set, the path answers with a `302` redirect to your URL. When it is empty, the path returns a `404`, which is also valid: password managers treat the site as not advertising the convention and fall back to their default behavior.
+- Changes take effect within a few minutes, and clearing the field removes the redirect. Removing the domain removes it too.
 
 ### Verifying
 
