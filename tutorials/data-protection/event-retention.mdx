@@ -85,10 +85,10 @@ No `eventsExpiration` key. It is not defaulted, not inherited from the master re
 mentioned anywhere in the response. In the database the column is zero:
 
 ```console
-$ SELECT id, name, events_enabled, events_expiration FROM realm;
-                  id                  |  name  | events_enabled | events_expiration
---------------------------------------+--------+----------------+-------------------
- 20101847-0727-4dce-a64e-52d4017569f9 | gdpr   | t              |                 0
+$ SELECT id, name, events_enabled, events_expiration FROM realm WHERE name = 'gdpr';
+                  id                  | name | events_enabled | events_expiration
+--------------------------------------+------+----------------+-------------------
+ 20101847-0727-4dce-a64e-52d4017569f9 | gdpr | t              |                 0
 ```
 
 Zero is the whole story. The cleanup task selects its work with
@@ -146,9 +146,9 @@ $ kcadm get realms/gdpr | jq -r '.attributes.adminEventsExpiration'
 604800
 ```
 
-`--fields attributes` returns an empty object for a realm that definitely has 63 attributes.
-The value saved; the projection did not return it. This has sent people round the loop of
-setting it again, so verify with the full representation or go to the database:
+`--fields attributes` returns an empty object for a realm that has 63 rows in
+`realm_attribute`. The value saved; the projection did not return it. Verify with the full
+representation, or go to the database:
 
 ```console
 $ SELECT name, value FROM realm_attribute WHERE name = 'adminEventsExpiration';
@@ -174,27 +174,25 @@ console, read the server log once afterwards.
 ### The unit is seconds — here is the proof
 
 The admin console offers minutes, hours and days in a dropdown and converts for you. The API
-takes a bare integer, and nothing in the response says what it means. Insert five events aged
-1, 12, 23, 25 and 48 hours, set `eventsExpiration=86400`, and wait one pass:
+takes a bare integer, and nothing in the response says what it means. Put five events in the
+realm aged 1, 12, 23, 25 and 48 hours, set `eventsExpiration=86400`, and wait one pass:
+
+```sql
+SELECT round((extract(epoch from now())*1000 - event_time)/3600000.0, 1) AS age_hours
+  FROM event_entity WHERE realm_id = '20101847-...' ORDER BY 1;
+```
 
 ```console
-$ -- before
- age_hours
------------
-       1.0
-      12.0
-      23.0
+-- before            -- after
+ age_hours            age_hours
+-----------          -----------
+       1.0                  1.0
+      12.0                 12.0
+      23.0                 23.0
       25.0
       48.0
 
 2026-11-02 07:41:49,975 TRACE Deleted 2 events for realm 20101847-... with expiration 86400
-
-$ -- after
- surviving_age_hours
----------------------
-                 1.0
-                12.0
-                23.0
 ```
 
 86400 behaved as one day, not as 86,400 milliseconds and not as 86,400 minutes. Both settings
