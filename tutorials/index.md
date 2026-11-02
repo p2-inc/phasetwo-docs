@@ -76,6 +76,16 @@ the people who opt in, then go passwordless:
 
 Step-up authentication and magic links are next. *(Coming soon.)*
 
+**Getting email out of Keycloak** — password resets and address verification do nothing
+until a realm has a relay, and a broken one fails silently:
+
+1. [Configure SMTP so Keycloak can send email](/tutorials/authentication/smtp/)
+2. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
+3. [Email bombing and registration abuse](/docs/security/email-abuse/) — what the forms you
+   just enabled can be used for
+
+Customizing the email templates themselves is next. *(Coming soon.)*
+
 **Working with tokens** — what a JWT is, how to read one, and how to handle them safely:
 
 1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)

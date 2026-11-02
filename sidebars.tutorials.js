@@ -34,6 +34,7 @@ module.exports = {
         "authentication/totp-mfa",
         "authentication/passkeys-webauthn",
         "authentication/custom-flows",
+        "authentication/smtp",
       ],
     },
     {
