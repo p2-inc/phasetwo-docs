@@ -1,0 +1,94 @@
+---
+# Built from content-marketing updates/2026-10/ (generated.mdx + page.toml). Edit there, not here: the sync rebuilds this file.
+id: "2026-10"
+title: "Phase Two: October 2026"
+description: "Keycloak shipped 26.7.5, 26.8.0 and 26.8.1 in October and closed 40 CVEs between them. Plus 38 Phase Two releases across seven open source extensions."
+keywords:
+  - keycloak news october 2026
+  - keycloak 26.8.1 cve
+  - phase two release notes
+  - keycloak security updates
+covers_from: "2026-09-29T09:22:01Z"
+covers_through: "2026-10-30T09:15:30Z"
+---
+
+# Phase Two: October 2026
+
+Phase Two shipped thirty-eight extension releases this month across seven repositories,
+with Organizations, magic links, themes, events and webhooks and atomic auth flows all
+rebuilt on Keycloak 26.8.0. The notable fixes: an account enumeration hole in magic links,
+and N+1 queries gone from organization listings.
+
+Upstream closed forty CVEs across **26.7.5**, **26.8.0** and **26.8.1**. Read 26.8.1 first
+and upgrade this week if you broker SAML or use mTLS. On 26.6 or 26.4, read 26.7.5 too: it
+fixes a critical CVE in a bundled library, and neither branch has a patched tag yet.
+
+## Official Keycloak
+
+- **🔐 Keycloak 26.8.1**: 19 CVEs, none above medium in Keycloak itself, plus an unrated
+  SAML broker bypass — upgrade this week if you broker SAML or use mTLS.
+  ([our write-up](/blog/keycloak-2681-released/))
+- **🔐 Keycloak 26.8.0**: SCIM, multi-cluster v2 and client secret rotation promoted to
+  supported, token exchange delegation added, seven CVEs fixed.
+  ([our write-up](/blog/keycloak-2680-released/))
+- **🔐 Keycloak 26.7.5**: 14 CVEs, one critical in a bundled library — upgrade this week on
+  26.7, and note that 26.6 and 26.4 have no patched tag yet.
+  ([our write-up](/blog/keycloak-2675-released/))
+
+## Phase Two open source releases
+
+- **🏛️ Organizations v0.192**: on 26.8.0, with the N+1 queries gone from organization
+  listing and membership lookups, and an index on `ORGANIZATION_DOMAIN`.
+  ([docs](/extensions/organizations/))
+- **🔗 Magic links v0.94**: closes an account enumeration hole in the continuation flow,
+  stops invalid email input creating a user, and fixes the Turnstile config check.
+  ([docs](/extensions/magic-link/))
+- **🎨 Themes v0.89**: the email preview renders the realm's own brand tokens, so what you
+  see is what sends, plus a neutral `phasetwo-ui` welcome theme.
+  ([docs](/extensions/themes/))
+- **🪝 Events and webhooks v0.66**: the `ext-event-email` listener is registered properly,
+  and `includedEvents` parsing no longer falls over on unexpected input.
+  ([docs](/extensions/events/))
+- **🧩 Admin portal v0.63**: the sign-in profile handles passwordless WebAuthn credentials
+  correctly, and shows the password row when the user has one.
+  ([docs](/extensions/admin-portal/))
+- **⚛️ Atomic auth flows v0.4**: rebuilt on 26.8.0, no functional change since v0.2.
+  ([read more](/blog/keycloak-atomic-auth-flows/))
+- **🧙 IdP wizard v0.57**: a build pipeline sync, no functional change.
+  ([docs](/extensions/idp-wizard/))
+
+## New reading
+
+- **📖 Keycloak Meetup #1, London, 20 November**: the Keycloak User Group UK's first meetup,
+  1–5pm at London Bridge Hive. We are sponsoring.
+  ([details](/blog/keycloak-meetup-london-november-2026/))
+- **📖 Where your Keycloak data lives**: what sits in Frankfurt, what is backed up to
+  Ireland, what runs in the US, and who you contract with — plus what residency does not
+  buy you, and the checklist a DPO sends.
+  ([where it lives](/blog/where-your-keycloak-data-lives/) ·
+  [residency vs sovereignty](/blog/data-residency-vs-data-sovereignty-identity-provider/) ·
+  [the DPO checklist](/blog/data-residency-requirements-saas-authentication/))
+- **📖 Moving onto Keycloak**: tested walkthroughs for Auth0 and Okta, what Azure AD B2C's
+  end of sale really means, when to migrate users lazily rather than in bulk, and how a store
+  drops homegrown login. ([Auth0](/blog/migrate-auth0-to-keycloak/) ·
+  [Okta](/blog/migrate-okta-to-keycloak/) ·
+  [Azure AD B2C](/blog/azure-ad-b2c-end-of-sale/) ·
+  [slow vs fast](/blog/keycloak-slow-user-migration/) ·
+  [e-commerce](/blog/replace-ecommerce-login-with-keycloak/))
+- **📖 Three login failures, decoded**: a 502 is always the proxy, a redirect loop is almost
+  always a dropped cookie, and "Restart login cookie not found" never means the cookie
+  expired. ([502](/blog/keycloak-502-bad-gateway/) ·
+  [redirect loop](/blog/keycloak-login-redirect-loop/) ·
+  [restart cookie](/blog/keycloak-restart-login-cookie-not-found/))
+- **📖 Two decisions about your login page**: which default clients to leave enabled once
+  scanners start probing, and what the passkey timing studies measured.
+  ([go-live clients](/blog/keycloak-disable-admin-cli-account-clients/) ·
+  [passkeys](/blog/keycloak-passkeys-faster-login/))
+- **📖 Fifteen new tutorials**: protocol mappers, the `aud` claim, client types,
+  multi-tenancy, SPIs, SCIM filtering and MCP server auth. ([browse them](/tutorials/))
+
+---
+
+Running Keycloak yourself and want the upgrades handled?
+[Phase Two hosts it](/hosting/dedicated-clusters/).
+Already self-hosting and want a number to call? [We support it](/support/).

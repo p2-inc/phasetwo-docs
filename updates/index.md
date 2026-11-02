@@ -23,6 +23,7 @@ advisories feed.
 
 <!-- updates:list:start -->
 
+- **[October 2026](/updates/2026-10/)** — Keycloak closed 40 CVEs across 26.7.5, 26.8.0 and 26.8.1, and 38 Phase Two extension releases shipped.
 - **[September 2026](/updates/2026-09/)** — Keycloak closed 26 CVEs across 26.7.3 and 26.7.4, two of them unauthenticated DoS.
 
 <!-- updates:list:end -->

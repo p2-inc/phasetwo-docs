@@ -30,7 +30,7 @@ module.exports = {
       type: "category",
       label: "Identity providers and federation",
       link: { type: "generated-index" },
-      items: ["identity-providers/ldap"],
+      items: ["identity-providers/ldap", "identity-providers/attribute-mapping"],
     },
     {
       type: "category",
@@ -122,7 +122,10 @@ module.exports = {
       type: "category",
       label: "Data protection and exit",
       link: { type: "generated-index" },
-      items: ["data-protection/exit-export"],
+      items: [
+        "data-protection/event-retention",
+        "data-protection/exit-export",
+      ],
     },
     {
       type: "category",

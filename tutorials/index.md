@@ -113,6 +113,18 @@ protocols:
 Social login, external IdP brokering and SAML federation build on the same track.
 *(Coming soon.)*
 
+**Federating an external identity provider** — what crosses the boundary from their IdP
+into your realm, and what silently does not:
+
+1. [Keycloak identity provider mappers: map external IdP claims](/tutorials/identity-providers/attribute-mapping/)
+2. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   the second hop, from the local user record into your application's token
+3. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
+   decides whether an imported attribute is kept at all
+
+Social login, Entra ID and Okta connections build on the same mappers.
+*(Coming soon.)*
+
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
 account list honest:
 
@@ -186,9 +198,10 @@ leave:
 
 1. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
 2. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
-3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+3. [Keycloak event retention: expiration settings for GDPR](/tutorials/data-protection/event-retention/)
+4. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
 
-Event retention and realm key management build on the same track. *(Coming soon.)*
+Realm key management builds on the same track. *(Coming soon.)*
 
 **Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
 
