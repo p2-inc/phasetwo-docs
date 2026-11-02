@@ -99,6 +99,18 @@ custom attribute goes missing:
 Validators, progressive profiling and the registration form build on the second one.
 *(Coming soon.)*
 
+**Federating an external identity provider** — what crosses the boundary from their IdP
+into your realm, and what silently does not:
+
+1. [Keycloak identity provider mappers: map external IdP claims](/tutorials/identity-providers/attribute-mapping/)
+2. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   the second hop, from the local user record into your application's token
+3. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
+   decides whether an imported attribute is kept at all
+
+Social login, Entra ID, Okta and LDAP connections build on the same mappers.
+*(Coming soon.)*
+
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
 account list honest:
 
