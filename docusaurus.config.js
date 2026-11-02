@@ -1266,6 +1266,10 @@ module.exports = {
             from: ["/about", "/about-us"],
             to: "/company/about/",
           },
+          // The docs section has no page at its root, so /docs/ was a 404. Send it
+          // to the introduction, which is the first page of the docs sidebar --
+          // the same section-root pattern as /articles -> /tutorials/ below.
+          { from: "/docs", to: "/docs/introduction/" },
           // Dead URLs still being requested, from the 2026-09-07 coverage export.
           // Each target was checked to return 200 before being written here.
           {
