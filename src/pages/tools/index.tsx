@@ -58,7 +58,7 @@ const TOOLS: Tool[] = [
     to: "/tools/certificate-decoder",
     icon: "mdi:certificate-outline",
     title: "X.509 Certificate Decoder",
-    desc: "Decode PEM, DER, and SAML metadata certificates. Validity, SANs, key usage, SHA-1/SHA-256 fingerprints, and chain order checks.",
+    desc: "Decode PEM, DER, and SAML metadata certificates and CSRs. Validity, SANs, key usage, SHA-1/SHA-256 fingerprints, and chain order checks.",
     available: true,
   },
 ];

@@ -10,6 +10,7 @@ import {
   TIME_CLAIMS,
   type ExpiryState,
 } from "./decode";
+import { parseHandoffHash } from "./handoff";
 import VerifyPanel from "./VerifyPanel";
 import type { VerifyResult } from "./verify";
 
@@ -288,17 +289,18 @@ export default function JwtDecoder() {
   const [token, setToken] = useState("");
   const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
 
-  // Accept a token handed over in the URL fragment (#token=...), e.g. from the
-  // JWT Generator. Fragments are never sent to the server, so the token stays
-  // out of request logs; we also strip it from the address bar once read.
+  // Public JWKS handed over with the token by the JWT Generator.
+  const [presetJwks, setPresetJwks] = useState<string | undefined>();
+
+  // Accept a token (and optionally its public JWKS) handed over in the URL
+  // fragment (#token=...&jwks=...), e.g. from the JWT Generator. Fragments are
+  // never sent to the server, so they stay out of request logs; we also strip
+  // the fragment from the address bar once read.
   useEffect(() => {
-    const m = window.location.hash.match(/^#token=([^&]+)/);
-    if (!m) return;
-    try {
-      setToken(decodeURIComponent(m[1]));
-    } catch {
-      setToken(m[1]);
-    }
+    const handoff = parseHandoffHash(window.location.hash);
+    if (!handoff) return;
+    setToken(handoff.token);
+    setPresetJwks(handoff.jwks);
     window.history.replaceState(
       null,
       "",
@@ -347,14 +349,20 @@ export default function JwtDecoder() {
             <div className="-mt-2 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setToken(SAMPLE_TOKEN)}
+                onClick={() => {
+                  setPresetJwks(undefined);
+                  setToken(SAMPLE_TOKEN);
+                }}
                 className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/5"
               >
                 Load sample
               </button>
               <button
                 type="button"
-                onClick={() => setToken("")}
+                onClick={() => {
+                  setPresetJwks(undefined);
+                  setToken("");
+                }}
                 disabled={!hasInput}
                 className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/5 disabled:opacity-40"
               >
@@ -371,7 +379,10 @@ export default function JwtDecoder() {
             <textarea
               id="jwt-input"
               value={token}
-              onChange={(e) => setToken(e.target.value)}
+              onChange={(e) => {
+                setPresetJwks(undefined);
+                setToken(e.target.value);
+              }}
               spellCheck={false}
               rows={6}
               placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0..."
@@ -458,7 +469,10 @@ export default function JwtDecoder() {
               Paste a token on the left, or{" "}
               <button
                 type="button"
-                onClick={() => setToken(SAMPLE_TOKEN)}
+                onClick={() => {
+                  setPresetJwks(undefined);
+                  setToken(SAMPLE_TOKEN);
+                }}
                 className="text-p2blue-400 hover:underline"
               >
                 load the sample
@@ -486,6 +500,7 @@ export default function JwtDecoder() {
               token={parsed.input}
               alg={alg}
               issuer={payload.iss}
+              presetKey={presetJwks}
               onResult={setVerifyResult}
             />
           )}

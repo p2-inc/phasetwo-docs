@@ -52,11 +52,14 @@ export default function VerifyPanel({
   token,
   alg,
   issuer,
+  presetKey,
   onResult,
 }: {
   token: string;
   alg: string | undefined;
   issuer: unknown;
+  /** A public key / JWKS handed over with the token; verified automatically. */
+  presetKey?: string;
   /** Bubble the latest verification result up so callers can show status. */
   onResult?: (result: VerifyResult | null) => void;
 }) {
@@ -70,22 +73,30 @@ export default function VerifyPanel({
   const [busy, setBusy] = useState(false);
 
   // Follow the token's algorithm and prefill the Keycloak JWKS URL as tokens change.
+  // When a key arrives with the token (e.g. from the JWT Generator), switch to
+  // the public-key mode and verify straight away.
   useEffect(() => {
-    setMode(isHmac ? "secret" : "jwks");
     setResult(null);
     onResult?.(null);
-  }, [isHmac, token]);
+    if (presetKey && !isHmac) {
+      setMode("publicKey");
+      setPem(presetKey);
+      void runWith("publicKey", presetKey);
+      return;
+    }
+    setMode(isHmac ? "secret" : "jwks");
+  }, [isHmac, token, presetKey]);
   useEffect(() => {
     if (suggestedJwks) setJwks(suggestedJwks);
   }, [suggestedJwks]);
 
-  async function run() {
+  async function runWith(m: Mode, value: string) {
     setBusy(true);
     try {
       let r: VerifyResult;
-      if (mode === "secret") r = await verifyHmac(token, secret);
-      else if (mode === "publicKey") r = await verifyPublicKey(token, pem);
-      else r = await verifyJwks(token, jwks);
+      if (m === "secret") r = await verifyHmac(token, value);
+      else if (m === "publicKey") r = await verifyPublicKey(token, value);
+      else r = await verifyJwks(token, value);
       setResult(r);
       onResult?.(r);
     } finally {
@@ -171,7 +182,12 @@ export default function VerifyPanel({
 
       <button
         type="button"
-        onClick={run}
+        onClick={() =>
+          void runWith(
+            mode,
+            mode === "secret" ? secret : mode === "publicKey" ? pem : jwks,
+          )
+        }
         disabled={busy || !token}
         className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-p2blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-p2blue-600 disabled:opacity-50"
       >

@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
-import { EXAMPLE_CHAIN, EXAMPLE_SAML_BASE64 } from "./examples";
-import { parseText, toBase64Body, toPem } from "./input";
+import { EXAMPLE_CHAIN, EXAMPLE_CSR, EXAMPLE_SAML_BASE64 } from "./examples";
+import {
+  derFileToPem,
+  isBinaryDer,
+  parseText,
+  toBase64Body,
+  toPem,
+} from "./input";
 import {
   checkChain,
   fingerprint,
@@ -9,8 +15,10 @@ import {
   keySummary,
   relativeTime,
   validityState,
+  verifySignature,
   verifySignedBy,
   type Certificate,
+  type CertificateRequest,
   type ChainReport,
   type SigCheck,
   type ValidityState,
@@ -406,6 +414,171 @@ function CertCard({
 }
 
 /* ------------------------------------------------------------------ */
+/* One certificate signing request                                     */
+/* ------------------------------------------------------------------ */
+
+function CsrCard({ csr }: { csr: CertificateRequest }) {
+  const [selfSig, setSelfSig] = useState<SigCheck | null>(null);
+  const [sha256, setSha256] = useState("");
+  useEffect(() => {
+    let cancelled = false;
+    setSelfSig(null);
+    setSha256("");
+    Promise.all([
+      verifySignature(csr, csr.publicKey),
+      fingerprint(csr.der, "SHA-256"),
+    ])
+      .then(([sig, fp]) => {
+        if (cancelled) return;
+        setSelfSig(sig);
+        setSha256(fp);
+      })
+      .catch(() => {
+        /* WebCrypto unavailable */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [csr]);
+
+  const cn =
+    csr.subject.attrs.find((a) => a.short === "CN")?.value ||
+    csr.subject.text ||
+    "(empty subject)";
+  const sigName = csr.signatureAlgorithm.name;
+  const weakSig = /md5|sha1/i.test(sigName);
+  const weakKey =
+    csr.publicKey.type === "RSA" && (csr.publicKey.bits ?? 0) < 2048;
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 px-4 py-3">
+        <div className="min-w-0">
+          <div className="text-xs text-gray-500">
+            Certificate signing request (PKCS#10)
+          </div>
+          <div className="truncate font-mono text-base font-semibold text-white">
+            {cn}
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {selfSig === "valid" && (
+            <Badge tone="green" icon="mdi:check-circle">
+              Signature verified
+            </Badge>
+          )}
+          {selfSig === "invalid" && (
+            <Badge tone="red" icon="mdi:close-circle">
+              Bad signature
+            </Badge>
+          )}
+          {selfSig === "unsupported" && (
+            <Badge tone="gray">Signature not checkable here</Badge>
+          )}
+        </div>
+      </div>
+      <div className="overflow-x-auto px-4 py-2">
+        <table className="w-full border-collapse text-left">
+          <tbody>
+            <Row label="Subject">
+              <span className="font-mono">{csr.subject.text || "(empty)"}</span>
+            </Row>
+            {csr.san.length > 0 && (
+              <Row
+                label="Requested SANs"
+                hint="Hostnames and identities the requester asks for"
+              >
+                <Pills items={csr.san.map((x) => `${x.type}: ${x.value}`)} />
+              </Row>
+            )}
+            <Row label="Public key">
+              <span className="font-mono">{keySummary(csr.publicKey)}</span>
+              {csr.publicKey.exponent && (
+                <span className="text-gray-500">
+                  {" "}
+                  · e = {csr.publicKey.exponent}
+                </span>
+              )}
+              {weakKey && (
+                <div className="mt-1 text-xs text-amber-400">
+                  RSA keys under 2048 bits are considered weak; most CAs reject
+                  them.
+                </div>
+              )}
+            </Row>
+            <Row
+              label="Signature algorithm"
+              hint="Signed with the request's own key (proof of possession)"
+            >
+              <span className="font-mono">{sigName}</span>
+              {weakSig && (
+                <div className="mt-1 text-xs text-amber-400">
+                  {sigName.toUpperCase().includes("MD5") ? "MD5" : "SHA-1"}{" "}
+                  signatures are deprecated; most CAs reject them.
+                </div>
+              )}
+            </Row>
+            {csr.keyUsage && (
+              <Row label="Requested key usage">
+                <Pills items={csr.keyUsage} />
+              </Row>
+            )}
+            {csr.extKeyUsage && (
+              <Row label="Requested extended key usage">
+                <Pills items={csr.extKeyUsage} />
+              </Row>
+            )}
+            {csr.basicConstraints && (
+              <Row label="Requested basic constraints">
+                <span className="font-mono">
+                  CA: {csr.basicConstraints.ca ? "true" : "false"}
+                  {csr.basicConstraints.pathLen !== undefined &&
+                    `, path length: ${csr.basicConstraints.pathLen}`}
+                </span>
+              </Row>
+            )}
+            {csr.extensions.length > 0 && (
+              <Row label="Requested extensions">
+                <Pills
+                  items={csr.extensions.map((e) =>
+                    e.critical ? `${e.name} (critical)` : e.name,
+                  )}
+                />
+              </Row>
+            )}
+            {(csr.hasChallengePassword || csr.otherAttributes.length > 0) && (
+              <Row label="Other attributes">
+                <Pills
+                  items={[
+                    ...(csr.hasChallengePassword
+                      ? ["challengePassword (value hidden)"]
+                      : []),
+                    ...csr.otherAttributes,
+                  ]}
+                />
+              </Row>
+            )}
+            <Row label="SHA-256 of request">
+              <div className="flex items-start gap-1">
+                <span className="font-mono text-xs">{sha256 || "…"}</span>
+                {sha256 && (
+                  <CopyIconBtn value={sha256} label="SHA-256 of request" />
+                )}
+              </div>
+            </Row>
+          </tbody>
+        </table>
+      </div>
+      <div className="flex flex-wrap gap-2 border-t border-white/5 px-4 py-3">
+        <CopyTextBtn value={toPem(csr.der, "CERTIFICATE REQUEST")}>
+          Copy PEM
+        </CopyTextBtn>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Main component                                                      */
 /* ------------------------------------------------------------------ */
 
@@ -418,6 +591,7 @@ export default function CertDecoder() {
 
   const parsed = useMemo(() => parseText(text), [text]);
   const certs = parsed.certs;
+  const csrs = parsed.csrs;
   const hasInput = text.trim().length > 0;
   // Only read the clock on the client; the initial (empty) render is static.
   const nowMs = typeof window === "undefined" ? 0 : Date.now();
@@ -452,8 +626,22 @@ export default function CertDecoder() {
   async function onFile(f: File | undefined) {
     if (!f) return;
     const bytes = new Uint8Array(await f.arrayBuffer());
-    const isDer = bytes[0] === 0x30 && (bytes[1] & 0x80) !== 0;
-    setText(isDer ? toPem(bytes) : new TextDecoder().decode(bytes));
+    const isDer = isBinaryDer(bytes);
+    if (fileRef.current) fileRef.current.value = "";
+    if (isDer) {
+      const pem = derFileToPem(bytes);
+      if (pem === null) {
+        // Never echo a private key into the page.
+        setText("");
+        setFileNote(
+          `${f.name} is a private key. This tool only decodes certificates and certificate signing requests — never share private keys, and rotate this one if it is real.`,
+        );
+        return;
+      }
+      setText(pem);
+    } else {
+      setText(new TextDecoder().decode(bytes));
+    }
     setFileNote(
       `Loaded ${f.name}${isDer ? " (binary DER, shown as PEM)" : ""}.`,
     );
@@ -504,6 +692,13 @@ export default function CertDecoder() {
               </button>
               <button
                 type="button"
+                onClick={() => load(EXAMPLE_CSR)}
+                className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/5"
+              >
+                Example CSR
+              </button>
+              <button
+                type="button"
                 onClick={() => load("")}
                 disabled={!hasInput}
                 className="rounded-md border border-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/5 disabled:opacity-40"
@@ -516,7 +711,7 @@ export default function CertDecoder() {
           <div className="rounded-2xl border border-white/10 bg-black/20">
             <div className="flex items-center justify-between gap-2 border-b border-white/5 px-3 py-2 text-xs text-gray-400">
               <span className="font-mono">
-                {">_ PEM, base64, or SAML metadata"}
+                {">_ PEM, CSR, base64, or SAML metadata"}
               </span>
               <label className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 hover:bg-white/10 hover:text-white">
                 <Icon icon="mdi:upload" className="size-4" />
@@ -524,7 +719,7 @@ export default function CertDecoder() {
                 <input
                   ref={fileRef}
                   type="file"
-                  accept=".crt,.cer,.pem,.der,.cert,.xml,application/x-x509-ca-cert,application/pkix-cert"
+                  accept=".crt,.cer,.pem,.der,.cert,.csr,.req,.xml,application/x-x509-ca-cert,application/pkix-cert"
                   className="hidden"
                   aria-label="Upload a certificate file"
                   onChange={(e) => void onFile(e.target.files?.[0])}
@@ -547,15 +742,32 @@ export default function CertDecoder() {
             />
           </div>
 
-          {hasInput && (
+          {(hasInput || fileNote) && (
             <div className="flex flex-col gap-1.5 px-1 text-sm">
-              {fileNote && <div className="text-gray-400">{fileNote}</div>}
+              {fileNote && (
+                <div
+                  className={
+                    /private key/.test(fileNote)
+                      ? "text-amber-400"
+                      : "text-gray-400"
+                  }
+                >
+                  {fileNote}
+                </div>
+              )}
               {certs.length > 0 && (
                 <div className="flex items-center gap-1.5 text-green-400">
                   <Icon icon="mdi:check-circle" className="size-4" />
                   Decoded {certs.length} certificate
                   {certs.length > 1 ? "s" : ""}
                   {sourceLabel}
+                </div>
+              )}
+              {csrs.length > 0 && (
+                <div className="flex items-center gap-1.5 text-green-400">
+                  <Icon icon="mdi:check-circle" className="size-4" />
+                  Decoded {csrs.length} certificate signing request
+                  {csrs.length > 1 ? "s" : ""}
                 </div>
               )}
               {parsed.errors.map((e, i) => (
@@ -608,10 +820,10 @@ export default function CertDecoder() {
 
         {/* RIGHT: decoded certificates */}
         <div className="flex flex-col gap-4 lg:col-span-3">
-          {certs.length === 0 && (
+          {certs.length === 0 && csrs.length === 0 && (
             <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-gray-500">
-              Paste a certificate on the left, upload a <code>.crt</code>,{" "}
-              <code>.cer</code>, <code>.pem</code>, or <code>.der</code> file,
+              Paste a certificate or CSR on the left, upload a <code>.crt</code>
+              , <code>.cer</code>, <code>.pem</code>, or <code>.der</code> file,
               or{" "}
               <button
                 type="button"
@@ -632,6 +844,9 @@ export default function CertDecoder() {
               nowMs={nowMs}
               extra={extras[i]}
             />
+          ))}
+          {csrs.map((c, i) => (
+            <CsrCard key={`csr-${i}`} csr={c} />
           ))}
         </div>
       </div>

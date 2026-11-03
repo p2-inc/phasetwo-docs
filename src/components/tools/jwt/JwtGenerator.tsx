@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { formatEpoch } from "./decode";
+import { buildHandoffHash } from "./handoff";
 import {
   ALGORITHMS,
   PRESETS,
@@ -351,6 +352,17 @@ export default function JwtGenerator() {
   }
 
   const parts = token.split(".");
+  // Hand the public JWKS (never the secret or private key) to the decoder.
+  const handoffHash = useMemo(
+    () =>
+      buildHandoffHash(
+        token,
+        !isHmac && keyPair && keyPair.family === info.family
+          ? JSON.parse(jwksJson(keyPair, alg, kid))
+          : undefined,
+      ),
+    [token, isHmac, keyPair, info.family, alg, kid],
+  );
   const exp =
     parsed.ok && typeof parsed.value.exp === "number"
       ? parsed.value.exp
@@ -404,7 +416,14 @@ export default function JwtGenerator() {
                 className={inputCls}
               >
                 {(
-                  ["HMAC", "RSA", "EC-P256", "EC-P384", "Ed25519"] as const
+                  [
+                    "HMAC",
+                    "RSA",
+                    "EC-P256",
+                    "EC-P384",
+                    "EC-P521",
+                    "Ed25519",
+                  ] as const
                 ).map((fam) => (
                   <optgroup
                     key={fam}
@@ -724,7 +743,7 @@ export default function JwtGenerator() {
             <div className="mt-3 flex flex-wrap gap-2">
               <CopyBtn value={token} label="token" />
               <a
-                href={token ? `${decoderUrl}#token=${token}` : undefined}
+                href={token ? `${decoderUrl}${handoffHash}` : undefined}
                 target="_blank"
                 rel="noopener"
                 aria-disabled={!token}
@@ -737,17 +756,18 @@ export default function JwtGenerator() {
               </a>
             </div>
             <p className="mb-0 mt-3 text-xs text-gray-500">
-              The decoder link carries the token in the URL fragment (
-              <code>#token=</code>), which browsers never send to a server. To
-              verify the signature there, choose{" "}
+              The decoder link carries the token
+              {isHmac ? "" : " and the public JWKS"} in the URL fragment (
+              <code>#token=…</code>), which browsers never send to a server.{" "}
               {isHmac ? (
                 <>
-                  <em>Secret</em> and paste the secret above.
+                  The secret is never put in the link — to verify there, choose{" "}
+                  <em>Secret</em> and paste it.
                 </>
               ) : (
                 <>
-                  <em>Public key</em> and paste the JWKS or public key PEM from
-                  the key panel.
+                  The decoder verifies the signature against that JWKS as soon
+                  as it opens. The private key never leaves this page.
                 </>
               )}
             </p>

@@ -7,10 +7,10 @@ import JwtGenerator from "../../components/tools/jwt/JwtGenerator";
 const PAGE_META = {
   title: "JWT Generator — Create & Sign Test JWTs, Keys & JWKS",
   description:
-    "Free online JWT generator. Build and sign test JSON Web Tokens with HS256, RS256, PS256, ES256, ES384, or EdDSA, start from Keycloak-style access and ID token presets, and generate a key pair with PEM and JWKS export. Everything runs in your browser.",
+    "Free online JWT generator. Build and sign test JSON Web Tokens with HS256, RS256, PS256, ES256, ES384, ES512, or EdDSA, start from Keycloak-style access and ID token presets, and generate a key pair with PEM and JWKS export. Everything runs in your browser.",
   // Targets: jwt generator, create jwt, sign jwt, jwks generator, test jwt.
   keywords:
-    "jwt generator, create jwt, sign jwt online, jwt encoder, generate jwt token, test jwt, jwks generator, generate jwks, rs256 key pair, es256 jwt, eddsa jwt, hs256 jwt, keycloak test token, mock access token",
+    "jwt generator, create jwt, sign jwt online, jwt encoder, generate jwt token, test jwt, jwks generator, generate jwks, rs256 key pair, es256 jwt, es512 jwt, eddsa jwt, hs256 jwt, keycloak test token, mock access token",
   url: "https://phasetwo.io/tools/jwt-generator",
 };
 
@@ -21,11 +21,11 @@ const FAQS = [
   },
   {
     q: "Which signing algorithms are supported?",
-    a: "HMAC with a shared secret (HS256, HS384, HS512), RSA (RS256, RS384, RS512 and the RSA-PSS variants PS256, PS384, PS512), ECDSA (ES256 on P-256 and ES384 on P-384), and EdDSA with Ed25519.",
+    a: "HMAC with a shared secret (HS256, HS384, HS512), RSA (RS256, RS384, RS512 and the RSA-PSS variants PS256, PS384, PS512), ECDSA (ES256 on P-256, ES384 on P-384, and ES512 on P-521), and EdDSA with Ed25519.",
   },
   {
     q: "How do I verify a token I generated?",
-    a: "Click Open in JWT Decoder. The token is handed over in the URL fragment, which browsers never send to a server. In the decoder's signature panel, choose Secret for HMAC tokens, or Public key and paste the JWKS or public key PEM from the key panel here.",
+    a: "Click Open in JWT Decoder. The token and its public JWKS are handed over in the URL fragment, which browsers never send to a server, and the decoder verifies the signature as soon as it opens. For HMAC tokens the secret is never put in the link — choose Secret in the decoder and paste it.",
   },
   {
     q: "Can I use the generated JWKS with my API?",
@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "Can I sign with my own key?",
-    a: "Yes. Choose Import my key and paste a PKCS#8 private key (-----BEGIN PRIVATE KEY-----) or a private JWK. RSA, EC P-256/P-384, and Ed25519 keys are supported. Older PKCS#1 (BEGIN RSA PRIVATE KEY) files can be converted with openssl pkcs8 -topk8 -nocrypt.",
+    a: "Yes. Choose Import my key and paste a PKCS#8 private key (-----BEGIN PRIVATE KEY-----) or a private JWK. RSA, EC P-256/P-384/P-521, and Ed25519 keys are supported. Older PKCS#1 (BEGIN RSA PRIVATE KEY) files can be converted with openssl pkcs8 -topk8 -nocrypt.",
   },
   {
     q: "What is the kid header for?",
@@ -68,7 +68,7 @@ export default function JwtGeneratorPage() {
     url: PAGE_META.url,
     description: PAGE_META.description,
     featureList: [
-      "Sign JWTs with HS256/384/512, RS256/384/512, PS256/384/512, ES256, ES384, and EdDSA",
+      "Sign JWTs with HS256/384/512, RS256/384/512, PS256/384/512, ES256, ES384, ES512, and EdDSA",
       "Keycloak-style access token and ID token presets",
       "Generate key pairs in the browser",
       "Export keys as PEM, JWK, and JWKS",
@@ -180,8 +180,9 @@ export default function JwtGeneratorPage() {
           <H2>Related tools</H2>
           <ul className="mb-4 list-disc space-y-1 pl-5">
             <li>
-              <Link to="/tools/jwt-decoder">JWT Decoder</Link> — decode and
-              verify the token you just made.
+              <Link to="/tools/jwt-decoder">JWT Decoder</Link> — decode the
+              token you just made; it verifies against the generated JWKS
+              automatically.
             </li>
             <li>
               <Link to="/tools/certificate-decoder">

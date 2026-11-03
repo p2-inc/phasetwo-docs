@@ -119,7 +119,7 @@ async function verifyJwkJson(
       await compactVerify(token, createLocalJWKSet(parsed as JSONWebKeySet));
       return {
         status: "valid",
-        message: "Signature is valid against a key from the pasted JWKS.",
+        message: "Signature is valid against a key from the provided JWKS.",
       };
     }
     await compactVerify(token, await importJWK(parsed as JWK, alg));

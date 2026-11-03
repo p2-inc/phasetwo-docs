@@ -1,6 +1,6 @@
 /**
- * X.509 certificate parsing and inspection, built on the tiny DER reader in
- * `./der`. Framework-free. Parsing is synchronous and pure; fingerprints and
+ * X.509 certificate and PKCS#10 CSR parsing and inspection, built on the tiny
+ * DER reader in `./der`. Framework-free. Parsing is synchronous and pure; fingerprints and
  * signature checks use the browser's WebCrypto (`crypto.subtle`) and are only
  * ever called from client-side effects.
  */
@@ -21,7 +21,7 @@ import {
   readString,
   readTime,
   toHex,
-} from "./der";
+} from "./der.ts";
 
 /* ------------------------------------------------------------------ */
 /* OID names                                                           */
@@ -163,6 +163,37 @@ export type Extension = {
   critical: boolean;
 };
 
+/** Fields decoded from an extensions list (shared by certificates and CSRs). */
+export type ExtensionFields = {
+  extensions: Extension[];
+  san: SanEntry[];
+  keyUsage?: string[];
+  extKeyUsage?: string[];
+  basicConstraints?: { ca: boolean; pathLen?: number };
+  subjectKeyId?: string;
+  authorityKeyId?: string;
+};
+
+/** Anything carrying a signature over `tbs` (certificates and CSRs). */
+export type SignedObject = {
+  tbs: Uint8Array;
+  signatureAlgorithm: { oid: string; name: string; params?: Asn1 };
+  signature: Uint8Array;
+};
+
+/** A PKCS#10 certificate signing request. */
+export type CertificateRequest = SignedObject &
+  ExtensionFields & {
+    der: Uint8Array;
+    version: number;
+    subject: DistinguishedName;
+    publicKey: PublicKeyInfo;
+    /** A challengePassword attribute is present (its value is not shown). */
+    hasChallengePassword: boolean;
+    /** OIDs/names of other request attributes. */
+    otherAttributes: string[];
+  };
+
 export type Certificate = {
   der: Uint8Array;
   tbs: Uint8Array;
@@ -189,7 +220,7 @@ export type Certificate = {
 /* ------------------------------------------------------------------ */
 
 function need(n: Asn1 | undefined, what: string): Asn1 {
-  if (!n) throw new Asn1Error(`Malformed certificate: missing ${what}.`);
+  if (!n) throw new Asn1Error(`Malformed data: missing ${what}.`);
   return n;
 }
 
@@ -330,6 +361,70 @@ function parseSan(extValue: Asn1): SanEntry[] {
   return out;
 }
 
+/** Decode a SEQUENCE OF Extension into `target`. */
+function applyExtensions(exts: Asn1[], target: ExtensionFields): void {
+  for (const ext of exts) {
+    const oid = readOid(need(ext.children[0], "extension OID"));
+    let critical = false;
+    let valueNode = ext.children[1];
+    if (valueNode && isUniversal(valueNode, TAG.BOOLEAN)) {
+      critical = readBoolean(valueNode);
+      valueNode = ext.children[2];
+    }
+    target.extensions.push({ oid, name: EXT_NAMES[oid] ?? oid, critical });
+    if (!valueNode) continue;
+    let inner: Asn1;
+    try {
+      inner = parseInner(valueNode.value);
+    } catch {
+      continue;
+    }
+    try {
+      switch (oid) {
+        case "2.5.29.17":
+          target.san = parseSan(inner);
+          break;
+        case "2.5.29.15": {
+          const { bytes } = readBitString(inner);
+          const names: string[] = [];
+          KEY_USAGE_BITS.forEach((name, bit) => {
+            const byte = bytes[bit >> 3] ?? 0;
+            if (byte & (0x80 >> (bit & 7))) names.push(name);
+          });
+          target.keyUsage = names;
+          break;
+        }
+        case "2.5.29.37":
+          target.extKeyUsage = inner.children.map((c) => {
+            const o = readOid(c);
+            return EKU_NAMES[o] ?? o;
+          });
+          break;
+        case "2.5.29.19": {
+          let ca = false;
+          let pathLen: number | undefined;
+          for (const c of inner.children) {
+            if (isUniversal(c, TAG.BOOLEAN)) ca = readBoolean(c);
+            else if (isUniversal(c, TAG.INTEGER)) pathLen = readSmallInt(c);
+          }
+          target.basicConstraints = { ca, pathLen };
+          break;
+        }
+        case "2.5.29.14":
+          target.subjectKeyId = toHex(inner.value, ":");
+          break;
+        case "2.5.29.35": {
+          const kid = inner.children.find((c) => isContext(c, 0));
+          if (kid) target.authorityKeyId = toHex(kid.value, ":");
+          break;
+        }
+      }
+    } catch {
+      /* A malformed optional extension should not sink the whole decode. */
+    }
+  }
+}
+
 /** Parse a DER-encoded X.509 certificate. Throws on malformed input. */
 export function parseCertificate(der: Uint8Array): Certificate {
   const root = parseDer(der);
@@ -378,68 +473,78 @@ export function parseCertificate(der: Uint8Array): Certificate {
   };
 
   const extsWrapper = t.slice(i).find((n) => isContext(n, 3));
-  const exts = extsWrapper?.children[0]?.children ?? [];
-  for (const ext of exts) {
-    const oid = readOid(need(ext.children[0], "extension OID"));
-    let critical = false;
-    let valueNode = ext.children[1];
-    if (valueNode && isUniversal(valueNode, TAG.BOOLEAN)) {
-      critical = readBoolean(valueNode);
-      valueNode = ext.children[2];
-    }
-    cert.extensions.push({ oid, name: EXT_NAMES[oid] ?? oid, critical });
-    if (!valueNode) continue;
-    let inner: Asn1;
-    try {
-      inner = parseInner(valueNode.value);
-    } catch {
-      continue;
-    }
-    try {
-      switch (oid) {
-        case "2.5.29.17":
-          cert.san = parseSan(inner);
-          break;
-        case "2.5.29.15": {
-          const { bytes } = readBitString(inner);
-          const names: string[] = [];
-          KEY_USAGE_BITS.forEach((name, bit) => {
-            const byte = bytes[bit >> 3] ?? 0;
-            if (byte & (0x80 >> (bit & 7))) names.push(name);
-          });
-          cert.keyUsage = names;
-          break;
-        }
-        case "2.5.29.37":
-          cert.extKeyUsage = inner.children.map((c) => {
-            const o = readOid(c);
-            return EKU_NAMES[o] ?? o;
-          });
-          break;
-        case "2.5.29.19": {
-          let ca = false;
-          let pathLen: number | undefined;
-          for (const c of inner.children) {
-            if (isUniversal(c, TAG.BOOLEAN)) ca = readBoolean(c);
-            else if (isUniversal(c, TAG.INTEGER)) pathLen = readSmallInt(c);
-          }
-          cert.basicConstraints = { ca, pathLen };
-          break;
-        }
-        case "2.5.29.14":
-          cert.subjectKeyId = toHex(inner.value, ":");
-          break;
-        case "2.5.29.35": {
-          const kid = inner.children.find((c) => isContext(c, 0));
-          if (kid) cert.authorityKeyId = toHex(kid.value, ":");
-          break;
-        }
+  applyExtensions(extsWrapper?.children[0]?.children ?? [], cert);
+  return cert;
+}
+
+const OID_EXTENSION_REQUEST = "1.2.840.113549.1.9.14";
+const OID_CHALLENGE_PASSWORD = "1.2.840.113549.1.9.7";
+const ATTR_NAMES: Record<string, string> = {
+  "1.2.840.113549.1.9.2": "unstructuredName",
+  "1.3.6.1.4.1.311.13.2.3": "Microsoft OS version",
+  "1.3.6.1.4.1.311.21.20": "Microsoft client info",
+  "1.3.6.1.4.1.311.13.2.2": "Microsoft enrollment CSP",
+};
+
+/**
+ * True when a parsed DER element is shaped like a PKCS#10 request rather
+ * than a certificate: the info block starts INTEGER, Name (a SEQUENCE OF
+ * SET), SubjectPublicKeyInfo — whereas a certificate's TBS has an
+ * AlgorithmIdentifier (SEQUENCE starting with an OID) in that position.
+ */
+export function looksLikeCsr(root: Asn1): boolean {
+  const info = root.children[0];
+  if (!info || !isUniversal(root, TAG.SEQUENCE)) return false;
+  const [v, name, spki] = info.children;
+  return (
+    isUniversal(v, TAG.INTEGER) &&
+    isUniversal(name, TAG.SEQUENCE) &&
+    name.children.every((c) => isUniversal(c, TAG.SET)) &&
+    isUniversal(spki, TAG.SEQUENCE) &&
+    isUniversal(spki.children[1], TAG.BIT_STRING)
+  );
+}
+
+/** Parse a DER-encoded PKCS#10 certificate signing request. */
+export function parseCsr(der: Uint8Array): CertificateRequest {
+  const root = parseDer(der);
+  if (!looksLikeCsr(root) || root.children.length < 3)
+    throw new Asn1Error("This is not a PKCS#10 certificate signing request.");
+  const [infoNode, sigAlgNode, sigNode] = root.children;
+  const [vNode, nameNode, spkiNode, attrsNode] = infoNode.children;
+  const sigOid = readOid(need(sigAlgNode.children[0], "signature algorithm"));
+  const csr: CertificateRequest = {
+    der,
+    tbs: infoNode.der,
+    version: readSmallInt(need(vNode, "version")) + 1,
+    subject: parseName(need(nameNode, "subject")),
+    publicKey: parseSpki(need(spkiNode, "public key")),
+    signatureAlgorithm: {
+      oid: sigOid,
+      name: SIG_ALGS[sigOid] ?? sigOid,
+      params: sigAlgNode.children[1],
+    },
+    signature: readBitString(sigNode).bytes,
+    extensions: [],
+    san: [],
+    hasChallengePassword: false,
+    otherAttributes: [],
+  };
+  if (attrsNode && isContext(attrsNode, 0)) {
+    for (const attr of attrsNode.children) {
+      const oidNode = attr.children[0];
+      if (!oidNode) continue;
+      const oid = readOid(oidNode);
+      if (oid === OID_EXTENSION_REQUEST) {
+        applyExtensions(attr.children[1]?.children[0]?.children ?? [], csr);
+      } else if (oid === OID_CHALLENGE_PASSWORD) {
+        csr.hasChallengePassword = true;
+      } else {
+        csr.otherAttributes.push(ATTR_NAMES[oid] ?? oid);
       }
-    } catch {
-      /* A malformed optional extension should not sink the whole decode. */
     }
   }
-  return cert;
+  return csr;
 }
 
 /* ------------------------------------------------------------------ */
@@ -507,6 +612,15 @@ export async function fingerprint(
 
 export type SigCheck = "valid" | "invalid" | "unsupported";
 
+/** The key type a signature algorithm OID requires, if known. */
+function sigKeyType(oid: string): PublicKeyInfo["type"] | undefined {
+  if (oid.startsWith("1.2.840.113549.1.1.")) return "RSA";
+  if (oid.startsWith("1.2.840.10045.4.")) return "EC";
+  if (oid === "1.3.101.112") return "Ed25519";
+  if (oid === "1.3.101.113") return "Ed448";
+  return undefined;
+}
+
 /** Convert a DER ECDSA signature to the raw r||s form WebCrypto expects. */
 function ecdsaDerToRaw(sig: Uint8Array, size: number): Uint8Array {
   const seq = parseDer(sig);
@@ -544,9 +658,22 @@ export async function verifySignedBy(
   cert: Certificate,
   issuer: Certificate,
 ): Promise<SigCheck> {
+  return verifySignature(cert, issuer.publicKey);
+}
+
+/**
+ * Verify a signed object (certificate or CSR) against a public key. For a
+ * CSR, pass its own `publicKey` to check proof of possession.
+ */
+export async function verifySignature(
+  cert: SignedObject,
+  key: PublicKeyInfo,
+): Promise<SigCheck> {
   if (typeof crypto === "undefined" || !crypto.subtle) return "unsupported";
   const sigOid = cert.signatureAlgorithm.oid;
-  const key = issuer.publicKey;
+  // A key of the wrong type can never have produced this signature.
+  const family = sigKeyType(sigOid);
+  if (family && family !== key.type) return "invalid";
   const spki = key.spki as BufferSource;
   try {
     if (key.type === "RSA" && SIG_HASH[sigOid]) {

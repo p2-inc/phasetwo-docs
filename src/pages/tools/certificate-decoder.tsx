@@ -5,23 +5,23 @@ import Layout from "@theme/Layout";
 import CertDecoder from "../../components/tools/cert/CertDecoder";
 
 const PAGE_META = {
-  title: "X.509 Certificate Decoder — Decode PEM, SAML & TLS Certificates",
+  title: "X.509 Certificate Decoder — Decode PEM, CSR, SAML & TLS Certificates",
   description:
-    "Free online X.509 certificate decoder. Paste a PEM certificate, a chain, or a bare base64 certificate from SAML metadata to see the subject, issuer, validity, SANs, key type, key usage, and SHA-1/SHA-256 fingerprints, and check chain order. Everything runs in your browser.",
+    "Free online X.509 certificate decoder. Paste a PEM certificate, a chain, a certificate signing request (CSR), or a bare base64 certificate from SAML metadata to see the subject, issuer, validity, SANs, key type, key usage, and SHA-1/SHA-256 fingerprints, and check chain order. Everything runs in your browser.",
   // Targets: certificate decoder, x509 decoder, pem decoder, saml certificate, cert fingerprint.
   keywords:
-    "certificate decoder, x509 certificate decoder, x.509 decoder, pem decoder, decode pem certificate, ssl certificate decoder, saml certificate decoder, certificate fingerprint, sha1 fingerprint, sha256 fingerprint, certificate chain checker, keycloak certificate, der to pem",
+    "certificate decoder, x509 certificate decoder, x.509 decoder, pem decoder, decode pem certificate, ssl certificate decoder, saml certificate decoder, certificate fingerprint, sha1 fingerprint, sha256 fingerprint, certificate chain checker, csr decoder, decode csr, pkcs10 decoder, keycloak certificate, der to pem",
   url: "https://phasetwo.io/tools/certificate-decoder",
 };
 
 const FAQS = [
   {
     q: "Is it safe to paste a certificate here?",
-    a: "Yes. Certificates are public by design, and this tool decodes them entirely in your browser — nothing is sent to Phase Two or any other server, logged, or stored. Never paste a private key; if you do, the tool refuses to process it.",
+    a: "Yes. Certificates are public by design, and this tool decodes them entirely in your browser — nothing is sent to Phase Two or any other server, logged, or stored. Never paste a private key; the tool recognizes PEM, base64, and DER private keys and refuses to process them.",
   },
   {
     q: "What formats can I paste or upload?",
-    a: "PEM blocks (-----BEGIN CERTIFICATE-----), several PEM blocks in a row for a chain, a bare base64 body without the BEGIN/END lines (as in SAML metadata and Keycloak's Keys tab), whole SAML metadata XML with <X509Certificate> elements, and .crt, .cer, .pem, or binary .der files.",
+    a: "PEM blocks (-----BEGIN CERTIFICATE-----), several PEM blocks in a row for a chain, a bare base64 body without the BEGIN/END lines (as in SAML metadata and Keycloak's Keys tab), whole SAML metadata XML with <X509Certificate> elements, PKCS#10 certificate signing requests (-----BEGIN CERTIFICATE REQUEST-----), and .crt, .cer, .pem, .csr, or binary .der files.",
   },
   {
     q: "What is a certificate fingerprint?",
@@ -73,6 +73,7 @@ export default function CertificateDecoderPage() {
       "Subject, issuer, validity, SANs, key usage, and basic constraints",
       "SHA-1 and SHA-256 fingerprints",
       "Self-signed detection and chain order check",
+      "Decode PKCS#10 certificate signing requests and verify their signature",
     ],
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   };
@@ -92,9 +93,10 @@ export default function CertificateDecoderPage() {
             X.509 Certificate Decoder
           </h1>
           <p className="text-lg text-gray-400">
-            Paste a PEM certificate, a full chain, or the bare base64
-            certificate from SAML metadata. See who it belongs to, when it
-            expires, what it covers, and its fingerprints — all in your browser.
+            Paste a PEM certificate, a full chain, a certificate signing
+            request, or the bare base64 certificate from SAML metadata. See who
+            it belongs to, when it expires, what it covers, and its fingerprints
+            — all in your browser.
           </p>
         </header>
 
@@ -187,6 +189,17 @@ export default function CertificateDecoderPage() {
             certificate. The fingerprint is a hash of the certificate's DER
             bytes, so it changes whenever the certificate is renewed — a useful
             check when a partner says "we rotated our certificate."
+          </p>
+
+          <H2>Decoding a certificate signing request (CSR)</H2>
+          <p className="mb-4">
+            A <strong className="text-white">CSR</strong> (PKCS#10) is what you
+            send a certificate authority to request a certificate. Paste one to
+            check the subject, the Subject Alternative Names and key usages it
+            asks for, and the key type and size before you submit it. The
+            decoder also verifies the CSR's signature with its own public key —
+            the proof that whoever made the request holds the matching private
+            key.
           </p>
 
           <H2>Related tools</H2>

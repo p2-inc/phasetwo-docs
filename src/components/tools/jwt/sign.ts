@@ -22,7 +22,8 @@ import {
 /* Algorithms                                                          */
 /* ------------------------------------------------------------------ */
 
-export type KeyFamily = "HMAC" | "RSA" | "EC-P256" | "EC-P384" | "Ed25519";
+export type KeyFamily =
+  "HMAC" | "RSA" | "EC-P256" | "EC-P384" | "EC-P521" | "Ed25519";
 
 export type AlgInfo = {
   alg: string;
@@ -42,6 +43,7 @@ export const ALGORITHMS: AlgInfo[] = [
   { alg: "PS512", family: "RSA", label: "RSA-PSS + SHA-512" },
   { alg: "ES256", family: "EC-P256", label: "ECDSA P-256 + SHA-256" },
   { alg: "ES384", family: "EC-P384", label: "ECDSA P-384 + SHA-384" },
+  { alg: "ES512", family: "EC-P521", label: "ECDSA P-521 + SHA-512" },
   { alg: "EdDSA", family: "Ed25519", label: "EdDSA (Ed25519)" },
 ];
 
@@ -59,6 +61,7 @@ const FAMILY_GEN_ALG: Record<Exclude<KeyFamily, "HMAC">, string> = {
   RSA: "RS256",
   "EC-P256": "ES256",
   "EC-P384": "ES384",
+  "EC-P521": "ES512",
   Ed25519: "EdDSA",
 };
 
@@ -100,9 +103,10 @@ function familyOfJwk(jwk: JWK): Exclude<KeyFamily, "HMAC"> {
   if (jwk.kty === "RSA") return "RSA";
   if (jwk.kty === "EC" && jwk.crv === "P-256") return "EC-P256";
   if (jwk.kty === "EC" && jwk.crv === "P-384") return "EC-P384";
+  if (jwk.kty === "EC" && jwk.crv === "P-521") return "EC-P521";
   if (jwk.kty === "OKP" && jwk.crv === "Ed25519") return "Ed25519";
   throw new Error(
-    `Unsupported key type (kty ${jwk.kty ?? "?"}${jwk.crv ? `, crv ${jwk.crv}` : ""}). Use RSA, EC P-256/P-384, or Ed25519.`,
+    `Unsupported key type (kty ${jwk.kty ?? "?"}${jwk.crv ? `, crv ${jwk.crv}` : ""}). Use RSA, EC P-256/P-384/P-521, or Ed25519.`,
   );
 }
 
@@ -178,7 +182,7 @@ export async function importTestKey(text: string): Promise<TestKeyPair> {
     }
   }
   throw new Error(
-    "Could not read this private key. Supported: RSA, EC P-256/P-384, Ed25519.",
+    "Could not read this private key. Supported: RSA, EC P-256/P-384/P-521, Ed25519.",
   );
 }
 
