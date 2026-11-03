@@ -43,3 +43,9 @@ export const EXAMPLES: SamlExample[] = [
     certificate: EXAMPLE_SP_CERTIFICATE,
   },
 ];
+
+/** The two examples above form a matching request/response pair for the comparison mode. */
+export const EXAMPLE_EXCHANGE = {
+  request: EXAMPLES.find((e) => e.id === "authn-request")!.input,
+  response: EXAMPLES.find((e) => e.id === "response")!.input,
+};

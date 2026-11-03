@@ -44,6 +44,14 @@ const FAQS = [
     a: "The top-level status says which side failed (Requester means the SP's request was the problem, Responder means the IdP). The second-level code says why — for example InvalidNameIDPolicy means the IdP cannot produce the NameID format the SP requested. The decoder explains every standard SAML 2.0 status code.",
   },
   {
+    q: "How do I check that a SAML response matches its request?",
+    a: "Switch to Compare request & response and paste both messages, in either order. The tool checks that InResponseTo equals the request ID, that the Destination and Recipient equal the requested ACS URL, that the Audience is the requesting SP's Issuer, that the NameID format and authentication context are what the SP asked for, and that the response came back over the requested binding.",
+  },
+  {
+    q: "Does it account for clock skew?",
+    a: "Yes. Set the clock-skew tolerance (in seconds) to mirror your SP's setting, such as Keycloak's Allowed clock skew on a SAML identity provider. Validity checks then accept timestamps that are off by up to that much, and say so.",
+  },
+  {
     q: "Does it understand Keycloak?",
     a: "Yes. It recognizes Keycloak realm SAML endpoints (/realms/{realm}/protocol/saml) and identity-broker endpoints (/realms/{realm}/broker/{alias}/endpoint), and points to the Keycloak setting behind common failures: client ID vs. issuer, audience vs. SP entity ID, NameID format, signature requirements, and allowed clock skew.",
   },
@@ -81,6 +89,8 @@ export default function SamlDecoderPage() {
       "Plain-English summary of assertions, NameID, audience, attributes, and status codes",
       "Expiry and clock-skew checks",
       "Verify XML signatures and redirect query-string signatures with a certificate or IdP metadata",
+      "Compare an AuthnRequest with its Response: InResponseTo, ACS URL, audience, NameID format, authentication context, and binding",
+      "Configurable clock-skew tolerance",
       "Keycloak-aware troubleshooting hints",
     ],
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -246,6 +256,23 @@ export default function SamlDecoderPage() {
               IdP-initiated SAML with Keycloak
             </Link>
             .
+          </p>
+
+          <H2>Compare a request with its response</H2>
+          <p className="mb-4">
+            Many SAML failures are mismatches between what the SP asked for and
+            what the IdP sent back. Use{" "}
+            <strong className="text-white">
+              Compare request &amp; response
+            </strong>{" "}
+            with the AuthnRequest (or LogoutRequest) and the Response it
+            produced. The tool checks InResponseTo against the request ID, the
+            Destination and Recipient against the requested ACS URL, the
+            Audience against the requesting SP's Issuer, the NameID format
+            against the NameIDPolicy, the AuthnContextClassRef against the
+            RequestedAuthnContext, and the ProtocolBinding against how the
+            response actually arrived. A clock-skew tolerance setting mirrors
+            your SP's allowed skew when checking validity windows.
           </p>
 
           <H2>More free tools</H2>

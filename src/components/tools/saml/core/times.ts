@@ -104,7 +104,11 @@ export function checkTimes(
           ahead <= near
             ? `Not valid for another ${seconds(ahead)}. A gap this small usually means the IdP's clock is ahead of the SP's — sync clocks (NTP) or allow some clock skew at the SP.`
             : "Not valid yet.";
-      } else check.state = "ok";
+      } else {
+        check.state = "ok";
+        if (now < ms)
+          check.note = `Starts ${seconds(ms - now)} from now, but within the ${skew / 1000}-second clock-skew tolerance.`;
+      }
     } else if (kind === "notOnOrAfter") {
       if (now - skew >= ms) {
         check.state = "expired";
@@ -113,7 +117,11 @@ export function checkTimes(
           past <= near
             ? `Expired ${seconds(past)} ago. If the SP rejected this right after login, its clock may be ahead of the IdP's, or the validity window is too short.`
             : "Expired. Old messages cannot be replayed; capture a fresh one.";
-      } else check.state = "ok";
+      } else {
+        check.state = "ok";
+        if (now >= ms)
+          check.note = `Passed ${seconds(now - ms)} ago, but within the ${skew / 1000}-second clock-skew tolerance.`;
+      }
     } else if (ms - skew > now && ms - now > 1000) {
       check.state = "not-yet-valid";
       check.note = `Issued ${seconds(ms - now)} in the future — the issuer's clock is ahead of yours.`;
