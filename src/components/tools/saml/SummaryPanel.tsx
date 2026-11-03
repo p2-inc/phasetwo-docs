@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 
 import {
   ATTRIBUTE_NAME_FORMATS,

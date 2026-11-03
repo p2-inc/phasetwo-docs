@@ -3,7 +3,7 @@
  * Discovery Inspector. Logic lives in ../oidc/*; this file is UI only.
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import type { Finding, Severity } from "../oidc/findings";
 import { sortFindings } from "../oidc/findings";
 import type { FetchJsonResult } from "../oidc/fetch";

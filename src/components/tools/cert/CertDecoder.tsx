@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import { EXAMPLE_CHAIN, EXAMPLE_CSR, EXAMPLE_SAML_BASE64 } from "./examples";
 import {
   derFileToPem,

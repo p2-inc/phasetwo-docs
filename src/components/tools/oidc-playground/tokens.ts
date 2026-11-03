@@ -6,7 +6,7 @@
  * browser is readable by its user, so a "secret" in a SPA is not secret.
  */
 import {
-  fetchJson,
+  callEndpoint,
   FriendlyFetchError,
   type JsonResponse,
 } from "./discovery.ts";
@@ -45,7 +45,7 @@ async function postForm(
     "Content-Type": "application/x-www-form-urlencoded",
     Accept: "application/json",
   };
-  const response = await fetchJson(
+  const response = await callEndpoint(
     url,
     { method: "POST", headers, body: new URLSearchParams(form).toString() },
     what,
@@ -100,7 +100,7 @@ export async function fetchUserinfo(opts: {
     Authorization: `Bearer ${opts.accessToken}`,
     Accept: "application/json",
   };
-  const response = await fetchJson(
+  const response = await callEndpoint(
     opts.userinfoEndpoint,
     { method: "GET", headers },
     "userinfo endpoint",

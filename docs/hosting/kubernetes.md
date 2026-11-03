@@ -39,9 +39,9 @@ securityContext:
 command:
   - "/opt/keycloak/bin/kc.sh"
   - "start"
-  - "--spi-email-template-provider=freemarker-plus-mustache"
-  - "--spi-email-template-freemarker-plus-mustache-enabled=true"
-  - "--spi-theme-cache-themes=false"
+  - "--spi-email-template--provider=freemarker-plus-mustache"
+  - "--spi-email-template--freemarker-plus-mustache--enabled=true"
+  - "--spi-theme--cache-themes=false"
 
 # Every Phase Two doc assumes the /auth path. This is also the chart default.
 http:
@@ -125,11 +125,11 @@ spec:
   additionalOptions:
     - name: http-relative-path
       value: /auth
-    - name: spi-email-template-provider
+    - name: spi-email-template--provider
       value: freemarker-plus-mustache
-    - name: spi-email-template-freemarker-plus-mustache-enabled
+    - name: spi-email-template--freemarker-plus-mustache--enabled
       value: "true"
-    - name: spi-theme-cache-themes
+    - name: spi-theme--cache-themes
       value: "false"
 ```
 

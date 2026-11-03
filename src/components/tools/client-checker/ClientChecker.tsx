@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "@docusaurus/Link";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import {
   CATEGORY_LABELS,
   SEVERITIES,

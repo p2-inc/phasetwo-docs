@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import type { JwksSummary, KeySummary } from "../oidc/jwks";
 import type { CertSummary } from "../oidc/x509";
 import { countBySeverity } from "../oidc/findings";

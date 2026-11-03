@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Icon } from "@iconify/react";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import { Icon } from "../Icon";
+import { deepLinkHash } from "../oidc/deeplink";
 import {
   verifyHmac,
   verifyPublicKey,
@@ -71,6 +73,12 @@ export default function VerifyPanel({
   const [jwks, setJwks] = useState(suggestedJwks ?? "");
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const jwksVerifierUrl = useBaseUrl("/tools/jwks-verifier");
+  const discoveryUrl = useBaseUrl("/tools/oidc-discovery");
+  const httpIssuer =
+    typeof issuer === "string" && /^https?:\/\//i.test(issuer)
+      ? issuer
+      : undefined;
 
   // Follow the token's algorithm and prefill the Keycloak JWKS URL as tokens change.
   // When a key arrives with the token (e.g. from the JWT Generator), switch to
@@ -209,6 +217,26 @@ export default function VerifyPanel({
           />
           <span>{result.message}</span>
         </div>
+      )}
+
+      {httpIssuer && !isHmac && (
+        <p className="mb-0 mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+          <span>Dig into this issuer:</span>
+          <a
+            href={`${jwksVerifierUrl}${deepLinkHash(suggestedJwks ?? httpIssuer)}`}
+            className="inline-flex items-center gap-1 text-p2blue-400"
+          >
+            <Icon icon="mdi:key-chain-variant" className="size-3.5" />
+            Inspect its keys in the JWKS Verifier
+          </a>
+          <a
+            href={`${discoveryUrl}${deepLinkHash(httpIssuer)}`}
+            className="inline-flex items-center gap-1 text-p2blue-400"
+          >
+            <Icon icon="mdi:compass-outline" className="size-3.5" />
+            Check its discovery document
+          </a>
+        </p>
       )}
     </div>
   );

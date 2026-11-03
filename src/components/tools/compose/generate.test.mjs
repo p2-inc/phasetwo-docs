@@ -456,11 +456,14 @@ test("version list derives from KEYCLOAK_VERSION", () => {
   assert.equal(DEFAULT_OPTIONS.version, KEYCLOAK_VERSION);
 });
 
-test("Keycloak version list is fresh", () => {
+// A reminder, not a gate: a hard failure here would start failing `npm test`
+// on unrelated changes once the date passes.
+test("Keycloak version list is fresh (warns when stale)", () => {
   const ageDays =
     (Date.now() - Date.parse(VERSIONS_CHECKED_ON + "T00:00:00Z")) / 86400000;
-  assert.ok(
-    ageDays <= VERSIONS_MAX_AGE_DAYS,
+  assert.ok(Number.isFinite(ageDays), "VERSIONS_CHECKED_ON must be YYYY-MM-DD");
+  if (ageDays <= VERSIONS_MAX_AGE_DAYS) return;
+  console.warn(
     [
       "",
       `The compose generator's Keycloak version (${KEYCLOAK_VERSION}) was last checked on ${VERSIONS_CHECKED_ON}, ${Math.floor(ageDays)} days ago.`,
