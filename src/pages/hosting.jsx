@@ -31,6 +31,12 @@ function Hosting() {
       description="Managed Keycloak hosting on dedicated clusters, operated by the authors of the most widely used Keycloak extensions."
     >
       <Head>
+        {/* Runs while the head is parsed, before the refresh fires, and keeps the query
+            string and fragment. The meta refresh below goes to a fixed URL, so on its own
+            it drops them: campaign parameters on a link to this page were lost on the
+            hop. The refresh stays as the fallback without JavaScript, the same pair
+            Docusaurus's own client-redirect pages use. */}
+        <script>{`window.location.replace(${JSON.stringify(TARGET)} + window.location.search + window.location.hash);`}</script>
         <meta httpEquiv="refresh" content={`0; url=${TARGET}`} />
         <link rel="canonical" href={canonical} />
         <meta name="robots" content="noindex, follow" />

@@ -14,14 +14,55 @@ import Cta from "../../components/ctas/homepage-dual-line-cta";
 const PLACEHOLDER_IMG = "/img/placeholder-keycloak.svg";
 
 const HERO = {
-  title: "Dedicated Clusters",
+  title: "Managed Keycloak Hosting on Dedicated Clusters",
   description:
-    "System capable of delivering exceptional performance for your authentication needs. Ease of use saves teams time and money for managing a complex system.",
+    "Keep Keycloak and stop operating it. Your realms, extensions and themes run on a cluster of your own, and we handle the upgrades, backups and monitoring.",
+  trialNote: "Every Starter cluster starts with a 30-day free trial.",
   imageSrc: "/img/hero-dedicated-clusters.svg",
   primaryCtaLabel: "Try for Free",
   primaryCtaHref: "https://dash.phasetwo.io/",
   secondaryCtaLabel: "Learn more",
   secondaryCtaHref: "#built-by-experts",
+};
+
+const WE_RUN = {
+  title: "What We Run for You",
+  intro:
+    "Self-hosting Keycloak means owning its upgrades, its backups and the pager. On a dedicated cluster those are ours.",
+  cards: [
+    {
+      title: "Upgrades",
+      description:
+        "We roll new Keycloak releases out to your cluster, so you aren't scheduling and testing every upgrade yourself.",
+      icon: "lucide:refresh-cw",
+    },
+    {
+      title: "Backups",
+      description:
+        "Your cluster's data is backed up for you. You don't build or maintain a backup job.",
+      icon: "lucide:database-backup",
+    },
+    {
+      title: "Monitoring",
+      description:
+        "We watch every cluster, and the metrics and logs are in Dash for your team as well.",
+      icon: "lucide:activity",
+    },
+    {
+      title: "Resilient by design",
+      description:
+        "Clusters are built from infrastructure as code with multi-zone configurations, so a failure is recovered, not rebuilt by hand.",
+      icon: "lucide:layers",
+    },
+    {
+      title: "Moving in",
+      description:
+        "Already running Keycloak yourself? We help move your existing realms and users onto your new cluster.",
+      icon: "lucide:arrow-right-left",
+    },
+  ],
+  compareLabel: "Compare self-hosted and managed",
+  compareHref: "/hosting/self-host-vs-managed/",
 };
 
 const BUILT_BY_EXPERTS = {
@@ -285,11 +326,44 @@ export default function DedicatedClusters() {
                       {HERO.primaryCtaLabel}
                     </button>
                   </a>
+                  <p className="mb-0 text-sm text-gray-400">
+                    {HERO.trialNote}{" "}
+                    <Link to="/pricing/hosting/" className="ilink">
+                      See pricing
+                    </Link>
+                  </p>
                   <Link href={HERO.secondaryCtaHref} className="link-primary">
                     {HERO.secondaryCtaLabel} <span aria-hidden="true">→</span>
                   </Link>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* What we run for you */}
+        <section className="subpage-section">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <SectionHeading title={WE_RUN.title} intro={WE_RUN.intro} />
+
+            <div className="mx-auto mt-14 grid max-w-[var(--content-width-narrow)] grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {WE_RUN.cards.map((card) => (
+                <FeatureCard
+                  key={card.title}
+                  title={card.title}
+                  description={card.description}
+                  icon={card.icon}
+                  layout="stacked"
+                />
+              ))}
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <Link to={WE_RUN.compareHref}>
+                <button className="btnSecondary min-w-[160px]">
+                  {WE_RUN.compareLabel}
+                </button>
+              </Link>
             </div>
           </div>
         </section>
