@@ -99,6 +99,20 @@ custom attribute goes missing:
 Validators, progressive profiling and the registration form build on the second one.
 *(Coming soon.)*
 
+**Bringing in users you already have** — the directory keeps the accounts; Keycloak keeps the
+protocols:
+
+1. [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/)
+2. [Connect Keycloak to LDAP or Active Directory](/tutorials/identity-providers/ldap/) — the
+   two settings you cannot change afterwards, and the four ways a federation fails quietly
+3. [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+   what to do with the groups once they are in
+4. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+   getting directory attributes into the token
+
+Social login, external IdP brokering and SAML federation build on the same track.
+*(Coming soon.)*
+
 **Federating an external identity provider** — what crosses the boundary from their IdP
 into your realm, and what silently does not:
 
@@ -108,7 +122,7 @@ into your realm, and what silently does not:
 3. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
    decides whether an imported attribute is kept at all
 
-Social login, Entra ID, Okta and LDAP connections build on the same mappers.
+Social login, Entra ID and Okta connections build on the same mappers.
 *(Coming soon.)*
 
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the
