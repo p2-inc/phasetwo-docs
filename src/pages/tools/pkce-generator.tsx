@@ -93,10 +93,8 @@ export default function PkceGeneratorPage() {
             PKCE is required for public clients such as single-page and mobile
             apps, and OAuth 2.1 requires it for everyone. In Keycloak you can
             enforce it per client under{" "}
-            <em>
-              Advanced → Proof Key for Code Exchange Code Challenge Method
-            </em>
-            . See it in a real flow in the{" "}
+            <em>Capability config → Require PKCE / PKCE Method</em>. See it in a
+            real flow in the{" "}
             <Link to="/tools/oidc-playground">OIDC Playground</Link>, or check
             an existing request with the{" "}
             <Link to="/tools/oidc-url-inspector">Authorize URL Inspector</Link>.

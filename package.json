@@ -5,7 +5,7 @@
   "scripts": {
     "start": "docusaurus start --host 0.0.0.0",
     "build": "docusaurus build",
-    "test": "node --test plugins/markdown-source/test/*.test.js src/components/tools/saml/core/test/*.test.ts src/components/tools/oidc/test/*.test.ts src/components/tools/jwt/test/*.test.ts src/components/tools/cert/test/*.test.ts",
+    "test": "node --test plugins/markdown-source/test/*.test.js src/components/tools/saml/core/test/*.test.ts src/components/tools/oidc/test/*.test.ts src/components/tools/jwt/test/*.test.ts src/components/tools/cert/test/*.test.ts src/components/tools/oidc-playground/test/*.test.ts",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",

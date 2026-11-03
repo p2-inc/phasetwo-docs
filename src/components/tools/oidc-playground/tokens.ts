@@ -5,8 +5,12 @@
  * There is deliberately no client secret support: anything shipped to a
  * browser is readable by its user, so a "secret" in a SPA is not secret.
  */
-import { fetchJson, FriendlyFetchError, type JsonResponse } from "./discovery";
-import { bytesToBase64Url } from "./pkce";
+import {
+  fetchJson,
+  FriendlyFetchError,
+  type JsonResponse,
+} from "./discovery.ts";
+import { bytesToBase64Url } from "./pkce.ts";
 
 export type TokenResponse = {
   access_token?: string;
@@ -218,20 +222,24 @@ export async function checkIdTokenClaims(opts: {
       message: `Does not contain the client_id ${opts.clientId}.`,
     });
   }
-  if (aud.length > 1) {
+  // OIDC Core §3.1.3.7: with several audiences azp should be present, and
+  // if azp is present it must be this client.
+  if (p.azp !== undefined) {
     out.push(
       p.azp === opts.clientId
-        ? {
-            name: "azp",
-            status: "pass",
-            message: "Multiple audiences, and azp is this client.",
-          }
+        ? { name: "azp", status: "pass", message: "Is this client." }
         : {
             name: "azp",
             status: "fail",
-            message: "Multiple audiences, but azp is not this client.",
+            message: `Authorized party is ${String(p.azp)}, not ${opts.clientId}.`,
           },
     );
+  } else if (aud.length > 1) {
+    out.push({
+      name: "azp",
+      status: "fail",
+      message: "Multiple audiences but no azp claim.",
+    });
   }
 
   // exp / iat

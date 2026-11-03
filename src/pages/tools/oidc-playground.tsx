@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: "What do I need to configure in Keycloak?",
-    a: "Create an OpenID Connect client with Client authentication off (public), Standard flow on, this page's URL as a Valid redirect URI and Valid post logout redirect URI, and this site's origin (or +) in Web origins. Optionally set the PKCE code challenge method to S256 under Advanced to make PKCE mandatory.",
+    a: "Create an OpenID Connect client with Client authentication off (public), Standard flow on, this page's URL as a Valid redirect URI and Valid post logout redirect URI, and this site's origin (or +) in Web origins. Turn on Require PKCE with PKCE Method S256 (under Capability config in Keycloak 26) to make PKCE mandatory.",
   },
   {
     q: "Why does the token exchange fail with a network or CORS error?",

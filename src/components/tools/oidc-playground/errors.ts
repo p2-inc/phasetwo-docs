@@ -25,7 +25,7 @@ export const OAUTH_ERRORS: Record<string, Entry> = {
       "The request is missing a required parameter, has an invalid value, repeats a parameter, or is otherwise malformed.",
     causes: [
       "A required parameter is missing (response_type, client_id, redirect_uri, or code_challenge when the client requires PKCE). The error_description usually names it.",
-      'Keycloak: "Missing parameter: code_challenge_method" — the client is set to require PKCE (Advanced → Proof Key for Code Exchange Code Challenge Method) and the request has no challenge.',
+      'Keycloak: "Missing parameter: code_challenge_method" — the client requires PKCE (Capability config → Require PKCE / PKCE Method; older versions: Advanced tab) and the request has no challenge.',
       'Keycloak: "Invalid parameter: code_challenge_method" — the method is not allowed for this client (for example plain when S256 is required).',
       "A parameter appears twice in the URL.",
     ],

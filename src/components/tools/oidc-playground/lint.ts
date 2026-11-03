@@ -4,10 +4,10 @@
  * pass an optional discovery document to check against what the server
  * advertises.
  */
-import { AUTHORIZE_PARAMS, CALLBACK_PARAMS, type ParamInfo } from "./params";
-import { explainError, type ErrorExplanation } from "./errors";
-import { looksLikeS256Challenge } from "./pkce";
-import type { DiscoveryDocument } from "./discovery";
+import { AUTHORIZE_PARAMS, CALLBACK_PARAMS, type ParamInfo } from "./params.ts";
+import { explainError, type ErrorExplanation } from "./errors.ts";
+import { looksLikeS256Challenge } from "./pkce.ts";
+import type { DiscoveryDocument } from "./discovery.ts";
 
 export type Severity = "error" | "warning" | "info" | "ok";
 

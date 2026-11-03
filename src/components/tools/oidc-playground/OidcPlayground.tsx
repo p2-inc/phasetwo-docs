@@ -67,25 +67,25 @@ const EXTRA_PARAMS: {
     name: "login_hint",
     label: "login_hint",
     placeholder: "alice@example.com",
-    hint: "Prefills the username field.",
+    hint: "Prefills the username field on the login page.",
   },
   {
     name: "kc_idp_hint",
     label: "kc_idp_hint (Keycloak)",
     placeholder: "google",
-    hint: "Skip the login page and go straight to this identity provider alias.",
+    hint: "Skip the login page and go straight to this identity provider. Use the alias from Identity providers; an unknown alias is ignored.",
   },
   {
     name: "acr_values",
     label: "acr_values",
     placeholder: "gold",
-    hint: "Request an authentication level (Keycloak step-up).",
+    hint: "Request an authentication level. In Keycloak, map ACR values to levels of authentication (ACR to LoA Mapping in realm settings or the client's Advanced tab) and use a step-up browser flow. The result is in the acr claim.",
   },
   {
     name: "ui_locales",
     label: "ui_locales",
     placeholder: "de en",
-    hint: "Preferred login page languages.",
+    hint: "Preferred login page languages. Keycloak only honors these when Internationalization is on (Realm settings → Localization) and the locale is supported.",
   },
   {
     name: "max_age",
@@ -252,23 +252,41 @@ function KeycloakSetup({
         Configure your Keycloak client
       </div>
       <p className="mb-2">
-        In the admin console, open your realm →{" "}
-        <strong className="text-white">Clients</strong> → create or edit a
-        client of type <strong className="text-white">OpenID Connect</strong>:
+        In the admin console (Keycloak 26), open your realm →{" "}
+        <strong className="text-white">Clients</strong> →{" "}
+        <strong className="text-white">Create client</strong>, choose{" "}
+        <strong className="text-white">OpenID Connect</strong>, and give it a
+        Client ID. Then:
       </p>
+      <div className="mb-1 text-xs font-semibold text-gray-200">
+        Capability config
+      </div>
       <ul className="mb-2 list-disc space-y-1 pl-5">
         <li>
           <strong className="text-white">Client authentication: Off</strong> —
           this makes it a public client. Browser apps cannot keep a secret.
         </li>
         <li>
-          <strong className="text-white">Standard flow: On</strong> (the
-          authorization code flow). Implicit and direct access grants can stay
-          off.
+          <strong className="text-white">Standard flow</strong> checked (the
+          authorization code flow). Implicit flow and Direct access grants can
+          stay unchecked.
         </li>
         <li>
+          <strong className="text-white">Require PKCE: On</strong>, with{" "}
+          <strong className="text-white">PKCE Method: S256</strong> — Keycloak
+          then rejects requests without a valid challenge. (Older Keycloak
+          versions have this under Advanced → Proof Key for Code Exchange Code
+          Challenge Method.)
+        </li>
+      </ul>
+      <div className="mb-1 text-xs font-semibold text-gray-200">
+        Login settings
+      </div>
+      <ul className="mb-2 list-disc space-y-1 pl-5">
+        <li>
           <strong className="text-white">Valid redirect URIs</strong>:{" "}
-          <code className="break-all">{redirectUri}</code>
+          <code className="break-all">{redirectUri}</code> — matched exactly,
+          including the trailing slash.
         </li>
         <li>
           <strong className="text-white">
@@ -281,12 +299,6 @@ function KeycloakSetup({
           <strong className="text-white">Web origins</strong>:{" "}
           <code className="break-all">{origin}</code> (or <code>+</code>) — so
           the browser may call the token and userinfo endpoints (CORS).
-        </li>
-        <li>
-          <strong className="text-white">
-            Advanced → Proof Key for Code Exchange Code Challenge Method: S256
-          </strong>{" "}
-          — optional, but it makes Keycloak reject requests without PKCE.
         </li>
       </ul>
       <p className="mb-0 text-xs text-gray-400">
