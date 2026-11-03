@@ -9,6 +9,11 @@ import {
   generateSecrets,
   DEFAULT_OPTIONS,
   PHASETWO_SPI_FLAGS,
+  KEYCLOAK_VERSION,
+  EXAMPLE_BUILD_TAG,
+  VERSIONS,
+  VERSIONS_CHECKED_ON,
+  VERSIONS_MAX_AGE_DAYS,
 } from "./generate.ts";
 
 // js-yaml is not a direct dependency; resolve the copy Docusaurus already ships.
@@ -45,20 +50,22 @@ function* allCombos() {
         "dev-file",
       ])
         for (const exposure of ["localhost", "proxy", "tls"])
-          for (const proxy of ["caddy", "nginx"])
-            for (const healthMetrics of [true, false])
-              yield {
-                image,
-                mode,
-                database,
-                exposure,
-                proxy,
-                healthMetrics,
-                mailpit: true,
-                realmImport: true,
-                themeName: "acme",
-                memoryLimit: "2g",
-              };
+          for (const proxy of ["caddy", "traefik", "nginx"])
+            for (const proxyCert of ["letsencrypt", "selfsigned"])
+              for (const healthMetrics of [true, false])
+                yield {
+                  image,
+                  mode,
+                  database,
+                  exposure,
+                  proxy,
+                  proxyCert,
+                  healthMetrics,
+                  mailpit: true,
+                  realmImport: true,
+                  themeName: "acme",
+                  memoryLimit: "2g",
+                };
 }
 
 test("every combination produces YAML that parses and is internally consistent", () => {
@@ -105,7 +112,7 @@ test("every combination produces YAML that parses and is internally consistent",
     assert.ok(!out.compose.includes(SECRETS.dbPassword));
     assert.ok(!out.compose.includes(SECRETS.adminPassword));
   }
-  assert.equal(n, 2 * 2 * 5 * 3 * 2 * 2);
+  assert.equal(n, 2 * 2 * 5 * 3 * 3 * 2 * 2);
 });
 
 test("default: Phase Two image, start-dev, Postgres, localhost", () => {
@@ -343,4 +350,125 @@ test("randomPassword is alphanumeric, the right length, and unbiased-ish", () =>
   const fixed = (n) =>
     Uint8Array.from({ length: n }, () => [255, 0, 1][i++ % 3]);
   assert.equal(randomPassword(4, fixed), "ABAB");
+});
+
+test("Traefik with Let's Encrypt uses the file provider and an ACME resolver", () => {
+  const { doc, out } = build({
+    mode: "prod",
+    exposure: "proxy",
+    proxy: "traefik",
+    hostname: "sso.acme.test",
+    acmeEmail: "ops@acme.test",
+  });
+  const proxy = doc.services.proxy;
+  assert.equal(proxy.image.split(":")[0], "traefik");
+  assert.ok(
+    proxy.command.includes(
+      "--providers.file.filename=/etc/traefik/dynamic.yml",
+    ),
+  );
+  assert.ok(
+    proxy.command.includes(
+      "--certificatesresolvers.letsencrypt.acme.email=ops@acme.test",
+    ),
+  );
+  assert.ok(!JSON.stringify(proxy).includes("docker.sock"), "no Docker socket");
+  assert.deepEqual(proxy.volumes, ["traefik_letsencrypt:/letsencrypt"]);
+  assert.ok("traefik_letsencrypt" in doc.volumes);
+  const dyn = yaml.load(doc.configs.traefik_dynamic.content);
+  assert.equal(dyn.http.routers.keycloak.rule, "Host(`sso.acme.test`)");
+  assert.equal(dyn.http.routers.keycloak.tls.certResolver, "letsencrypt");
+  assert.equal(
+    dyn.http.services.keycloak.loadBalancer.servers[0].url,
+    "http://keycloak:8080",
+  );
+  assert.equal(out.url, "https://sso.acme.test/auth/");
+});
+
+test("self-signed mode: Traefik drops ACME, Caddy uses tls internal", () => {
+  const t = build({
+    exposure: "proxy",
+    proxy: "traefik",
+    proxyCert: "selfsigned",
+    hostname: "localhost",
+  });
+  assert.ok(!t.doc.services.proxy.command.some((c) => c.includes("acme")));
+  assert.equal(t.doc.services.proxy.volumes, undefined);
+  assert.deepEqual(
+    yaml.load(t.doc.configs.traefik_dynamic.content).http.routers.keycloak.tls,
+    {},
+  );
+  assert.ok(t.out.warnings.some((w) => /self-signed/.test(w.message)));
+  const c = build({
+    exposure: "proxy",
+    proxy: "caddy",
+    proxyCert: "selfsigned",
+    hostname: "localhost",
+  });
+  assert.match(c.doc.configs.caddyfile.content, /tls internal/);
+  const p = generate(
+    {
+      mode: "prod",
+      exposure: "proxy",
+      proxy: "traefik",
+      proxyCert: "selfsigned",
+      hostname: "a.b.test",
+    },
+    SECRETS,
+  );
+  assert.ok(
+    p.warnings.some(
+      (w) =>
+        w.level === "warning" &&
+        /self-signed certificate in production/.test(w.message),
+    ),
+  );
+});
+
+test("Let's Encrypt for a local hostname warns, and bad emails are dropped", () => {
+  const w = generate(
+    { exposure: "proxy", proxy: "traefik", hostname: "localhost" },
+    SECRETS,
+  ).warnings;
+  assert.ok(w.some((x) => /cannot issue for localhost/.test(x.message)));
+  const { doc } = build({
+    exposure: "proxy",
+    proxy: "caddy",
+    acmeEmail: "not an email",
+  });
+  assert.ok(!doc.configs.caddyfile.content.includes("email"));
+  const ok = build({
+    exposure: "proxy",
+    proxy: "caddy",
+    acmeEmail: "ops@acme.test",
+  });
+  assert.match(
+    ok.doc.configs.caddyfile.content,
+    /^\{\n  email ops@acme\.test\n\}/,
+  );
+});
+
+test("version list derives from KEYCLOAK_VERSION", () => {
+  assert.match(KEYCLOAK_VERSION, /^\d+\.\d+\.\d+$/);
+  assert.ok(EXAMPLE_BUILD_TAG.startsWith(KEYCLOAK_VERSION + "."));
+  assert.equal(VERSIONS.phasetwo[0], KEYCLOAK_VERSION);
+  assert.equal(VERSIONS.upstream[0], KEYCLOAK_VERSION);
+  assert.equal(DEFAULT_OPTIONS.version, KEYCLOAK_VERSION);
+});
+
+test("Keycloak version list is fresh", () => {
+  const ageDays =
+    (Date.now() - Date.parse(VERSIONS_CHECKED_ON + "T00:00:00Z")) / 86400000;
+  assert.ok(
+    ageDays <= VERSIONS_MAX_AGE_DAYS,
+    [
+      "",
+      `The compose generator's Keycloak version (${KEYCLOAK_VERSION}) was last checked on ${VERSIONS_CHECKED_ON}, ${Math.floor(ageDays)} days ago.`,
+      "Check for a newer release and update src/components/tools/compose/generate.ts:",
+      "  curl -s 'https://quay.io/api/v1/repository/phasetwo/phasetwo-keycloak/tag/?limit=20&onlyActiveTags=true'",
+      "  curl -s 'https://quay.io/api/v1/repository/keycloak/keycloak/tag/?limit=20&onlyActiveTags=true'",
+      "Set KEYCLOAK_VERSION to the newest MAJOR.MINOR.PATCH both publish, EXAMPLE_BUILD_TAG to a full",
+      "Phase Two build tag for it, and VERSIONS_CHECKED_ON to today (even if nothing changed).",
+    ].join("\n"),
+  );
 });

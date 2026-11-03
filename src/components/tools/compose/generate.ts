@@ -12,7 +12,9 @@ export type Mode = "dev" | "prod";
 export type Database =
   "postgres" | "mysql" | "mariadb" | "cockroach" | "dev-file";
 export type Exposure = "localhost" | "proxy" | "tls";
-export type ProxyKind = "caddy" | "nginx";
+export type ProxyKind = "caddy" | "traefik" | "nginx";
+/** Where Caddy/Traefik get their certificate. nginx always uses ./certs. */
+export type ProxyCert = "letsencrypt" | "selfsigned";
 
 export interface ComposeOptions {
   image: ImageKind;
@@ -22,6 +24,9 @@ export interface ComposeOptions {
   database: Database;
   exposure: Exposure;
   proxy: ProxyKind;
+  proxyCert: ProxyCert;
+  /** Optional Let's Encrypt account email (Caddy / Traefik). */
+  acmeEmail: string;
   /** Public hostname (proxy / tls modes). */
   hostname: string;
   /** Host port published in localhost mode. */
@@ -72,11 +77,31 @@ export interface GeneratedFiles {
 export const PHASETWO_IMAGE = "quay.io/phasetwo/phasetwo-keycloak";
 export const UPSTREAM_IMAGE = "quay.io/keycloak/keycloak";
 
+/**
+ * The newest Keycloak release, the only version number to edit when Keycloak
+ * ships. Every tag in the picker and every example in the UI derives from it.
+ *
+ * To bump: list the tags with
+ *   curl -s 'https://quay.io/api/v1/repository/phasetwo/phasetwo-keycloak/tag/?limit=20&onlyActiveTags=true'
+ * set KEYCLOAK_VERSION to the newest MAJOR.MINOR.PATCH that both
+ * quay.io/phasetwo/phasetwo-keycloak and quay.io/keycloak/keycloak publish,
+ * EXAMPLE_BUILD_TAG to a full Phase Two build tag for it, and
+ * VERSIONS_CHECKED_ON to today. `npm test` fails once VERSIONS_CHECKED_ON is
+ * older than VERSIONS_MAX_AGE_DAYS, as a reminder.
+ */
+export const KEYCLOAK_VERSION = "26.8.1";
+export const EXAMPLE_BUILD_TAG = "26.8.1.1793384608";
+export const VERSIONS_CHECKED_ON = "2026-11-02";
+export const VERSIONS_MAX_AGE_DAYS = 45;
+
+const [KC_MAJOR, KC_MINOR] = KEYCLOAK_VERSION.split(".");
+
 /** Tags offered in the version picker. The first entry is the default. */
 export const VERSIONS: Record<ImageKind, string[]> = {
-  phasetwo: ["26.8.1", "26.8", "26", "latest"],
-  upstream: ["26.8.1", "26.8", "latest"],
+  phasetwo: [KEYCLOAK_VERSION, `${KC_MAJOR}.${KC_MINOR}`, KC_MAJOR, "latest"],
+  upstream: [KEYCLOAK_VERSION, `${KC_MAJOR}.${KC_MINOR}`, "latest"],
 };
+export const KEYCLOAK_MAJOR = KC_MAJOR;
 
 export const DB_IMAGES = {
   postgres: "postgres:17-alpine",
@@ -86,6 +111,7 @@ export const DB_IMAGES = {
 } as const;
 
 export const CADDY_IMAGE = "caddy:2-alpine";
+export const TRAEFIK_IMAGE = "traefik:v3.5";
 export const NGINX_IMAGE = "nginx:1.28-alpine";
 export const MAILPIT_IMAGE = "axllent/mailpit:v1.27";
 
@@ -103,6 +129,8 @@ export const DEFAULT_OPTIONS: ComposeOptions = {
   database: "postgres",
   exposure: "localhost",
   proxy: "caddy",
+  proxyCert: "letsencrypt",
+  acmeEmail: "",
   hostname: "auth.example.com",
   httpPort: 8080,
   relativePath: "/auth",
@@ -310,6 +338,10 @@ export function normalizeOptions(
   o.version = (o.version || "").trim() || VERSIONS[o.image][0];
   o.relativePath = normalizeRelativePath(o.relativePath);
   o.hostname = normalizeHostname(o.hostname) || DEFAULT_OPTIONS.hostname;
+  o.acmeEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((o.acmeEmail || "").trim())
+    ? o.acmeEmail.trim()
+    : "";
+  if (o.proxyCert !== "selfsigned") o.proxyCert = "letsencrypt";
   o.httpPort =
     Number.isInteger(o.httpPort) && o.httpPort > 0 && o.httpPort < 65536
       ? o.httpPort
@@ -504,8 +536,53 @@ function dbSpec(o: ComposeOptions, s: Secrets): DbSpec | null {
   }
 }
 
-function caddyfile(host: string): string {
-  return `${host} {\n  reverse_proxy keycloak:8080\n}\n`;
+function caddyfile(host: string, cert: ProxyCert, email: string): string {
+  const global =
+    cert === "letsencrypt" && email ? `{\n  email ${email}\n}\n\n` : "";
+  const tls = cert === "selfsigned" ? "  tls internal\n" : "";
+  return `${global}${host} {\n${tls}  reverse_proxy keycloak:8080\n}\n`;
+}
+
+/** Traefik dynamic configuration, loaded with the file provider. */
+function traefikDynamic(host: string, cert: ProxyCert): string {
+  return [
+    "http:",
+    "  routers:",
+    "    keycloak:",
+    `      rule: "Host(\`${host}\`)"`,
+    "      entryPoints:",
+    "        - websecure",
+    "      service: keycloak",
+    cert === "letsencrypt"
+      ? "      tls:\n        certResolver: letsencrypt"
+      : "      tls: {}",
+    "  services:",
+    "    keycloak:",
+    "      loadBalancer:",
+    "        servers:",
+    '          - url: "http://keycloak:8080"',
+    "",
+  ].join("\n");
+}
+
+function traefikCommand(cert: ProxyCert, email: string): string[] {
+  const cmd = [
+    "--entrypoints.web.address=:80",
+    "--entrypoints.web.http.redirections.entrypoint.to=websecure",
+    "--entrypoints.web.http.redirections.entrypoint.scheme=https",
+    "--entrypoints.websecure.address=:443",
+    "--providers.file.filename=/etc/traefik/dynamic.yml",
+  ];
+  if (cert === "letsencrypt") {
+    cmd.push(
+      "--certificatesresolvers.letsencrypt.acme.httpchallenge=true",
+      "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web",
+      "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json",
+    );
+    if (email)
+      cmd.push(`--certificatesresolvers.letsencrypt.acme.email=${email}`);
+  }
+  return cmd;
 }
 
 function nginxConf(host: string): string {
@@ -715,8 +792,14 @@ export function generate(
         ),
       ),
     );
+    const le = o.proxyCert === "letsencrypt";
     if (o.proxy === "caddy") {
-      configs.push(e("caddyfile", ymap(e("content", caddyfile(o.hostname)))));
+      configs.push(
+        e(
+          "caddyfile",
+          ymap(e("content", caddyfile(o.hostname, o.proxyCert, o.acmeEmail))),
+        ),
+      );
       services.push(
         e(
           "proxy",
@@ -733,10 +816,42 @@ export function generate(
             e("volumes", ["caddy_data:/data", "caddy_config:/config"]),
             e("depends_on", proxyDepends),
           ),
-          "Caddy obtains and renews a TLS certificate for the hostname automatically.",
+          le
+            ? "Caddy obtains and renews a Let's Encrypt certificate for the hostname automatically."
+            : "Caddy issues a certificate from its own local CA (tls internal).",
         ),
       );
       volumes.push(e("caddy_data", ymap()), e("caddy_config", ymap()));
+    } else if (o.proxy === "traefik") {
+      configs.push(
+        e(
+          "traefik_dynamic",
+          ymap(e("content", traefikDynamic(o.hostname, o.proxyCert))),
+        ),
+      );
+      services.push(
+        e(
+          "proxy",
+          ymap(
+            e("image", TRAEFIK_IMAGE),
+            e("restart", "unless-stopped"),
+            e("command", traefikCommand(o.proxyCert, o.acmeEmail)),
+            e("ports", ["80:80", "443:443"]),
+            e("configs", [
+              ymap(
+                e("source", "traefik_dynamic"),
+                e("target", "/etc/traefik/dynamic.yml"),
+              ),
+            ]),
+            le ? e("volumes", ["traefik_letsencrypt:/letsencrypt"]) : null,
+            e("depends_on", proxyDepends),
+          ),
+          le
+            ? "Traefik obtains and renews a Let's Encrypt certificate over the HTTP-01 challenge."
+            : "Traefik serves its built-in self-signed certificate.\nRouting comes from a file, so the Docker socket is not mounted.",
+        ),
+      );
+      if (le) volumes.push(e("traefik_letsencrypt", ymap()));
     } else {
       configs.push(e("nginx_conf", ymap(e("content", nginxConf(o.hostname)))));
       services.push(
@@ -848,9 +963,15 @@ export function generate(
   }
   if (behindProxy) {
     explanation.push(
-      o.proxy === "caddy"
-        ? `Puts Caddy in front on ports 80 and 443. Caddy gets a TLS certificate for ${o.hostname} automatically, so the hostname's DNS must point at this machine.`
-        : `Puts nginx in front on ports 80 and 443, terminating TLS with the certificate in ./certs and redirecting HTTP to HTTPS.`,
+      o.proxy === "nginx"
+        ? `Puts nginx in front on ports 80 and 443, terminating TLS with the certificate in ./certs and redirecting HTTP to HTTPS.`
+        : `Puts ${o.proxy === "caddy" ? "Caddy" : "Traefik"} in front on ports 80 and 443, redirecting HTTP to HTTPS. ${
+            o.proxyCert === "letsencrypt"
+              ? `It gets a Let's Encrypt certificate for ${o.hostname} automatically, so the hostname's DNS must point at this machine and port 80 must be reachable from the internet.`
+              : o.proxy === "caddy"
+                ? "It signs a certificate with its own local CA, which browsers do not trust by default."
+                : "It serves Traefik's built-in self-signed certificate, which browsers do not trust."
+          }`,
     );
     explanation.push(
       "Keycloak is not published on the host. It trusts the proxy's X-Forwarded-* headers (`KC_PROXY_HEADERS=xforwarded`), so only the proxy must be able to reach it.",
@@ -945,12 +1066,38 @@ export function generate(
       message: `${o.hostname} is a placeholder. Replace it with the real public hostname before you start the stack.`,
     });
   }
-  if (behindProxy && o.proxy === "caddy" && o.hostname === "localhost") {
-    warnings.push({
-      level: "info",
-      message:
-        "Caddy issues a certificate from its own local CA for localhost, so browsers will warn until you trust it.",
-    });
+  const autoCert = behindProxy && o.proxy !== "nginx";
+  const isLocalHost =
+    /^(localhost|127\.0\.0\.1)$|\.(localhost|local|test|internal)$/.test(
+      o.hostname,
+    );
+  if (autoCert && o.proxyCert === "selfsigned") {
+    warnings.push(
+      prod
+        ? {
+            level: "warning",
+            message:
+              "A self-signed certificate in production: browsers and OIDC clients will reject it unless you distribute and trust the CA. Use Let's Encrypt or your own certificate for real users.",
+          }
+        : {
+            level: "info",
+            message:
+              "The proxy uses a self-signed certificate, so browsers will warn until you trust it.",
+          },
+    );
+  }
+  if (autoCert && o.proxyCert === "letsencrypt" && isLocalHost) {
+    warnings.push(
+      o.proxy === "caddy"
+        ? {
+            level: "info",
+            message: `Let's Encrypt cannot issue for ${o.hostname}, so Caddy falls back to its own local CA. Browsers will warn until you trust it.`,
+          }
+        : {
+            level: "warning",
+            message: `Let's Encrypt cannot issue for ${o.hostname}. Traefik will serve its self-signed default certificate instead; choose self-signed to make that explicit.`,
+          },
+    );
   }
   if (!o.healthMetrics) {
     warnings.push({

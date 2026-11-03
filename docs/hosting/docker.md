@@ -54,9 +54,9 @@ docker run --name phasetwo_test --rm -p 8080:8080 \
     -e KC_HTTP_RELATIVE_PATH=/auth \
     quay.io/phasetwo/phasetwo-keycloak:latest \
     start-dev \
-    --spi-email-template-provider=freemarker-plus-mustache \
-    --spi-email-template-freemarker-plus-mustache-enabled=true \
-    --spi-theme-cache-themes=false
+    --spi-email-template--provider=freemarker-plus-mustache \
+    --spi-email-template--freemarker-plus-mustache--enabled=true \
+    --spi-theme--cache-themes=false
 ```
 
 Open [http://localhost:8080/auth/](http://localhost:8080/auth/) and sign in as `admin` / `admin`. Development mode keeps data in the container and is not for production.

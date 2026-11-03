@@ -3,14 +3,15 @@ import Link from "@docusaurus/Link";
 import Layout from "@theme/Layout";
 
 import ComposeGenerator from "../../components/tools/compose/ComposeGenerator";
+import { KEYCLOAK_MAJOR } from "../../components/tools/compose/generate";
 
 const PAGE_META = {
   title: "Keycloak Docker Compose Generator — docker-compose.yml for Keycloak",
   description:
-    "Free Keycloak Docker Compose generator. Build a docker-compose.yml and .env for Keycloak or the Phase Two image with PostgreSQL, MySQL, MariaDB, or CockroachDB, a TLS reverse proxy, health checks, realm import, and Mailpit. Runs in your browser.",
+    "Free Keycloak Docker Compose generator. Build a docker-compose.yml and .env for Keycloak or the Phase Two image with PostgreSQL, MySQL, MariaDB, or CockroachDB, a Caddy, Traefik, or nginx TLS proxy, health checks, realm import, and Mailpit. Runs in your browser.",
   // Targets: keycloak docker compose, keycloak docker-compose.yml, keycloak postgres docker compose.
   keywords:
-    "keycloak docker compose, keycloak docker-compose, keycloak docker-compose.yml, keycloak docker compose postgres, keycloak docker compose mysql, keycloak docker compose production, keycloak reverse proxy docker, keycloak caddy, keycloak nginx docker, keycloak start-dev docker, keycloak import realm docker compose, keycloak healthcheck docker compose",
+    "keycloak docker compose, keycloak docker-compose, keycloak docker-compose.yml, keycloak docker compose postgres, keycloak docker compose mysql, keycloak docker compose production, keycloak reverse proxy docker, keycloak caddy, keycloak traefik, keycloak nginx docker, keycloak start-dev docker, keycloak import realm docker compose, keycloak healthcheck docker compose",
   url: "https://phasetwo.io/tools/keycloak-docker-compose-generator",
 };
 
@@ -29,7 +30,7 @@ const FAQS = [
   },
   {
     q: "How do I run Keycloak behind a reverse proxy in Docker Compose?",
-    a: "Choose Reverse proxy + TLS. The generator adds a Caddy or nginx service that terminates TLS and forwards to Keycloak over the internal Docker network, enables HTTP on Keycloak only inside that network, sets KC_PROXY_HEADERS=xforwarded so Keycloak builds correct https URLs, and sets KC_HOSTNAME to your public hostname. Keycloak itself is not published on the host.",
+    a: "Choose Reverse proxy + TLS. The generator adds a Caddy, Traefik, or nginx service that terminates TLS and forwards to Keycloak over the internal Docker network, enables HTTP on Keycloak only inside that network, sets KC_PROXY_HEADERS=xforwarded so Keycloak builds correct https URLs, and sets KC_HOSTNAME to your public hostname. Keycloak itself is not published on the host.",
   },
   {
     q: "Why does the Keycloak healthcheck use bash instead of curl?",
@@ -107,7 +108,7 @@ export default function ComposeGeneratorPage() {
       "Generate docker-compose.yml and .env for Keycloak",
       "Phase Two or upstream Keycloak image",
       "PostgreSQL, MySQL, MariaDB, CockroachDB, or H2",
-      "Caddy or nginx reverse proxy with TLS",
+      "Caddy, Traefik, or nginx reverse proxy with Let's Encrypt or self-signed TLS",
       "Health checks, metrics, realm import, custom themes, and Mailpit",
       "Passwords generated in the browser",
     ],
@@ -146,9 +147,9 @@ export default function ComposeGeneratorPage() {
             Compose lets you describe the whole stack — Keycloak, its database,
             a reverse proxy, and helpers like a mail catcher — in one file and
             bring it up with one command. This generator writes that file for
-            the current Keycloak 26 configuration options (<code>KC_DB</code>,{" "}
-            <code>KC_HOSTNAME</code>, <code>KC_PROXY_HEADERS</code>,{" "}
-            <code>KC_HTTP_ENABLED</code>,{" "}
+            the current Keycloak {KEYCLOAK_MAJOR} configuration options (
+            <code>KC_DB</code>, <code>KC_HOSTNAME</code>,{" "}
+            <code>KC_PROXY_HEADERS</code>, <code>KC_HTTP_ENABLED</code>,{" "}
             <code>KC_BOOTSTRAP_ADMIN_USERNAME</code>, and friends), so you do
             not have to piece it together from old blog posts that still use{" "}
             <code>KEYCLOAK_ADMIN</code> and{" "}
@@ -180,11 +181,14 @@ export default function ComposeGeneratorPage() {
           <H2>Keycloak behind a reverse proxy</H2>
           <p className="mb-4">
             The most common production layout puts a proxy in front of Keycloak
-            to terminate TLS. With <strong className="text-white">Caddy</strong>
-            , the generated stack gets and renews a Let's Encrypt certificate on
-            its own; with <strong className="text-white">nginx</strong>, you
-            mount your own certificate. In both cases Keycloak listens on HTTP
-            only on the internal Docker network, trusts the proxy's{" "}
+            to terminate TLS. With <strong className="text-white">Caddy</strong>{" "}
+            or <strong className="text-white">Traefik</strong>, the generated
+            stack gets and renews a Let's Encrypt certificate on its own, or
+            uses a self-signed certificate for local testing. Traefik reads its
+            routes from an inline file, so the Docker socket is never mounted.
+            With <strong className="text-white">nginx</strong>, you mount your
+            own certificate. In every case Keycloak listens on HTTP only on the
+            internal Docker network, trusts the proxy's{" "}
             <code>X-Forwarded-*</code> headers (
             <code>KC_PROXY_HEADERS=xforwarded</code>), and is not published on
             the host, so the proxy is the only way in. If you would rather

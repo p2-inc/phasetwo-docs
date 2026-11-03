@@ -6,6 +6,9 @@ import {
   generateSecrets,
   DEFAULT_OPTIONS,
   VERSIONS,
+  KEYCLOAK_VERSION,
+  KEYCLOAK_MAJOR,
+  EXAMPLE_BUILD_TAG,
   type ComposeOptions,
   type Database,
   type Secrets,
@@ -342,7 +345,8 @@ export default function ComposeGenerator() {
             hint={
               p2 ? (
                 <>
-                  Pin a full <code>26.8.1.&lt;build-timestamp&gt;</code> tag in
+                  Pin a full{" "}
+                  <code>{KEYCLOAK_VERSION}.&lt;build-timestamp&gt;</code> tag in
                   production. See the{" "}
                   <a
                     href="https://quay.io/repository/phasetwo/phasetwo-keycloak?tab=tags"
@@ -354,7 +358,7 @@ export default function ComposeGenerator() {
                   .
                 </>
               ) : (
-                "Options in this generator target Keycloak 26."
+                `Options in this generator target Keycloak ${KEYCLOAK_MAJOR}.`
               )
             }
           >
@@ -384,7 +388,7 @@ export default function ComposeGenerator() {
                   aria-label="Custom tag"
                   className={inputCls}
                   value={opts.version}
-                  placeholder="26.8.1.1793384608"
+                  placeholder={EXAMPLE_BUILD_TAG}
                   onChange={(ev) => set("version", ev.target.value)}
                 />
               )}
@@ -451,9 +455,11 @@ export default function ComposeGenerator() {
             <Field
               label="Proxy"
               hint={
-                o.proxy === "caddy"
-                  ? "Caddy requests a Let's Encrypt certificate automatically. DNS for the hostname must point here and ports 80/443 must be reachable."
-                  : "nginx terminates TLS with your certificate in ./certs."
+                o.proxy === "nginx"
+                  ? "nginx terminates TLS with your certificate in ./certs."
+                  : o.proxy === "traefik"
+                    ? "Traefik reads its routes from an inline file, so the Docker socket is not mounted."
+                    : "Caddy handles certificates and HTTP-to-HTTPS redirects with a three-line config."
               }
             >
               <Segmented
@@ -461,10 +467,42 @@ export default function ComposeGenerator() {
                 value={o.proxy}
                 onChange={(v) => set("proxy", v)}
                 choices={[
-                  { value: "caddy", label: "Caddy (automatic TLS)" },
-                  { value: "nginx", label: "nginx (your certificate)" },
+                  { value: "caddy", label: "Caddy" },
+                  { value: "traefik", label: "Traefik" },
+                  { value: "nginx", label: "nginx" },
                 ]}
               />
+            </Field>
+          )}
+
+          {o.exposure === "proxy" && o.proxy !== "nginx" && (
+            <Field
+              label="Certificate"
+              hint={
+                o.proxyCert === "letsencrypt"
+                  ? "Needs public DNS for the hostname pointing here, with ports 80 and 443 reachable from the internet."
+                  : "For local testing and private networks. Browsers will warn until the certificate is trusted."
+              }
+            >
+              <Segmented
+                label="Certificate"
+                value={o.proxyCert}
+                onChange={(v) => set("proxyCert", v)}
+                choices={[
+                  { value: "letsencrypt", label: "Let's Encrypt" },
+                  { value: "selfsigned", label: "Self-signed" },
+                ]}
+              />
+              {o.proxyCert === "letsencrypt" && (
+                <input
+                  aria-label="Let's Encrypt email"
+                  type="email"
+                  className={`${inputCls} mt-2`}
+                  value={opts.acmeEmail}
+                  placeholder="Email for expiry notices (optional)"
+                  onChange={(ev) => set("acmeEmail", ev.target.value)}
+                />
+              )}
             </Field>
           )}
 
