@@ -12,8 +12,10 @@ import {
   importSPKI,
   importX509,
   createRemoteJWKSet,
+  createLocalJWKSet,
+  type JSONWebKeySet,
 } from "jose";
-import { base64UrlDecode } from "./decode";
+import { base64UrlDecode } from "./decode.ts";
 
 export type VerifyStatus = "valid" | "invalid" | "error";
 
@@ -124,6 +126,34 @@ export async function verifyJwks(
     return {
       status: "error",
       message: `Could not verify against the JWKS (${describeError(e)}). If this is a network/CORS error, the JWKS host may block browser requests — verify from a server instead.`,
+    };
+  }
+}
+
+/**
+ * Verify against a JWKS the caller already holds (pasted, or fetched earlier),
+ * matching the token's `kid`. No network access.
+ */
+export async function verifyLocalJwks(
+  token: string,
+  jwks: JSONWebKeySet,
+): Promise<VerifyResult> {
+  try {
+    const JWKS = createLocalJWKSet(jwks);
+    await compactVerify(token, JWKS);
+    return {
+      status: "valid",
+      message: "Signature is valid against a key from the JWKS.",
+    };
+  } catch (e) {
+    const code = (e as { code?: string })?.code;
+    return {
+      status:
+        code === "ERR_JWS_SIGNATURE_VERIFICATION_FAILED" ? "invalid" : "error",
+      message:
+        code === "ERR_JWKS_NO_MATCHING_KEY"
+          ? "No key in the JWKS matches the token's kid and algorithm."
+          : `Could not verify against the JWKS (${describeError(e)}).`,
     };
   }
 }

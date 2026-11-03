@@ -33,6 +33,20 @@ const TOOLS: Tool[] = [
     desc: "Decode SAMLResponse and SAMLRequest messages from base64, redirect URLs, or XML, check expiry, and verify the signature. Keycloak-aware.",
     available: true,
   },
+  {
+    to: "/tools/jwks-verifier",
+    icon: "mdi:key-chain-variant",
+    title: "JWKS Verifier",
+    desc: "Fetch or paste a JSON Web Key Set, inspect every key and certificate, catch weak or expired keys, and verify a JWT against it.",
+    available: true,
+  },
+  {
+    to: "/tools/oidc-discovery",
+    icon: "mdi:compass-outline",
+    title: "OIDC Discovery Inspector",
+    desc: "Inspect any issuer's .well-known/openid-configuration: endpoints, supported features, and lint checks for issuer, PKCE, and algorithms.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {
