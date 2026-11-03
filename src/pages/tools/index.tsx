@@ -89,6 +89,13 @@ const TOOLS: Tool[] = [
     desc: "Paste a client or realm export to find wildcard redirect URIs, missing PKCE, password grants, broad scopes and weak SAML signing, with the fix for each.",
     available: true,
   },
+  {
+    to: "/tools/keycloak-docker-compose-generator",
+    icon: "mdi:docker",
+    title: "Keycloak Docker Compose Generator",
+    desc: "Generate a docker-compose.yml and .env for Keycloak with your database, reverse proxy, TLS, and healthchecks. Passwords generated locally.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {
