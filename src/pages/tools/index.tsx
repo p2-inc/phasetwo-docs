@@ -82,6 +82,13 @@ const TOOLS: Tool[] = [
     desc: "Generate a code_verifier and S256 code_challenge, or compute the challenge for a verifier you paste.",
     available: true,
   },
+  {
+    to: "/tools/keycloak-client-checker",
+    icon: "mdi:shield-search",
+    title: "Keycloak Client Security Checker",
+    desc: "Paste a client or realm export to find wildcard redirect URIs, missing PKCE, password grants, broad scopes and weak SAML signing, with the fix for each.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {

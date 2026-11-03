@@ -1,0 +1,498 @@
+{
+  "realm": "policies",
+  "keycloakVersion": "26.8.1",
+  "accessTokenLifespan": 300,
+  "revokeRefreshToken": false,
+  "offlineSessionMaxLifespanEnabled": false,
+  "clientPolicies": {
+    "policies": [
+      {
+        "name": "pkce-public",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-access-type",
+            "configuration": {
+              "type": [
+                "public"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "pkce"
+        ]
+      },
+      {
+        "name": "no-ropc-by-attribute",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-attributes",
+            "configuration": {
+              "is-negative-logic": false,
+              "attributes": "[{\"key\":\"policy.tier\",\"value\":\"strict\"}]"
+            }
+          }
+        ],
+        "profiles": [
+          "no-ropc"
+        ]
+      },
+      {
+        "name": "no-implicit-partner-role",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-roles",
+            "configuration": {
+              "roles": [
+                "partner-app"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "no-implicit"
+        ]
+      },
+      {
+        "name": "pkce-by-scope",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-scopes",
+            "configuration": {
+              "type": "Optional",
+              "scopes": [
+                "offline_access"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "pkce"
+        ]
+      },
+      {
+        "name": "ropc-not-public",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-access-type",
+            "configuration": {
+              "type": [
+                "public"
+              ],
+              "is-negative-logic": true
+            }
+          },
+          {
+            "condition": "grant-type",
+            "configuration": {
+              "grant_types": [
+                "password"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "no-ropc"
+        ]
+      },
+      {
+        "name": "on-save-from-host",
+        "enabled": true,
+        "conditions": [
+          {
+            "condition": "client-updater-source-host",
+            "configuration": {
+              "trusted-hosts": [
+                "ci.example.com"
+              ]
+            }
+          }
+        ],
+        "profiles": [
+          "pkce"
+        ]
+      },
+      {
+        "name": "disabled-any",
+        "enabled": false,
+        "conditions": [
+          {
+            "condition": "any-client",
+            "configuration": {}
+          }
+        ],
+        "profiles": [
+          "oauth-2-1-for-public-client"
+        ]
+      }
+    ]
+  },
+  "clientProfiles": {
+    "profiles": [
+      {
+        "name": "pkce",
+        "executors": [
+          {
+            "executor": "pkce-enforcer",
+            "configuration": {
+              "auto-configure": "false"
+            }
+          }
+        ]
+      },
+      {
+        "name": "no-ropc",
+        "executors": [
+          {
+            "executor": "reject-ropc-grant",
+            "configuration": {
+              "auto-configure": "false"
+            }
+          }
+        ]
+      },
+      {
+        "name": "no-implicit",
+        "executors": [
+          {
+            "executor": "reject-implicit-grant",
+            "configuration": {
+              "auto-configure": "false"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "admin-cli",
+      "name": "${client_admin-cli}",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "client.use.lightweight.access.token.enabled": "true"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": 0,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "backend",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "https://app.example.com/cb"
+      ],
+      "webOrigins": [
+        "https://app.example.com"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "client.secret.creation.time": "1793678434",
+        "policy.tier": "strict"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "partner",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "https://partner.example.com/cb"
+      ],
+      "webOrigins": [
+        "https://partner.example.com"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false",
+        "client.secret.creation.time": "1793678434"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "spa-public",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "redirectUris": [
+        "https://spa.example.com/*"
+      ],
+      "webOrigins": [
+        "https://spa.example.com"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "realm_client": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "basic",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "organization",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "roles": {
+    "client": {
+      "realm-management": [
+        {
+          "name": "create-client",
+          "clientRole": true
+        },
+        {
+          "name": "manage-realm",
+          "clientRole": true
+        },
+        {
+          "name": "view-authorization",
+          "clientRole": true
+        },
+        {
+          "name": "manage-authorization",
+          "clientRole": true
+        },
+        {
+          "name": "query-realms",
+          "clientRole": true
+        },
+        {
+          "name": "query-users",
+          "clientRole": true
+        },
+        {
+          "name": "view-realm",
+          "clientRole": true
+        },
+        {
+          "name": "manage-events",
+          "clientRole": true
+        },
+        {
+          "name": "query-clients",
+          "clientRole": true
+        },
+        {
+          "name": "view-clients",
+          "clientRole": true
+        },
+        {
+          "name": "impersonation",
+          "clientRole": true
+        },
+        {
+          "name": "view-users",
+          "clientRole": true
+        },
+        {
+          "name": "view-organizations",
+          "clientRole": true
+        },
+        {
+          "name": "manage-identity-providers",
+          "clientRole": true
+        },
+        {
+          "name": "realm-admin",
+          "clientRole": true
+        },
+        {
+          "name": "manage-organizations",
+          "clientRole": true
+        },
+        {
+          "name": "view-events",
+          "clientRole": true
+        },
+        {
+          "name": "view-identity-providers",
+          "clientRole": true
+        },
+        {
+          "name": "manage-clients",
+          "clientRole": true
+        },
+        {
+          "name": "manage-users",
+          "clientRole": true
+        },
+        {
+          "name": "query-organizations",
+          "clientRole": true
+        },
+        {
+          "name": "query-groups",
+          "clientRole": true
+        }
+      ],
+      "partner": [
+        {
+          "name": "partner-app",
+          "clientRole": true
+        }
+      ],
+      "spa-public": [],
+      "security-admin-console": [],
+      "admin-cli": [],
+      "backend": [],
+      "account-console": [],
+      "broker": [
+        {
+          "name": "read-token",
+          "clientRole": true
+        }
+      ],
+      "account": [
+        {
+          "name": "manage-consent",
+          "clientRole": true
+        },
+        {
+          "name": "manage-account",
+          "clientRole": true
+        },
+        {
+          "name": "manage-account-links",
+          "clientRole": true
+        },
+        {
+          "name": "view-consent",
+          "clientRole": true
+        },
+        {
+          "name": "delete-account",
+          "clientRole": true
+        },
+        {
+          "name": "view-applications",
+          "clientRole": true
+        },
+        {
+          "name": "view-profile",
+          "clientRole": true
+        },
+        {
+          "name": "view-groups",
+          "clientRole": true
+        }
+      ]
+    }
+  }
+}
