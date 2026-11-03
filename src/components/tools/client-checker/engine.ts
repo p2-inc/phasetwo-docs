@@ -11,6 +11,13 @@
  * `OAuth2DeviceConfig` and `CibaConfig` (Keycloak 26.x).
  */
 
+import {
+  configuredExecutors,
+  coverage,
+  EXECUTOR_EVENT,
+  type Coverage,
+} from "./policies.ts";
+
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
@@ -86,6 +93,22 @@ export type ClientResult = {
   /** The redacted client with the safe fixes applied. */
   fixed: ClientRep;
   changes: FixChange[];
+  /** Realm client policy coverage, when a realm export with policies was pasted. */
+  policies: PolicyCoverage[];
+};
+
+export type PolicyCoverage = Coverage & {
+  executor: string;
+  /** What the executor does, in a few words. */
+  label: string;
+};
+
+const POLICY_LABELS: Record<string, string> = {
+  "pkce-enforcer": "Requires PKCE S256 on authorization requests",
+  "reject-implicit-grant": "Rejects implicit and hybrid authorization requests",
+  "reject-ropc-grant": "Rejects the password grant",
+  "secure-redirect-uris-enforcer":
+    "Rejects insecure redirect URIs when the client is saved",
 };
 
 export type ParsedInput =
@@ -547,46 +570,6 @@ export function parseInput(text: string): ParsedInput {
 /* Realm client policies                                               */
 /* ------------------------------------------------------------------ */
 
-/**
- * Executors enabled through realm client policies, so client findings can say
- * when the realm already enforces the fix. Conditions are not evaluated, so
- * this is a hint, not a guarantee.
- */
-export function enforcedExecutors(realm?: RealmSettings): Set<string> {
-  const out = new Set<string>();
-  if (!realm) return out;
-  const policies = isObject(realm.clientPolicies)
-    ? strListObj(realm.clientPolicies.policies)
-    : [];
-  const profiles = isObject(realm.clientProfiles)
-    ? strListObj(realm.clientProfiles.profiles)
-    : [];
-  const byName = new Map<string, Record<string, unknown>>();
-  for (const p of profiles)
-    if (typeof p.name === "string") byName.set(p.name, p);
-  for (const pol of policies) {
-    if (pol.enabled === false) continue;
-    for (const name of strList(pol.profiles)) {
-      const prof = byName.get(name);
-      // Global profiles (fapi-*, oauth-2-1-*) are not in the export.
-      if (!prof) {
-        if (name.startsWith("oauth-2-1") || name.startsWith("fapi")) {
-          [
-            "pkce-enforcer",
-            "reject-implicit-grant",
-            "reject-ropc-grant",
-          ].forEach((e) => out.add(e));
-        }
-        continue;
-      }
-      for (const ex of strListObj(prof.executors)) {
-        if (typeof ex.executor === "string") out.add(ex.executor);
-      }
-    }
-  }
-  return out;
-}
-
 function strListObj(v: unknown): Record<string, unknown>[] {
   return Array.isArray(v) ? v.filter(isObject) : [];
 }
@@ -602,10 +585,21 @@ type Ctx = {
   isSaml: boolean;
   builtIn: boolean;
   realm?: RealmSettings;
-  executors: Set<string>;
+  /** Whether realm client policies enforce an executor on this client. */
+  policy: (executor: string) => Coverage;
   now: number;
   out: Finding[];
 };
+
+/** Sentence describing a policy that covers, or might cover, the client. */
+function policyNote(cov: Coverage, executor: string, effect: string): string {
+  const names = cov.policies.map((p) => `"${p}"`).join(", ");
+  if (cov.verdict === "yes")
+    return ` Realm client policy ${names} applies to this client and uses \`${executor}\`, so ${effect}.`;
+  if (cov.verdict === "unknown")
+    return ` Realm client policy ${names} uses \`${executor}\` and may cover this client, but that can't be determined from the export (${cov.reasons.join("; ")}).`;
+  return "";
+}
 
 function add(ctx: Ctx, f: Finding) {
   ctx.out.push(f);
@@ -656,6 +650,20 @@ function uriFindings(
   const builtInNote = ctx.builtIn
     ? " This is a built-in client that Keycloak registers this way; its relative wildcard is resolved against the Keycloak host itself. Leave it unless you have a reason to change it, and on a Phase Two hosted cluster keep security-admin-console unchanged."
     : "";
+  // secure-redirect-uris-enforcer checks registrations only when the client is
+  // saved; wildcards registered before the policy keep matching.
+  const uriCov =
+    !isPost && !ctx.isSaml
+      ? ctx.policy("secure-redirect-uris-enforcer")
+      : undefined;
+  const uriNote =
+    uriCov && uriCov.verdict !== "no"
+      ? policyNote(
+          uriCov,
+          "secure-redirect-uris-enforcer",
+          "the client can't be saved with this wildcard, but Keycloak doesn't re-check registrations made before the policy, so it keeps matching until you replace it",
+        )
+      : "";
 
   const buckets: Record<UriIssue, string[]> = {
     "full-wildcard": [],
@@ -697,7 +705,8 @@ function uriFindings(
       title: `Wildcard ${what} matches every path on the host`,
       why:
         "A trailing `*` is a prefix match. Any page on that host, including an open redirect or a page with user content, becomes a valid place to deliver authorization codes. RFC 9700 requires exact string matching." +
-        builtInNote,
+        builtInNote +
+        uriNote,
       where,
       fix: "List the exact callback URLs instead of `host/*`. A client policy with the `secure-redirect-uris-enforcer` executor stops new wildcards from being saved.",
       field: fieldName,
@@ -713,7 +722,8 @@ function uriFindings(
       title: `Wildcard ${what} under a path`,
       why:
         "A trailing `*` accepts every URL that starts with the prefix, not only your callback. It is narrower than a whole-host wildcard, but RFC 9700 still requires exact matching." +
-        builtInNote,
+        builtInNote +
+        uriNote,
       where,
       fix: "Replace the wildcard with the full callback URLs.",
       field: fieldName,
@@ -957,17 +967,19 @@ function checkFlows(ctx: Ctx) {
   const capability = `Clients → ${clientId} → Settings → Capability config`;
 
   if (bool(c, "implicitFlowEnabled")) {
-    const enforced = ctx.executors.has("reject-implicit-grant");
+    const cov = ctx.policy("reject-implicit-grant");
     add(ctx, {
       id: "flow-implicit",
-      severity: enforced ? "low" : "high",
+      severity: cov.verdict === "yes" ? "low" : "high",
       category: "flows",
       title: "Implicit flow is enabled",
       why:
         "The implicit flow returns access tokens in the URL fragment, where they leak through browser history, referrers and logs, and it can't use PKCE or refresh token rotation. RFC 9700 says not to use it." +
-        (enforced
-          ? " A realm client policy with `reject-implicit-grant` appears to be active, which blocks it at request time if its conditions cover this client."
-          : ""),
+        policyNote(
+          cov,
+          "reject-implicit-grant",
+          "implicit and hybrid requests are rejected even though the switch is on. Turn it off anyway so the client doesn't depend on the policy",
+        ),
       where: `${capability} → Implicit flow`,
       fix: "Turn off Implicit flow and use the authorization code flow with PKCE S256.",
       field: "implicitFlowEnabled",
@@ -976,10 +988,10 @@ function checkFlows(ctx: Ctx) {
   }
 
   if (bool(c, "directAccessGrantsEnabled")) {
-    const enforced = ctx.executors.has("reject-ropc-grant");
+    const cov = ctx.policy("reject-ropc-grant");
     add(ctx, {
       id: "flow-direct-access",
-      severity: enforced ? "low" : "high",
+      severity: cov.verdict === "yes" ? "low" : "high",
       category: "flows",
       title: "Direct access grants (password grant) are enabled",
       why:
@@ -987,9 +999,11 @@ function checkFlows(ctx: Ctx) {
         (clientId === "admin-cli"
           ? " `admin-cli` has it on by default and its client ID is known to every attacker."
           : "") +
-        (enforced
-          ? " A realm client policy with `reject-ropc-grant` appears to be active, which rejects it at request time if its conditions cover this client."
-          : ""),
+        policyNote(
+          cov,
+          "reject-ropc-grant",
+          "password grant requests are rejected even though the switch is on. Turn it off anyway so the client doesn't depend on the policy",
+        ),
       where: `${capability} → Direct access grants`,
       fix: "Turn off Direct access grants. Move backend integrations to a confidential client with Service account roles (client credentials), and reject the grant realm-wide with a client policy.",
       field: "directAccessGrantsEnabled",
@@ -1108,7 +1122,8 @@ function checkAuthentication(ctx: Ctx, secret: SecretState) {
 
   const standard = bool(c, "standardFlowEnabled", true);
   const pkce = attr(c, "pkce.code.challenge.method");
-  const pkceEnforced = ctx.executors.has("pkce-enforcer");
+  const pkceCov = ctx.policy("pkce-enforcer");
+  const pkceEnforced = pkceCov.verdict === "yes";
   if (standard && pkce !== "S256") {
     const isPublic = ctx.kind === "public";
     const severity: Severity = pkceEnforced
@@ -1133,9 +1148,11 @@ function checkAuthentication(ctx: Ctx, secret: SecretState) {
         (pkce === "plain"
           ? " The `plain` method sends the verifier in the clear and gives no protection if the request is observed."
           : " Without the setting, Keycloak accepts requests with no challenge, or with `plain`.") +
-        (pkceEnforced
-          ? " A realm client policy with `pkce-enforcer` appears to be active, which enforces it if its conditions cover this client."
-          : ""),
+        policyNote(
+          pkceCov,
+          "pkce-enforcer",
+          "authorization requests without an S256 challenge are rejected",
+        ),
       where: `Clients → ${clientId} → Settings → Capability config → Require PKCE, with PKCE Method set to S256`,
       fix: "Set it to S256, and enforce PKCE realm-wide with the `pkce-enforcer` client policy executor.",
       field: "attributes.pkce.code.challenge.method",
@@ -1757,7 +1774,7 @@ export function checkClient(
     isSaml: kind === "saml",
     builtIn: BUILT_IN_CLIENTS.has(clientId) || /-realm$/.test(clientId),
     realm: opts.realm,
-    executors: enforcedExecutors(opts.realm),
+    policy: (executor: string) => coverage(client, opts.realm, executor),
     now: opts.now ?? Date.now(),
     out: [],
   };
@@ -1790,7 +1807,23 @@ export function checkClient(
     redacted: client,
     fixed,
     changes,
+    policies: hasPolicies(opts.realm)
+      ? Object.keys(EXECUTOR_EVENT).map((executor) => ({
+          executor,
+          label: POLICY_LABELS[executor] ?? executor,
+          ...coverage(client, opts.realm, executor),
+        }))
+      : [],
   };
+}
+
+function hasPolicies(realm?: RealmSettings): boolean {
+  if (!realm || !isObject(realm.clientPolicies)) return false;
+  const cp = realm.clientPolicies;
+  return (
+    (Array.isArray(cp.policies) && cp.policies.length > 0) ||
+    (Array.isArray(cp.globalPolicies) && cp.globalPolicies.length > 0)
+  );
 }
 
 /** Realm-level token and session settings, when a realm export is pasted. */
@@ -1866,7 +1899,7 @@ export function checkRealm(realm: RealmSettings): Finding[] {
       docs: [DOCS.tokens],
     });
   }
-  const ex = enforcedExecutors(realm);
+  const ex = configuredExecutors(realm);
   if (!ex.has("reject-ropc-grant") && "clientPolicies" in realm) {
     out.push({
       id: "realm-no-ropc-policy",
@@ -1969,6 +2002,21 @@ export function toMarkdown(
       `${r.protocol === "saml" ? "SAML" : "OpenID Connect"} · ${r.kind}${r.builtIn ? " · built-in" : ""}${r.enabled ? "" : " · disabled"} · **Score ${r.score}/100 (${r.grade})**`,
       "",
     );
+    if (r.policies.length) {
+      out.push("Realm client policies:", "");
+      for (const p of r.policies) {
+        const v =
+          p.verdict === "yes"
+            ? "enforced"
+            : p.verdict === "unknown"
+              ? "can't determine"
+              : "not enforced";
+        out.push(
+          `- \`${p.executor}\` (${p.label}): **${v}**${p.policies.length ? ` by ${p.policies.map((x) => `"${x}"`).join(", ")}` : ""}${p.reasons.length ? ` (${p.reasons.join("; ")})` : ""}`,
+        );
+      }
+      out.push("");
+    }
     if (r.findings.length === 0) {
       out.push("No findings.", "");
       continue;

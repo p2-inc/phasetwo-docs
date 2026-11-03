@@ -230,7 +230,14 @@ test("a realm pkce-enforcer policy downgrades the PKCE finding", () => {
       ],
     },
     clientPolicies: {
-      policies: [{ name: "all", enabled: true, profiles: ["p"] }],
+      policies: [
+        {
+          name: "all",
+          enabled: true,
+          conditions: [{ condition: "any-client", configuration: {} }],
+          profiles: ["p"],
+        },
+      ],
     },
   };
   const r = checkClient(
@@ -240,6 +247,21 @@ test("a realm pkce-enforcer policy downgrades the PKCE finding", () => {
   assert.equal(
     r.findings.find((x) => x.id === "auth-public-no-pkce").severity,
     "info",
+  );
+  // Keycloak never applies a policy without conditions.
+  const noConditions = {
+    ...realm,
+    clientPolicies: {
+      policies: [{ name: "all", enabled: true, profiles: ["p"] }],
+    },
+  };
+  const r2 = checkClient(
+    client({ attributes: { "pkce.code.challenge.method": "" } }),
+    { now: NOW, realm: noConditions },
+  );
+  assert.equal(
+    r2.findings.find((x) => x.id === "auth-public-no-pkce").severity,
+    "high",
   );
 });
 

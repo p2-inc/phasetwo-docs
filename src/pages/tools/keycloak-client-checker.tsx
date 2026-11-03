@@ -45,6 +45,10 @@ const FAQS = [
     a: "The checker produces a fixed JSON and a diff for the changes it can make safely, such as turning off the implicit flow, requiring PKCE S256, or moving offline_access to an optional scope. It never invents redirect URIs, certificates or client authentication settings. Review the changes and try them in a test realm before applying them to production.",
   },
   {
+    q: "Does it understand realm client policies?",
+    a: "Yes. With a realm export, it evaluates each enabled client policy against each client the way Keycloak does: conditions are combined, negative logic and STRICT mode are honored, and each condition votes for the request the executor acts on. Supported conditions include any-client, client-access-type, client-type, client-roles (export with roles included), client-attributes, client-scopes and grant-type. When a condition depends on the request itself, such as an optional scope, or on who saves the client, the checker says it can't be determined instead of guessing.",
+  },
+  {
     q: "Does it check SAML clients?",
     a: "Yes. For SAML clients it checks that documents and assertions are signed, that client signatures are required, that assertions are encrypted, the signature algorithm, the Name ID format setting, ECP and IdP-initiated SSO, and the redirect URIs Keycloak uses to validate the Assertion Consumer Service URL.",
   },
@@ -74,6 +78,10 @@ const CHECKS = [
   [
     "Lifespans",
     "Client overrides for access tokens and client and offline sessions; with a realm export, realm token lifespans, refresh token rotation and offline session limits.",
+  ],
+  [
+    "Client policies",
+    'With a realm export: which enabled policies cover each client for `pkce-enforcer`, `reject-implicit-grant`, `reject-ropc-grant` and `secure-redirect-uris-enforcer`, with conditions evaluated as Keycloak does, and "can\'t determine" where they depend on the request.',
   ],
   [
     "Logout",
@@ -200,8 +208,10 @@ export default function KeycloakClientCheckerPage() {
             The score starts at 100 and drops with each finding by severity; any
             critical finding caps it at an F. It is a quick read of the exported
             configuration, not a penetration test: it can't see your
-            authentication flows, your applications' token handling, or client
-            policies whose conditions it can't evaluate.
+            authentication flows or your applications' token handling. With a
+            realm export, it also evaluates your client policies against each
+            client and shows which ones enforce PKCE, reject the implicit and
+            password grants, or check redirect URIs.
           </p>
 
           <H2>Fix it once, for every client</H2>

@@ -437,6 +437,64 @@ function FixPanel({ result }: { result: ClientResult }) {
   );
 }
 
+const VERDICT_STYLES = {
+  yes: { label: "Enforced", cls: "text-green-400", icon: "mdi:shield-check" },
+  unknown: {
+    label: "Can't determine",
+    cls: "text-amber-300",
+    icon: "mdi:help-circle-outline",
+  },
+  no: {
+    label: "Not enforced",
+    cls: "text-gray-400",
+    icon: "mdi:minus-circle-outline",
+  },
+} as const;
+
+/** Which realm client policies actually cover this client, per executor. */
+function PolicyPanel({ result }: { result: ClientResult }) {
+  return (
+    <div className="mb-5 rounded-xl border border-white/10 bg-black/20 p-4">
+      <SectionLabel>Realm client policies for this client</SectionLabel>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {result.policies.map((p) => {
+          const v = VERDICT_STYLES[p.verdict];
+          return (
+            <li key={p.executor} className="text-sm">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span
+                  className={`inline-flex items-center gap-1 font-medium ${v.cls}`}
+                >
+                  <Icon icon={v.icon} className="size-4 shrink-0" />
+                  {v.label}
+                </span>
+                <span className="text-gray-300">{p.label}</span>
+                <code className="text-xs">{p.executor}</code>
+                {p.policies.length > 0 && (
+                  <span className="text-xs text-gray-500">
+                    by {p.policies.map((x) => `"${x}"`).join(", ")}
+                  </span>
+                )}
+              </div>
+              {p.reasons.length > 0 && (
+                <div className="mt-0.5 pl-5 text-xs text-gray-500">
+                  {p.reasons.join("; ")}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mb-0 mt-3 text-xs text-gray-500">
+        Conditions are evaluated the way Keycloak does for the request each
+        executor acts on. Conditions that depend on the request (requested
+        scopes, ACR, identity provider) or on who saves the client can&rsquo;t
+        be decided from an export.
+      </p>
+    </div>
+  );
+}
+
 function ClientDetail({ result }: { result: ClientResult }) {
   const [tab, setTab] = useState<"findings" | "fix">("findings");
   const tabBtn = (key: "findings" | "fix", text: string) => (
@@ -479,6 +537,7 @@ function ClientDetail({ result }: { result: ClientResult }) {
           <Counts counts={result.counts} />
         </div>
       </div>
+      {result.policies.length > 0 && <PolicyPanel result={result} />}
       <div className="mb-4 flex gap-1 print:hidden">
         {tabBtn("findings", `Findings (${result.findings.length})`)}
         {tabBtn("fix", `Suggested fixes (${result.changes.length})`)}
