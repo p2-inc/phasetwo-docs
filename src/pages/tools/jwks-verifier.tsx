@@ -47,6 +47,10 @@ const FAQS = [
     q: "How do I rotate keys in Keycloak?",
     a: "Add a new key provider under Realm settings → Keys → Providers with a higher priority than the current one. Keycloak signs new tokens with the active key of the highest priority, while older keys stay published so existing tokens still verify. Once those tokens have expired, set the old key to passive (still verifies, never signs) and later disable or delete it.",
   },
+  {
+    q: "Can I share a link to a result?",
+    a: "Yes. After a fetch, use Copy share link. The link looks like /tools/jwks-verifier#url=https%3A%2F%2Fissuer.example.com%2Frealms%2Fdemo%2Fprotocol%2Fopenid-connect%2Fcerts and re-runs the check when opened. Only the JWKS URL is included — never a token or pasted JSON — and it sits in the URL fragment (after #), which browsers do not send to the server, so it does not end up in server logs.",
+  },
 ];
 
 function H2({ children, id }: { children: React.ReactNode; id?: string }) {

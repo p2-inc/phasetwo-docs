@@ -15,7 +15,7 @@ import {
   createLocalJWKSet,
   type JSONWebKeySet,
 } from "jose";
-import { base64UrlDecode } from "./decode";
+import { base64UrlDecode } from "./decode.ts";
 
 export type VerifyStatus = "valid" | "invalid" | "error";
 

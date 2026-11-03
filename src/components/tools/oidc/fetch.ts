@@ -50,6 +50,9 @@ function isLoopback(host: string): boolean {
 export function parseUserUrl(input: string): URL | undefined {
   const s = input.trim();
   if (!s) return undefined;
+  // An explicit non-http(s) scheme (ftp://, file://, …) is rejected outright.
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(s) && !/^https?:\/\//i.test(s))
+    return undefined;
   try {
     const u = new URL(/^https?:\/\//i.test(s) ? s : `https://${s}`);
     if (u.protocol !== "https:" && u.protocol !== "http:") return undefined;

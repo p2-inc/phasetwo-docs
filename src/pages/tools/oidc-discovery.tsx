@@ -47,6 +47,10 @@ const FAQS = [
     q: "Does this work with providers other than Keycloak?",
     a: "Yes. Any OpenID Connect provider that publishes a discovery document works — for example Google, Microsoft Entra ID, Okta, or Auth0, provided the provider allows browser requests. Keycloak issuers get extra notes on realms, hostname configuration, and key management.",
   },
+  {
+    q: "Can I share a link to a result?",
+    a: "Yes. After a fetch, use Copy share link. The link looks like /tools/oidc-discovery#url=https%3A%2F%2Fissuer.example.com%2Frealms%2Fdemo and re-runs the check when opened. Only the issuer is included — never a token or pasted JSON — and it sits in the URL fragment (after #), which browsers do not send to the server, so it does not end up in server logs.",
+  },
 ];
 
 function H2({ children, id }: { children: React.ReactNode; id?: string }) {

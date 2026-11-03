@@ -4,9 +4,9 @@
  * runs locally via WebCrypto and `jose`; nothing here performs network I/O.
  */
 import { calculateJwkThumbprint, type JWK } from "jose";
-import type { Finding } from "./findings";
-import { parseX509, base64ToBytes, type CertSummary } from "./x509";
-import { base64UrlToBytes } from "../jwt/decode";
+import type { Finding } from "./findings.ts";
+import { parseX509, base64ToBytes, type CertSummary } from "./x509.ts";
+import { base64UrlToBytes } from "../jwt/decode.ts";
 
 export type JwksKey = JWK & Record<string, unknown>;
 export type Jwks = { keys: JwksKey[] };

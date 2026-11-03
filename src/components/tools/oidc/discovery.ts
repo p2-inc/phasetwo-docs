@@ -3,7 +3,7 @@
  * URL normalization, Keycloak detection, endpoint/capability extraction, and
  * a linter. No network I/O happens here — see `fetch.ts`.
  */
-import type { Finding } from "./findings";
+import type { Finding } from "./findings.ts";
 
 export const WELL_KNOWN_PATH = "/.well-known/openid-configuration";
 
@@ -263,6 +263,14 @@ export function lintDiscovery(
         title: `issuer is "${issuer}" — note the trailing slash difference`,
         detail:
           "Both forms share the same discovery URL, but iss comparisons are exact string matches. Configure clients with the issuer exactly as published here.",
+      });
+    } else if (/\{[^}]+\}/.test(issuer)) {
+      f.push({
+        severity: "warning",
+        rule: "issuer-template",
+        title: `issuer "${issuer}" is a template, not a fixed value`,
+        detail:
+          "Multi-tenant endpoints publish a placeholder (such as {tenantid}) that each tenant's tokens fill in. Clients must validate iss against the specific tenant's issuer, so use the tenant-specific discovery URL instead.",
       });
     } else {
       const sameIgnoringCase =

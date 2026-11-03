@@ -29,7 +29,11 @@ import {
   PrimaryButton,
   PrivacyBanner,
   SectionLabel,
+  ShareLinkButton,
+  clearDeepLink,
   SmallButton,
+  syncDeepLink,
+  useDeepLink,
 } from "../jwks/shared";
 
 type Mode = "url" | "paste";
@@ -293,15 +297,28 @@ export default function DiscoveryInspector() {
   const [pasteError, setPasteError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<DiscoveryInspection | null>(null);
+  const [inspectedTarget, setInspectedTarget] = useState<string | null>(null);
 
-  async function run() {
+  // #url=… deep links prefill the issuer and inspect it immediately.
+  useDeepLink((t) => {
+    setMode("url");
+    setUrl(t);
+    run(t);
+  });
+
+  async function run(target?: string) {
+    const urlMode = target !== undefined || mode === "url";
+    const t = (target ?? url).trim();
     setBusy(true);
     setResult(null);
     setPasteError(null);
+    setInspectedTarget(null);
     try {
-      if (mode === "url") {
-        if (!url.trim()) return;
-        setResult(await inspectIssuer(url));
+      if (urlMode) {
+        if (!t) return;
+        syncDeepLink(t);
+        setResult(await inspectIssuer(t));
+        setInspectedTarget(t);
       } else {
         const parsed = parseJsonInput(pasted);
         if (!parsed.ok) {
@@ -333,6 +350,7 @@ export default function DiscoveryInspector() {
   }
 
   function clearAll() {
+    clearDeepLink();
     setUrl("");
     setPasted("");
     setResult(null);
@@ -393,7 +411,7 @@ export default function DiscoveryInspector() {
                   className={inputCls}
                 />
                 <PrimaryButton
-                  onClick={run}
+                  onClick={() => run()}
                   busy={busy}
                   disabled={!url.trim()}
                   icon="mdi:magnify"
@@ -420,7 +438,7 @@ export default function DiscoveryInspector() {
               )}
               <div className="mt-2">
                 <PrimaryButton
-                  onClick={run}
+                  onClick={() => run()}
                   busy={busy}
                   disabled={!pasted.trim()}
                   icon="mdi:magnify"
@@ -432,6 +450,11 @@ export default function DiscoveryInspector() {
           )}
         </Card>
 
+        {result && inspectedTarget && mode === "url" && (
+          <div className="mb-4">
+            <ShareLinkButton target={inspectedTarget} />
+          </div>
+        )}
         {result ? (
           <Results
             r={result}

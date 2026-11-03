@@ -9,8 +9,8 @@
  * the linter flags. The discovery document mirrors the shape Keycloak
  * publishes for a realm.
  */
-import type { Jwks } from "./jwks";
-import type { DiscoveryDoc } from "./discovery";
+import type { Jwks } from "./jwks.ts";
+import type { DiscoveryDoc } from "./discovery.ts";
 
 export const EXAMPLE_ISSUER = "https://auth.example.com/realms/demo";
 

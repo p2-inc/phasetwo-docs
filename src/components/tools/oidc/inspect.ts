@@ -3,9 +3,9 @@
  * JWKS from a user-supplied URL, then lint and summarize it. Framework-free so
  * the same flow can back other UIs (e.g. a browser extension panel).
  */
-import { fetchJson, type FetchJsonResult } from "./fetch";
-import type { Finding } from "./findings";
-import { summarizeJwks, type JwksSummary } from "./jwks";
+import { fetchJson, parseUserUrl, type FetchJsonResult } from "./fetch.ts";
+import type { Finding } from "./findings.ts";
+import { summarizeJwks, type JwksSummary } from "./jwks.ts";
 import {
   resolveDiscoveryTarget,
   lintDiscovery,
@@ -14,8 +14,8 @@ import {
   type DiscoveryDoc,
   type DiscoveryTarget,
   type KeycloakInfo,
-} from "./discovery";
-import { suggestJwksUrl } from "../jwt/verify";
+} from "./discovery.ts";
+import { suggestJwksUrl } from "../jwt/verify.ts";
 
 export type JwksLoad = {
   /** Where the keys came from. */
@@ -43,26 +43,34 @@ export async function loadJwksFromUrl(input: string): Promise<JwksLoad> {
     );
     url = kcCerts;
   }
-  let res = await fetchJson(url);
   const looksLikeKeys = (r: FetchJsonResult) =>
     r.ok &&
     typeof r.data === "object" &&
     r.data !== null &&
     ("keys" in r.data || "jwks_uri" in r.data || "kty" in r.data);
-  // Not a key set (e.g. an issuer like https://accounts.google.com): try the
-  // issuer's discovery document and follow its jwks_uri.
-  if (!looksLikeKeys(res) && !url.includes("/.well-known/")) {
+  // A bare origin (https://issuer.example.com) is an issuer, never a JWKS, so
+  // go straight to its discovery document. Otherwise try the URL first and
+  // fall back to discovery if it did not return keys.
+  const bareOrigin = parseUserUrl(url)?.pathname === "/";
+  let res: FetchJsonResult | undefined = bareOrigin
+    ? undefined
+    : await fetchJson(url);
+  if ((!res || !looksLikeKeys(res)) && !url.includes("/.well-known/")) {
     const target = resolveDiscoveryTarget(url);
     if (target) {
       const disc = await fetchJson(target.discoveryUrl);
-      if (looksLikeKeys(disc)) {
-        notes.push(
-          "That URL did not return a JWKS, so it was treated as an issuer and its discovery document was fetched.",
-        );
+      if (!res || looksLikeKeys(disc)) {
+        if (looksLikeKeys(disc))
+          notes.push(
+            bareOrigin
+              ? "That is an issuer, so its discovery document was fetched."
+              : "That URL did not return a JWKS, so it was treated as an issuer and its discovery document was fetched.",
+          );
         res = disc;
       }
     }
   }
+  if (!res) res = await fetchJson(url);
   if (
     res.ok &&
     typeof res.data === "object" &&

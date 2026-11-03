@@ -2,11 +2,12 @@
  * Presentational building blocks shared by the JWKS Verifier and the OIDC
  * Discovery Inspector. Logic lives in ../oidc/*; this file is UI only.
  */
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "@iconify/react";
 import type { Finding, Severity } from "../oidc/findings";
 import { sortFindings } from "../oidc/findings";
 import type { FetchJsonResult } from "../oidc/fetch";
+import { buildShareLink, readDeepLink } from "../oidc/deeplink";
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -341,5 +342,74 @@ export function FetchErrorHelp({
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * Run `onUrl` with the URL from a `#url=` (or `?url=`) deep link, on first
+ * load and whenever the fragment changes. Browser-only; a no-op during SSR.
+ */
+export function useDeepLink(onUrl: (url: string) => void) {
+  const cb = useRef(onUrl);
+  cb.current = onUrl;
+  useEffect(() => {
+    const check = () => {
+      const target = readDeepLink(window.location);
+      if (target) cb.current(target);
+    };
+    check();
+    window.addEventListener("hashchange", check);
+    return () => window.removeEventListener("hashchange", check);
+  }, []);
+}
+
+/** Point the address bar at the share link for `target`, without reloading. */
+export function syncDeepLink(target: string) {
+  if (typeof window === "undefined") return;
+  try {
+    window.history.replaceState(
+      window.history.state,
+      "",
+      buildShareLink(window.location.href, target),
+    );
+  } catch {
+    // Some embedded browsers disallow history changes; links still work.
+  }
+}
+
+/** Drop any deep link from the address bar (e.g. after Clear). */
+export function clearDeepLink() {
+  if (typeof window === "undefined" || !readDeepLink(window.location)) return;
+  try {
+    const u = new URL(window.location.href);
+    u.hash = "";
+    u.searchParams.delete("url");
+    window.history.replaceState(window.history.state, "", u.toString());
+  } catch {
+    // ignore
+  }
+}
+
+export function ShareLinkButton({ target }: { target: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const link = buildShareLink(window.location.href, target);
+        navigator.clipboard?.writeText(link).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        });
+      }}
+      title="Copy a link that opens this tool and runs it on this URL. Only the URL is included."
+      className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/5"
+    >
+      <Icon
+        icon={copied ? "mdi:check" : "mdi:link-variant"}
+        className="size-3.5"
+      />
+      {copied ? "Link copied" : "Copy share link"}
+    </button>
   );
 }

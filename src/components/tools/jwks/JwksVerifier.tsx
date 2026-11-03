@@ -20,7 +20,11 @@ import {
   PrimaryButton,
   PrivacyBanner,
   SectionLabel,
+  ShareLinkButton,
+  clearDeepLink,
   SmallButton,
+  syncDeepLink,
+  useDeepLink,
 } from "./shared";
 
 type Mode = "url" | "paste";
@@ -56,6 +60,7 @@ export default function JwksVerifier() {
   const [pasteSummary, setPasteSummary] = useState<JwksSummary | null>(null);
   const [pasteError, setPasteError] = useState<string | null>(null);
   const [verify, setVerify] = useState<VerifyResult | null>(null);
+  const [fetchedTarget, setFetchedTarget] = useState<string | null>(null);
 
   // Analyze pasted JSON as the user types.
   useEffect(() => {
@@ -106,16 +111,27 @@ export default function JwksVerifier() {
     };
   }, [summary, token, header]);
 
-  async function fetchKeys() {
-    if (!url.trim()) return;
+  async function fetchKeys(target: string = url) {
+    const t = target.trim();
+    if (!t) return;
     setBusy(true);
     setLoad(null);
+    setFetchedTarget(null);
+    syncDeepLink(t);
     try {
-      setLoad(await loadJwksFromUrl(url));
+      setLoad(await loadJwksFromUrl(t));
+      setFetchedTarget(t);
     } finally {
       setBusy(false);
     }
   }
+
+  // #url=… deep links prefill the URL and fetch it immediately.
+  useDeepLink((t) => {
+    setMode("url");
+    setUrl(t);
+    fetchKeys(t);
+  });
 
   function loadExample() {
     setMode("paste");
@@ -124,6 +140,7 @@ export default function JwksVerifier() {
   }
 
   function clearAll() {
+    clearDeepLink();
     setUrl("");
     setPasted("");
     setJwt("");
@@ -186,7 +203,7 @@ export default function JwksVerifier() {
                       className={inputCls}
                     />
                     <PrimaryButton
-                      onClick={fetchKeys}
+                      onClick={() => fetchKeys()}
                       busy={busy}
                       disabled={!url.trim()}
                       icon="mdi:download"
@@ -300,6 +317,11 @@ export default function JwksVerifier() {
                 {n}
               </p>
             ))}
+          {mode === "url" && fetchedTarget && (
+            <div>
+              <ShareLinkButton target={fetchedTarget} />
+            </div>
+          )}
           {mode === "url" && load?.fetch?.ok && (
             <p className="mb-0 break-all text-xs text-gray-500">
               Fetched <span className="font-mono">{load.fetch.finalUrl}</span>{" "}
