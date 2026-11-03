@@ -47,6 +47,20 @@ const TOOLS: Tool[] = [
     desc: "Inspect any issuer's .well-known/openid-configuration: endpoints, supported features, and lint checks for issuer, PKCE, and algorithms.",
     available: true,
   },
+  {
+    to: "/tools/jwt-generator",
+    icon: "mdi:key-plus",
+    title: "JWT Generator",
+    desc: "Build and sign test JWTs with HMAC, RSA, ECDSA, or EdDSA. Keycloak-style presets, in-browser key pairs, and PEM/JWKS export.",
+    available: true,
+  },
+  {
+    to: "/tools/certificate-decoder",
+    icon: "mdi:certificate-outline",
+    title: "X.509 Certificate Decoder",
+    desc: "Decode PEM, DER, and SAML metadata certificates and CSRs. Validity, SANs, key usage, SHA-1/SHA-256 fingerprints, and chain order checks.",
+    available: true,
+  },
 ];
 
 export default function ToolsIndex() {
