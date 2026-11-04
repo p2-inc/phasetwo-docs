@@ -1,0 +1,560 @@
+---
+id: smtp
+title: Configure SMTP So Keycloak Can Send Email
+description: Configure Keycloak SMTP for password resets and verification mail — the fields, the encryption choice that breaks it, and how to prove mail is really going out.
+keywords:
+  - keycloak smtp
+  - keycloak email configuration
+  - keycloak smtp settings
+  - keycloak password reset email not sending
+  - keycloak smtp server
+  - smtp auth
+difficulty: beginner
+time: 25 minutes
+keycloak_version: "26.8.1"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `curl` and `kcadm.sh`
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Configure SMTP So Keycloak Can Send Email
+
+Keycloak sends no email at all until a realm has an SMTP server configured, and the setting
+lives per realm, not per server. To configure Keycloak SMTP, fill in four things under
+**Realm settings → Email**, in this order:
+
+1. **From** — a sender address. The realm will not save without one.
+2. **Host** and **Port** — your relay and its port.
+3. **Encryption** — `StartTLS` for port 587, `Enable SSL` for port 465. Exactly one.
+4. **Authentication** — on, with a username and either a password or a token.
+
+Then press **Test connection**, which sends a message to *your own* admin account's email
+address. If your admin user has no email address on it, the test fails with
+`Failed to send email` and no cause — that is the single most common first stumble, and it
+is not an SMTP problem at all.
+
+:::info Tested against
+Keycloak **26.8.1** in a container (`quay.io/keycloak/keycloak:26.8.1 start-dev`), against a
+real SMTP server with STARTTLS, implicit TLS and SMTP AUTH. Every command, error string, log
+line and header quoted below is copied from a run on 2026-11-02. Provider settings in the
+matrix come from each provider's own documentation, linked there.
+:::
+
+## What you'll build
+
+A realm that sends password-reset and verification mail through an authenticated,
+TLS-encrypted relay — plus the three checks that prove it is working, and the one that
+catches it when it silently stops.
+
+That last part matters more than it sounds. **When SMTP is broken, the Keycloak
+forgot-password page still tells the user "You should receive an email shortly with further
+instructions."** It does that on purpose — the message is identical for a user who does not
+exist, so the form cannot be used to enumerate accounts. The cost is that a dead relay looks
+exactly like a working one from the outside. Verified below.
+
+## Prerequisites
+
+A Keycloak and somewhere for mail to land. [Mailpit](https://mailpit.axllent.org/) is an
+SMTP server that accepts everything and shows it in a browser, which is what you want while
+you are still getting the settings right:
+
+```bash
+docker network create kcnet
+
+docker run -d --name mailpit --network kcnet --memory 256m \
+  -p 127.0.0.1:8025:8025 axllent/mailpit:latest --smtp-auth-accept-any
+
+docker run -d --name kc --network kcnet --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+Mailpit's inbox is at `http://localhost:8025`. If that container is your first Keycloak,
+start with [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/).
+
+Define the CLI helper once — every command below uses it:
+
+```bash
+kcadm() { docker exec -i kc /opt/keycloak/bin/kcadm.sh "$@"; }
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+```
+
+```
+Logging into http://localhost:8080 as user admin of realm master
+```
+
+Give the admin account an email address, because the test button sends there:
+
+```bash
+AID=$(kcadm get users -r master -q username=admin --fields id | jq -r '.[0].id')
+kcadm update "users/$AID" -r master -s email=admin@example.com -s emailVerified=true
+```
+
+And a realm with a user in it:
+
+```bash
+kcadm create realms -s realm=prod -s enabled=true
+kcadm create users -r prod -s username=alice -s enabled=true \
+  -s email=alice@example.com -s firstName=Alice -s lastName=Example
+kcadm update realms/prod -s resetPasswordAllowed=true
+```
+
+## Step 1 — set the sender and the server
+
+<details open>
+<summary><b>Admin console</b></summary>
+
+**Realm settings** → **Email** tab. Fill in **From** under *Template*, then **Host** and
+**Port** under *Connection & Authentication*, then **Save**.
+
+</details>
+
+<details>
+<summary><b>kcadm.sh</b></summary>
+
+```bash
+kcadm update realms/prod \
+  -s 'smtpServer.host=mailpit' \
+  -s 'smtpServer.port=1025' \
+  -s 'smtpServer.from=keycloak@example.com' \
+  -s 'smtpServer.fromDisplayName=Example Login' \
+  -s 'smtpServer.replyTo=support@example.com' \
+  -s 'smtpServer.envelopeFrom=bounces@example.com'
+```
+
+</details>
+
+### What each field does to the message
+
+The console's labels do not say which header each one sets, so here it is, read off the
+raw message Keycloak actually delivered:
+
+| Console label | API key | Sets | Required |
+|---|---|---|---|
+| From | `from` | `From:` and, with no `envelopeFrom`, `Return-Path:` | **Yes** |
+| From display name | `fromDisplayName` | The name part of `From:` | No |
+| Reply to | `replyTo` | `Reply-To:` — defaults to the From address | No |
+| Reply to display name | `replyToDisplayName` | The name part of `Reply-To:` | No |
+| Envelope from | `envelopeFrom` | `Return-Path:`, i.e. where bounces go | No |
+| Host | `host` | — | **Yes** |
+| Port | `port` | — | **Yes** |
+
+With all of those set, the delivered message carried:
+
+```
+Return-Path: <bounces@example.com>
+From: Example Login <keycloak@example.com>
+Reply-To: support@example.com
+To: alice@example.com
+Subject: Update Your Account
+```
+
+Two things that cost time here:
+
+**Put the display name in `fromDisplayName`, not in `from`.** Keycloak parses `from` as a
+bare address and rejects anything else — including the `Name <addr@example.com>` form that
+works nearly everywhere else:
+
+```
+Invalid sender address 'Example Login <keycloak@example.com>'.
+```
+
+**A realm will not save an SMTP config with no sender.** Keycloak validates on write, so a
+half-finished config fails loudly rather than sitting there looking configured:
+
+```bash
+kcadm update realms/nofrom -s 'smtpServer.host=mailpit' -s 'smtpServer.port=1025'
+echo $?
+```
+
+```
+Invalid sender address 'null'. If the address contains UTF-8 characters in the local part
+please ensure the SMTP server supports the SMTPUTF8 extension and enable 'Allow UTF-8' in
+the email realm configuration.
+1
+```
+
+:::warning `kcadm get --fields smtpServer` lies to you
+Reading the config back with a field filter returns an empty object even when the realm is
+fully configured — the filter does not descend into a map:
+
+```bash
+kcadm get realms/prod --fields smtpServer
+```
+
+```json
+{
+  "smtpServer" : { }
+}
+```
+
+Nothing is wrong. Ask for the sub-fields explicitly, or drop `--fields` entirely:
+
+```bash
+kcadm get realms/prod --fields 'smtpServer(host,port,from)'
+```
+
+```json
+{
+  "smtpServer" : {
+    "host" : "mailpit",
+    "port" : "1025",
+    "from" : "keycloak@example.com"
+  }
+}
+```
+
+The same applies to `attributes`. If you have ever concluded that a `kcadm update` did not
+take effect because the read-back came up empty, this is probably why.
+:::
+
+## Step 2 — choose the encryption, then the port
+
+There are two unrelated ways to encrypt SMTP and Keycloak exposes both as checkboxes. Pick
+by what the port expects, not by which sounds safer:
+
+| Encryption | API keys | Port, usually | What happens on the wire |
+|---|---|---|---|
+| **StartTLS** | `starttls=true`, `ssl=false` | 587 (also 25, 2525) | Connect in the clear, `EHLO`, upgrade with `STARTTLS` |
+| **Enable SSL** | `ssl=true`, `starttls=false` | 465 | TLS handshake first, SMTP inside it |
+| None | both `false` | — | Credentials in plaintext. Local sinks only |
+
+Set both and `ssl` wins: Keycloak opens an implicit TLS connection and never issues
+`STARTTLS`.
+
+### The error tells you which one you got wrong
+
+Each mismatch has its own distinctive failure, and knowing the mapping saves a lot of
+guessing. All four reproduced against a server where the correct answer was known:
+
+| You set | Server actually wanted | Error in the server log |
+|---|---|---|
+| `ssl=true` | STARTTLS | `SSLException: Unsupported or unrecognized SSL message` |
+| `starttls=true` or neither | implicit TLS | `SocketTimeoutException: Read timed out` |
+| either, cert not trusted | TLS | `SSLHandshakeException … PKIX path building failed` |
+| `auth=true`, bad credentials | — | `AuthenticationFailedException: 535 5.7.8 Authentication credentials invalid` |
+
+The read timeout is the slow one: with a default `timeout` of 10,000 ms, sending to a
+TLS-only port with StartTLS ticked hangs for ten seconds per attempt before failing. If
+"email is slow" is the symptom rather than "email is broken", check this first.
+
+### Private CAs and self-signed certificates
+
+`PKIX path building failed` means the relay's certificate does not chain to anything in the
+JVM truststore. That is normal for an internal relay. The fix is a server-level option, not
+a realm setting — mount the CA or the certificate and point `KC_TRUSTSTORE_PATHS` at the
+directory:
+
+```bash
+docker run -d --name kc --network kcnet --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_TRUSTSTORE_PATHS=/opt/keycloak/conf/truststores \
+  -v "$PWD/truststore:/opt/keycloak/conf/truststores:ro" \
+  quay.io/keycloak/keycloak:26.8.1 start-dev
+```
+
+Keycloak logs what it picked up at startup, which is worth checking before you blame the
+certificate again:
+
+```
+INFO  [org.keycloak.truststore.TruststoreBuilder] Found the following truststore files in
+the truststore paths [/opt/keycloak/conf/truststores/relay.crt, …]
+```
+
+With the certificate in place, both StartTLS and implicit TLS to that host succeeded
+unchanged — no realm setting had to move.
+
+## Step 3 — authenticate
+
+Turn **Authentication** on and supply a username. Then pick the type.
+
+**Password** is what almost every relay still wants:
+
+```bash
+kcadm update realms/prod \
+  -s 'smtpServer.auth=true' \
+  -s 'smtpServer.user=apikey' \
+  -s 'smtpServer.password=<the secret>'
+```
+
+**Token** is Keycloak's XOAUTH2 support, added in 26.2. Keycloak fetches an access token with
+the client-credentials grant and presents it to the relay instead of a password — which is
+what Microsoft 365 is pushing everyone toward as basic authentication for client submission
+is retired. The keys:
+
+| Console label | API key |
+|---|---|
+| Authentication Type | `authType` — `basic` or `token` |
+| Auth Token URL | `authTokenUrl` |
+| Auth Token Scope | `authTokenScope` |
+| Auth Token ClientId | `authTokenClientId` |
+| Auth Token Client Secret | `authTokenClientSecret` |
+
+Pointed at a working token endpoint, Keycloak fetched a token and offered `XOAUTH2` at the
+`AUTH` step — the relay in this test did not support that mechanism, so it answered
+`No authentication mechanisms supported by both server and client`. That message means the
+token half worked and the relay is the problem; `Failed to gather valid token for SMTP` means
+the opposite.
+
+Before you plan around it, read the limits in the
+[official documentation](https://www.keycloak.org/docs/latest/server_admin/index.html#_email):
+the token type is contributed and documented as not tested by the core team, **Google is not
+supported** because it does not accept a client secret for the client-credentials grant, and
+**Amazon SES does not support XOAUTH2 at all**. For those two, a password is the only option.
+
+## Step 4 — verify it, three ways
+
+### Test connection
+
+The button, and its API equivalent, send `[KEYCLOAK] - SMTP test message` to the email
+address of the admin who triggered it:
+
+```bash
+TOK=$(curl -s -d client_id=admin-cli -d username=admin -d password=admin \
+  -d grant_type=password \
+  http://localhost:8080/realms/master/protocol/openid-connect/token | jq -r .access_token)
+
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+  -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" \
+  http://localhost:8080/admin/realms/prod/testSMTPConnection \
+  --data '{"host":"mailpit","port":"1025","from":"keycloak@example.com","auth":"false","ssl":"false","starttls":"false"}'
+```
+
+```
+204
+```
+
+`204` is success. Two things about this endpoint that are not obvious:
+
+- **It tests the body you send, not what is stored on the realm.** In the console that means
+  it tests what is currently typed into the form, including changes you have not saved. A
+  green test does not prove the saved realm works.
+- **It needs the calling admin to have an email address.** Without one you get
+  `{"errorMessage":"Failed to send email"}` and a stack trace whose cause is `null`.
+
+### Send a real one
+
+Better evidence: make Keycloak send the mail a user would actually get.
+
+```bash
+USER_ID=$(kcadm get users -r prod -q username=alice --fields id | jq -r '.[0].id')
+
+curl -s -o /dev/null -w "%{http_code}\n" -X PUT \
+  -H "Authorization: Bearer $TOK" -H "Content-Type: application/json" \
+  "http://localhost:8080/admin/realms/prod/users/$USER_ID/execute-actions-email" \
+  --data '["VERIFY_EMAIL"]'
+
+curl -s "http://127.0.0.1:8025/api/v1/messages?limit=1" | jq -r '.messages[0].Subject'
+```
+
+```
+204
+Update Your Account
+```
+
+A user with no email address on the account gets `400 {"errorMessage":"User email missing"}`
+rather than anything SMTP-related.
+
+### Watch the events, because the UI will not tell you
+
+This is the check worth keeping. Turn on the two email event types:
+
+```bash
+kcadm update events/config -r prod -s eventsEnabled=true \
+  -s 'enabledEventTypes=["SEND_RESET_PASSWORD","SEND_RESET_PASSWORD_ERROR","SEND_VERIFY_EMAIL","SEND_VERIFY_EMAIL_ERROR"]' \
+  -s eventsExpiration=3600
+```
+
+Now run the forgot-password form twice — once with the relay reachable and once with the host
+pointed at a black hole — and compare. The page says the same thing both times:
+
+```
+You should receive an email shortly with further instructions.
+```
+
+The event log does not:
+
+```bash
+kcadm get events -r prod | jq -r '.[] | "\(.type) \(.error // "-") \(.details.username)"'
+```
+
+```
+SEND_RESET_PASSWORD - alice
+SEND_RESET_PASSWORD_ERROR email_send_failed alice
+```
+
+And the server log carries the reason, under two message codes worth alerting on:
+
+```
+ERROR [org.keycloak.services] KC-SERVICES0029: Failed to send email: …
+ERROR [org.keycloak.services] KC-SERVICES0026: Failed to send password reset email: …
+```
+
+A typed-in username that does not exist produces the same page message and **no event at
+all** — that is the anti-enumeration behaviour working as designed, and it is why
+`SEND_RESET_PASSWORD_ERROR` rather than user complaints is the right thing to watch.
+
+While you are in this area: the same unauthenticated forms are a mail-bombing surface, which
+is a separate problem with separate mitigations. See
+[email bombing and registration abuse](/docs/security/email-abuse/).
+
+## Provider settings
+
+Keycloak talks plain SMTP, so any relay works. What differs is the port, the encryption and
+what counts as a username. All from each provider's own documentation:
+
+| Provider | Host | Port | Encryption | Username | Password |
+|---|---|---|---|---|---|
+| [Amazon SES](https://docs.aws.amazon.com/ses/latest/dg/smtp-connect.html) | `email-smtp.<region>.amazonaws.com` | 587 / 2587 | StartTLS | SES SMTP username | SES SMTP password |
+| Amazon SES | same | 465 / 2465 | Enable SSL | same | same |
+| [SendGrid](https://www.twilio.com/docs/sendgrid/for-developers/sending-email/integrating-with-the-smtp-api) | `smtp.sendgrid.net` | 587 | StartTLS | the literal string `apikey` | an API key with Mail Send |
+| SendGrid | `smtp.sendgrid.net` | 465 | Enable SSL | `apikey` | same |
+| [Postmark](https://postmarkapp.com/developer/user-guide/send-email-with-smtp) | `smtp.postmarkapp.com` | 587 / 2525 | StartTLS | Server API token | the same token |
+| [Microsoft 365](https://learn.microsoft.com/en-us/exchange/mail-flow-best-practices/how-to-set-up-a-multifunction-device-or-application-to-send-email-using-microsoft-365-or-office-365) | `smtp.office365.com` | 587 | StartTLS | mailbox address | password, or `authType=token` |
+| [Google Workspace](https://knowledge.workspace.google.com/admin/gmail/send-email-from-a-printer-scanner-or-app) | `smtp.gmail.com` | 587 | StartTLS | full Workspace address | app password |
+| Google Workspace | `smtp.gmail.com` | 465 | Enable SSL | same | same |
+
+Four things in that table that bite:
+
+- **SES SMTP credentials are not your IAM access key and secret.** The username happens to
+  look like an access key ID, but the password is an HMAC derivation of the secret key and is
+  **per region**. Generate them in the SES console, or derive them with the script AWS
+  publishes. Pasting the IAM secret in produces `535`, which reads as "wrong password" and
+  sends you looking in the wrong place. A new SES account is also in the sandbox at
+  200 messages per 24 hours and can only send to verified addresses.
+- **SendGrid's username is the five-character string `apikey`.** Not your account name, not
+  the key.
+- **Microsoft explicitly says port 465 does not support the TLS versions it requires** for
+  client SMTP submission — use 587. SMTP AUTH is also off by default for tenants created
+  after January 2020 and has to be enabled per mailbox, and basic authentication for client
+  submission is on a published deprecation path.
+- **Google Workspace needs an app password**, which requires 2-Step Verification on the
+  account. A normal account password fails.
+
+Whichever you pick, send from a domain you control and publish SPF, DKIM and DMARC for it.
+Authentication-critical mail that lands in spam is the same outage as mail that never sent,
+and it is the one your monitoring will not catch.
+
+## Troubleshooting
+
+### The config disappeared after a restore, or works in staging and not in production
+
+This is the one that looks like sabotage. A realm export writes the SMTP password as a
+literal mask:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOK" \
+  http://localhost:8080/admin/realms/prod/partial-export | jq .smtpServer
+```
+
+```json
+{
+  "host": "mailpit",
+  "port": "1025",
+  "from": "keycloak@example.com",
+  "auth": "true",
+  "user": "kcmailer",
+  "password": "**********"
+}
+```
+
+Import that into a different realm or a fresh server and ten asterisks are what gets stored
+and what gets sent to the relay. The console then shows a password field that looks filled
+in, and every email fails:
+
+```
+jakarta.mail.AuthenticationFailedException: 535 5.7.8 Authentication credentials invalid
+```
+
+Updating an **existing** realm with the mask is safe — Keycloak reads it as "keep the stored
+value", which is why round-tripping the realm through `kcadm update` or the console does not
+break anything. The mask only destroys information when there is no stored value to fall
+back on. So: treat the SMTP password as a secret your deployment pipeline injects after
+import, the same way you would a database password, and never assume an export is a complete
+backup of a realm's mail configuration.
+
+### Users say they never got the email
+
+In order of likelihood:
+
+1. **It failed and nobody was told.** Check for `SEND_RESET_PASSWORD_ERROR` or
+   `SEND_VERIFY_EMAIL_ERROR` in the realm's events, and `KC-SERVICES0026` /
+   `KC-SERVICES0029` in the server log. The page the user saw said it worked.
+2. **The relay accepted it and then dropped it.** Keycloak's job ends at `250 Ok: queued`.
+   From there it is your provider's suppression list, bounce log and spam placement.
+3. **The user has no email address, or the wrong one.** `GET /users?username=…` and look.
+4. **It went to the wrong realm's relay.** SMTP is per realm. A realm you created by copying
+   another one does not inherit it.
+
+### Turn on the SMTP conversation
+
+`debug` dumps the entire exchange into the server log — far more useful than any error
+message Keycloak surfaces:
+
+```bash
+kcadm update realms/prod -s 'smtpServer.debug=true'
+```
+
+```
+DEBUG SMTP: trying to connect to host "relay.example.com", port 587, isSSL false
+220 relay.example.com ESMTP ready
+EHLO keycloak-0
+250-STARTTLS
+250-AUTH LOGIN PLAIN
+STARTTLS
+220 2.0.0 Ready to start TLS
+DEBUG SMTP: protocolConnect login, host=relay.example.com, user=kcmailer, password=<non-null>
+DEBUG SMTP: Attempt to authenticate using mechanisms: LOGIN PLAIN DIGEST-MD5 NTLM XOAUTH2
+```
+
+That transcript answers most questions directly: whether `STARTTLS` was advertised, which
+`AUTH` mechanisms the server offers, and whether Keycloak thinks it has a password at all.
+Turn it off when you are done — it is verbose, and it writes your SMTP conversation to a log
+that is probably shipped somewhere.
+
+### Email sending is slow
+
+Three timeouts, all per realm, all in milliseconds:
+
+| API key | Property | Default |
+|---|---|---|
+| `connectionTimeout` | `mail.smtp.connectiontimeout` | — |
+| `timeout` | `mail.smtp.timeout` | `10000` |
+| `writeTimeout` | `mail.smtp.writetimeout` | — |
+
+They work: with `connectionTimeout=3000` and the host pointed at an unroutable address, the
+call returned in 3.1 seconds with
+`MailConnectException: Couldn't connect to host, port: …; timeout 3000`. Keycloak sends mail
+on the request thread, so a relay that takes ten seconds to fail makes the login and
+registration pages take ten seconds to fail with it. Set these to something smaller than your
+users' patience.
+
+## Next steps
+
+- [Set up TOTP multi-factor authentication](/tutorials/authentication/totp-mfa/) — the other
+  half of account recovery, and the one that makes a password reset email less of a single
+  point of failure.
+- [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
+  where the reset-credentials flow lives if you want to change what it does.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — every
+  `kcadm` command above, explained.
+- [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/) —
+  the email address you just started relying on is personal data.
+- [Email bombing and registration abuse](/docs/security/email-abuse/) — the abuse surface
+  that opens the moment these forms start sending mail.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Configuring email for a realm](https://www.keycloak.org/docs/latest/server_admin/index.html#_email).
+- Clean up: `docker rm -f kc mailpit && docker network rm kcnet`.
+
+<ProductionNote>
+  Everything above runs on any Keycloak instance. Getting mail <em>delivered</em> is the part
+  that outlives the configuration — a warmed sending domain, SPF and DKIM on a domain you
+  control, and an alert on the failure events above. That operational half is what we run for
+  people on our hosted clusters.
+</ProductionNote>
