@@ -210,6 +210,10 @@ policy files and their orchestration steps, every identity provider and how it w
 every custom claim, and your current MAU. That document is the input to all three options and
 it is the thing nobody has when they ask for an estimate.
 
+For the technical half, [porting Azure AD B2C custom policies to
+Keycloak](/blog/azure-ad-b2c-custom-policies-to-keycloak/) maps the Identity Experience
+Framework concept by concept and is explicit about what has no equivalent.
+
 The side-by-side is on [Keycloak vs. Azure AD B2C](/keycloak-alternatives/azure-ad-b2c/), and if
 you want someone who has done this to read your inventory and tell you what it costs, [talk to
 us about migrating to Keycloak](/support/migrate-to-keycloak/). If the answer is "stay until
