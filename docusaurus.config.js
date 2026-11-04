@@ -532,68 +532,6 @@ module.exports = {
                 ],
               },
               {
-                title: "Tools",
-                description: "Free, and they run in your browser.",
-                accent: "blue",
-                links: [
-                  {
-                    to: "tools/jwt-decoder",
-                    label: "JWT Decoder",
-                    icon: "code",
-                  },
-                  {
-                    to: "tools/jwt-generator",
-                    label: "JWT Generator",
-                    icon: "key",
-                  },
-                  {
-                    to: "tools/jwks-verifier",
-                    label: "JWKS Verifier",
-                    icon: "shield",
-                  },
-                  {
-                    to: "tools/oidc-playground",
-                    label: "OIDC Playground",
-                    icon: "play",
-                  },
-                  {
-                    to: "tools/oidc-discovery",
-                    label: "OIDC Discovery",
-                    icon: "search",
-                  },
-                  {
-                    to: "tools/oidc-url-inspector",
-                    label: "OIDC URL Inspector",
-                    icon: "link",
-                  },
-                  {
-                    to: "tools/pkce-generator",
-                    label: "PKCE Generator",
-                    icon: "hash",
-                  },
-                  {
-                    to: "tools/saml-decoder",
-                    label: "SAML Decoder",
-                    icon: "doc",
-                  },
-                  {
-                    to: "tools/certificate-decoder",
-                    label: "Certificate Decoder",
-                    icon: "cert",
-                  },
-                  {
-                    to: "tools/keycloak-client-checker",
-                    label: "Client Checker",
-                    icon: "check",
-                  },
-                  {
-                    to: "tools/keycloak-docker-compose-generator",
-                    label: "Compose Generator",
-                    icon: "box",
-                  },
-                ],
-              },
-              {
                 title: "Extensions",
                 description: "Open source pieces of the suite.",
                 accent: "blue",
@@ -659,6 +597,68 @@ module.exports = {
                     activeBasePath: "extensions/containers",
                     label: "Containers",
                     sub: "Production K8s images",
+                    icon: "box",
+                  },
+                ],
+              },
+              {
+                title: "Tools",
+                description: "Free, and they run in your browser.",
+                accent: "blue",
+                links: [
+                  {
+                    to: "tools/jwt-decoder",
+                    label: "JWT Decoder",
+                    icon: "code",
+                  },
+                  {
+                    to: "tools/jwt-generator",
+                    label: "JWT Generator",
+                    icon: "key",
+                  },
+                  {
+                    to: "tools/jwks-verifier",
+                    label: "JWKS Verifier",
+                    icon: "shield",
+                  },
+                  {
+                    to: "tools/oidc-playground",
+                    label: "OIDC Playground",
+                    icon: "play",
+                  },
+                  {
+                    to: "tools/oidc-discovery",
+                    label: "OIDC Discovery",
+                    icon: "search",
+                  },
+                  {
+                    to: "tools/oidc-url-inspector",
+                    label: "OIDC URL Inspector",
+                    icon: "link",
+                  },
+                  {
+                    to: "tools/pkce-generator",
+                    label: "PKCE Generator",
+                    icon: "hash",
+                  },
+                  {
+                    to: "tools/saml-decoder",
+                    label: "SAML Decoder",
+                    icon: "doc",
+                  },
+                  {
+                    to: "tools/certificate-decoder",
+                    label: "Certificate Decoder",
+                    icon: "cert",
+                  },
+                  {
+                    to: "tools/keycloak-client-checker",
+                    label: "Client Checker",
+                    icon: "check",
+                  },
+                  {
+                    to: "tools/keycloak-docker-compose-generator",
+                    label: "Compose Generator",
                     icon: "box",
                   },
                 ],
