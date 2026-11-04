@@ -86,8 +86,8 @@ export const UPSTREAM_IMAGE = "quay.io/keycloak/keycloak";
  * set KEYCLOAK_VERSION to the newest MAJOR.MINOR.PATCH that both
  * quay.io/phasetwo/phasetwo-keycloak and quay.io/keycloak/keycloak publish,
  * EXAMPLE_BUILD_TAG to a full Phase Two build tag for it, and
- * VERSIONS_CHECKED_ON to today. `npm test` fails once VERSIONS_CHECKED_ON is
- * older than VERSIONS_MAX_AGE_DAYS, as a reminder.
+ * VERSIONS_CHECKED_ON to today. `npm test` prints a warning once
+ * VERSIONS_CHECKED_ON is older than VERSIONS_MAX_AGE_DAYS, as a reminder.
  */
 export const KEYCLOAK_VERSION = "26.8.1";
 export const EXAMPLE_BUILD_TAG = "26.8.1.1793384608";

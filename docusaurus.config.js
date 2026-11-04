@@ -523,10 +523,10 @@ module.exports = {
                     icon: "article",
                   },
                   {
-                    to: "tools/jwt-decoder",
+                    to: "tools/",
                     activeBasePath: "tools",
-                    label: "JWT Decoder",
-                    sub: "Decode & inspect tokens",
+                    label: "Developer Tools",
+                    sub: "SAML, JWT & OIDC debuggers",
                     icon: "key",
                   },
                   {
@@ -1005,8 +1005,8 @@ module.exports = {
               to: "api/",
             },
             {
-              label: "JWT Decoder",
-              to: "tools/jwt-decoder",
+              label: "Developer Tools",
+              to: "tools/",
             },
             {
               label: "GitHub",

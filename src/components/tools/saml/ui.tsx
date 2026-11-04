@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import Link from "@docusaurus/Link";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 
 import type { HintLink } from "./core/index.ts";
 

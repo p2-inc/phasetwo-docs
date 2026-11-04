@@ -28,10 +28,15 @@ export function readDeepLink(loc: {
   return fromParams(loc.hash) ?? fromParams(loc.search);
 }
 
+/** The fragment (including "#") that deep-links a tool page to `target`. */
+export function deepLinkHash(target: string): string {
+  return `#${new URLSearchParams({ [PARAM]: target.trim() }).toString()}`;
+}
+
 /** Build a share link for `target` on the page at `pageUrl`. */
 export function buildShareLink(pageUrl: string, target: string): string {
   const u = new URL(pageUrl);
   u.search = "";
-  u.hash = new URLSearchParams({ [PARAM]: target.trim() }).toString();
+  u.hash = deepLinkHash(target);
   return u.toString();
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "@docusaurus/Link";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import { parseJsonInput } from "../oidc/fetch";
 import {
   extractCapabilities,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { formatEpoch } from "./decode";
 import { buildHandoffHash } from "./handoff";

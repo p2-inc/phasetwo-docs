@@ -3,8 +3,10 @@
  * decoder (Tailwind + p2blue tokens on the dark site theme).
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Icon } from "@iconify/react";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import { Icon } from "../Icon";
 import { parseJwt, getExpiryInfo, type ExpiryState } from "../jwt/decode";
+import { buildHandoffHash } from "../jwt/handoff";
 import { verifyJwks, type VerifyResult } from "../jwt/verify";
 import type { Finding, Severity } from "./lint";
 import type { ErrorExplanation } from "./errors";
@@ -345,6 +347,7 @@ export function TokenCard({
   const symmetric = alg.startsWith("HS");
   const [verify, setVerify] = useState<VerifyResult | null>(null);
   const [open, setOpen] = useState(true);
+  const decoderUrl = useBaseUrl("/tools/jwt-decoder");
 
   useEffect(() => {
     let cancelled = false;
@@ -369,6 +372,19 @@ export function TokenCard({
             {isJwt ? `JWT · ${alg}` : "Opaque token"}
           </span>
           <div className="flex items-center gap-0.5">
+            {isJwt && (
+              // A new tab keeps this flow's state; the fragment never reaches a server.
+              <a
+                href={`${decoderUrl}${buildHandoffHash(token)}`}
+                target="_blank"
+                rel="noopener"
+                title={`Open the ${label} in the JWT Decoder`}
+                aria-label={`Open the ${label} in the JWT Decoder`}
+                className="inline-flex size-7 items-center justify-center rounded-md text-gray-400 no-underline hover:bg-white/10 hover:text-white"
+              >
+                <Icon icon="mdi:open-in-new" className="size-4" />
+              </a>
+            )}
             <CopyButton value={token} label={label} />
             <button
               type="button"

@@ -1,9 +1,17 @@
 /**
- * OpenID Connect discovery + browser fetch helpers. Framework-free.
+ * OpenID Connect discovery + browser fetch helpers for the playground.
+ * Framework-free.
+ *
+ * Discovery URLs and the discovery fetch come from the shared `../oidc/`
+ * modules (also used by the JWKS Verifier and Discovery Inspector);
+ * `callEndpoint` here covers the token and userinfo calls, which need POST
+ * bodies and must surface OAuth error responses.
  *
  * The only network calls made are to the issuer the user typed and to the
  * endpoints that issuer's discovery document advertises.
  */
+import { resolveDiscoveryTarget } from "../oidc/discovery.ts";
+import { fetchJson } from "../oidc/fetch.ts";
 
 /** The subset of discovery metadata the tools use. */
 export type DiscoveryDocument = {
@@ -39,16 +47,16 @@ export function normalizeIssuer(input: string): string {
  * the discovery document URL.
  */
 export function discoveryUrlFor(input: string): string {
-  const trimmed = normalizeIssuer(input);
-  if (trimmed.endsWith("/.well-known/openid-configuration")) return trimmed;
-  return `${trimmed}/.well-known/openid-configuration`;
+  return (
+    resolveDiscoveryTarget(input)?.discoveryUrl ??
+    `${normalizeIssuer(input)}/.well-known/openid-configuration`
+  );
 }
 
 /** Strip a pasted discovery URL back to the issuer. */
 export function issuerFromInput(input: string): string {
-  return normalizeIssuer(input).replace(
-    /\/\.well-known\/openid-configuration$/,
-    "",
+  return normalizeIssuer(
+    resolveDiscoveryTarget(input)?.expectedIssuer ?? input,
   );
 }
 
@@ -125,7 +133,7 @@ export type JsonResponse = {
  * and always resolves HTTP errors (4xx/5xx) with their parsed body so the
  * caller can explain OAuth error responses.
  */
-export async function fetchJson(
+export async function callEndpoint(
   url: string,
   init: RequestInit | undefined,
   what: string,
@@ -143,35 +151,68 @@ export async function fetchJson(
   return { status: res.status, ok: res.ok, body };
 }
 
+/**
+ * Why a discovery fetch could not be read. Keycloak's discovery endpoint
+ * sends CORS headers for any origin, so unlike the token endpoint this is
+ * rarely about the client's Web origins.
+ */
+function discoveryNetworkHint(url: string): string {
+  const keycloak = /\/realms\/[^/]+/.test(url);
+  return (
+    "The browser could not read the discovery document. From a web page it does not say why, but the usual cause is CORS. " +
+    "Keycloak's discovery endpoint allows every origin, so against Keycloak this usually means " +
+    (keycloak
+      ? "a realm that does not exist (its 404 carries no CORS headers, so it looks like a CORS block), a missing or extra /auth prefix, "
+      : "a wrong path, ") +
+    "or a proxy, WAF, or gateway that blocks the request or strips the headers. DNS failures, untrusted TLS certificates, and outages look the same."
+  );
+}
+
 /** Fetch and minimally validate an issuer's discovery document. */
 export async function fetchDiscovery(
   issuerInput: string,
 ): Promise<DiscoveryDocument> {
-  const url = discoveryUrlFor(issuerInput);
-  try {
-    new URL(url);
-  } catch {
-    throw new FriendlyFetchError(
-      "That is not a valid URL.",
-      "Enter the issuer URL, for example https://your-host/realms/your-realm.",
-    );
-  }
-  const res = await fetchJson(url, { method: "GET" }, "discovery document");
+  const url = resolveDiscoveryTarget(issuerInput)?.discoveryUrl ?? issuerInput;
+  const res = await fetchJson(url);
   if (!res.ok) {
-    throw new FriendlyFetchError(
-      `The discovery endpoint returned HTTP ${res.status}.`,
-      res.status === 404
-        ? "No discovery document at that address. For Keycloak the issuer is https://host/realms/<realm> (older versions and some setups add /auth before /realms). Check the realm name — it is case-sensitive."
-        : "The server responded, but not with a discovery document.",
-      { status: res.status, body: res.body },
-    );
+    switch (res.kind) {
+      case "invalid-url":
+        throw new FriendlyFetchError(
+          "That is not a valid URL.",
+          "Enter the issuer URL, for example https://your-host/realms/your-realm.",
+        );
+      case "http":
+        throw new FriendlyFetchError(
+          `The discovery endpoint returned HTTP ${res.status}.`,
+          res.status === 404
+            ? "No discovery document at that address. For Keycloak the issuer is https://host/realms/<realm> (older versions and some setups add /auth before /realms). Check the realm name — it is case-sensitive."
+            : "The server responded, but not with a discovery document.",
+          { status: res.status },
+        );
+      case "not-json":
+        throw new FriendlyFetchError(
+          "The response is not an OpenID Connect discovery document.",
+          "Expected JSON with at least an `issuer` field.",
+          { status: res.status },
+        );
+      case "network":
+        throw new FriendlyFetchError(
+          `Network or CORS error fetching the discovery document (${res.message}).`,
+          discoveryNetworkHint(res.url),
+        );
+      default:
+        throw new FriendlyFetchError(
+          res.message,
+          discoveryNetworkHint(res.url),
+        );
+    }
   }
-  const doc = res.body as DiscoveryDocument;
+  const doc = res.data as DiscoveryDocument;
   if (!doc || typeof doc !== "object" || typeof doc.issuer !== "string") {
     throw new FriendlyFetchError(
       "The response is not an OpenID Connect discovery document.",
       "Expected JSON with at least an `issuer` field.",
-      { body: res.body },
+      { body: res.data },
     );
   }
   return doc;

@@ -139,7 +139,7 @@ The last row is a request-time check. It breaks secret-based clients the moment 
 
 Sender-constrained tokens are a SHOULD in RFC 9700. They also satisfy the refresh token MUST for public clients. Both need client-side work, so turn them on per client or per group of clients, not with `any-client`.
 
-**DPoP (RFC 9449)** is enabled by default in 26.8.1 (`DPOP` is a default feature in `/admin/serverinfo`). Turn it on for a client with **Require DPoP bound tokens** in the client's **Advanced** tab, which sets the `dpop.bound.access.tokens` attribute, or with the `dpop-bind-enforcer` executor. On a public client with DPoP required:
+**DPoP (RFC 9449)** is enabled by default in 26.8.1 (`DPOP` is a default feature in `/admin/serverinfo`). Turn it on for a client with **Require DPoP bound tokens** under the client's **Settings → Capability config**, which sets the `dpop.bound.access.tokens` attribute, or with the `dpop-bind-enforcer` executor. On a public client with DPoP required:
 
 - A token request without a proof returns `{"error":"invalid_request","error_description":"DPoP proof is missing"}`.
 - With a proof, `token_type` is `DPoP` and the access token carries `cnf.jkt`, the key's thumbprint.

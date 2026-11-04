@@ -1003,7 +1003,7 @@ test("discovery: fetchDiscovery handles success, 404, non-documents, and network
   await assert.rejects(fetchDiscovery("https://h/realms/r"), (e: unknown) => {
     assert.ok(e instanceof FriendlyFetchError);
     assert.match(e.hint, /CORS/);
-    assert.match(e.hint, /Web origins/);
+    assert.match(e.hint, /realm that does not exist/);
     return true;
   });
 

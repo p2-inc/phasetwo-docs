@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "@docusaurus/Link";
-import { Icon } from "@iconify/react";
+import { Icon } from "../Icon";
 import type { JSONWebKeySet } from "jose";
 import { parseJsonInput } from "../oidc/fetch";
 import {
