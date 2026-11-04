@@ -193,6 +193,46 @@ export const NAV_ICONS = {
       <path d="M3.27 6.96L12 12l8.73-5.04M12 22V12" />
     </svg>
   ),
+  code: (
+    <svg {...stroke}>
+      <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
+    </svg>
+  ),
+  search: (
+    <svg {...stroke}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  ),
+  play: (
+    <svg {...stroke}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M10 8l6 4-6 4V8z" />
+    </svg>
+  ),
+  link: (
+    <svg {...stroke}>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  ),
+  hash: (
+    <svg {...stroke}>
+      <path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18" />
+    </svg>
+  ),
+  cert: (
+    <svg {...stroke}>
+      <circle cx="12" cy="8" r="6" />
+      <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" />
+    </svg>
+  ),
+  check: (
+    <svg {...stroke}>
+      <path d="M9 11l3 3L22 4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </svg>
+  ),
 };
 
 export function IconExt() {
