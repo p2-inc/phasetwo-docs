@@ -418,11 +418,11 @@ module.exports = {
             ],
             featured: [
               {
-                tag: "What's new",
-                title: "Keycloak Skills and the Phase Two MCP server.",
-                desc: "Teach Claude to configure Keycloak properly, then let it run the admin work.",
-                cta: "Read post",
-                to: "blog/keycloak-skills-mcp-launch",
+                tag: "Security",
+                title: "Securing Keycloak in production.",
+                desc: "Every common attack on a public realm, what Keycloak covers, and what you configure.",
+                cta: "Read the guide",
+                to: "docs/security",
               },
               {
                 tag: "Data residency",
@@ -486,11 +486,6 @@ module.exports = {
               label: "Tutorials",
             },
             {
-              to: "tools/",
-              activeBasePath: "tools",
-              label: "Developer Tools",
-            },
-            {
               href: "https://github.com/p2-inc/",
               label: "GitHub",
             },
@@ -526,13 +521,6 @@ module.exports = {
                     label: "Tutorials",
                     sub: "Keycloak deep dives & how-tos",
                     icon: "article",
-                  },
-                  {
-                    to: "tools/",
-                    activeBasePath: "tools",
-                    label: "Developer Tools",
-                    sub: "All free tools, by category",
-                    icon: "grid",
                   },
                   {
                     href: "https://github.com/p2-inc/",
@@ -692,11 +680,11 @@ module.exports = {
                 to: "blog/phasetwo-management-api",
               },
               {
-                tag: "Featured guide",
-                title: "Keycloak production readiness checklist.",
-                desc: "The defaults that are wrong for production, and the probe your load balancer gets wrong.",
-                cta: "Open the guide",
-                to: "blog/keycloak-production-checklist",
+                tag: "AI",
+                title: "Keycloak Skills and the Phase Two MCP server.",
+                desc: "Teach Claude to configure Keycloak properly, then let it run the admin work.",
+                cta: "Read post",
+                to: "blog/keycloak-skills-mcp-launch",
               },
             ],
             footer: {
