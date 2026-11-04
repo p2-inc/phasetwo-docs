@@ -18,6 +18,7 @@ const VENDOR_LINKS = [
   { key: "frontegg", label: "vs. FrontEgg", to: "/keycloak-alternatives/frontegg/" },
   { key: "onelogin", label: "vs. OneLogin", to: "/keycloak-alternatives/onelogin/" },
   { key: "azure-ad-b2c", label: "vs. Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/" },
+  { key: "zitadel", label: "vs. Zitadel", to: "/keycloak-alternatives/zitadel/" },
 ];
 
 // Render a feature-matrix cell from a compact value:
