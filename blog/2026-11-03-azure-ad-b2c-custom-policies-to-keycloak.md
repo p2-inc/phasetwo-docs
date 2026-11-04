@@ -2,7 +2,6 @@
 slug: azure-ad-b2c-custom-policies-to-keycloak
 title: "Porting Azure AD B2C custom policies to Keycloak"
 date: 2026-11-03
-unlisted: true
 authors: [jpatzer]
 tags: [keycloak, migration, azure, authentication, spi]
 description: A concept-by-concept map from Azure AD B2C custom policies (IEF) to Keycloak 26.8 — user journeys, technical profiles, claims transformations — and the three things that need Java.

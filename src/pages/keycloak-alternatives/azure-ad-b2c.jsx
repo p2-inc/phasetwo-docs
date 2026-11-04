@@ -335,7 +335,12 @@ const sections = [
         <p>
           What has no clean equivalent: the parts of the Identity Experience Framework that are a
           programming language rather than a configuration — long claims-transformation chains,
-          and orchestration that branches on computed values. Those become Java.
+          and orchestration that branches on computed values. Those become Java. The
+          concept-by-concept version, with the configuration to go with it, is in{" "}
+          <Link to="/blog/azure-ad-b2c-custom-policies-to-keycloak/" className="ilink">
+            porting Azure AD B2C custom policies to Keycloak
+          </Link>
+          .
         </p>
       </>
     ),
@@ -525,7 +530,11 @@ const faqs = [
         with no converter — and explicitly says third-party identity providers configured through
         custom policies are not supported there. On Keycloak, user journeys become authentication
         flows and most technical profiles become configuration; the parts of the Identity Experience
-        Framework that behave like a programming language become Java.
+        Framework that behave like a programming language become Java. See{" "}
+        <Link to="/blog/azure-ad-b2c-custom-policies-to-keycloak/" className="ilink">
+          porting Azure AD B2C custom policies to Keycloak
+        </Link>
+        .
       </p>
     ),
     text: "They are rewritten, not converted, on every destination. Microsoft's migration guide maps custom policies to Entra External ID's custom authentication extensions, a different model with no converter, and says third-party identity providers configured through custom policies are not supported there. On Keycloak, user journeys become authentication flows and most technical profiles become configuration; the rest becomes Java.",
