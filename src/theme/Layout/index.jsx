@@ -8,7 +8,7 @@ if (ExecutionEnvironment.canUseEventListeners) {
     cookieconsent.run({
       notice_banner_type: "simple",
       consent_type: "express",
-      palette: "light",
+      palette: "dark",
       language: "en",
       page_load_consent_levels: ["strictly-necessary"],
       notice_banner_reject_button_hide: false,
