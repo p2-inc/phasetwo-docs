@@ -21,6 +21,7 @@
 @tailwind utilities;
 
 @import "./helpers.css";
+@import "./cookie-consent.css";
 
 :root {
   /* Font Family */
