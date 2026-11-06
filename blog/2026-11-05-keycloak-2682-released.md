@@ -4,7 +4,7 @@ title: "Keycloak 26.8.2: 33 CVEs and a Critical SAML Bypass"
 date: 2026-11-05
 authors: [gpatil]
 tags: [keycloak, release, security, upgrades]
-description: Keycloak 26.8.2 fixes 33 CVEs, one a critical unauthenticated SAML signature bypass, with no backport to 26.7, 26.6 or 26.4. Upgrade now if you use SAML.
+description: Keycloak 26.8.2 fixes 33 CVEs, one a critical unauthenticated SAML signature bypass. The 26.6.9 and 26.4.18 backports leave that one out. Upgrade now if you use SAML.
 keywords: [keycloak 26.8.2, keycloak release, keycloak news, keycloak security update]
 ---
 
@@ -22,7 +22,8 @@ That 33 is upstream's *Security fixes* list counted entry by entry; 36 CVE ids a
 | Run 26.8.0 or 26.8.1 with organizations enabled | **Now.** Account takeover through identity-first login, [reproduced on 26.8.1](https://github.com/keycloak/keycloak/issues/54688) |
 | Expose any realm endpoint to the internet | **This week.** Five denial-of-service fixes, four of them unauthenticated, one a [single-request JVM kill](https://github.com/keycloak/keycloak/issues/54693) |
 | Allow Dynamic Client Registration | **This week.** Four fixes for protocol mappers that forge `sub`, `aud`, `azp` or role claims |
-| Run 26.7, 26.6 or 26.4 | There is no patch on your branch. See below |
+| Run 26.6 or 26.4 | **Take the backport now**, but it leaves out the critical SAML fix. See below |
+| Run 26.7 | No patch. The branch is end of life. See below |
 
 Budget time for it. 26.8.2 ships **fourteen breaking changes** — most of them the hardening behind these CVEs.
 
@@ -58,18 +59,26 @@ Seven of the 33 have a published advisory:
 
 ## If you run 26.7, 26.6 or 26.4
 
-Checked 5 November against upstream branches and tags, because the advisories carry no backport data.
+:::info Updated 2026-11-06: 26.6 and 26.4 backports are out
+When this was published no backport existed. Upstream has since tagged **26.6.8 and 26.6.9** and **26.4.17 and 26.4.18**, without release notes, and we have built images for all four. **Neither branch has the critical SAML fix, CVE-2026-117691.**
+:::
 
-| Branch | Newest release | Newest tag | These fixes | Image |
-|---|---|---|---|---|
-| 26.8 | 26.8.2 (5 Nov) | 26.8.2 | all 33 | `26.8.1` — 26.8.2 not built yet |
-| 26.7 | 26.7.5 (30 Sep) | 26.7.5 | none | `26.7.5` |
-| 26.6 | 26.6.4 (Jun) | 26.6.7 (7 Sep) | none | `26.6.7` |
-| 26.4 | 26.4.7 (Dec 2025) | 26.4.16 (7 Sep) | none | `26.4.16` |
+There are no release notes for the backports, so we matched each of the 33 fixes to upstream commits on the release branches. The result:
 
-**No backport exists.** 26.8.2 is the only build carrying any of these fixes. `release/26.7` has been archived — 26.7 is end of life and 26.7.5 was its last. `release/26.6` and `release/26.4` are still live but neither has taken a commit since mid-October or a tag since 7 September. On an older branch your only path today is 26.8 — a minor upgrade, on top of 26.8.0's and 26.8.1's own breaking changes.
+| Branch | Image | Of the 33 fixes | Missing |
+|---|---|---|---|
+| 26.8 | [`26.8.2`](https://quay.io/repository/phasetwo/keycloak?tab=tags&tag=26.8.2) | all 33 | none |
+| 26.6 | [`26.6.9`](https://quay.io/repository/phasetwo/keycloak?tab=tags&tag=26.6.9) | 29 | **CVE-2026-117691** (critical SAML bypass), plus three we could not match to a commit: [CVE-2026-107623](https://github.com/keycloak/keycloak/issues/53749), [CVE-2026-112201](https://github.com/keycloak/keycloak/issues/54687), [CVE-2026-96457](https://github.com/keycloak/keycloak/issues/54699) |
+| 26.4 | [`26.4.18`](https://quay.io/repository/phasetwo/keycloak?tab=tags&tag=26.4.18) | 14 | **CVE-2026-117691**, the Admin API audience check, the organization `SSO_AUTH` takeover, the FGAP v2 composite fix, the Device Grant ACR fix, the stored XSS and 13 more |
+| 26.7 | `26.7.5` | none | all 33. 26.7 is end of life |
 
-Tags live on [`quay.io/phasetwo/keycloak`](https://quay.io/repository/phasetwo/keycloak?tab=tags), [including the backports upstream tags but never announces](/blog/keycloak-lts-backport-images). 26.8.2 was not built at the time of writing — check the list.
+26.6.9 is 26.6.8 with only the version number changed, and 26.4.18 adds one client-policy fix on top of 26.4.17, so take the newer tag on each branch. The backports ship the hardening that goes with their fixes, so check the [breaking changes](#breaking-changes-and-migration) below. On 26.6 nearly all of them apply, including the Admin API audience check. On 26.4 the SAML broker, SOAP, DCR mapper and verified-email changes apply.
+
+**If you use SAML on 26.6 or 26.4, the backport is not enough.** It does include the SAML 1.1 and SOAP denial-of-service fixes, the issuer check and the holder-of-key check, but the redirect-binding signature bypass is open on both branches. Either move to 26.8.2 or stop accepting SAML over the HTTP-Redirect binding until upstream backports the fix. Upstream gives no date for that, and the [advisory](https://github.com/advisories/GHSA-c85j-3hq2-q6wj) still has no affected-version data.
+
+On 26.7 nothing has changed. `release/26.7` is archived, so 26.8.2 is the only patched path.
+
+All tags live on [`quay.io/phasetwo/keycloak`](https://quay.io/repository/phasetwo/keycloak?tab=tags), [including the backports upstream tags but never announces](/blog/keycloak-lts-backport-images).
 
 ## Breaking changes and migration
 
