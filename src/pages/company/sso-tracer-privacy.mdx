@@ -1,0 +1,49 @@
+---
+id: sso-tracer-privacy
+title: SSO Tracer Privacy Policy
+description: SSO Tracer by Phase Two decodes SAML and OIDC logins locally in DevTools. It collects no data and sends nothing off your device.
+---
+
+# SSO Tracer privacy policy
+
+_Last updated: November 5, 2026_
+
+SSO Tracer by Phase Two ("SSO Tracer", "the extension") is a browser developer tool published by Phase Two, Inc. ("Phase Two", "we"). This policy explains what the extension does with data.
+
+## Summary
+
+SSO Tracer does not collect, transmit, sell, or share any data. Everything it does happens locally in your browser.
+
+## What the extension reads
+
+When you open your browser's developer tools (DevTools) on a tab, SSO Tracer reads that tab's network log through the browser's DevTools extension interface, so it can decode and display single sign-on requests (SAML, OpenID Connect, OAuth 2.0). This can include URLs, request and response headers, form fields, cookies, tokens, and SAML messages that the page you are inspecting sent or received, including personal information such as names or email addresses contained in them.
+
+The extension can only read this data while DevTools is open on that tab. It has no access to other tabs, to pages where DevTools is closed, or to your browsing history.
+
+## What the extension does with it
+
+- It decodes and displays the data in the SSO Tracer panel, in memory.
+- It does not send any data to Phase Two or to anyone else. The extension makes no network requests at all, and its Content Security Policy blocks outgoing connections.
+- It does not use analytics, telemetry, crash reporting, advertising, or tracking of any kind.
+- Certificates, metadata, or JWKS you paste to verify signatures are kept in memory only and used locally with the browser's built-in cryptography.
+- It does not store captured data. When you close DevTools or the tab, the captured trace is discarded. The only thing it stores is a small preference (whether you dismissed the tips banner) in the extension's local storage on your device.
+
+## Exported traces
+
+If you choose Export, the extension creates a file on your device that contains the trace with credentials removed (cookies, Authorization headers, passwords, client secrets, PKCE verifiers, refresh tokens, and token and SAML signatures) and, optionally, user identifiers masked. You see a preview before saving. What you do with the file, such as attaching it to a support ticket, is up to you; Phase Two only receives it if you send it to us. If you send an exported trace to Phase Two support, we handle it under the [Phase Two privacy policy](/company/privacy).
+
+## Permissions
+
+The extension requests no browser permissions and no access to websites. It uses the `devtools_page` manifest entry to add its panel to DevTools.
+
+## Children
+
+The extension is a developer tool and is not directed at children.
+
+## Changes
+
+If this policy changes, we will update this page and the date at the top. Because the extension collects no data, changes will not affect data already collected.
+
+## Contact
+
+Phase Two, Inc. Questions about this policy: [support@phasetwo.io](mailto:support@phasetwo.io).
