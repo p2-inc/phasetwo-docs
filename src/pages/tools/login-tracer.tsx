@@ -10,7 +10,8 @@ import { Icon } from "../../components/tools/Icon";
  * instead of an install button. Set it to the listing URL to switch every
  * install call to action on this page to the store.
  */
-const CHROME_STORE_URL = "";
+const CHROME_STORE_URL =
+  "https://chromewebstore.google.com/detail/iikanmhhdeifkfmcikbkfipfamfdleki";
 
 /**
  * Source repository. The link is rendered only when GITHUB_REPO_PUBLIC is
