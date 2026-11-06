@@ -193,6 +193,11 @@ export const NAV_ICONS = {
       <path d="M3.27 6.96L12 12l8.73-5.04M12 22V12" />
     </svg>
   ),
+  puzzle: (
+    <svg {...stroke}>
+      <path d="M10 3a2 2 0 1 1 4 0v2h4a1 1 0 0 1 1 1v4h-2a2 2 0 1 0 0 4h2v4a1 1 0 0 1-1 1h-4v-2a2 2 0 1 0-4 0v2H6a1 1 0 0 1-1-1v-4h2a2 2 0 1 0 0-4H5V6a1 1 0 0 1 1-1h4V3z" />
+    </svg>
+  ),
   code: (
     <svg {...stroke}>
       <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
