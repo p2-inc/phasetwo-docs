@@ -523,6 +523,13 @@ module.exports = {
                     icon: "article",
                   },
                   {
+                    to: "tools/sso-tracer",
+                    activeBasePath: "tools/sso-tracer",
+                    label: "SSO Tracer",
+                    sub: "Chrome DevTools extension",
+                    icon: "puzzle",
+                  },
+                  {
                     href: "https://github.com/p2-inc/",
                     label: "GitHub",
                     sub: "github.com/p2-inc",
