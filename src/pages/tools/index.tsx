@@ -30,9 +30,9 @@ const GROUPS: ToolGroup[] = [
       "Trace whole SAML and OIDC logins as they happen, in Chrome DevTools.",
     tools: [
       {
-        to: "/tools/sso-tracer",
+        to: "/tools/login-tracer",
         icon: "mdi:puzzle-outline",
-        title: "SSO Tracer",
+        title: "Login Tracer",
         desc: "A free DevTools panel that groups SAML and OIDC/OAuth requests into login flows, decodes messages and tokens, verifies signatures, and flags misconfigurations. No permissions, no network requests.",
       },
     ],

@@ -23,18 +23,18 @@ const GITHUB_REPO_PUBLIC = false;
  * Absolute on purpose: the policy page ships in a separate PR, and an absolute
  * URL keeps this page's build independent of the merge order.
  */
-const PRIVACY_POLICY_URL = "https://phasetwo.io/company/sso-tracer-privacy";
+const PRIVACY_POLICY_URL = "https://phasetwo.io/company/login-tracer-privacy";
 
 const PAGE_META = {
-  title: "SSO Tracer — Debug SAML and OIDC Logins in Chrome DevTools",
+  title: "Login Tracer — Debug SAML and OIDC Logins in Chrome DevTools",
   description:
-    "SSO Tracer by Phase Two is a free Chrome DevTools extension for debugging SAML and OpenID Connect / OAuth logins. It groups every SSO request into a login flow, decodes SAML messages and JWTs, verifies signatures offline, flags misconfigurations, and exports a redacted trace. No permissions, no network requests.",
+    "Login Tracer by Phase Two is a free Chrome DevTools extension for debugging SAML and OpenID Connect / OAuth logins. It groups every SSO request into a login flow, decodes SAML messages and JWTs, verifies signatures offline, flags misconfigurations, and exports a redacted trace. No permissions, no network requests.",
   keywords:
     "sso tracer, saml tracer, saml tracer chrome, saml chrome extension, oidc debugger, oauth debugger, saml devtools, sso debugging, debug saml login, debug oidc login, jwt chrome extension, keycloak saml debugging, keycloak oidc debugging, har saml",
-  url: "https://phasetwo.io/tools/sso-tracer",
+  url: "https://phasetwo.io/tools/login-tracer",
 };
 
-const IMG = "/img/tools/sso-tracer";
+const IMG = "/img/tools/login-tracer";
 
 const FEATURES: { icon: string; title: string; body: React.ReactNode }[] = [
   {
@@ -115,31 +115,31 @@ const FEATURES: { icon: string; title: string; body: React.ReactNode }[] = [
 const SHOTS = [
   {
     src: `${IMG}/01-flows.webp`,
-    alt: "SSO Tracer panel in Chrome DevTools listing three login flows (OIDC, brokered OIDC, and SAML) with a timeline of the selected flow and no findings",
+    alt: "Login Tracer panel in Chrome DevTools listing three login flows (OIDC, brokered OIDC, and SAML) with a timeline of the selected flow and no findings",
     caption:
       "Every SSO request in the tab, grouped into login flows, with a per-host timeline and findings for each flow.",
   },
   {
     src: `${IMG}/02-saml-response.webp`,
-    alt: "A decoded SAML Response in SSO Tracer with valid signatures on the Response and the Assertion and a field-by-field summary",
+    alt: "A decoded SAML Response in Login Tracer with valid signatures on the Response and the Assertion and a field-by-field summary",
     caption:
       "A SAML Response decoded, with both the Response and Assertion signatures verified against captured IdP metadata.",
   },
   {
     src: `${IMG}/03-oidc-tokens.webp`,
-    alt: "A decoded ID token in SSO Tracer with a valid RS256 signature from the captured JWKS and explained claims",
+    alt: "A decoded ID token in Login Tracer with a valid RS256 signature from the captured JWKS and explained claims",
     caption:
       "An ID token from the token response, its signature checked against the JWKS captured in the same flow, every claim explained.",
   },
   {
     src: `${IMG}/04-keys.webp`,
-    alt: "The Keys and certificates dialog in SSO Tracer showing captured SAML metadata awaiting trust and a captured JWKS",
+    alt: "The Keys and certificates dialog in Login Tracer showing captured SAML metadata awaiting trust and a captured JWKS",
     caption:
       "Keys come from what you paste or what the page already downloaded. Captured SAML metadata is used only after you trust it.",
   },
   {
     src: `${IMG}/05-export.webp`,
-    alt: "The Export redacted trace dialog in SSO Tracer with redaction options, counts of removed values, and a JSON preview",
+    alt: "The Export redacted trace dialog in Login Tracer with redaction options, counts of removed values, and a JSON preview",
     caption:
       "The export dialog: choose flows and redaction, see what was removed, and preview the exact file before saving it.",
   },
@@ -147,11 +147,11 @@ const SHOTS = [
 
 const FAQS = [
   {
-    q: "What is SSO Tracer?",
-    a: "A free Chrome DevTools extension from Phase Two for debugging single sign-on. It adds an SSO Tracer panel to DevTools that decodes the SAML and OpenID Connect / OAuth requests in the inspected tab, groups them into login flows, verifies signatures, and flags common misconfigurations.",
+    q: "What is Login Tracer?",
+    a: "A free Chrome DevTools extension from Phase Two for debugging single sign-on. It adds an Login Tracer panel to DevTools that decodes the SAML and OpenID Connect / OAuth requests in the inspected tab, groups them into login flows, verifies signatures, and flags common misconfigurations.",
   },
   {
-    q: "Does SSO Tracer send my tokens or SAML assertions anywhere?",
+    q: "Does Login Tracer send my tokens or SAML assertions anywhere?",
     a: "No. The extension makes no network requests of its own: its Content Security Policy sets connect-src 'none', so it could not upload anything even if it tried. There is no telemetry, analytics, or account. Captured data stays in memory and is discarded when you close DevTools.",
   },
   {
@@ -160,15 +160,15 @@ const FAQS = [
   },
   {
     q: "Why don't I see my login?",
-    a: "SSO Tracer sees what the DevTools network log sees. Open DevTools on the tab before you start the login and turn on Preserve log in the Network panel so redirects across page loads are kept. Logins in popups need DevTools open in the popup, and server-to-server calls, such as a confidential client's back-end token exchange, never pass through the browser.",
+    a: "Login Tracer sees what the DevTools network log sees. Open DevTools on the tab before you start the login and turn on Preserve log in the Network panel so redirects across page loads are kept. Logins in popups need DevTools open in the popup, and server-to-server calls, such as a confidential client's back-end token exchange, never pass through the browser.",
   },
   {
     q: "Can it verify signatures without fetching keys?",
-    a: "Yes. For SAML, paste the IdP or SP certificate or metadata, or trust SAML metadata the page already loaded. For OIDC, tokens are checked against JWKS responses captured in the same login flow, or a JWKS you paste. SSO Tracer never fetches keys itself. HMAC-signed tokens (HS256 and similar) cannot be verified without the shared secret.",
+    a: "Yes. For SAML, paste the IdP or SP certificate or metadata, or trust SAML metadata the page already loaded. For OIDC, tokens are checked against JWKS responses captured in the same login flow, or a JWKS you paste. Login Tracer never fetches keys itself. HMAC-signed tokens (HS256 and similar) cannot be verified without the shared secret.",
   },
   {
     q: "Can it decrypt encrypted SAML assertions?",
-    a: "No. Decrypting an EncryptedAssertion takes the service provider's private key, and SSO Tracer does not ask for one. It detects encrypted assertions and decodes the rest of the message.",
+    a: "No. Decrypting an EncryptedAssertion takes the service provider's private key, and Login Tracer does not ask for one. It detects encrypted assertions and decodes the rest of the message.",
   },
   {
     q: "Is it safe to attach an export to a support ticket?",
@@ -180,11 +180,11 @@ const FAQS = [
   },
   {
     q: "How is it different from the SAML Decoder and JWT Decoder?",
-    a: "The web tools decode one message or token you paste. SSO Tracer captures the whole login as it happens, so it can correlate requests, compare a response with the request it answers, and verify tokens against keys from the same flow. Use the web tools when you already have a value in hand.",
+    a: "The web tools decode one message or token you paste. Login Tracer captures the whole login as it happens, so it can correlate requests, compare a response with the request it answers, and verify tokens against keys from the same flow. Use the web tools when you already have a value in hand.",
   },
   {
     q: "Which browsers are supported?",
-    a: "SSO Tracer is built and tested for Google Chrome, version 110 or later.",
+    a: "Login Tracer is built and tested for Google Chrome, version 110 or later.",
   },
 ];
 
@@ -247,7 +247,7 @@ function Shot({
   );
 }
 
-export default function SsoTracerPage() {
+export default function LoginTracerPage() {
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -260,7 +260,7 @@ export default function SsoTracerPage() {
   const appJsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "SSO Tracer by Phase Two",
+    name: "Login Tracer by Phase Two",
     applicationCategory: "DeveloperApplication",
     applicationSubCategory: "Browser extension",
     operatingSystem: "Windows, macOS, Linux, ChromeOS",
@@ -294,11 +294,11 @@ export default function SsoTracerPage() {
         <meta name="keywords" content={PAGE_META.keywords} />
         <meta
           property="og:image"
-          content={`https://phasetwo.io${IMG}/sso-tracer-og.png`}
+          content={`https://phasetwo.io${IMG}/login-tracer-og.png`}
         />
         <meta
           name="twitter:image"
-          content={`https://phasetwo.io${IMG}/sso-tracer-og.png`}
+          content={`https://phasetwo.io${IMG}/login-tracer-og.png`}
         />
         <link rel="canonical" href={PAGE_META.url} />
         <script type="application/ld+json">{JSON.stringify(appJsonLd)}</script>
@@ -311,7 +311,7 @@ export default function SsoTracerPage() {
             Free Chrome DevTools extension
           </p>
           <h1 className="mb-3 text-4xl font-semibold text-white">
-            SSO Tracer by Phase Two
+            Login Tracer by Phase Two
           </h1>
           <p className="text-lg text-gray-400">
             Debug SAML and OpenID Connect / OAuth logins in a DevTools panel.
@@ -372,12 +372,12 @@ export default function SsoTracerPage() {
             <li>
               {CHROME_STORE_URL ? (
                 <>
-                  Add SSO Tracer to Chrome from the{" "}
+                  Add Login Tracer to Chrome from the{" "}
                   <a href={CHROME_STORE_URL}>Chrome Web Store</a>.
                 </>
               ) : (
                 <>
-                  Add SSO Tracer to Chrome from the Chrome Web Store (the
+                  Add Login Tracer to Chrome from the Chrome Web Store (the
                   listing is coming soon).
                 </>
               )}
@@ -393,7 +393,7 @@ export default function SsoTracerPage() {
               on <em>Preserve log</em> so redirects across page loads are kept.
             </li>
             <li>
-              Select the <strong className="text-white">SSO Tracer</strong>{" "}
+              Select the <strong className="text-white">Login Tracer</strong>{" "}
               panel (it may be under the <code>»</code> overflow menu) and log
               in. Select a flow for its timeline and findings, or a request for
               its decoded parameters, SAML, tokens, headers, and response body.
@@ -404,7 +404,7 @@ export default function SsoTracerPage() {
             </li>
           </ol>
           <p className="mb-4">
-            SSO Tracer sees what the DevTools network log sees: browser
+            Login Tracer sees what the DevTools network log sees: browser
             navigations, redirects, form posts, and requests the page makes
             itself. It cannot see requests made before DevTools was opened,
             logins in another tab or popup, or server-to-server calls such as a
@@ -415,8 +415,8 @@ export default function SsoTracerPage() {
           <p className="mb-4">
             Tokens and SAML assertions are credentials. Debugging a login should
             not mean pasting them into a third-party website, and it should not
-            mean installing an extension that can read every page you visit. SSO
-            Tracer is built so that it cannot leak what it sees:
+            mean installing an extension that can read every page you visit.
+            Login Tracer is built so that it cannot leak what it sees:
           </p>
           <ul className="mb-4 list-disc space-y-1 pl-5">
             <li>
@@ -453,10 +453,10 @@ export default function SsoTracerPage() {
           </ul>
           <p className="mb-4">
             Read the full{" "}
-            <a href={PRIVACY_POLICY_URL}>SSO Tracer privacy policy</a>.
+            <a href={PRIVACY_POLICY_URL}>Login Tracer privacy policy</a>.
           </p>
 
-          <H2 id="web-tools">SSO Tracer and our in-browser decoders</H2>
+          <H2 id="web-tools">Login Tracer and our in-browser decoders</H2>
           <p className="mb-4">
             The <Link to="/tools/saml-decoder">SAML Decoder</Link> and{" "}
             <Link to="/tools/jwt-decoder">JWT Decoder</Link> are web pages:
@@ -465,8 +465,8 @@ export default function SsoTracerPage() {
             have a value in hand, for example from a log or a colleague.
           </p>
           <p className="mb-4">
-            SSO Tracer captures the whole login while it happens, so you do not
-            have to copy anything out of the Network panel. Because it sees
+            Login Tracer captures the whole login while it happens, so you do
+            not have to copy anything out of the Network panel. Because it sees
             every step, it can group requests into flows, check that a callback
             matches its authorize request or a SAML Response matches its
             AuthnRequest, and verify tokens against the JWKS fetched in the same
@@ -491,8 +491,8 @@ export default function SsoTracerPage() {
 
           <div className="mt-10 rounded-2xl border border-white/10 bg-[var(--ifm-background-surface-color)] p-6 text-center">
             <p className="mb-4 text-base text-gray-300">
-              SSO Tracer is built by Phase Two, the team behind hosted Keycloak
-              and the Phase Two Keycloak extensions.
+              Login Tracer is built by Phase Two, the team behind hosted
+              Keycloak and the Phase Two Keycloak extensions.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <InstallCta />

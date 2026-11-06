@@ -523,9 +523,9 @@ module.exports = {
                     icon: "article",
                   },
                   {
-                    to: "tools/sso-tracer",
-                    activeBasePath: "tools/sso-tracer",
-                    label: "SSO Tracer",
+                    to: "tools/login-tracer",
+                    activeBasePath: "tools/login-tracer",
+                    label: "Login Tracer",
                     sub: "Chrome DevTools extension",
                     icon: "puzzle",
                   },
@@ -1332,6 +1332,9 @@ module.exports = {
           // to the introduction, which is the first page of the docs sidebar --
           // the same section-root pattern as /articles -> /tutorials/ below.
           { from: "/docs", to: "/docs/introduction/" },
+          // The extension was renamed from SSO Tracer before launch; its privacy
+          // policy had already been published at the old URL.
+          { from: "/company/sso-tracer-privacy", to: "/company/login-tracer-privacy/" },
           // Dead URLs still being requested, from the 2026-09-07 coverage export.
           // Each target was checked to return 200 before being written here.
           {
