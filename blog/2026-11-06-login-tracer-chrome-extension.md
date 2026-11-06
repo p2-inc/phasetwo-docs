@@ -1,7 +1,7 @@
 ---
 title: "Login Tracer: debug SAML and OIDC logins in Chrome DevTools"
 slug: login-tracer-chrome-extension
-date: 2026-11-05
+date: 2026-11-06
 authors: [jpatzer]
 tags: [phase_two, saml, oidc, sso, troubleshooting, security, keycloak]
 description: Login Tracer by Phase Two is a free Chrome DevTools extension that decodes SAML and OIDC/OAuth logins, verifies signatures offline, flags misconfigurations, and exports a redacted trace. No permissions, no network requests.
