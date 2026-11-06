@@ -25,6 +25,19 @@ type ToolGroup = {
 
 const GROUPS: ToolGroup[] = [
   {
+    title: "Browser extension",
+    blurb:
+      "Trace whole SAML and OIDC logins as they happen, in Chrome DevTools.",
+    tools: [
+      {
+        to: "/tools/sso-tracer",
+        icon: "mdi:puzzle-outline",
+        title: "SSO Tracer",
+        desc: "A free DevTools panel that groups SAML and OIDC/OAuth requests into login flows, decodes messages and tokens, verifies signatures, and flags misconfigurations. No permissions, no network requests.",
+      },
+    ],
+  },
+  {
     title: "Tokens and JWTs",
     blurb:
       "Decode, sign, and verify JSON Web Tokens and the key sets that sign them.",
