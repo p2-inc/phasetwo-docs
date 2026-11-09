@@ -127,12 +127,14 @@ Social login, external IdP brokering and SAML federation build on the same track
 into your realm, and what silently does not:
 
 1. [Keycloak identity provider mappers: map external IdP claims](/tutorials/identity-providers/attribute-mapping/)
-2. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+2. [Connect Microsoft Entra ID as a Keycloak identity provider](/tutorials/identity-providers/entra-id/) —
+   OIDC and SAML, and the tenant authority that breaks the login on the way back
+3. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
    the second hop, from the local user record into your application's token
-3. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
+4. [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
    decides whether an imported attribute is kept at all
 
-Social login, Entra ID and Okta connections build on the same mappers.
+Social login and Okta connections build on the same mappers.
 *(Coming soon.)*
 
 **Provisioning users from an identity provider** — SSO gets people in; provisioning keeps the

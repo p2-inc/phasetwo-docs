@@ -30,7 +30,11 @@ module.exports = {
       type: "category",
       label: "Identity providers and federation",
       link: { type: "generated-index" },
-      items: ["identity-providers/ldap", "identity-providers/attribute-mapping"],
+      items: [
+        "identity-providers/ldap",
+        "identity-providers/attribute-mapping",
+        "identity-providers/entra-id",
+      ],
     },
     {
       type: "category",
