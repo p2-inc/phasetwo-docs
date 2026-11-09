@@ -3,9 +3,9 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. Authentik — Phase Two",
+  title: "Keycloak vs. authentik — Phase Two",
   description:
-    "Authentik vs Keycloak, compared on what actually differs: an MIT core with a paid Enterprise directory against Apache 2.0 throughout, directory federation, and reach below OIDC.",
+    "authentik vs Keycloak, compared on what actually differs: an MIT core with a paid Enterprise directory against Apache 2.0 throughout, directory federation, and reach below OIDC.",
   keywords:
     "authentik vs keycloak, keycloak vs authentik, authentik alternative, authentik enterprise license, open source identity provider comparison, authentik self-hosted, keycloak alternative",
 };
