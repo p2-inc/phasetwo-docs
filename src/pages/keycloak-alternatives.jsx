@@ -30,15 +30,15 @@ const ROWS = [
 ];
 
 const VENDOR_LOGOS = [
-  { name: "Auth0", src: "/customer-logos/auth0.svg" },
-  { name: "Okta", src: "/customer-logos/okta.svg" },
-  { name: "WorkOS", src: "/customer-logos/workos.svg" },
-  { name: "Ping Identity", src: "/customer-logos/ping-identity.svg" },
-  { name: "FrontEgg", src: "/customer-logos/frontegg.svg" },
-  { name: "OneLogin", src: "/customer-logos/onelogin.svg" },
-  { name: "Azure AD B2C", src: "/customer-logos/azure-ad-b2c.svg" },
-  { name: "Zitadel", src: "/customer-logos/zitadel.svg" },
-  { name: "authentik", src: "/customer-logos/authentik.svg" },
+  { name: "Auth0", src: "/customer-logos/auth0.svg", to: "/keycloak-alternatives/auth0/" },
+  { name: "Okta", src: "/customer-logos/okta.svg", to: "/keycloak-alternatives/okta/" },
+  { name: "WorkOS", src: "/customer-logos/workos.svg", to: "/keycloak-alternatives/workos/" },
+  { name: "Ping Identity", src: "/customer-logos/ping-identity.svg", to: "/keycloak-alternatives/ping-identity/" },
+  { name: "FrontEgg", src: "/customer-logos/frontegg.svg", to: "/keycloak-alternatives/frontegg/" },
+  { name: "OneLogin", src: "/customer-logos/onelogin.svg", to: "/keycloak-alternatives/onelogin/" },
+  { name: "Azure AD B2C", src: "/customer-logos/azure-ad-b2c.svg", to: "/keycloak-alternatives/azure-ad-b2c/" },
+  { name: "Zitadel", src: "/customer-logos/zitadel.svg", to: "/keycloak-alternatives/zitadel/" },
+  { name: "authentik", src: "/customer-logos/authentik.svg", to: "/keycloak-alternatives/authentik/" },
 ];
 
 const CARDS = [
@@ -147,7 +147,9 @@ export default function KeycloakAlternatives() {
                 <span className="lbl">Compare Keycloak against</span>
                 <div className="logos">
                   {VENDOR_LOGOS.map((v) => (
-                    <img key={v.name} src={v.src} alt={v.name} />
+                    <Link key={v.name} to={v.to} title={`Keycloak vs. ${v.name}`}>
+                      <img src={v.src} alt={`Keycloak vs. ${v.name}`} />
+                    </Link>
                   ))}
                 </div>
               </div>
