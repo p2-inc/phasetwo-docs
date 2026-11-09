@@ -1,0 +1,354 @@
+---
+id: realm-key-management
+title: "Keycloak Realm Keys: Where They Live and How to Rotate Them"
+description: Every Keycloak realm has signing and encryption keys. Which providers a fresh realm creates, where the private material is actually stored, what the JWKS never publishes, and how active, passive, and disabled change what a token can do.
+keywords:
+  - keycloak realm keys
+  - where are keycloak keys stored
+  - keycloak signing key
+  - keycloak key rotation
+  - keycloak passive key
+  - keycloak key provider
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - Comfort with `kcadm.sh`
+  - Reading SQL output (one section uses it)
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Realm Keys: Where They Live and How to Rotate Them
+
+**Every Keycloak realm signs tokens with keys it generated for you, and by default it keeps
+the private halves in your database.** Create a realm and Keycloak writes four key providers
+into it with no prompt: an RSA signing pair (`RS256`), an RSA encryption pair (`RSA-OAEP`), an
+HMAC secret (`HS512`), and an AES secret. The two asymmetric public keys are published at the
+realm's JWKS endpoint so anyone can verify a token; the two symmetric secrets are never
+published and never leave the server. Keycloak realm keys are a per-realm set, one active key
+*per algorithm* at a time, and rotating them is adding a higher-priority provider — not editing
+the old one.
+
+This page is about where that key material sits, who can read it, and what the three key
+states — active, passive, disabled — actually change about a token. It is the storage-and-residency
+half; verifying tokens against a rotating key set from the application side is
+[validating Keycloak tokens](/tutorials/securing-applications/validating-tokens/).
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2`) on **PostgreSQL 16**, a 2-vCPU host,
+on **2026-11-09**. Every key id, status transition, and row below is copied from that run.
+
+The Server Administration Guide's
+[Configuring realm keys](https://www.keycloak.org/docs/latest/server_admin/index.html#realm_keys)
+is the reference for the Admin Console procedure, and this page does not restate it. It tells
+you which buttons add a provider; it does not say where the key ends up, what the JWKS withholds,
+or why a "passive" key and a "disabled" key behave differently for a token signed last week.
+That is the gap this page fills.
+
+:::
+
+## Set up: a realm whose keys you can see on disk
+
+`start-dev` normally uses an embedded database, which hides the point of the page. Run Keycloak
+against a Postgres you can query, so "the keys live in the database" is something you can look at
+rather than take on trust. **One Keycloak at a time, both with `--memory`:**
+
+```bash
+docker network create kcnet
+
+docker run -d --name kcdb --network kcnet --memory 512m \
+  -e POSTGRES_USER=keycloak -e POSTGRES_PASSWORD=keycloak -e POSTGRES_DB=keycloak \
+  postgres:16
+
+docker run -d --name kc --network kcnet --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_DB=postgres -e KC_DB_URL="jdbc:postgresql://kcdb:5432/keycloak" \
+  -e KC_DB_USERNAME=keycloak -e KC_DB_PASSWORD=keycloak \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+```
+
+Two aliases for the rest of the page:
+
+```bash
+alias kcadm='docker exec kc /opt/keycloak/bin/kcadm.sh'
+alias psql='docker exec -i kcdb psql -U keycloak -d keycloak'
+
+kcadm config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+kcadm create realms -s realm=keys -s enabled=true -s sslRequired=NONE
+```
+
+## What a fresh realm actually creates
+
+Creating a realm generated four keys before you touched anything. Read them back:
+
+```bash
+kcadm get keys -r keys
+```
+
+The top of the response is the **active set** — the key Keycloak will actually use, one entry
+per algorithm:
+
+```console
+"active" : {
+  "RS256"    : "FDwOwKxuKIzLAun71tAmDRG_pwYY_681kRm82rPNl3g",
+  "RSA-OAEP" : "08MJY3X-exiN7QS-ZRJMNatBaI1PvZFlyCDXxumSmwc",
+  "HS512"    : "2e7f1075-8a5f-4b95-903d-864fea36c116",
+  "AES"      : "ad830a26-59d8-4e2f-8b6a-757e67a3b952"
+}
+```
+
+Four providers, four jobs, and only two of them are the asymmetric kind that has a public half
+to hand out:
+
+| Provider (default name) | Algorithm | Kind | Signs / encrypts | Published at JWKS? |
+|---|---|---|---|---|
+| `rsa-generated` | `RS256` | asymmetric | signs tokens and SSO cookies | **Yes** — public key |
+| `rsa-enc-generated` | `RSA-OAEP` | asymmetric | encrypts content keys for encrypted (JWE) tokens | **Yes** — public key |
+| `hmac-generated` | `HS512` | symmetric | signs with a shared secret | **No** |
+| `aes-generated` | `AES` | symmetric | encrypts with a shared secret | **No** |
+
+All four are created at priority `100`. Nothing here expires, and nothing rotates on its own —
+**Keycloak never rotates a key for you.** The pair it generated at `createRealm` is still your
+signing key in four years unless you add a new one.
+
+## What the JWKS endpoint publishes — and what it withholds
+
+The certs endpoint is the public contract: it is what every resource server reads to verify your
+tokens. Ask it what key types it is willing to hand out:
+
+```bash
+curl -s http://127.0.0.1:8080/realms/keys/protocol/openid-connect/certs \
+  | jq '[.keys[] | {kty, use, alg, kid}]'
+```
+
+```console
+[
+  { "kty": "RSA", "use": "enc", "alg": "RSA-OAEP", "kid": "08MJY3X-exiN7QS-ZRJMNatBaI1PvZFlyCDXxumSmwc" },
+  { "kty": "RSA", "use": "sig", "alg": "RS256",    "kid": "FDwOwKxuKIzLAun71tAmDRG_pwYY_681kRm82rPNl3g" }
+]
+```
+
+Two keys. The `HS512` and `AES` entries from the active set are **gone**, and that is the whole
+security model of a symmetric key: it is both the signer and the verifier, so publishing it would
+hand every reader the ability to forge. A JWKS only ever exposes public halves. The practical
+consequence: anything your applications verify with Keycloak's JWKS is signed by an **asymmetric**
+key. An `HS512`-signed artifact is verified inside Keycloak, by Keycloak, and you cannot move that
+verification off-box the way you can with `RS256`. The full field-by-field tour of what the
+published half looks like is in [JWKS explained](/blog/jwks-explained/).
+
+### The `kid` is not random — it is a fingerprint of the public key
+
+The key id looks like an opaque token. It is not: for a generated key it is the base64url-encoded
+SHA-256 of the key's `SubjectPublicKeyInfo`. You can recompute it from nothing but the published
+JWKS — no access to the private side at all:
+
+```python
+import base64, hashlib, json, urllib.request
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+
+jwks = json.load(urllib.request.urlopen(
+    "http://127.0.0.1:8080/realms/keys/protocol/openid-connect/certs"))
+d = lambda s: base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+
+for k in jwks["keys"]:
+    if k["kty"] != "RSA" or k.get("use") != "sig":
+        continue
+    pub = rsa.RSAPublicNumbers(
+        int.from_bytes(d(k["e"]), "big"),
+        int.from_bytes(d(k["n"]), "big")).public_key()
+    spki = pub.public_bytes(serialization.Encoding.DER,
+                            serialization.PublicFormat.SubjectPublicKeyInfo)
+    derived = base64.urlsafe_b64encode(hashlib.sha256(spki).digest()).rstrip(b"=").decode()
+    print(derived, "==", k["kid"], "->", derived == k["kid"])
+```
+
+```console
+FDwOwKxuKIzLAun71tAmDRG_pwYY_681kRm82rPNl3g == FDwOwKxuKIzLAun71tAmDRG_pwYY_681kRm82rPNl3g -> True
+```
+
+Why it matters: the `kid` is **derived from the public key, so it is stable for the life of that
+key and changes the moment the key does**. That is exactly the property a verifier relies on to
+pick the right key out of the set during a rotation — covered from the client side in
+[your first token](/tutorials/getting-started/your-first-token/).
+
+## Where the private key actually lives
+
+For the generated and imported providers, the answer is: in your database, in the
+`component_config` table, as the value of a row named `privateKey`. Look, without printing the
+secret itself:
+
+```bash
+psql -c "SELECT c.provider_id, cc.name AS config_key,
+                left(cc.value,4)||'…('||length(cc.value)||' chars)' AS stored_value
+         FROM component c JOIN component_config cc ON cc.component_id = c.id
+         WHERE c.provider_type = 'org.keycloak.keys.KeyProvider'
+           AND c.name = 'rsa-generated' ORDER BY cc.name;"
+```
+
+```console
+  provider_id  | config_key  |   stored_value
+---------------+-------------+-------------------
+ rsa-generated | certificate | MIIC…(892 chars)
+ rsa-generated | priority    | 100…(3 chars)
+ rsa-generated | privateKey  | MIIE…(1588 chars)
+```
+
+That `privateKey` value is the base64-encoded DER of the full RSA private key, stored in readable
+form. Keycloak does not encrypt it at the application layer by default, so **anyone who can read
+this table — a database dump, a backup file, a read replica, a support bundle — holds the key
+that signs tokens for every user in the realm.** The symmetric providers are the same story under
+a different column name (`secret`). Three operational facts fall out of that one row:
+
+- **A database backup is a key backup.** Treat `component_config` dumps with the same care as the
+  keys themselves. This is a large part of what it means to ask "where do my realm keys live": for
+  stock Keycloak, they live wherever your database and its backups live.
+- **Moving a realm moves its keys.** A full database migration carries the keys; a
+  `partial-export` of realm configuration does **not** include private key material, which is why
+  an exported-and-reimported realm comes up with *new* keys and instantly invalidates every old
+  token. The export runbook is [exporting a realm, users, and credentials](/tutorials/data-protection/exit-export/).
+- **The `java-keystore` provider moves them off the database** onto the filesystem instead — a JKS,
+  PKCS12, or BCFKS file under `${kc.home.dir}/data/<realm-name>/`. Same key, different blast radius.
+
+## Rotate a key: add, do not edit
+
+Rotation in Keycloak is not "change the key." It is "add a new provider at a higher priority and
+let the old one age out." Add a second RSA signing provider above the default:
+
+```bash
+RID=$(kcadm get realms/keys --fields id --format csv --noquotes)
+kcadm create components -r keys \
+  -s name=rsa-rotated -s providerId=rsa-generated \
+  -s providerType=org.keycloak.keys.KeyProvider -s parentId=$RID \
+  -s 'config.priority=["200"]'
+```
+
+The active signing key flips immediately, but the old key does not disappear:
+
+```bash
+kcadm get keys -r keys | jq '.keys[] | select(.use=="SIG" and .type=="RSA") | {status, kid, priority:.providerPriority}'
+```
+
+```console
+{ "status": "ACTIVE", "kid": "5UJ9QMrEJ59HaxX52Zc5DZcq8Q9kKLsHD7MyrYrAEio", "priority": 200 }
+{ "status": "ACTIVE", "kid": "FDwOwKxuKIzLAun71tAmDRG_pwYY_681kRm82rPNl3g", "priority": 100 }
+```
+
+Both show `ACTIVE`. This is the detail the console hides and the source of most "which key is
+signing?" confusion: **a key's `status` of `ACTIVE` does not mean it is *the* active key.** The
+selected signer is the highest-priority active provider for that algorithm — the `200` one — and
+it is the only one named in the `active` map at the top of `get keys`. The old key stays published
+in the JWKS so that tokens signed before the switch still verify. That overlap is the point: it is
+what lets you rotate with zero downtime.
+
+### Active, passive, disabled — what each does to an old token
+
+Once new tokens are flowing on the new key, you retire the old one in two steps, and the
+difference between them is the difference between a working rollback and a support incident. Make
+the old provider passive:
+
+```bash
+OLD=<id of the rsa-generated provider>
+kcadm update components/$OLD -r keys -s 'config.active=["false"]'
+```
+
+Then, later, disable it:
+
+```bash
+kcadm update components/$OLD -r keys -s 'config.active=["false"]' -s 'config.enabled=["false"]'
+```
+
+What each state does, verified by watching the JWKS after each change:
+
+| State | Config | `status` | Signs new tokens? | In JWKS? | Old tokens still verify? |
+|---|---|---|---|---|---|
+| Active (selected) | `active=true`, highest priority | `ACTIVE` | Yes | Yes | Yes |
+| Active (not selected) | `active=true`, lower priority | `ACTIVE` | No | Yes | Yes |
+| Passive | `active=false` | `PASSIVE` | No | **Yes** | Yes |
+| Disabled | `enabled=false` | `DISABLED` | No | **No** | **No** |
+
+The line that matters: a **passive** key is still in the JWKS, so a token signed by it last week
+still verifies today — it has simply stopped signing new ones. A **disabled** key is removed from
+the JWKS, so every token and offline session still carrying that `kid` fails verification the
+instant you disable it. Disable is the step that breaks things, and it is the step to defer until
+every token and SSO cookie signed by the old key has expired. For offline tokens that can be weeks;
+the server's recommendation is to delete old keys one to two months after adding the new ones.
+
+## Choosing a provider, and what a KMS does and does not protect
+
+`rsa-generated` is one of several providers. The ones a realm can use:
+
+| Provider | Key material | Lives in | Use it when |
+|---|---|---|---|
+| `rsa-generated` | RSA pair Keycloak creates (2048 default, `keySize=4096` supported) | database | the default; fine for most realms |
+| `ecdsa-generated` | EC pair → `ES256`/`ES384`/`ES512` | database | you want smaller, faster signatures than RSA |
+| `hmac-generated` | shared secret → `HS256`/`384`/`512` | database | internal signing; never leaves the server |
+| `aes-generated` | AES secret (128/192/256) | database | internal encryption; never leaves the server |
+| `rsa` | an RSA private key *you* supply in PEM | database | you must present a specific external key |
+| `java-keystore` | a key loaded from a JKS/PKCS12/BCFKS file | filesystem | you want keys out of the database |
+
+Core Keycloak has no cloud-KMS or HSM provider — that is an SPI extension point, not a built-in.
+A KMS-backed provider changes one thing precisely: **where the private key material rests and who
+can extract it.** With the key in a KMS or HSM, a database dump or a stolen backup no longer
+contains anything that can sign a token, which closes the single widest exposure described above.
+
+It is worth being equally clear about what it does *not* do, because the phrase "keys in a KMS" is
+often read as more than it is:
+
+- It does not stop anyone who can reach the **running** Keycloak's signing path from getting a
+  token signed. The server still has to produce signatures, so it still has operational access to
+  the key; a KMS protects the key at rest, not the act of signing.
+- It does not move the **symmetric** `HS512` and `AES` secrets, nor the many other secrets Keycloak
+  keeps in `component_config` and the realm (client secrets, SMTP passwords, identity-provider
+  secrets). A KMS provider covers the asymmetric signing/encryption keys it is configured for and
+  nothing else.
+- It does not change *who operates the server*. The threat it addresses is extraction of key
+  material, not administrative access.
+
+So "where do the keys live" has three honest answers for stock Keycloak — the database, the
+filesystem, or an external KMS via an extension — and each narrows a different blast radius. None
+of them removes the need to control who can reach the running server.
+
+## Named failure modes
+
+- **"I rotated the key but old tokens broke immediately."** You edited or deleted the provider
+  instead of adding a new higher-priority one, or you jumped straight to `enabled=false`. Add the
+  new key first, make the old one passive, and only disable it once old tokens have expired.
+- **"`get keys` shows two `ACTIVE` RSA keys — which one signs?"** The highest-priority one, which
+  is the only one in the `active` map. `status: ACTIVE` means "usable", not "selected".
+- **"My HMAC or AES key is missing from the JWKS."** It is supposed to be. Symmetric keys are never
+  published; only the public half of an asymmetric key appears.
+- **"A realm I exported and reimported invalidated every token."** `partial-export` does not carry
+  private key material, so the reimported realm generated fresh keys. Move the database, or accept
+  that keys are reissued on reimport.
+- **"Security says the keys must not sit in the database."** Use `java-keystore` to move them to the
+  filesystem, or a KMS-backed provider via the Keys SPI. Remember the symmetric secrets and client
+  secrets stay in the database regardless.
+- **"I changed the priority and expected new keys."** Changing priority never regenerates a key —
+  it only re-ranks the existing one. Only changing the key size regenerates.
+
+## Next steps
+
+- [Validating Keycloak tokens in your backend](/tutorials/securing-applications/validating-tokens/)
+  — the verifier side of everything above: JWKS caching, and surviving a rotation without a redeploy.
+- [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/) — why
+  a config export does not carry your keys, and what does.
+- [Configure event and admin-event retention for GDPR](/tutorials/data-protection/event-retention/)
+  — the other half of a data-protection runbook.
+- [Your first Keycloak token, decoded](/tutorials/getting-started/your-first-token/) — where the
+  `kid` shows up in a real token header.
+- [JWKS explained](/blog/jwks-explained/) — the published half of the key set, field by field.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the client for
+  every command here.
+- [Where your Keycloak data lives](/blog/where-your-keycloak-data-lives/) — realm keys as one class
+  of data among several, and what "residency" means for each.
+- Official reference:
+  [Configuring realm keys](https://www.keycloak.org/docs/latest/server_admin/index.html#realm_keys).
+- Clean up: `docker rm -f kc kcdb && docker network rm kcnet`.
+
+<ProductionNote />
