@@ -11,9 +11,9 @@ const DASH = "https://dash.phasetwo.io/";
 const PAGE_META = {
   title: "Keycloak Alternatives — Phase Two",
   description:
-    "Compare Keycloak to the leading IAM platforms — Auth0, Okta, WorkOS, Ping Identity, FrontEgg, OneLogin, Azure AD B2C, and Zitadel. See why managed open-source Keycloak is a flexible, cost-predictable alternative.",
+    "Compare Keycloak to the leading IAM platforms — Auth0, Okta, WorkOS, Ping Identity, FrontEgg, OneLogin, Azure AD B2C, Zitadel and authentik. See why managed open-source Keycloak is a flexible, cost-predictable alternative.",
   keywords:
-    "keycloak alternatives, auth0 alternatives, okta alternatives, azure ad b2c alternative, zitadel vs keycloak, open source iam, keycloak vs auth0, keycloak vs okta, managed keycloak",
+    "keycloak alternatives, auth0 alternatives, okta alternatives, azure ad b2c alternative, zitadel vs keycloak, authentik vs keycloak, open source iam, keycloak vs auth0, keycloak vs okta, managed keycloak",
   url: "https://phasetwo.io/keycloak-alternatives/",
 };
 
@@ -26,6 +26,7 @@ const ROWS = [
   { vendor: "OneLogin", to: "/keycloak-alternatives/onelogin/", pricing: "Per-user, per-module", deployment: "Cloud SaaS only", onPrem: false, knownFor: "Workforce SSO & access management" },
   { vendor: "Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/", pricing: "Per-MAU, 50k free; end of sale since May 2025", deployment: "Azure only", onPrem: false, knownFor: "Customer identity on Azure" },
   { vendor: "Zitadel", to: "/keycloak-alternatives/zitadel/", pricing: "Cloud billed by daily active users; AGPL-3.0 if you self-host", deployment: "Cloud or self-hosted", onPrem: true, knownFor: "Go-based open-source IAM with built-in multi-tenancy" },
+  { vendor: "authentik", to: "/keycloak-alternatives/authentik/", pricing: "MIT core; Enterprise edition priced per seat, billed annually", deployment: "Self-hosted only", onPrem: true, knownFor: "Open-source IAM that also proxies, serves LDAP and RADIUS" },
 ];
 
 const VENDOR_LOGOS = [
@@ -37,6 +38,7 @@ const VENDOR_LOGOS = [
   { name: "OneLogin", src: "/customer-logos/onelogin.svg" },
   { name: "Azure AD B2C", src: "/customer-logos/azure-ad-b2c.svg" },
   { name: "Zitadel", src: "/customer-logos/zitadel.svg" },
+  { name: "authentik", src: "/customer-logos/authentik.svg" },
 ];
 
 const CARDS = [
@@ -48,6 +50,7 @@ const CARDS = [
   { to: "/keycloak-alternatives/onelogin/", logo: "/customer-logos/onelogin.svg", title: "vs OneLogin", desc: "Open-source alternative to OneLogin — no per-module pricing.", cta: "Compare" },
   { to: "/keycloak-alternatives/azure-ad-b2c/", logo: "/customer-logos/azure-ad-b2c.svg", title: "vs Azure AD B2C", desc: "Where to land after B2C's end of sale — and what it costs.", cta: "Compare" },
   { to: "/keycloak-alternatives/zitadel/", logo: "/customer-logos/zitadel.svg", title: "vs Zitadel", desc: "Open source on both sides — the licence and the extension model decide it.", cta: "Compare" },
+  { to: "/keycloak-alternatives/authentik/", logo: "/customer-logos/authentik.svg", title: "vs authentik", desc: "MIT core with a paid Enterprise tier — against Apache 2.0 with no tiers.", cta: "Compare" },
   { to: "/blog/open-source-iam/", icon: "file-text", title: "Open-Source IAM", desc: "The roundup — why open standards beat vendor lock-in.", cta: "Read" },
   { to: "/hosting/", icon: "cloud", title: "Managed Hosting", desc: "Run Keycloak with Phase Two — fixed cost, zero ops burden.", cta: "Learn more" },
 ];
