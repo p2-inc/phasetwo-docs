@@ -126,6 +126,7 @@ module.exports = {
       items: [
         "data-protection/event-retention",
         "data-protection/exit-export",
+        "data-protection/realm-key-management",
       ],
     },
     {
