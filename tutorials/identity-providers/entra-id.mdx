@@ -1,0 +1,650 @@
+---
+id: entra-id
+title: "Connect Microsoft Entra ID as a Keycloak Identity Provider"
+description: Broker Microsoft Entra ID into Keycloak over OIDC or SAML — tested kcadm config, the authority that breaks issuer validation, and what group claims cost.
+keywords:
+  - keycloak identity brokering microsoft entra id oidc
+  - keycloak entra id identity provider
+  - keycloak azure ad saml identity provider
+  - could not process response from saml identity provider azure
+  - keycloak entra id group claims
+  - keycloak microsoft identity provider
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - A Keycloak admin login
+  - An Entra ID tenant where you can create an app registration
+  - Comfort with `curl`, `jq` and `kcadm.sh`
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Connect Microsoft Entra ID as a Keycloak Identity Provider
+
+Keycloak brokers Microsoft Entra ID through a **generic OpenID Connect v1.0** identity
+provider pointed at your tenant's discovery document, or through a **SAML v2.0** provider
+pointed at your tenant's federation metadata. It does *not* go through the built-in
+**Microsoft** social provider, which talks to Microsoft Graph rather than to an ID token and
+cannot carry a group claim at all.
+
+Three things decide whether the connection works on the first attempt, and all three are
+outside the part of the setup anyone writes down: the **tenant authority** you put in the
+discovery URL, the **scopes** you request, and — for SAML — the **two URLs Entra wants** that
+only exist inside the request Keycloak generates. This page is the tested version of all
+three, in both protocols.
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2 start-dev`) on **2026-11-09**. Every
+Keycloak-side result below — the imported metadata, the authorization redirect, the decoded
+`AuthnRequest`, the default scopes, the `NameIDPolicy` values and every mapper config key —
+was read off a running server. The Entra-side values come from Microsoft's own reference
+pages, linked where they are used; **the sign-in itself was not exercised**, because that
+needs a tenant. Where a claim is Microsoft's and not ours, this page says so.
+
+:::
+
+## Which of the three connections you want
+
+Keycloak 26.8 ships three ways to reach an Entra tenant. They are not interchangeable.
+
+| Provider | What it talks to | Group claims | Use it for |
+|---|---|---|---|
+| **Microsoft** (Social) | Microsoft Graph `/v1.0/me/` | No | Consumer Microsoft accounts, nothing else |
+| **OpenID Connect v1.0** (User-defined) | Your tenant's v2.0 OIDC endpoints | Yes, as object IDs | **The default choice for a work or school tenant** |
+| **SAML v2.0** (User-defined) | Your tenant's `/saml2` endpoint | Yes, as object IDs | A tenant whose app registration is already SAML, or where policy requires it |
+
+### Why the built-in Microsoft provider is the wrong one
+
+It is the obvious button to press and it is almost never what you want for a corporate
+tenant. Starting a brokered login against it produces this — measured, not quoted:
+
+```
+scope=User.read
+response_type=code
+redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frealms%2Fapp%2Fbroker%2Fmicrosoft%2Fendpoint
+```
+
+There is **no `openid` in that scope list**, so there is no ID token in the response. The
+provider shipped in `keycloak-services-26.8.2.jar` reads the user profile from
+`https://graph.microsoft.com/v1.0/me/` instead, taking `mail` and falling back to
+`userPrincipalName` for the email, plus `givenName` and `surname`. That is enough to create
+a user and nothing more: no signature validation against a tenant issuer, and no `groups`
+claim, because the request never asks for one. Its only configuration beyond the usual OAuth
+fields is `prompt` and `tenantId`.
+
+Use the generic **OpenID Connect v1.0** provider. Everything below does.
+
+## OIDC or SAML?
+
+| | OIDC | SAML |
+|---|---|---|
+| Config source | Discovery document, one URL | Federation metadata, one URL |
+| Identifier for the user | `oid` claim (GUID) | `objectidentifier` attribute (GUID) |
+| Group claim limit | **200** groups | **150** groups |
+| Signing cert rotation | Automatic via JWKS URL | Manual, unless you use the metadata URL |
+| Single logout | `end_session_endpoint` | `/saml2`, same URL as sign-on |
+| Failure messages | Readable (`Invalid token issuer`) | Generic (`Could not process response…`) |
+
+Pick OIDC unless something forces SAML. The signing-certificate rotation row is the reason:
+Entra rolls its SAML signing certificate and a Keycloak provider holding a pasted copy of it
+will stop working on a date nobody wrote down, whereas `useJwksUrl` fetches the current key
+every time. Group limits are Microsoft's, from
+[Configure group claims](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims).
+
+## Prerequisites: a lab you can run
+
+```bash
+docker rm -f kc 2>/dev/null
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+```
+
+```bash
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+$K create realms -s realm=app -s enabled=true
+```
+
+Work through `http://localhost:8080`, not `http://127.0.0.1:8080`. In `start-dev` with no
+`KC_HOSTNAME` set, Keycloak derives every public URL from the request's host header — the
+same realm answered with `localhost` or `127.0.0.1` depending on which one we asked through,
+and Entra will not accept the `127.0.0.1` form (next step). See
+[`kcadm.sh`](/tutorials/getting-started/admin-cli/) if the CLI is new to you.
+
+## Part 1 — the OIDC connection
+
+### Step 1: get the redirect URI out of Keycloak first
+
+Entra validates the redirect URI against a registered list, so this is the first thing to
+fetch and the first thing people guess wrong. Create the provider shell, start a login, and
+read it off the redirect rather than assembling it by hand:
+
+```
+https://login.microsoftonline.com/<tenant>/oauth2/v2.0/authorize
+  ?scope=openid+profile+email
+  &response_type=code
+  &client_id=<app id>
+  &redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Frealms%2Fapp%2Fbroker%2Fentra%2Fendpoint
+  &prompt=select_account
+  &nonce=DucA4nAD2kV-IJuGZSbd4g
+```
+
+So the value is `http://localhost:8080/realms/app/broker/<alias>/endpoint`, with the alias
+you chose and the realm you created. Four things about it, all from Microsoft's
+[redirect URI restrictions](https://learn.microsoft.com/en-us/entra/identity-platform/reply-url):
+
+- **`http` is accepted only for `localhost`.** Production must be `https`.
+- **`http://127.0.0.1:…` cannot be added through the portal's Redirect URIs box at all** — it
+  is rejected in the UI, and adding it needs a `replyUrlsWithType` edit in the manifest. This
+  is the reason for working through `localhost` above.
+- **Redirect URIs are case-sensitive.** `…/realms/App/…` is a different URI.
+- A mismatch is `AADSTS50011: The reply URL specified in the request does not match the reply
+  URLs configured for the application`, shown on Microsoft's page, not Keycloak's.
+
+In production, **pin `KC_HOSTNAME`**. A Keycloak behind a proxy that derives its hostname
+from the request will eventually send Entra a `redirect_uri` built from some other host
+header, and the symptom is AADSTS50011 on some logins and not others.
+
+### Step 2: the Entra app registration
+
+In the [Microsoft Entra admin center](https://entra.microsoft.com), **Entra ID → App
+registrations → New registration**:
+
+1. **Supported account types**: *Accounts in this organizational directory only*, unless you
+   genuinely intend to broker other tenants.
+2. **Redirect URI**: platform **Web**, value from step 1.
+3. **Certificates & secrets → New client secret.** Copy the *Value*, not the *Secret ID*.
+4. Note the **Application (client) ID** and the **Directory (tenant) ID** from Overview.
+
+You do **not** need to tick *ID tokens (used for implicit and hybrid flows)*. That checkbox
+is for `response_type=id_token`; Keycloak's broker uses `response_type=code` — visible in the
+redirect in step 1 — and redeems the ID token at the token endpoint.
+
+### Step 3: import the discovery document, and never use `common`
+
+Keycloak reads Entra's OIDC metadata directly. In the console it is *Add provider → OpenID
+Connect v1.0 → Discovery endpoint*; over the API it is `identity-provider/import-config`:
+
+```bash
+TEN=<your-directory-tenant-id>
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"fromUrl\":\"https://login.microsoftonline.com/$TEN/v2.0/.well-known/openid-configuration\",
+       \"providerId\":\"oidc\"}" \
+  "http://localhost:8080/admin/realms/app/identity-provider/import-config" | jq
+```
+
+```json
+{
+  "issuer": "https://login.microsoftonline.com/72f988bf-.../v2.0",
+  "authorizationUrl": "https://login.microsoftonline.com/72f988bf-.../oauth2/v2.0/authorize",
+  "tokenUrl": "https://login.microsoftonline.com/72f988bf-.../oauth2/v2.0/token",
+  "jwksUrl": "https://login.microsoftonline.com/72f988bf-.../discovery/v2.0/keys",
+  "logoutUrl": "https://login.microsoftonline.com/72f988bf-.../oauth2/v2.0/logout",
+  "userInfoUrl": "https://graph.microsoft.com/oidc/userinfo",
+  "useJwksUrl": "true",
+  "validateSignature": "true"
+}
+```
+
+**Now the part that is not in anyone's documentation.** Microsoft accepts four values in the
+`{tenant}` position of that URL — `common`, `organizations`, `consumers`, or a tenant id.
+Keycloak stores whatever issuer comes back and then checks every ID token's `iss` against it.
+Import the same document through each authority and the stored issuer differs:
+
+| Authority in the discovery URL | `issuer` Keycloak stores | Brokered login |
+|---|---|---|
+| `common` | `https://login.microsoftonline.com/{tenantid}/v2.0` | **Fails** |
+| `organizations` | `https://login.microsoftonline.com/{tenantid}/v2.0` | **Fails** |
+| Directory (tenant) ID, GUID | `https://login.microsoftonline.com/<guid>/v2.0` | Works |
+| `contoso.onmicrosoft.com` | `https://login.microsoftonline.com/<guid>/v2.0` | Works |
+
+`{tenantid}` is a literal placeholder in the multi-tenant metadata, and the token's real
+`iss` can never equal it. The login gets all the way through the Microsoft sign-in screen and
+dies on the way back, with `identity_provider_login_failure` on the browser and the real
+reason only in the server log:
+
+```
+Invalid token issuer. Expected 'https://login.microsoftonline.com/{tenantid}/v2.0', ...
+```
+
+The domain form resolves server-side to the same GUID, so either of the bottom two rows is
+safe. **Import with the tenant id.** If you must broker several tenants, that is several
+providers, or one provider plus a `trustedIssuers`-aware setup you build deliberately — not
+`common`.
+
+### Step 4: create the provider
+
+```bash
+TEN=<your-directory-tenant-id>
+docker exec -i kc tee /tmp/entra.json >/dev/null <<JSON
+{"alias":"entra","displayName":"Microsoft Entra ID","providerId":"oidc","enabled":true,
+ "trustEmail":true,"storeToken":false,"firstBrokerLoginFlowAlias":"first broker login",
+ "config":{
+  "clientId":"<application-client-id>",
+  "clientSecret":"<client-secret-value>",
+  "clientAuthMethod":"client_secret_post",
+  "issuer":"https://login.microsoftonline.com/$TEN/v2.0",
+  "authorizationUrl":"https://login.microsoftonline.com/$TEN/oauth2/v2.0/authorize",
+  "tokenUrl":"https://login.microsoftonline.com/$TEN/oauth2/v2.0/token",
+  "jwksUrl":"https://login.microsoftonline.com/$TEN/discovery/v2.0/keys",
+  "logoutUrl":"https://login.microsoftonline.com/$TEN/oauth2/v2.0/logout",
+  "useJwksUrl":"true","validateSignature":"true",
+  "defaultScope":"openid profile email",
+  "syncMode":"FORCE","prompt":"select_account","backchannelSupported":"false"}}
+JSON
+$K create identity-provider/instances -r app -f /tmp/entra.json
+```
+
+`client_secret_post` is deliberate: the tenant's
+`token_endpoint_auth_methods_supported` lists `client_secret_post`, `private_key_jwt`,
+`client_secret_basic` and `self_signed_tls_client_auth`, so both secret forms work, and
+`private_key_jwt` is the one to move to when you are tired of secret expiry.
+`syncMode: FORCE` matters more than it looks — it is what makes the group and attribute
+mappers run on *every* login rather than only on the first one. The
+[sync-mode matrix](/tutorials/identity-providers/attribute-mapping/) is the long version.
+
+### Step 5: the empty Scopes box costs you every claim
+
+Leave *Scopes* blank and Keycloak sends exactly this:
+
+```
+scope=openid
+```
+
+That is the measured default from a provider created with no `defaultScope`. It is also
+enough to make the connection appear to work, and then produce a user with no name, no email
+and no usable identifier. Keycloak's OIDC broker reads precisely seven claims — `sub`,
+`preferred_username`, `email`, `email_verified`, `given_name`, `family_name`, `name` — and
+Microsoft gates most of them behind a scope:
+
+| Claim | Entra emits it when |
+|---|---|
+| `sub` | always |
+| `preferred_username`, `name` | the **`profile`** scope is requested |
+| `oid` | the **`profile`** scope is requested — it is what makes `oid` mappable |
+| `email` | the **`email`** scope is requested, **or** the `email` optional claim is configured |
+| `email_verified` | **never** — it is absent from the tenant's `claims_supported` |
+
+So `openid profile email`, always. Two consequences:
+
+**Email still may not arrive.** Microsoft's
+[ID token reference](https://learn.microsoft.com/en-us/entra/identity-platform/id-token-claims-reference)
+says `email` is "present by default for guest accounts that have an email address" and that
+an app requests it for managed users via the scope or the optional claim. A tenant whose
+users have no `mail` attribute populated will not produce one either way, and the
+first-broker-login flow then stops at the *Review profile* form asking the user to type it.
+
+**`email_verified` is never sent**, so Keycloak imports the address unverified and —
+depending on your flow — asks the user to confirm it by email. That is what `trustEmail` on
+the provider is for. Setting it says "this IdP's email addresses are good", which for a
+directory you control is true and for `common` would not be.
+
+### Step 6: `sub` is per-application, `oid` is not
+
+Keycloak stores one identifier per brokered account — the federated identity's broker user
+id — and takes it from `sub`. Microsoft's reference is explicit that this is a pairwise
+value: *"The subject is a pairwise identifier and is unique to an application ID. If a single
+user signs into two different apps using two different client IDs, those apps receive two
+different values for the subject claim."* The tenant's discovery document agrees:
+`"subject_types_supported": ["pairwise"]`.
+
+| Claim | Stable across app registrations | Stable across tenants | Safe as a key |
+|---|---|---|---|
+| `sub` | **No** | No | Within one app registration only |
+| `oid` | Yes | No (different per tenant, by design) | Yes, with `tid` |
+| `preferred_username` | n/a — mutable | n/a | **No** |
+| `email` | n/a — mutable | n/a | **No** |
+
+The practical consequence: **delete and recreate the app registration and every existing
+federated link breaks.** Those users come back as strangers, hit first-broker-login, and have
+to re-link an account that already exists. If that is a risk you would rather not carry, key
+the link on `oid` instead, with a Username Template Importer whose target is the broker id:
+
+```bash
+$K create identity-provider/instances/entra/mappers -r app \
+  -s name=broker-id-oid -s identityProviderAlias=entra \
+  -s identityProviderMapper=oidc-username-idp-mapper \
+  -s 'config.syncMode=INHERIT' -s 'config.target=BROKER_ID' \
+  -s 'config.template=${CLAIM.oid}'
+```
+
+Decide this **before the first brokered login**. The mapper applies at import, so it will not
+rename an existing population — the result is half your users keyed on `sub` and half on
+`oid`, which is worse than either. Keep `oid` and `tid` on the user as well, for support:
+
+```bash
+$K create identity-provider/instances/entra/mappers -r app \
+  -s name=entra-oid -s identityProviderAlias=entra \
+  -s identityProviderMapper=oidc-user-attribute-idp-mapper \
+  -s 'config.syncMode=INHERIT' -s 'config.claim=oid' \
+  -s 'config."user.attribute"=entra_oid'
+```
+
+`entra_oid` has to be declared in the realm's user profile or it is dropped on write with a
+2xx and no warning — [managed vs unmanaged attributes](/tutorials/users/user-profile/) has
+that trap in full.
+
+### Step 7: groups arrive as GUIDs, or not at all
+
+Entra sends no group claim until you ask. In **Token configuration → Add groups claim**, or
+in the manifest:
+
+```json
+"groupMembershipClaims": "SecurityGroup"
+```
+
+What arrives is **group object IDs**, not names. Names are available only for groups synced
+from on-premises Active Directory via `sam_account_name` and relatives, or — for cloud-only
+groups — `cloud_displayname`, which Microsoft documents as working *only* when
+`groupMembershipClaims` is `ApplicationGroup`. Groups created in Entra ID "don't contain the
+attributes necessary to emit these claims".
+
+So the Keycloak side matches on a GUID. There is no plain *Claim to Group* mapper for OIDC
+providers in 26.8 — the ten available types are
+`oidc-advanced-group-idp-mapper`, `oidc-advanced-role-idp-mapper`, `oidc-role-idp-mapper`,
+`oidc-user-attribute-idp-mapper`, `oidc-user-session-note-idp-mapper`,
+`oidc-username-idp-mapper`, the two `oidc-hardcoded-*` and the two `hardcoded-*` — so use the
+advanced one. Its `claims` value is a JSON *string*, which `kcadm -s` will not parse; use a
+file:
+
+```bash
+$K create groups -r app -s name=entra-admins
+
+docker exec -i kc tee /tmp/grp.json >/dev/null <<'JSON'
+{"name":"platform-admins","identityProviderAlias":"entra",
+ "identityProviderMapper":"oidc-advanced-group-idp-mapper",
+ "config":{"syncMode":"FORCE","group":"/entra-admins",
+  "are.claim.values.regex":"false",
+  "claims":"[{\"key\":\"groups\",\"value\":\"11112222-bbbb-3333-cccc-4444dddd5555\"}]"}}
+JSON
+$K create identity-provider/instances/entra/mappers -r app -f /tmp/grp.json
+```
+
+One mapper per group, each naming a GUID. It is tedious and it is also the only form that is
+safe: a display name can be re-created by anyone who can make a group, an object ID cannot.
+
+**Then read the limit, because it fails silently.** Microsoft's own wording: *"The number of
+groups emitted in a token is limited to 150 for SAML assertions and 200 for JWT, including
+nested groups… Exceeding this limit will cause Microsoft Entra ID to completely omit sending
+group claims in the token."* In its place the token carries an overage pointer —
+`_claim_names` and `_claim_sources` holding a Microsoft Graph URL for JWTs, and a
+`http://schemas.microsoft.com/claims/groups.link` attribute for SAML.
+
+**No Keycloak mapper follows that pointer.** There is no distributed-claim resolution in the
+broker. So a user in 201 groups does not get a smaller set of groups — they get *none*, every
+group-to-role mapping silently evaluates false, and they log in with no privileges at all.
+Nothing in either product reports it. Three ways out, in the order worth trying:
+
+1. **`"groupMembershipClaims": "ApplicationGroup"`** — emit only groups assigned to the
+   application. Microsoft recommends this for large organizations. Note it drops nested
+   groups: the user must be a direct member.
+2. **Group filtering** in the Enterprise application's claims configuration — but it applies
+   only below 1,000 groups per user, above which "filtering won't apply and an overage claim
+   is sent instead".
+3. **App roles instead of groups.** Define `appRoles` on the registration and map the `roles`
+   claim; it is small, stable, and separates the application's authorization model from the
+   directory's org chart. Microsoft recommends it over groups for new applications and so do
+   we.
+
+Whichever you pick, put a check in front of it: count the groups of your largest-membership
+user before you ship, not after a director logs in with no access.
+
+## Part 2 — the SAML connection
+
+### Step 8: import the federation metadata
+
+Entra publishes SP-consumable metadata per tenant and per application. Keycloak imports it
+the same way as the discovery document, with `"providerId":"saml"`:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d "{\"fromUrl\":\"https://login.microsoftonline.com/$TEN/federationmetadata/2007-06/federationmetadata.xml?appid=$APPID\",
+       \"providerId\":\"saml\"}" \
+  "http://localhost:8080/admin/realms/app/identity-provider/import-config" | jq
+```
+
+```json
+{
+  "idpEntityId": "https://sts.windows.net/72f988bf-.../",
+  "singleSignOnServiceUrl": "https://login.microsoftonline.com/72f988bf-.../saml2",
+  "singleLogoutServiceUrl": "https://login.microsoftonline.com/72f988bf-.../saml2",
+  "signingCertificate": "MIIC/TCCAeWgAwIBAgIIauPFmmrfWEQwDQYJKoZIhvcNAQELBQAwLTErMCkG...",
+  "postBindingResponse": "true",
+  "postBindingAuthnRequest": "true",
+  "postBindingLogout": "false",
+  "validateSignature": "true",
+  "wantAuthnRequestsSigned": "false",
+  "enabledFromMetadata": "true"
+}
+```
+
+Note what the entity id is: `https://sts.windows.net/<tenant>/` — the `sts.windows.net` host,
+not `login.microsoftonline.com`. Sign-on and logout are the same `/saml2` URL.
+
+**Use the `?appid=` form.** Without it you get the tenant-wide document and the tenant-wide
+signing certificate, which is not the one a per-application certificate rollover replaces.
+Keep `metadataDescriptorUrl` set so Keycloak can refresh the certificate instead of holding a
+copy that expires on a date nobody recorded.
+
+### Step 9: the two values Entra asks for are inside the request
+
+Entra's SAML SSO page wants an **Identifier (Entity ID)** and a **Reply URL (Assertion
+Consumer Service URL)**. Both are in the `AuthnRequest` Keycloak generates, which you can
+read before ever touching the portal — start a login, grab the `SAMLRequest` form field, and
+base64-decode it (or paste it into the [SAML decoder](/tools/saml-decoder/)):
+
+```xml
+<samlp:AuthnRequest
+    AssertionConsumerServiceURL="http://localhost:8080/realms/app/broker/entra-saml/endpoint"
+    Destination="https://login.microsoftonline.com/72f988bf-.../saml2"
+    ForceAuthn="false" ID="ID_f0d731fa-265b-49bf-a692-0a9f0c2d7454"
+    ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Version="2.0">
+  <saml:Issuer>http://localhost:8080/realms/app</saml:Issuer>
+  <samlp:NameIDPolicy AllowCreate="true"
+    Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"/>
+</samlp:AuthnRequest>
+```
+
+| Entra field | Value | Where it comes from |
+|---|---|---|
+| Identifier (Entity ID) | `http://localhost:8080/realms/app` | the `<saml:Issuer>` — **the realm URL, not the broker URL** |
+| Reply URL (ACS) | `http://localhost:8080/realms/app/broker/entra-saml/endpoint` | `AssertionConsumerServiceURL` |
+| Logout URL | same as the Reply URL | — |
+| Sign on URL | leave empty for SP-initiated | see the troubleshooting section |
+
+The Identifier being the *realm* URL while the Reply URL is the *broker* URL is the single
+most common mistake here, and it has to be exact: Entra sets the assertion's
+`<Audience>` to the `Issuer` it received, and Microsoft's reference says that value "must
+exactly match one of the service principal names that represents the cloud service".
+
+Rather than typing either, hand Entra Keycloak's own SP metadata — **Upload metadata file**
+on the SAML SSO page takes it and fills both fields:
+
+```bash
+curl -s "http://localhost:8080/realms/app/broker/entra-saml/endpoint/descriptor"
+```
+
+### Step 10: the NameID format, and what lands in the username
+
+Microsoft accepts exactly four `Format` values in `NameIDPolicy` and states that "any other
+value results in an error". Keycloak's dropdown is wider than that list. Measured, these are
+the URNs Keycloak actually emits:
+
+| Keycloak *NameID policy format* | URN sent | On Microsoft's accepted list |
+|---|---|---|
+| *(unset — the default)* | `urn:oasis:names:tc:SAML:2.0:nameid-format:persistent` | Yes |
+| Persistent | `urn:oasis:names:tc:SAML:2.0:nameid-format:persistent` | Yes |
+| Transient | `urn:oasis:names:tc:SAML:2.0:nameid-format:transient` | Yes |
+| Email | `urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress` | Yes |
+| Unspecified | `urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified` | **No** — the list has the SAML **1.1** URN |
+
+The default is fine. *Unspecified* is the one to leave alone: Keycloak sends the 2.0 URN and
+Microsoft's accepted list carries the 1.1 one, which per their documentation is an error
+rather than a fallback. (That row is Microsoft's documented behaviour against our measured
+URN; it is the one claim on this page we could not exercise.)
+
+A `persistent` NameID is an opaque pairwise string — Microsoft's own example is
+`m_H3naDei2LNxUmEcWd0BZlNi_jVET1pMLR6iQSuYmo` — and Keycloak's SAML broker uses the NameID as
+the username by default. That is where the "why are all my usernames base64 garbage"
+complaint comes from. Point the principal at an attribute instead:
+
+```bash
+$K update identity-provider/instances/entra-saml -r app \
+  -s 'config.principalType=ATTRIBUTE' \
+  -s 'config.principalAttribute=http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'
+```
+
+`principalType` takes `SUBJECT` (the NameID), `ATTRIBUTE` or `FRIENDLY_ATTRIBUTE`. **The
+admin REST API does not validate it** — we set `config.principalType=NOPE` and it was stored
+without complaint, to be discovered at the next login. If you configure providers from
+scripts, assert the value you wrote came back.
+
+### Step 11: the claim URIs, and the mappers that read them
+
+Entra names SAML attributes with full URIs. Keycloak's Attribute Importer wants that whole
+string in `attribute.name`:
+
+| Entra SAML attribute | Put it in |
+|---|---|
+| `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress` | `email` |
+| `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname` | `firstName` |
+| `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname` | `lastName` |
+| `http://schemas.microsoft.com/identity/claims/objectidentifier` | a user attribute — this is `oid` |
+| `http://schemas.microsoft.com/identity/claims/tenantid` | a user attribute |
+| `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` | matched by a role or group mapper |
+| `http://schemas.microsoft.com/ws/2008/06/identity/claims/role` | matched by a role mapper (app roles) |
+
+```bash
+docker exec -i kc tee /tmp/sm-email.json >/dev/null <<'JSON'
+{"name":"email","identityProviderAlias":"entra-saml",
+ "identityProviderMapper":"saml-user-attribute-idp-mapper",
+ "config":{"syncMode":"INHERIT","user.attribute":"email",
+  "attribute.name":"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"}}
+JSON
+$K create identity-provider/instances/entra-saml/mappers -r app -f /tmp/sm-email.json
+
+docker exec -i kc tee /tmp/sm-role.json >/dev/null <<'JSON'
+{"name":"admins-role","identityProviderAlias":"entra-saml",
+ "identityProviderMapper":"saml-advanced-role-idp-mapper",
+ "config":{"syncMode":"FORCE","role":"app-admin","are.attribute.values.regex":"false",
+  "attributes":"[{\"key\":\"http://schemas.microsoft.com/ws/2008/06/identity/claims/groups\",\"value\":\"11112222-bbbb-3333-cccc-4444dddd5555\"}]"}}
+JSON
+$K create roles -r app -s name=app-admin
+$K create identity-provider/instances/entra-saml/mappers -r app -f /tmp/sm-role.json
+```
+
+`user.attribute` takes `email`, `firstName` and `lastName` as special values that write the
+predefined user fields; anything else is a custom attribute and subject to the user-profile
+rule from step 6.
+
+## Verify it worked
+
+Four checks you can run before involving a tenant at all:
+
+```bash
+# 1. The provider stored a concrete issuer, not {tenantid}
+$K get identity-provider/instances/entra -r app --fields config | grep issuer
+
+# 2. The scopes are what you think
+$K get identity-provider/instances/entra -r app --fields config | grep defaultScope
+
+# 3. Every mapper config key survived the write
+$K get identity-provider/instances/entra/mappers -r app
+
+# 4. The SP metadata Entra will consume
+curl -s "http://localhost:8080/realms/app/broker/entra-saml/endpoint/descriptor"
+```
+
+Then, after a real sign-in, read the local user record and the federated link:
+
+```bash
+UID=$($K get users -r app -q email=<the-user> --fields id --format csv --noquotes)
+$K get users/$UID -r app --fields username,email,emailVerified,attributes
+$K get users/$UID/federated-identity -r app
+$K get users/$UID/role-mappings/realm -r app --fields name
+```
+
+Four things to look at, in this order:
+
+| What you see | What it means |
+|---|---|
+| `federated-identity` lists `entra` with a `userId` | the link exists; that `userId` is the `sub` or, with step 6's mapper, the `oid` |
+| no `attributes` block, or no `entra_oid` in it | the claim arrived and the user profile dropped it, or the scope was missing |
+| `emailVerified: false` | `trustEmail` is off — Entra never sends `email_verified` |
+| realm roles are missing | the group claim never arrived — step 7, then the group count |
+
+The last two are the ones that look like success. A user who logged in, got an account, and
+received no roles is the failure this whole page is about.
+
+## Troubleshooting
+
+**`Could not process response from SAML identity provider`.** Keycloak's generic wrapper for
+"the assertion did not pass". In order of likelihood: the **Identifier** in Entra does not
+match the realm URL in `<saml:Issuer>`, so the `<Audience>` is wrong; the **Reply URL** does
+not match the ACS URL; the signing certificate on the provider is not the one the application
+is signing with (use the `?appid=` metadata URL and stop managing it by hand); or the login
+was **IdP-initiated from the Entra side**, which arrives with no `RelayState` and no
+`InResponseTo` and which the broker endpoint cannot route — Keycloak
+[issue #25349](https://github.com/keycloak/keycloak/issues/25349) is that case, now a 400
+rather than a 500. The real reason is always in the server log and never in the browser:
+`docker logs kc 2>&1 | tail -40`.
+
+**`AADSTS50011`.** The redirect URI does not match. Compare them character by character,
+including case, and remember that Keycloak builds it from the request host unless
+`KC_HOSTNAME` is pinned.
+
+**`AADSTS75006` / `AADSTS90011` with "SAML authentication request property … is not
+supported".** Something in the `AuthnRequest` is outside what Entra accepts. Decode the
+request and look at `NameIDPolicy` first.
+
+**`identity_provider_login_failure` right after a working sign-in screen.** Check the server
+log for `Invalid token issuer`. If the expected issuer contains `{tenantid}`, that is step 3 —
+the provider was imported through `common` or `organizations`.
+
+**The brokered login stops at a "Review profile" form.** The IdP sent no email or no
+username, so the first-broker-login flow asks the user. Usually the *Scopes* box is empty
+(step 5), or the tenant's users have no `mail` attribute and need the `email` optional claim.
+
+**The user logs in with no roles at all, and nothing is logged.** The group claim is missing.
+Either it was never configured (`groupMembershipClaims`), or the user is over the 200/150
+limit and Entra replaced the claim with an overage pointer that no Keycloak mapper reads.
+Step 7.
+
+**It worked once and never again.** `syncMode` is `IMPORT`, so the mappers ran at first
+import and never since. Set `FORCE` on the provider and on the mappers — and note this does
+not retroactively fix existing accounts, so audit the grants once after the change.
+
+**Every federated user suddenly needs to re-link.** The app registration was recreated, so
+every `sub` changed. Step 6.
+
+**Usernames are opaque base64 strings.** The `persistent` NameID is being used as the
+username. Step 10.
+
+## Next steps
+
+- [Keycloak identity provider mappers: map external IdP claims](/tutorials/identity-providers/attribute-mapping/) —
+  the sync-mode matrix, the nested-claim rules, and how a mapped attribute reaches a token.
+- [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
+  the second hop, from the local user record into your application's token.
+- [Connect Keycloak to LDAP or Active Directory](/tutorials/identity-providers/ldap/) — when
+  the directory, rather than the tenant, is the system of record.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  what the group and role mappers write into.
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — the rule that
+  decides whether `entra_oid` is kept.
+- [Keycloak identity provider](/docs/keycloak/idp/) brokering — the concepts behind the model,
+  and what a broker does with the account once the external IdP has vouched for it.
+- Official reference:
+  [OIDC on the Microsoft identity platform](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc),
+  [Single sign-on SAML protocol](https://learn.microsoft.com/en-us/entra/identity-platform/single-sign-on-saml-protocol),
+  [Configure group claims](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims),
+  and Keycloak's
+  [Integrating identity providers](https://www.keycloak.org/docs/latest/server_admin/index.html#_identity_broker).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
