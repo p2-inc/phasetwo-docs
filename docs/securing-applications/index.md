@@ -42,6 +42,8 @@ Also, here is an unofficial list of OpenID Connect libraries we've heard good th
   - [oidc](https://pypi.org/project/oic/)
 - Go
   - [gocloak](https://github.com/Nerzal/gocloak)
+- iOS, Android, React Native and Flutter
+  - [Phase Two native login SDKs](./native-apps/index.md), for signing in with your app's own screens. See [Native apps](./native-apps/index.md) for how they compare with AppAuth.
 - Android
   - [AppAuth](https://github.com/openid/AppAuth-Android)
 - iOS

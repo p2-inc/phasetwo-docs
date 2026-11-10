@@ -1196,7 +1196,7 @@ module.exports = {
       exclusionPatterns: ["/landing/**"],
     },
     prism: {
-      additionalLanguages: ["java", "yaml"],
+      additionalLanguages: ["java", "yaml", "dart"],
     },
     mermaid: {
       options: {
