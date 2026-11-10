@@ -188,9 +188,11 @@ is the next step:
 2. [Build a custom Keycloak authentication flow](/tutorials/authentication/custom-flows/) —
    how far you get without writing any code
 3. [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/)
+4. [Keycloak Event Listener SPI: ship events off-box](/tutorials/extending/event-listener/) —
+   the first provider most people need, and the delivery problem it hands you
 
-Custom authenticators, event listeners, user storage and REST endpoints all build on that
-last one. *(Coming soon.)*
+Custom authenticators, user storage and REST endpoints build on the same packaging.
+*(Coming soon.)*
 
 **Branding the pages your users actually see** — the login screen is the one Keycloak page
 every user looks at:
