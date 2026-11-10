@@ -586,5 +586,75 @@ module.exports = [
         "className": "api-method get"
       }
     ]
+  },
+  {
+    "type": "category",
+    "label": "Gateway",
+    "link": {
+      "type": "doc",
+      "id": "management/gateway"
+    },
+    "items": [
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-list",
+        "label": "List protected apps for a deployment",
+        "className": "api-method get"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-create",
+        "label": "Create a protected app",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-detail",
+        "label": "Get a protected app, with live hostname and readiness status",
+        "className": "api-method get"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-update",
+        "label": "Update a protected app",
+        "className": "api-method put"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-delete",
+        "label": "Delete a protected app",
+        "className": "api-method delete"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-activate",
+        "label": "Start serving a protected app",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-deactivate",
+        "label": "Stop serving a protected app immediately and end its sessions",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-secret-promote",
+        "label": "Start sending the rotated secret",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-secret-rotate",
+        "label": "Issue a new origin secret",
+        "className": "api-method post"
+      },
+      {
+        "type": "doc",
+        "id": "management/deployment-protected-app-verify",
+        "label": "Verify that the origin requires the secret",
+        "className": "api-method post"
+      }
+    ]
   }
 ];

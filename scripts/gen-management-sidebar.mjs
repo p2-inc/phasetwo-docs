@@ -40,6 +40,7 @@ const TAG_LABELS = {
   "environment-variables": "Environment Variables",
   "ip-rules": "IP Rules",
   logs: "Logs",
+  gateway: "Gateway",
 };
 
 const titleCase = (tag) =>

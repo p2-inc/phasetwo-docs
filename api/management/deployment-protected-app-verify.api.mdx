@@ -1,0 +1,69 @@
+---
+id: deployment-protected-app-verify
+title: "Verify that the origin requires the secret."
+description: "Sends four probes to the health path: with the secret, without it, with a wrong one, and with forged identity headers. Only an explicit 401/403 for the last three counts. `secret=next` tests a rotated secret before it is promoted."
+sidebar_label: "Verify that the origin requires the secret."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "post api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Verify that the origin requires the secret."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/deployments/{id}/apps/{appId}/verify"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Sends four probes to the health path: with the secret, without it, with a wrong one, and with forged identity headers. Only an explicit 401/403 for the last three counts. `secret=next` tests a rotated secret before it is promoted.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./deployment-protected-app-verify.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./deployment-protected-app-verify.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./deployment-protected-app-verify.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

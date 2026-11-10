@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Phase Two Cluster Management API",
-    "description": "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Hosts\n\nTwo hostnames are involved: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.\n\n| Console host (tokens) | API host (operations) |\n|---|---|\n| `app.phasetwo.io` | `api.phasetwo.io` |\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
+    "description": "Automate management of your Phase Two hosted Keycloak clusters: dedicated clusters, deployments (realms), custom domains, extensions, environment variables, IP rules, Gateway apps, organizations, and billing.\n\nThis is the **control plane** API. It manages clusters themselves -- creating them, adding realms, attaching domains -- and is entirely separate from the Keycloak Admin REST API you use to configure what lives *inside* a realm.\n\n## Hosts\n\nTwo hostnames are involved: tokens are minted by the control-plane realm on the **console host**, while the operations in this reference are served from the **API host**.\n\n| Console host (tokens) | API host (operations) |\n|---|---|\n| `app.phasetwo.io` | `api.phasetwo.io` |\n\n## Authentication\n\nEvery request needs an OAuth2 access token obtained via the **client credentials grant**. Create an API secret for your organization -- in the console under your team's **API Credentials** tab, or via `org.apiSecret.create` -- then exchange its client ID and secret for a token:\n\n```\ncurl -X POST https://app.phasetwo.io/auth/realms/self/protocol/openid-connect/token \\\n  -d grant_type=client_credentials \\\n  -d client_id=$PHASETWO_CLIENT_ID \\\n  -d client_secret=$PHASETWO_CLIENT_SECRET\n```\n\nSend the resulting token as `Authorization: Bearer <token>` on every call. The client secret is shown only once, when the secret is created.\n\nWhat a token can do is governed by the organization roles granted to its API secret, not by OAuth scopes.",
     "version": "2.0.0"
   },
   "servers": [
@@ -74,6 +74,10 @@
     {
       "name": "logs",
       "description": "Log access for a dedicated cluster."
+    },
+    {
+      "name": "gateway",
+      "description": "Websites behind Keycloak login on a deployment's realm, without changing the website."
     }
   ],
   "paths": {
@@ -2390,6 +2394,405 @@
         }
       }
     },
+    "/deployments/{id}/apps": {
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "List protected apps for a deployment.",
+        "operationId": "deployment.protectedApp.list",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProtectedApp"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Create a protected app.",
+        "description": "Creates an OIDC client for the app in this deployment's realm, generates its origin secret and requests its Cloudflare hostname. The secret is in this response and is never shown again. The app stays PENDING until verified and activated.",
+        "operationId": "deployment.protectedApp.create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProtectedAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created; includes the one-time origin secret.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedAppSecret"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}": {
+      "get": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Get a protected app, with live hostname and readiness status.",
+        "operationId": "deployment.protectedApp.detail",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Update a protected app.",
+        "description": "Changes take effect on the next request when the app is active. The public hostname cannot change; the origin can only change while the app is not active, and changing it clears the verification.",
+        "operationId": "deployment.protectedApp.update",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProtectedAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Delete a protected app.",
+        "description": "Stops serving it immediately, then removes its Cloudflare hostname and the OIDC client Phase Two created.",
+        "operationId": "deployment.protectedApp.delete",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted."
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}/activate": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Start serving a protected app.",
+        "description": "Requires a VERIFIED origin, an active Cloudflare hostname and certificate, and a realm whose discovery still matches the app's issuer. 409 with the missing piece otherwise.",
+        "operationId": "deployment.protectedApp.activate",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}/deactivate": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Stop serving a protected app immediately and end its sessions.",
+        "operationId": "deployment.protectedApp.deactivate",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}/origin-secret/promote": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Start sending the rotated secret.",
+        "description": "Requires the rotated secret to have been verified. Then remove the old one from your ingress.",
+        "operationId": "deployment.protectedApp.secret.promote",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}/origin-secret/rotate": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Issue a new origin secret.",
+        "description": "Returns the new secret once. The Worker keeps sending the current one until `promote`, so add the new value to your ingress alongside the old first.",
+        "operationId": "deployment.protectedApp.secret.rotate",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedAppSecret"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/deployments/{id}/apps/{appId}/verify": {
+      "post": {
+        "tags": [
+          "gateway"
+        ],
+        "summary": "Verify that the origin requires the secret.",
+        "description": "Sends four probes to the health path: with the secret, without it, with a wrong one, and with forged identity headers. Only an explicit 401/403 for the last three counts. `secret=next` tests a rotated secret before it is promoted.",
+        "operationId": "deployment.protectedApp.verify",
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "description": "Protected app ID.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "secret",
+            "in": "query",
+            "description": "`current` (default) or `next`.",
+            "schema": {
+              "default": "current",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProtectedApp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the deployment.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
     "/deployments/{id}/console-link": {
       "post": {
         "tags": [
@@ -4385,6 +4788,440 @@
           "resourceKey": {
             "description": "S3 resource key the jar will land at. Pass this back to the matching `confirm` operation.",
             "type": "string"
+          }
+        }
+      },
+      "ProtectedApp": {
+        "required": [
+          "id",
+          "deployment_id",
+          "name",
+          "public_hostname",
+          "origin_url",
+          "health_path",
+          "status",
+          "revision",
+          "client_id",
+          "callback_url",
+          "policy",
+          "assertion_enabled",
+          "idle_timeout_seconds",
+          "max_session_seconds",
+          "origin_secret_header",
+          "next_secret_pending",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Application ID; also the `aud` of its identity assertions.",
+            "type": "string"
+          },
+          "deployment_id": {
+            "description": "Deployment (realm) whose users sign in.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Display name.",
+            "type": "string"
+          },
+          "public_hostname": {
+            "description": "Hostname users visit. Cannot be changed.",
+            "type": "string"
+          },
+          "origin_url": {
+            "description": "HTTPS URL requests are forwarded to.",
+            "type": "string"
+          },
+          "health_path": {
+            "description": "Path on the origin that verification probes.",
+            "type": "string"
+          },
+          "status": {
+            "description": "`PENDING` until activated; `ACTIVE` serves traffic; `DISABLED` refuses it immediately.",
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "DISABLED"
+            ],
+            "type": "string"
+          },
+          "revision": {
+            "format": "int64",
+            "description": "Increments each time the configuration is published to the Gateway.",
+            "type": "integer"
+          },
+          "client_id": {
+            "description": "OIDC client created for this application in the deployment's realm.",
+            "type": "string"
+          },
+          "issuer": {
+            "description": "OIDC issuer of the deployment's realm.",
+            "type": "string"
+          },
+          "callback_url": {
+            "description": "Redirect URI registered on the OIDC client, on the public hostname.",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/ProtectedAppPolicy"
+          },
+          "header_mappings": {
+            "description": "Header name to claim, sent to the origin on every request.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "assertion_enabled": {
+            "description": "Whether the signed identity assertion is sent.",
+            "type": "boolean"
+          },
+          "assertion_claims": {
+            "description": "Claims in the assertion besides `sub`.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assertion_issuer": {
+            "description": "`iss` of identity assertions.",
+            "type": "string"
+          },
+          "jwks_url": {
+            "description": "Public keys that verify identity assertions.",
+            "type": "string"
+          },
+          "idle_timeout_seconds": {
+            "format": "int32",
+            "description": "Session idle timeout.",
+            "type": "integer"
+          },
+          "max_session_seconds": {
+            "format": "int32",
+            "description": "Absolute session lifetime.",
+            "type": "integer"
+          },
+          "post_logout_redirect_uri": {
+            "description": "Where users land after signing out, if not the Phase Two page.",
+            "type": "string"
+          },
+          "origin_secret_header": {
+            "description": "Header that carries the origin secret: `X-Phasetwo-Origin-Secret`.",
+            "type": "string"
+          },
+          "next_secret_pending": {
+            "description": "A rotated secret has been issued and not yet promoted.",
+            "type": "boolean"
+          },
+          "verification": {
+            "description": "Latest verification of the current secret.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProtectedAppVerification"
+              }
+            ]
+          },
+          "next_verification": {
+            "description": "Latest verification of the pending (rotated) secret.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProtectedAppVerification"
+              }
+            ]
+          },
+          "readiness": {
+            "description": "Present on the single-app read; computed live.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProtectedAppReadiness"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "int64",
+            "description": "Epoch milliseconds.",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "int64",
+            "description": "Epoch milliseconds.",
+            "type": "integer"
+          }
+        }
+      },
+      "ProtectedAppHostname": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Cloudflare custom hostname status, or `UNCONFIGURED`/`NOT_FOUND`.",
+            "type": "string"
+          },
+          "ssl_status": {
+            "description": "Cloudflare certificate status.",
+            "type": "string"
+          },
+          "dns_target": {
+            "description": "CNAME target the public hostname must point at.",
+            "type": "string"
+          },
+          "dns_ok": {
+            "type": "boolean"
+          },
+          "validation_records": {
+            "description": "DNS records Cloudflare needs before it issues a certificate.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainRecord"
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "ProtectedAppPolicy": {
+        "type": "object",
+        "properties": {
+          "default": {
+            "description": "`authenticated` (any signed-in user, the default) or `deny` (only paths a rule matches).",
+            "enum": [
+              "authenticated",
+              "deny"
+            ],
+            "type": "string"
+          },
+          "rules": {
+            "description": "Every rule whose path prefix and methods match a request applies, and all of them must pass; deny wins. Prefixes match whole path segments, case-insensitively.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtectedAppPolicyRule"
+            }
+          }
+        }
+      },
+      "ProtectedAppPolicyRule": {
+        "required": [
+          "path_prefix"
+        ],
+        "type": "object",
+        "properties": {
+          "path_prefix": {
+            "description": "Path prefix, e.g. `/admin`.",
+            "type": "string"
+          },
+          "methods": {
+            "description": "Upper-case HTTP methods; all methods when omitted. GET covers HEAD.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "effect": {
+            "description": "`require` (default): the conditions below must hold. `deny`: always refuse.",
+            "enum": [
+              "require",
+              "deny"
+            ],
+            "type": "string"
+          },
+          "realm_roles_any": {
+            "description": "User must hold at least one of these realm roles.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "client_roles_any": {
+            "description": "User must hold at least one of these roles on the app's client.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "groups_any": {
+            "description": "User must be in at least one of these groups (full path).",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "claims_equal": {
+            "description": "Claims that must equal these values, e.g. `email_verified: true`.",
+            "type": "object",
+            "additionalProperties": {}
+          }
+        }
+      },
+      "ProtectedAppProbe": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "enum": [
+              "valid_secret",
+              "no_secret",
+              "wrong_secret",
+              "forged_identity"
+            ],
+            "type": "string"
+          },
+          "status": {
+            "format": "int32",
+            "description": "HTTP status, or absent when the request failed.",
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          },
+          "duration_ms": {
+            "format": "int64",
+            "type": "integer"
+          }
+        }
+      },
+      "ProtectedAppReadiness": {
+        "type": "object",
+        "properties": {
+          "auth_configured": {
+            "description": "The OIDC client exists and the realm's discovery matches its issuer.",
+            "type": "boolean"
+          },
+          "origin_verified": {
+            "description": "The current secret's latest verification is VERIFIED.",
+            "type": "boolean"
+          },
+          "hostname_ready": {
+            "description": "Cloudflare hostname and certificate are active, and DNS points to us.",
+            "type": "boolean"
+          },
+          "hostname": {
+            "$ref": "#/components/schemas/ProtectedAppHostname"
+          }
+        }
+      },
+      "ProtectedAppRequest": {
+        "required": [
+          "name",
+          "public_hostname",
+          "origin_url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Display name.",
+            "type": "string"
+          },
+          "public_hostname": {
+            "description": "Hostname users visit, e.g. `admin.example.com`. Set on create; cannot be changed.",
+            "type": "string"
+          },
+          "origin_url": {
+            "description": "HTTPS URL requests are forwarded to, with an optional base path. Must be a different hostname from `public_hostname` and publicly resolvable.",
+            "type": "string"
+          },
+          "health_path": {
+            "description": "A side-effect-free path on the origin that returns 2xx when the secret is present; used for verification. Defaults to `/`.",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/ProtectedAppPolicy"
+          },
+          "header_mappings": {
+            "description": "Header name (`X-Phasetwo-Auth-*`) to claim: one of `sub`, `email`, `email_verified`, `preferred_username`, `name`, `given_name`, `family_name`, `groups`, `realm_roles`, `client_roles`.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "assertion_enabled": {
+            "description": "Send a signed `X-Phasetwo-Auth-Assertion` JWT on every request.",
+            "type": "boolean"
+          },
+          "assertion_claims": {
+            "description": "Claims to include in the assertion besides `sub`.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "idle_timeout_seconds": {
+            "format": "int32",
+            "description": "Session idle timeout; default 1800.",
+            "type": "integer"
+          },
+          "max_session_seconds": {
+            "format": "int32",
+            "description": "Absolute session lifetime; default 28800.",
+            "type": "integer"
+          },
+          "post_logout_redirect_uri": {
+            "description": "HTTPS URL to land on after sign-out; defaults to a Phase Two page.",
+            "type": "string"
+          }
+        }
+      },
+      "ProtectedAppSecret": {
+        "required": [
+          "app",
+          "origin_secret",
+          "header_name"
+        ],
+        "type": "object",
+        "properties": {
+          "app": {
+            "$ref": "#/components/schemas/ProtectedApp"
+          },
+          "origin_secret": {
+            "description": "Value of `X-Phasetwo-Origin-Secret` your ingress must require. Shown once.",
+            "type": "string"
+          },
+          "header_name": {
+            "type": "string"
+          }
+        }
+      },
+      "ProtectedAppVerification": {
+        "required": [
+          "result"
+        ],
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "`VERIFIED` only when the valid secret got a 2xx and every other probe an explicit 401/403. `FAILED` when the origin admitted a request without the secret. `INCONCLUSIVE` otherwise (404, redirect, error, timeout).",
+            "enum": [
+              "VERIFIED",
+              "FAILED",
+              "INCONCLUSIVE"
+            ],
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "secret": {
+            "description": "Which secret was tested.",
+            "enum": [
+              "current",
+              "next"
+            ],
+            "type": "string"
+          },
+          "checked_at": {
+            "type": "string"
+          },
+          "url": {
+            "description": "The probed URL.",
+            "type": "string"
+          },
+          "probes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtectedAppProbe"
+            }
           }
         }
       },
