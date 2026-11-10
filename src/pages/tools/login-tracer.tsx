@@ -13,6 +13,10 @@ import { Icon } from "../../components/tools/Icon";
 const CHROME_STORE_URL =
   "https://chromewebstore.google.com/detail/iikanmhhdeifkfmcikbkfipfamfdleki";
 
+/** Firefox Add-ons (AMO) listing. */
+const FIREFOX_ADDON_URL =
+  "https://addons.mozilla.org/firefox/addon/login-tracer-phasetwo/";
+
 /**
  * Source repository. The link is rendered only when GITHUB_REPO_PUBLIC is
  * true; keep it false while the repository is private.
@@ -27,11 +31,11 @@ const GITHUB_REPO_PUBLIC = false;
 const PRIVACY_POLICY_URL = "https://phasetwo.io/company/login-tracer-privacy";
 
 const PAGE_META = {
-  title: "Login Tracer — Debug SAML and OIDC Logins in Chrome DevTools",
+  title: "Login Tracer — Debug SAML and OIDC Logins in Chrome and Firefox",
   description:
-    "Login Tracer by Phase Two is a free Chrome DevTools extension for debugging SAML and OpenID Connect / OAuth logins. It groups every SSO request into a login flow, decodes SAML messages and JWTs, verifies signatures offline, flags misconfigurations, and exports a redacted trace. No permissions, no network requests.",
+    "Login Tracer by Phase Two is a free Chrome and Firefox DevTools extension for debugging SAML and OpenID Connect / OAuth logins. It groups every SSO request into a login flow, decodes SAML messages and JWTs, verifies signatures offline, flags misconfigurations, and exports a redacted trace. No permissions, no network requests.",
   keywords:
-    "sso tracer, saml tracer, saml tracer chrome, saml chrome extension, oidc debugger, oauth debugger, saml devtools, sso debugging, debug saml login, debug oidc login, jwt chrome extension, keycloak saml debugging, keycloak oidc debugging, har saml",
+    "sso tracer, saml tracer, saml tracer chrome, saml chrome extension, saml tracer firefox, saml firefox add-on, oidc debugger, oauth debugger, saml devtools, sso debugging, debug saml login, debug oidc login, jwt chrome extension, keycloak saml debugging, keycloak oidc debugging, har saml",
   url: "https://phasetwo.io/tools/login-tracer",
 };
 
@@ -149,7 +153,7 @@ const SHOTS = [
 const FAQS = [
   {
     q: "What is Login Tracer?",
-    a: "A free Chrome DevTools extension from Phase Two for debugging single sign-on. It adds an Login Tracer panel to DevTools that decodes the SAML and OpenID Connect / OAuth requests in the inspected tab, groups them into login flows, verifies signatures, and flags common misconfigurations.",
+    a: "A free Chrome and Firefox DevTools extension from Phase Two for debugging single sign-on. It adds a Login Tracer panel to DevTools that decodes the SAML and OpenID Connect / OAuth requests in the inspected tab, groups them into login flows, verifies signatures, and flags common misconfigurations.",
   },
   {
     q: "Does Login Tracer send my tokens or SAML assertions anywhere?",
@@ -157,7 +161,7 @@ const FAQS = [
   },
   {
     q: "What permissions does it need?",
-    a: "None. The manifest declares no permissions, no host permissions, no content scripts, and no background worker, so Chrome shows no permission warning when you install it. It reads the network log through the DevTools extension API, which is only available while DevTools is open on the tab.",
+    a: "None. The manifest declares no permissions, no host permissions, no content scripts, and no background worker, so the browser shows no permission warning when you install it. It reads the network log through the DevTools extension API, which is only available while DevTools is open on the tab.",
   },
   {
     q: "Why don't I see my login?",
@@ -185,7 +189,7 @@ const FAQS = [
   },
   {
     q: "Which browsers are supported?",
-    a: "Login Tracer is built and tested for Google Chrome, version 110 or later.",
+    a: "Google Chrome 110 or later, from the Chrome Web Store, and Firefox 140 or later, from Firefox Add-ons.",
   },
 ];
 
@@ -200,13 +204,22 @@ function H2({ children, id }: { children: React.ReactNode; id?: string }) {
 function InstallCta() {
   if (CHROME_STORE_URL) {
     return (
-      <a
-        href={CHROME_STORE_URL}
-        className="inline-flex items-center gap-2 rounded-xl bg-p2blue-500 px-5 py-3 text-base font-semibold text-white no-underline transition-colors hover:bg-p2blue-400 hover:text-white hover:no-underline"
-      >
-        <Icon icon="mdi:puzzle-outline" className="size-5" />
-        Add to Chrome — it's free
-      </a>
+      <>
+        <a
+          href={CHROME_STORE_URL}
+          className="inline-flex items-center gap-2 rounded-xl bg-p2blue-500 px-5 py-3 text-base font-semibold text-white no-underline transition-colors hover:bg-p2blue-400 hover:text-white hover:no-underline"
+        >
+          <Icon icon="mdi:puzzle-outline" className="size-5" />
+          Add to Chrome — it's free
+        </a>
+        <a
+          href={FIREFOX_ADDON_URL}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-base font-semibold text-white no-underline transition-colors hover:border-p2blue-500/50 hover:text-white hover:no-underline"
+        >
+          <Icon icon="mdi:firefox" className="size-5" />
+          Add to Firefox
+        </a>
+      </>
     );
   }
   return (
@@ -265,7 +278,8 @@ export default function LoginTracerPage() {
     applicationCategory: "DeveloperApplication",
     applicationSubCategory: "Browser extension",
     operatingSystem: "Windows, macOS, Linux, ChromeOS",
-    browserRequirements: "Requires Google Chrome 110 or later",
+    browserRequirements:
+      "Requires Google Chrome 110 or later, or Firefox 140 or later",
     url: PAGE_META.url,
     description: PAGE_META.description,
     screenshot: SHOTS.map((s) => `https://phasetwo.io${s.src}`),
@@ -309,7 +323,7 @@ export default function LoginTracerPage() {
       <main className="margin-vert--lg container">
         <header className="mx-auto mb-10 max-w-3xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-p2blue-400">
-            Free Chrome DevTools extension
+            Free Chrome and Firefox DevTools extension
           </p>
           <h1 className="mb-3 text-4xl font-semibold text-white">
             Login Tracer by Phase Two
@@ -374,7 +388,8 @@ export default function LoginTracerPage() {
               {CHROME_STORE_URL ? (
                 <>
                   Add Login Tracer to Chrome from the{" "}
-                  <a href={CHROME_STORE_URL}>Chrome Web Store</a>.
+                  <a href={CHROME_STORE_URL}>Chrome Web Store</a>, or to Firefox
+                  from <a href={FIREFOX_ADDON_URL}>Firefox Add-ons</a>.
                 </>
               ) : (
                 <>
@@ -423,7 +438,7 @@ export default function LoginTracerPage() {
             <li>
               <strong className="text-white">No permissions.</strong> The
               manifest declares no permissions, no host permissions, no content
-              scripts, and no background worker. Chrome shows no permission
+              scripts, and no background worker. The browser shows no permission
               warning on install.
             </li>
             <li>

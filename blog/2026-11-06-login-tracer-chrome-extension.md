@@ -69,4 +69,4 @@ Login Tracer sees what the DevTools network log sees: navigations, redirects, fo
 
 ## Try it
 
-Login Tracer is free. Install it from the Chrome Web Store via the [Login Tracer page](/tools/login-tracer), which also covers setup and common questions. If you already have a message or token in hand, our free browser-based [developer tools](/tools) decode SAML, JWTs, certificates, and JWKS, and run OIDC flows, without installing anything.
+Login Tracer is free. Install it from the Chrome Web Store via the [Login Tracer page](/tools/login-tracer), which also covers setup and common questions. It is also available for Firefox 140 and later from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/login-tracer-phasetwo/). If you already have a message or token in hand, our free browser-based [developer tools](/tools) decode SAML, JWTs, certificates, and JWKS, and run OIDC flows, without installing anything.
