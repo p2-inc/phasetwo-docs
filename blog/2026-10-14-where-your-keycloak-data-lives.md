@@ -15,7 +15,7 @@ keywords:
   ]
 ---
 
-Here is where your Keycloak data lives with us. The Keycloak database, sessions, event store, backups and realm signing keys for an EU cluster run in AWS Frankfurt (`eu-central-1`), with backups in Ireland (`eu-west-1`), and are never replicated outside the EU. Three things of ours do run in the United States: the dashboard you sign in to, support tickets, and billing. You contract with Phase Two UK, Ltd, registered in England and Wales, company number 16815578. Our parent company, Phase Two, Inc., is incorporated in the United States, and our control plane runs there, so administrators outside the EU can reach your cluster in order to operate it. Under Chapter V of the GDPR that access is a restricted transfer, and we would rather write it down here than have you find it in a risk assessment.
+Here is where your Keycloak data lives with us. The Keycloak database, sessions, event store, backups and realm signing keys for an EU cluster run in AWS Frankfurt (`eu-central-1`), with backups in Ireland (`eu-west-1`), and are never replicated outside the EU. Three things of ours do run in the United States: the dashboard you sign in to, support tickets, and billing. You contract with Phase Two, Inc., which is incorporated in the United States, and our control plane runs there, so administrators outside the EU can reach your cluster in order to operate it. Under Chapter V of the GDPR that access is a restricted transfer, and we would rather write it down here than have you find it in a risk assessment.
 
 <!-- truncate -->
 
@@ -78,9 +78,9 @@ Remote access to EU-stored data from a third country is itself a restricted tran
 
 ## Who you contract with, and what that does not buy you
 
-Phase Two UK, Ltd is the contracting party for customers in the EU and the UK. The European Commission renewed its adequacy decision for the United Kingdom on 19 December 2025, valid until 27 December 2031, so an EU-to-UK transfer needs no additional safeguard.
+Phase Two, Inc. is the contracting party and processor, under a data processing agreement that incorporates the EU Standard Contractual Clauses. Customers that require a UK contracting entity may contract with Phase Two UK, Ltd on request.
 
-What the UK entity does not buy you is immunity. Phase Two, Inc. is incorporated in the United States, and under the US CLOUD Act a provider subject to US jurisdiction can be compelled to disclose data in its "possession, custody, or control" wherever that data is stored. We do not claim to sit outside that. What we can tell you is what we do with a request, published on our [government requests](/company/government-requests/) page: route it to one place, challenge what is overbroad, redirect it to you where we can, notify you unless prohibited, disclose the minimum, and publish the count. To date that count is zero.
+What an EU region does not buy you is immunity. Because Phase Two, Inc. is incorporated in the United States, under the US CLOUD Act a provider subject to US jurisdiction can be compelled to disclose data in its "possession, custody, or control" wherever that data is stored. We do not claim to sit outside that. What we can tell you is what we do with a request, published on our [government requests](/company/government-requests/) page: route it to one place, challenge what is overbroad, redirect it to you where we can, notify you unless prohibited, disclose the minimum, and publish the count. To date that count is zero.
 
 ## What we do not claim
 
