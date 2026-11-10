@@ -1,0 +1,588 @@
+---
+id: event-listener
+title: "Keycloak Event Listener SPI: Ship Events Off-Box"
+description: Build a Keycloak event listener that POSTs events to an HTTP endpoint without taxing every login. The thread onEvent runs on, the retries, and what a restart loses.
+keywords:
+  - keycloak event listener spi
+  - keycloak event listener
+  - EventListenerProvider
+  - keycloak send events to webhook
+  - keycloak eventsListeners
+  - keycloak custom event listener
+difficulty: intermediate
+time: 60 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - JDK 21 and Maven
+  - A Keycloak admin login
+  - Comfort packaging a provider jar
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Event Listener SPI: Ship Events Off-Box
+
+The **Keycloak Event Listener SPI** is two methods on one interface, and writing something
+that compiles takes ten minutes. Writing one that can carry your logins is a different job,
+because of four things the interface does not force you to deal with:
+
+1. **`onEvent` runs on the request thread.** Whatever it does, every authentication waits for.
+2. **`onEvent` runs before the transaction commits.** Send from inside it and you can publish
+   an event for a change that is about to roll back.
+3. **Nothing retries for you.** A 503 from your endpoint is an event that no longer exists.
+4. **Nothing bounds your queue.** Get off the request thread naively and a slow endpoint
+   becomes an unbounded backlog in the heap.
+
+This page builds a listener that POSTs each event to an HTTP endpoint and handles all four,
+with the cost of getting each one wrong measured on a real server.
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2`, `start-dev`, H2 dev database, a
+single container limited to 1.5 GB), provider built with Temurin JDK 21 and Maven 3.9.15.
+Every number, log line and JSON body below is from a run on **2026-11-09**, against a Python
+receiver whose latency and status code are set per experiment. Source read from the
+[26.8.2 tag](https://github.com/keycloak/keycloak/tree/26.8.2).
+
+:::
+
+## What the official page leaves out
+
+The Server Developer Guide's
+[Event Listener SPI](https://www.keycloak.org/docs/latest/server_development/index.html#_events)
+section is a few sentences long and contains no code. It names `EventListenerProvider` and
+`EventListenerProviderFactory`, refers you to the javadoc and examples for the details, and
+warns that the SPI is internal and can change in any release. Packaging and deployment are covered in
+[Your first Keycloak SPI](/tutorials/extending/first-spi/) and in the guide's own
+[Service Provider Interfaces](https://www.keycloak.org/docs/latest/server_development/index.html#_providers)
+chapter — read one of those first, because this page assumes you can already get a jar
+loaded.
+
+What neither covers is the behaviour of the thing once it is loaded: which thread calls you,
+what the realm's Events settings actually filter, and what happens to an event when your
+endpoint is down. That is the whole of this page.
+
+## Where `onEvent` runs, and what it costs
+
+Log the thread name and you get your answer immediately:
+
+```
+DEBUG [io.example.keycloak.OffBoxEventListenerProvider] (executor-thread-1)
+      onEvent user type=LOGIN thread=executor-thread-1
+```
+
+`executor-thread-1` is the thread serving the token request. So the direct implementation —
+build the JSON, POST it, return — puts your endpoint's latency inside every login. Here is
+the median of ten password grants, measured with `curl -w '%{time_total}'`, against the same
+receiver configured two ways:
+
+| `onEvent` does | Endpoint replies immediately | Endpoint takes 2s |
+|---|---|---|
+| POST inline, then return | **44.0 ms** | **2,069.2 ms** |
+| Hand off to a sender pool | **43.9 ms** | **41.9 ms** |
+
+The first row is the trap, and the left-hand column is why it survives review: against a
+receiver on the same host, posting inline costs nothing you can see. The cost is entirely
+your endpoint's latency, and your endpoint is not on localhost. At two seconds it is a 47x
+regression on every login in the realm.
+
+One mercy: a listener that *throws* cannot break a login. Keycloak catches it and logs it.
+
+```
+ERROR [org.keycloak.events.EventBuilder] (executor-thread-1) Failed to send type to
+      io.example.keycloak.OffBoxEventListenerProvider@4f923aab:
+      java.lang.RuntimeException: deliberate failure in onEvent
+```
+
+That request still returned `200` in 0.125 s. Useful to know, and worth an alert — a listener
+that throws on every event drops every event and the only symptom is this line.
+
+## `onEvent` runs before the commit
+
+Read `EventBuilder.sendNow()` in the 26.8.2 source and the listener call is a plain
+synchronous loop over the realm's listeners, reached from `success()` on the same thread,
+inside the request's transaction. `AdminEventBuilder.send()` does the same. Only the
+*error* path differs: `error()` defaults to sending in a **new** transaction, and upstream's
+own comment on that parameter says why — "so it is persisted even if this transaction rolls
+back". Which tells you plainly what the success path does not do.
+
+So an event handed to you in `onEvent` describes a change that **has not been committed
+yet**. Ship it from there and a rollback leaves your downstream system holding a user
+creation that never happened.
+
+Keycloak ships the fix and does not mention it in the guide:
+`org.keycloak.events.EventListenerTransaction` collects events and replays them to a consumer
+on commit, discarding them on rollback. Enlist it with `enlistAfterCompletion` and your
+sending code runs after the transaction resolves:
+
+```java
+this.tx = new EventListenerTransaction(this::enqueueAdmin, this::enqueueUser);
+session.getTransactionManager().enlistAfterCompletion(tx);
+```
+
+Be precise about what that buys: delivery now happens after the **commit**, not after the
+**response**. In the traced run the POST landed 7 ms before `curl` returned. If you need
+"the user has already seen the response", an event listener is the wrong hook.
+
+## 1. The provider: hand off, don't send
+
+`EventListenerTransaction` takes a `BiConsumer<AdminEvent, Boolean>` and a `Consumer<Event>`,
+so the two `onEvent` methods become two `add` calls, and the real work moves to the two
+consumers. The `inline` flag exists only so the table above could be measured against the
+same jar — in production code there is no reason to keep it.
+
+```java title="src/main/java/io/example/keycloak/OffBoxEventListenerProvider.java"
+public class OffBoxEventListenerProvider implements EventListenerProvider {
+
+    private static final Logger log = Logger.getLogger(OffBoxEventListenerProvider.class);
+
+    private final Sender sender;
+    private final boolean inline;
+    private final EventListenerTransaction tx;
+
+    public OffBoxEventListenerProvider(KeycloakSession session, Sender sender, boolean inline) {
+        this.sender = sender;
+        this.inline = inline;
+        this.tx = new EventListenerTransaction(this::enqueueAdmin, this::enqueueUser);
+        if (!inline) {
+            session.getTransactionManager().enlistAfterCompletion(tx);
+        }
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        log.debugf("onEvent user type=%s thread=%s",
+                event.getType(), Thread.currentThread().getName());
+        if (inline) {
+            sender.sendBlocking(ModelToRepresentation.toRepresentation(event));
+        } else {
+            tx.addEvent(event);
+        }
+    }
+
+    @Override
+    public void onEvent(AdminEvent event, boolean includeRepresentation) {
+        log.debugf("onEvent admin op=%s thread=%s",
+                event.getOperationType(), Thread.currentThread().getName());
+        if (inline) {
+            sender.sendBlocking(ModelToRepresentation.toRepresentation(event));
+        } else {
+            tx.addAdminEvent(event, includeRepresentation);
+        }
+    }
+
+    private void enqueueUser(Event event) {
+        Map<String, Object> payload = asMap(ModelToRepresentation.toRepresentation(event));
+        // EventRepresentation carries realmId (a UUID) but not the realm name. Put it back.
+        payload.put("realmName", event.getRealmName());
+        sender.enqueue(payload);
+    }
+
+    private void enqueueAdmin(AdminEvent event, Boolean includeRepresentation) {
+        Map<String, Object> payload = asMap(ModelToRepresentation.toRepresentation(event));
+        payload.put("realmName", event.getRealmName());
+        sender.enqueue(payload);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> asMap(Object representation) {
+        return new LinkedHashMap<>(JsonSerialization.mapper.convertValue(representation, Map.class));
+    }
+
+    @Override
+    public void close() {
+    }
+}
+```
+
+`ModelToRepresentation.toRepresentation(event)` is the right serializer to reach for — it is
+the same shape the Admin API returns from `/admin/realms/{realm}/events`, so your consumer can
+be written against documented JSON. It also quietly drops things; see
+[what the payload contains](#what-the-payload-actually-contains).
+
+## 2. The sender: retry, backoff, and a bound
+
+Four decisions live here, and the defaults you pick are the delivery guarantee you are
+offering.
+
+```java title="src/main/java/io/example/keycloak/Sender.java (the parts that matter)"
+/** Hand the event to the sender pool. Never blocks, never throws. */
+public void enqueue(Object event) {
+    if (inFlight.get() >= maxInFlight) {
+        long n = dropped.incrementAndGet();
+        log.warnf("Dropping event, %d in flight at limit %d (dropped=%d)",
+                inFlight.get(), maxInFlight, n);
+        return;
+    }
+    inFlight.incrementAndGet();
+    schedule(event, 1, 0L);
+}
+
+private void schedule(Object event, int attempt, long delayMs) {
+    exec.schedule(() -> {
+        try {
+            attempt(event);
+            sent.incrementAndGet();
+            inFlight.decrementAndGet();
+        } catch (Retryable r) {
+            if (attempt >= maxAttempts) {
+                failed.incrementAndGet();
+                inFlight.decrementAndGet();
+                log.warnf("Giving up after %d attempts: %s", attempt, r.getMessage());
+                return;
+            }
+            long next = Math.min(maxBackoffMs, (long) (initialBackoffMs * Math.pow(2, attempt - 1)));
+            long jittered = next / 2 + (long) (Math.random() * next / 2);
+            log.warnf("Attempt %d failed (%s), retrying in %dms", attempt, r.getMessage(), jittered);
+            schedule(event, attempt + 1, jittered);
+        } catch (Exception e) {
+            failed.incrementAndGet();
+            inFlight.decrementAndGet();
+            log.warnf("Permanent failure, not retrying: %s", e.toString());
+        }
+    }, delayMs, TimeUnit.MILLISECONDS);
+}
+
+private void attempt(Object event) throws Exception {
+    byte[] body = JsonSerialization.writeValueAsBytes(event);
+    HttpRequest.Builder b = HttpRequest.newBuilder(URI.create(targetUri))
+            .timeout(Duration.ofSeconds(10))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofByteArray(body));
+    if (secret != null && !secret.isBlank()) {
+        b.header("X-Keycloak-Signature", hmacSha256(body, secret));
+    }
+    HttpResponse<Void> res;
+    try {
+        res = http.send(b.build(), HttpResponse.BodyHandlers.discarding());
+    } catch (java.io.IOException e) {
+        // Connection refused, DNS failure, read timeout: the endpoint may come back. Retry.
+        throw new Retryable(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+    int status = res.statusCode();
+    if (status >= 200 && status < 300) {
+        return;
+    }
+    if (status == 429 || status >= 500) {
+        throw new Retryable("HTTP " + status);
+    }
+    throw new IllegalStateException("HTTP " + status);
+}
+```
+
+**Classify the failure before you retry it.** `429` and `5xx` are the endpoint asking you to
+come back; `400` and `404` will be wrong in exactly the same way forever and retrying them
+just multiplies the load. An `IOException` is retryable too, and that one is easy to get
+wrong — the first version of this class treated a connection refusal as permanent, which
+means a thirty-second endpoint restart silently costs you thirty seconds of events.
+
+**Bound the queue, and count what you drop.** `maxInFlight` is the difference between a slow
+endpoint costing you memory and a slow endpoint costing you events. Neither is good; only one
+of them takes the server down with it. Surface the counters through
+`ServerInfoAwareProviderFactory` so the answer is a query rather than a guess:
+
+```json
+"offbox": {
+  "operationalInfo": {
+    "version": "1.0.0",
+    "targetUri": "http://host.docker.internal:9000/events",
+    "mode": "deferred",
+    "threads": "2",
+    "stats": "sent=11 dropped=0 failed=0 inFlight=10"
+  }
+}
+```
+
+Retries against a receiver forced to answer `503`, with `initialBackoffMs=500` and
+`maxAttempts=5`:
+
+```
+WARN  Attempt 1 failed (HTTP 503), retrying in 313ms
+WARN  Attempt 2 failed (HTTP 503), retrying in 587ms
+WARN  Attempt 3 failed (HTTP 503), retrying in 1166ms
+WARN  Attempt 4 failed (HTTP 503), retrying in 2498ms
+WARN  Giving up after 5 attempts: HTTP 503
+```
+
+Jitter is the `313` rather than `500`. Without it, a cluster of listeners that all failed on
+the same endpoint outage all come back at the same millisecond.
+
+## 3. The factory: one executor, and a `close()` that drains
+
+The factory is created once per server, so it owns the pool. `close()` is the method people
+leave empty, and it is worth exactly as much as the events in your queue.
+
+```java title="src/main/java/io/example/keycloak/OffBoxEventListenerProviderFactory.java (excerpt)"
+@Override
+public void init(Config.Scope config) {
+    targetUri = config.get("targetUri", "http://localhost:9000/events");
+    inline = config.getBoolean("inline", false);
+    global = config.getBoolean("global", false);
+    threads = config.getInt("threads", 2);
+    drainSeconds = config.getInt("drainSeconds", 10);
+
+    exec = Executors.newScheduledThreadPool(threads, r -> {
+        Thread t = new Thread(r, "offbox-sender");
+        t.setDaemon(true);
+        return t;
+    });
+    sender = new Sender(exec, targetUri, config.get("secret"),
+            config.getInt("maxAttempts", 5), config.getInt("initialBackoffMs", 500),
+            config.getInt("maxBackoffMs", 30000), config.getInt("maxInFlight", 10000));
+}
+
+@Override
+public void close() {
+    if (drainSeconds <= 0) {
+        exec.shutdownNow();   // abandon the queue: every event still in it is lost
+        return;
+    }
+    exec.shutdown();          // stop accepting, finish what is already queued
+    try {
+        if (!exec.awaitTermination(drainSeconds, TimeUnit.SECONDS)) {
+            exec.shutdownNow();
+        }
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        exec.shutdownNow();
+    }
+}
+```
+
+Ten logins fired at a receiver taking 2 s per event, so that `serverinfo` reported
+`inFlight=10`, then `docker stop`:
+
+| `close()` | Container stop took | Queued events delivered |
+|---|---|---|
+| `shutdownNow()` | 1.8 s | **4 of 10** |
+| `shutdown()` + `awaitTermination(10s)` | 9.1 s | **10 of 10** |
+
+A bounded drain is the whole difference, and the second row also shows its price: shutdown
+now takes as long as the drain. Nine seconds is uncomfortably close to Docker's default
+ten-second `SIGKILL` deadline and to a default Kubernetes `terminationGracePeriodSeconds`
+of thirty — size `drainSeconds` against the grace period you actually run with, or the
+drain gets killed halfway and you are back to losing events.
+
+## 4. Deploy it and turn it on
+
+Build the jar, mount it, let `start-dev` rebuild:
+
+```bash
+mvn -q package
+mkdir -p ~/kc-providers && cp target/offbox-events-1.0.0.jar ~/kc-providers/
+
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v ~/kc-providers:/opt/keycloak/providers \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e KC_SPI_EVENTS_LISTENER__OFFBOX__TARGET_URI=http://host.docker.internal:9000/events \
+  -e KC_SPI_EVENTS_LISTENER__OFFBOX__SECRET=s3cr3t \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+```
+
+Two things about that configuration are worth stating because a typo in either is accepted in
+silence. The option path is `--spi-events-listener--<provider-id>--<option>`, where
+`events-listener` is the kebab-case form of the `eventsListener` SPI name in `serverinfo`.
+And as an environment variable, `KC_SPI_EVENTS_LISTENER__OFFBOX__TARGET_URI` resolves to the
+`targetUri` key — underscore-separated segments map onto camelCase. Read the result back from
+`getOperationalInfo()` rather than trusting it:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh config credentials \
+  --server http://localhost:8080 --realm master --user admin --password admin
+docker exec kc /opt/keycloak/bin/kcadm.sh get serverinfo \
+  | jq '.providers.eventsListener.providers.offbox'
+```
+
+Being loaded is not being used. The realm has to name it:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh update events/config -r master \
+  -s 'eventsEnabled=true' \
+  -s 'adminEventsEnabled=true' \
+  -s 'adminEventsDetailsEnabled=true' \
+  -s 'eventsListeners=["jboss-logging","offbox"]'
+```
+
+That array **replaces** the existing list, so name every listener you want to keep.
+
+## What the payload actually contains
+
+A password grant, as delivered:
+
+```json
+{
+  "id": "431cfcb2-666f-434f-bfa6-80390fc45174",
+  "time": 1794208634474,
+  "type": "LOGIN",
+  "realmId": "278c6d73-b723-4619-9d1e-d09c3318724c",
+  "clientId": "admin-cli",
+  "userId": "822d6a9f-fa3d-4f31-aa14-8b6d3e1bea17",
+  "sessionId": "anpOYUR5upvJA9nCwd9sYp4Y",
+  "ipAddress": "172.17.0.1",
+  "details": {
+    "grant_type": "password",
+    "auth_method": "openid-connect",
+    "username": "admin",
+    "scope": "email kc-admin-api profile",
+    "token_id": "onltro:115fc0a6-2930-355c-723b-c93d821f89f7",
+    "client_auth_method": "client-secret"
+  },
+  "realmName": "master"
+}
+```
+
+And `kcadm create users -r master -s username=alice`:
+
+```json
+{
+  "id": "9f505825-b095-4de8-a9bc-6efc7856e36d",
+  "time": 1794208635624,
+  "realmId": "278c6d73-b723-4619-9d1e-d09c3318724c",
+  "authDetails": {
+    "realmId": "278c6d73-b723-4619-9d1e-d09c3318724c",
+    "clientId": "ee25e53b-b833-46e7-aaa5-f8b734d58f9f",
+    "userId": "822d6a9f-fa3d-4f31-aa14-8b6d3e1bea17",
+    "ipAddress": "127.0.0.1"
+  },
+  "operationType": "CREATE",
+  "resourceType": "USER",
+  "resourcePath": "users/21f1d16e-f16a-4f9a-a8eb-036e418b904c",
+  "representation": "{\"username\":\"alice\",\"enabled\":true}",
+  "realmName": "master"
+}
+```
+
+Four things in there will surprise whoever writes the consumer:
+
+| What you see | What it is |
+|---|---|
+| `realmId` is a UUID, and there is no realm name | `EventRepresentation` has no `realmName` field, though `Event` does. The `realmName` above is the one field this listener adds back. |
+| `authDetails.clientId` is a UUID | On an **admin** event that is the client's internal id. On a **user** event, top-level `clientId` is the `clientId` string (`admin-cli`). Same key name, two different identifiers. |
+| `representation` is a string | JSON encoded inside JSON. Your consumer parses twice, and only when `adminEventsDetailsEnabled` is on — it is absent otherwise. |
+| No `type` on admin events | Admin events carry `operationType` and `resourceType` instead. Discriminate on which keys are present, not on a shared field. |
+
+## What the realm's Events settings do not filter
+
+This is the one that produces a quiet surprise in production. With
+`enabledEventTypes` set to `["LOGIN"]` on the realm, a login followed by a token refresh gave:
+
+| | `LOGIN` | `REFRESH_TOKEN` |
+|---|---|---|
+| Rows in the event store | yes | no |
+| Delivered to the listener | yes | **yes** |
+
+And with `eventsEnabled` (*Save events*) **off** entirely, a login on a realm listing
+`offbox` still reached `onEvent`. The source agrees: `EventBuilder` uses the
+events-enabled flag to decide whether to construct an `EventStoreProvider`, and builds its
+listener list from the realm's `eventsListeners` independently of it.
+
+So:
+
+- **`eventsEnabled` and `enabledEventTypes` configure the event *store*.** They do not
+  reduce what your listener receives.
+- **`eventsListeners` is the only realm-level switch over your listener**, and it is all or
+  nothing.
+- **Filtering is your job**, in `onEvent`, before anything is queued. A realm whose clients
+  refresh tokens every few minutes produces far more `REFRESH_TOKEN` events than logins, and
+  your endpoint gets all of them unless you drop them yourself.
+
+## Global listeners: events from every realm
+
+`EventListenerProviderFactory.isGlobal()` defaults to `false`. Return `true` and both builders
+include your factory regardless of what the realm lists:
+
+```java
+@Override
+public boolean isGlobal() {
+    return global;
+}
+```
+
+Verified against a second realm whose `eventsListeners` was `["jboss-logging"]` and whose
+`eventsEnabled` was `false`: with `global=false` a login produced no `onEvent` call at all;
+with `global=true` the same login was delivered, carrying `"realmName": "tenant-a"`. That is
+the right switch for a fleet-wide audit pipeline and the wrong one for anything a tenant is
+meant to opt into.
+
+## The delivery semantics you are actually choosing
+
+Say these out loud before you build a consumer against them.
+
+| Property | What this listener gives you |
+|---|---|
+| **At-least-once, with a cap** | Up to `maxAttempts`; then the event is gone. The `id` is stable across attempts, so a receiver can dedup on it. Two forced failures produced three deliveries of event `346ccc49` before a 2xx. |
+| **Unordered** | A retried event lands after events produced later. With `initialBackoffMs=3000`, the first of three logins arrived **2.8 s after** the other two, last in the sequence. |
+| **Committed, not responded** | Delivery follows the transaction commit, which is a few milliseconds before the HTTP response. |
+| **Memory-resident** | The queue is a thread pool's work queue. A restart loses whatever `close()` cannot drain. |
+| **Unbatched** | One event, one request. Fine at tens per second, not at thousands. Batching means holding events longer and losing more on a restart — pick deliberately. |
+
+If any row is unacceptable, the answer is not a better listener. It is a listener that writes
+somewhere durable — a local queue, a sidecar, stdout — and something else that ships from
+there. The structured-log route is what
+[scaling Keycloak event storage](/blog/scaling-keycloak-event-storage/) walks through end to
+end.
+
+## Named failure modes
+
+**The provider is listed in `serverinfo` but never called.** The realm does not name it in
+`eventsListeners`. Loading and wiring are separate steps, and only the second one is per-realm.
+
+**Events stop and nothing looks broken.** Grep the server log for `Failed to send type to`.
+Keycloak catches everything your listener throws, so a NullPointerException on one event
+shape silently discards every event of that shape.
+
+**Logins get slower after a deploy and the profiler points at the request thread.** Something
+on the `onEvent` path is blocking — a synchronous POST, a DNS lookup, a `getUserById` that
+hits the database. `onEvent` should do nothing but enqueue.
+
+**The endpoint restarts and a window of events vanishes.** `IOException` classified as
+permanent instead of retryable.
+
+**Heap grows with login volume.** An unbounded queue behind a slow endpoint. `maxInFlight`
+and a `dropped` counter turn an outage into a measurable loss instead of an incident.
+
+**A rolling restart loses events.** `close()` is empty or `drainSeconds` exceeds the
+container's grace period.
+
+**Duplicate rows downstream.** Working as designed — retries are redeliveries. Dedup on the
+event `id`.
+
+## When not to write this
+
+| You want | Use instead |
+|---|---|
+| Events in the server log, nothing more | The built-in `jboss-logging` listener, already there |
+| To react to user lifecycle changes | [Keycloak Workflows](/tutorials/workflows/getting-started/) — no code, no jar |
+| Signed HTTP delivery with retries and a resend API | The open-source [keycloak-events](https://github.com/p2-inc/keycloak-events) extension: `ext-event-http` posts to a fixed URI, `ext-event-webhook` adds per-realm subscriptions, HMAC or bearer-JWT authentication and stored deliveries. The [webhooks documentation](/docs/audit-logs/webhooks/) describes the payload format and the verification options |
+| Events in an analytics store rather than an endpoint | An `EventStoreProvider` that writes structured logs, then a log pipeline |
+| To stop the event table growing | Nothing here helps — that is [event retention](/tutorials/data-protection/event-retention/) |
+
+Writing your own is right when the destination has semantics no generic webhook has: a
+Kafka topic with a partition key, an internal bus with its own auth, a schema your consumers
+already validate against. Writing your own because you need "a webhook" is how you end up
+maintaining a worse version of `ext-event-http`.
+
+And whichever you choose, remember that shipping events off-box moves personal data —
+IP addresses, usernames, session identifiers — to wherever the endpoint is. That is a
+transfer worth naming in the same place you name the rest of them.
+
+## Next steps
+
+- [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
+  packaging, the service file, and the ways a jar silently fails to load.
+- [Keycloak event retention: expiration settings for GDPR](/tutorials/data-protection/event-retention/)
+  — the other half of event operations, and the one with a database bill.
+- [Keycloak Workflows: what they are and your first one](/tutorials/workflows/getting-started/)
+  — the no-code answer to a lot of "I need an event listener" problems.
+- [User events in Keycloak](/blog/user-events-in-keycloak/) — what the event types mean and
+  which ones are high volume.
+- [Audit logs](/docs/audit-logs/) and [webhooks](/docs/audit-logs/webhooks/) — a worked
+  payload format and three ways to authenticate it.
+- [How we scaled Keycloak event storage](/blog/scaling-keycloak-event-storage/) — where this
+  design runs out and a pipeline takes over.
+- More [Keycloak tutorials](/tutorials/).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

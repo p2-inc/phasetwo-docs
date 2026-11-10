@@ -126,13 +126,18 @@ module.exports = {
       items: [
         "data-protection/event-retention",
         "data-protection/exit-export",
+        "data-protection/realm-key-management",
       ],
     },
     {
       type: "category",
       label: "Extending Keycloak",
       link: { type: "generated-index" },
-      items: ["extending/first-spi", "extending/user-storage-readonly"],
+      items: [
+        "extending/first-spi",
+        "extending/event-listener",
+        "extending/user-storage-readonly",
+      ],
     },
     {
       type: "category",
