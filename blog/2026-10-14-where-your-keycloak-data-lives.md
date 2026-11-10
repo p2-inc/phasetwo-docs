@@ -88,7 +88,7 @@ What the UK entity does not buy you is immunity. Phase Two, Inc. is incorporated
 - We do not offer bring-your-own-key on hosted clusters. Realm signing keys for EU clusters sit in Frankfurt and do not leave the EU, but they are our keys in our KMS.
 - We are not certified under the EU-US Data Privacy Framework and do not rely on it as a transfer mechanism.
 - Support is in English only.
-- Our contractual breach notification window is 48 to 72 hours. NIS2 gives you 24 hours for an early warning, so raise this during contracting rather than discovering the gap during an incident.
+- Our contractual breach notification window is 72 hours. NIS2 gives you 24 hours for an early warning, so raise this during contracting rather than discovering the gap during an incident.
 
 ## Checking it, and leaving
 
