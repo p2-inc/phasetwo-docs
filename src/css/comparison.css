@@ -424,7 +424,12 @@
   opacity: 0.6;
   transition: opacity 0.18s;
 }
-.kcvs .hero-logostrip .logos img:hover {
+.kcvs .hero-logostrip .logos a {
+  display: inline-flex;
+  border-radius: 6px;
+}
+.kcvs .hero-logostrip .logos a:hover img,
+.kcvs .hero-logostrip .logos a:focus-visible img {
   opacity: 0.95;
 }
 .kcvs .heroA h1 {
