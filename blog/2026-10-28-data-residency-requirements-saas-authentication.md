@@ -49,7 +49,7 @@ Ten items, in the order a DPO tends to send them. The middle column is the one w
 | 6. Which legal entity is the counterparty, where it is incorporated, who owns it, and whether the parent is a subprocessor | The DPA's parties clause, plus a company registration number you can look up | A trading name, a marketing entity, or a parent that appears nowhere in the agreement |
 | 7. The subprocessor list, with notice and an objection right before additions | A published, dated list naming the service each one performs (Art. 28(2) and 28(4)) | A list "available on request", or authorisation with no objection right |
 | 8. The breach notification window, in hours | The DPA clause, stated numerically | "Without undue delay", quoted back from Art. 33(2) as though it were a commitment |
-| 9. Audit and access rights, and whether DORA Art. 30(3) terms are acceptable | SOC 2 Type II report, ISO 27001 certificate, pen test summaries — and a written position on on-site audit | Certifications offered in place of an answer about audit rights, or a flat refusal to negotiate |
+| 9. Audit and access rights, and whether DORA Art. 30(3) terms are acceptable | SOC 2 Type II report, ISO 27001 certificate — and a written position on on-site audit | Certifications offered in place of an answer about audit rights, or a flat refusal to negotiate |
 | 10. What an export contains and what deletion at end of service commits to | An export format, a worked example, and the Art. 28(3)(g) clause | An "export" that turns out to be configuration without users, or deletion with no evidence of it |
 
 Three of those get fudged more than the rest.
@@ -173,8 +173,8 @@ Same ten items, our side of them, including the rows we would rather not write.
 | 5 | A transfer impact assessment exists and we share it on request, without an NDA |
 | 6 | Phase Two UK, Ltd, registered in England and Wales, company number 16815578, 2 Leman Street, London E1W 9US. Parent: Phase Two, Inc., Seattle, United States, which acts as a subprocessor to the UK entity and is named as such in the agreement |
 | 7 | Published in the Trust Center with the service each one performs. Notice before adding or replacing one, and an objection right |
-| 8 | **48 to 72 hours.** Read that against your own clock: NIS2 gives you 24 hours for an early warning, so raise it during contracting rather than during an incident |
-| 9 | SOC 2 Type II and ISO/IEC 27001, both current, with penetration test summaries. DORA Art. 30(3) audit and access rights are negotiated rather than refused |
+| 8 | **72 hours.** Read that against your own clock: NIS2 gives you 24 hours for an early warning, so raise it during contracting rather than during an incident |
+| 9 | SOC 2 Type II and ISO/IEC 27001, both current. DORA Art. 30(3) audit and access rights are negotiated rather than refused |
 | 10 | Realm configuration and users export through the Admin API and `kc.sh export`; a database dump on request. Deletion at end of service under Art. 28(3)(g), carried out on request. We do **not** yet issue a certificate of deletion — if your risk assessment needs one, ask and it goes in the contract |
 
 The whole data map, class by class, is in [where your Keycloak data lives](/blog/where-your-keycloak-data-lives/), and the Article 28 terms behind rows 4 through 10 are on the [data processing agreement](/company/data-processing/) page.

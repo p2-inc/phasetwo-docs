@@ -398,7 +398,7 @@ export default function EuDataResidency() {
                 scope for either, you will need contractual terms from your identity
                 provider covering incident notification, audit and access rights,
                 subcontracting and an exit plan. We sign those. Our contractual
-                incident notification window is 48 to 72 hours, which is worth
+                incident notification window is 72 hours, which is worth
                 knowing precisely: NIS2 gives you 24 hours for an early warning, so
                 if your own clock depends on ours, tell us during contracting and we
                 will discuss what is achievable for your deployment.
@@ -426,7 +426,7 @@ export default function EuDataResidency() {
                 >
                   Trust Center
                 </a>
-                , along with penetration test summaries.
+                .
               </p>
             </div>
           </div>
