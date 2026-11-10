@@ -2,7 +2,7 @@
 id: terraform
 title: Terraform provider
 sidebar_label: Terraform provider
-description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables and extensions declaratively with the p2-inc/phasetwo Terraform provider. Experimental — test environments only.
+description: Manage Phase Two clusters, realms, custom domains, IP rules, environment variables, extensions and Gateway apps declaratively with the p2-inc/phasetwo Terraform provider. Experimental — test environments only.
 keywords:
   - phasetwo terraform provider
   - keycloak terraform
@@ -107,17 +107,19 @@ makes the API return a Stripe Checkout link, and Terraform cannot open a browser
 
 ## What it manages
 
-| Resource                                | Manages                                            |
-| --------------------------------------- | -------------------------------------------------- |
-| `phasetwo_cluster`                      | A dedicated cluster                                |
-| `phasetwo_realm`                        | A realm (deployment) on a cluster                  |
-| `phasetwo_cluster_domain`               | A custom hostname, and the DNS records to create   |
-| `phasetwo_cluster_primary_host`         | Which domain the cluster serves on                 |
-| `phasetwo_cluster_ip_rules`             | Admin and realm IP allow/deny lists                |
-| `phasetwo_cluster_environment_variable` | A custom SPI environment variable                  |
-| `phasetwo_cluster_extension`            | A custom provider or theme                         |
-| `phasetwo_cluster_extension_version`    | A per-Keycloak-version build of one                |
-| `phasetwo_realm_credential`             | A service-account client for administering a realm |
+| Resource                                | Manages                                                                        |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| `phasetwo_cluster`                      | A dedicated cluster                                                            |
+| `phasetwo_realm`                        | A realm (deployment) on a cluster                                              |
+| `phasetwo_cluster_domain`               | A custom hostname, and the DNS records to create                               |
+| `phasetwo_cluster_primary_host`         | Which domain the cluster serves on                                             |
+| `phasetwo_cluster_ip_rules`             | Admin and realm IP allow/deny lists                                            |
+| `phasetwo_cluster_environment_variable` | A custom SPI environment variable                                              |
+| `phasetwo_cluster_extension`            | A custom provider or theme                                                     |
+| `phasetwo_cluster_extension_version`    | A per-Keycloak-version build of one                                            |
+| `phasetwo_realm_credential`             | A service-account client for administering a realm                             |
+| `phasetwo_gateway_app`                  | A website behind the realm's login, with [Gateway](/docs/self-service/gateway) |
+| `phasetwo_gateway_app_activation`       | Verifies a Gateway app's origin and starts serving it                          |
 
 Data sources: `phasetwo_organization`, `phasetwo_organizations`, `phasetwo_payment_method`,
 `phasetwo_cluster`, `phasetwo_realm`, `phasetwo_regions`.
@@ -150,6 +152,87 @@ resource "phasetwo_cluster_primary_host" "auth" {
 `wait_for_certificate` is off by default because turning it on in the same apply that produces
 the records you have not yet created would deadlock. If your DNS is itself in Terraform, set it
 with a `depends_on` covering those records.
+
+## Gateway apps
+
+A [Gateway](/docs/self-service/gateway) app puts a realm's login in front of an existing website.
+Going live depends on two things you set up from the app's outputs, a CNAME and an origin that
+requires the secret, so it takes two resources. Terraform orders them for you in one apply:
+
+```hcl
+resource "phasetwo_gateway_app" "admin" {
+  realm_id        = phasetwo_realm.app.id
+  name            = "Internal admin console"
+  public_hostname = "admin.acme.com"
+  origin_url      = "https://admin-origin.acme.com"
+  health_path     = "/healthz"
+
+  # Anyone who can sign in may read /reports, only staff reach /admin, and every
+  # other path is refused.
+  policy = {
+    default = "deny"
+    rules = [
+      { path_prefix = "/reports", methods = ["GET"] },
+      { path_prefix = "/admin", groups_any = ["/staff"] },
+    ]
+  }
+
+  header_mappings = {
+    "X-Phasetwo-Auth-Email" = "email"
+  }
+  assertion_enabled = true
+}
+
+# Users go to Gateway, so the public hostname points at it.
+resource "aws_route53_record" "admin" {
+  zone_id = var.zone_id
+  name    = phasetwo_gateway_app.admin.public_hostname
+  type    = "CNAME"
+  records = [phasetwo_gateway_app.admin.dns_target]
+  ttl     = 300
+}
+
+# The origin must refuse requests without this secret. Here it goes to the
+# secret the origin's ingress reads; use whatever your origin is deployed with.
+resource "aws_secretsmanager_secret_version" "origin_secret" {
+  secret_id     = var.origin_secret_id
+  secret_string = phasetwo_gateway_app.admin.origin_secret
+}
+
+resource "phasetwo_gateway_app_activation" "admin" {
+  realm_id = phasetwo_gateway_app.admin.realm_id
+  app_id   = phasetwo_gateway_app.admin.id
+
+  depends_on = [
+    aws_route53_record.admin,
+    aws_secretsmanager_secret_version.origin_secret,
+  ]
+}
+```
+
+Creating `phasetwo_gateway_app_activation` verifies the origin, waits for the hostname's DNS and
+certificate, then activates the app. It waits up to 30 minutes by default; set
+`timeouts { create = "..." }` to change that. If the origin serves a request **without** the
+secret, the apply fails at once rather than waiting, because the website would be reachable
+without signing in. An inconclusive verification, such as a `404` while the origin is still
+deploying, is retried until the timeout.
+
+Destroying the activation deactivates the app: Gateway stops serving it immediately and signs
+everyone out, and the app keeps its configuration. If someone deactivates the app in the console,
+the next plan shows the activation to be created again.
+
+Things worth knowing:
+
+- **`origin_secret` is stored in state**, marked sensitive. The API returns it once, on create,
+  so state is the only place left to keep it. Treat the state backend as holding a secret. An
+  imported app has no `origin_secret`.
+- **Rotating the secret is not modelled.** Rotate in the console. The value in state then stays
+  stale, so get the new one to your origin another way.
+- **An active app cannot change `origin_url` or `health_path`.** Remove the activation, apply,
+  then change the origin and add the activation back. The provider says so if you try.
+- **`public_hostname` forces replacement**, which issues a new secret and a new certificate.
+- **`claims_equal` values are strings.** `email_verified = "true"` is sent as the boolean the
+  claim holds.
 
 ## Things that will surprise you
 

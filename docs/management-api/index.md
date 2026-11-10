@@ -26,7 +26,7 @@ This section is the **guide**. If you want the endpoint-by-endpoint reference, t
 | [**Automation recipes**](/docs/management-api/recipes)   | Worked end-to-end examples: provision a cluster, onboard a tenant, add a custom domain, rotate credentials.      |
 | [**Terraform provider**](/docs/management-api/terraform) | Manage the same resources declaratively instead of scripting the API. **Experimental — test environments only.** |
 | [**AI agents**](/docs/management-api/ai-agents) | Let Claude configure Keycloak on your cluster with the Keycloak Skills plugin and the Phase Two MCP server. |
-| [**API reference**](/api/management-api-index)           | All 82 endpoints, with schemas and try-it.                                                                       |
+| [**API reference**](/api/management-api-index)           | All 92 endpoints, with schemas and try-it.                                                                       |
 
 ## What this API is not
 
@@ -69,6 +69,7 @@ unusual enough that it is worth a comment where you write it down.
 | **Custom domains** | Attach a hostname, read the DNS records to create, watch certificate issuance, promote to primary  |
 | **Extensions**     | Upload custom providers and themes, manage per-Keycloak-version builds, trigger the reconcile      |
 | **Configuration**  | Custom SPI environment variables; admin and realm IP allow/deny lists                              |
+| **Gateway**        | Put a realm's login in front of a website; verify the origin, activate, rotate the origin secret   |
 | **Operations**     | List and download log files                                                                        |
 | **Billing**        | Subscriptions, payment methods, billing contacts, portal links                                     |
 | **Credentials**    | Create, list and revoke the API secrets themselves                                                 |
