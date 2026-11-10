@@ -24,11 +24,7 @@ These are the minimums from release 0.3.0. Release 0.2.0 compiles against SDK 37
 
 ## Install
 
-:::info Maven Central from 0.3.0
-From release 0.3.0, which is coming next, the libraries are published on Maven Central. Release 0.2.0 is available as a Maven repository zip on its GitHub release, described below.
-:::
-
-From 0.3.0, add the libraries from Maven Central:
+The libraries are on Maven Central from 0.3.0:
 
 ```kotlin
 // settings.gradle.kts
@@ -49,18 +45,7 @@ dependencies {
 }
 ```
 
-Until then, download `keycloak-native-android-0.2.0-maven-repo.zip` from the [0.2.0 release](https://github.com/p2-inc/native-apps/releases/tag/0.2.0), unzip it into your project, for example into `third_party/keycloak-native/`, add that directory as a repository, and use version `0.2.0` in the dependencies above:
-
-```kotlin
-// settings.gradle.kts
-dependencyResolutionManagement {
-  repositories {
-    google()
-    mavenCentral()
-    maven { url = uri("third_party/keycloak-native") }
-  }
-}
-```
+Every GitHub release also attaches the libraries as a Maven repository zip (`keycloak-native-android-<version>-maven-repo.zip`) for builds without access to Maven Central.
 
 Pin exact versions: before 1.0, any release may change the API.
 

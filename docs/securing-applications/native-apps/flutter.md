@@ -18,14 +18,14 @@ The plugin is licensed under Apache 2.0. It is below 1.0, so its API may change 
 
 ## Install
 
-:::info Coming to pub.dev with the next release
-The plugin will be published on pub.dev as `keycloak_native_flutter` with release 0.3.0, together with the Android libraries on Maven Central that it depends on. Until then it lives in the [repository](https://github.com/p2-inc/native-apps/tree/main/flutter/keycloak_native_flutter), where its example app builds the SDKs from source and signs in against the local demo Keycloak.
+:::info Release line
+The plugin shares one version line with the server extensions and the native SDKs, starting with 0.3.0, and is published by the phasetwo.io verified publisher. Below 1.0 any release may change the API, so pin an exact version.
 :::
 
 ```yaml
 # pubspec.yaml
 dependencies:
-  keycloak_native_flutter: ^0.3.0
+  keycloak_native_flutter: 0.3.0
 ```
 
 **iOS.** Raise the deployment target to 17.0 (`IPHONEOS_DEPLOYMENT_TARGET` in the Runner project). For passkeys and saved passwords, add the Associated Domains entitlement `webcredentials:<rp-id>` (see [Server setup](./server-setup.md#passkeys)). The browser fallback needs no URL scheme registration.

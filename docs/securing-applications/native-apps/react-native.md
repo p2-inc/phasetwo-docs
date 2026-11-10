@@ -5,7 +5,7 @@ sidebar_label: React Native
 description: Sign users in to Keycloak from a React Native or Expo app with your own screens using Phase Two's keycloak-native-react-native module, with passkeys, push approvals, DPoP and tokens kept in the Keychain or Android Keystore.
 ---
 
-`@phasetwo/keycloak-native-react-native` signs users in to Keycloak with your app's own React Native screens. It is a New Architecture TurboModule over Phase Two's [iOS](./ios.md) and [Android](./android.md) SDKs: the native side runs the login protocol, keeps credentials in the Keychain or Android Keystore, holds the DPoP key in the Secure Enclave or Keystore, and runs the passkey, saved-password, browser and push ceremonies. JavaScript gets the login as a typed challenge model and default React screens that you can replace one challenge type at a time. An Expo config plugin does the native setup.
+`@phasetwo.io/keycloak-native-react-native` signs users in to Keycloak with your app's own React Native screens. It is a New Architecture TurboModule over Phase Two's [iOS](./ios.md) and [Android](./android.md) SDKs: the native side runs the login protocol, keeps credentials in the Keychain or Android Keystore, holds the DPoP key in the Secure Enclave or Keystore, and runs the passkey, saved-password, browser and push ceremonies. JavaScript gets the login as a typed challenge model and default React screens that you can replace one challenge type at a time. An Expo config plugin does the native setup.
 
 The module is licensed under Apache 2.0. It is below 1.0, so its API may change between releases. Your Keycloak needs the native authentication extensions; see [Server setup](./server-setup.md).
 
@@ -18,12 +18,12 @@ The module is licensed under Apache 2.0. It is below 1.0, so its API may change 
 
 ## Install
 
-:::info Coming to npm with the next release
-The module will be published on npm as `@phasetwo/keycloak-native-react-native` with release 0.3.0, together with the Android libraries on Maven Central that it depends on. Until then it lives in the [repository](https://github.com/p2-inc/native-apps/tree/main/react-native/keycloak-native-react-native), where its example app builds the SDKs from source and signs in against the local demo Keycloak.
+:::info Release line
+The module shares one version line with the server extensions and the native SDKs, starting with 0.3.0. Below 1.0 any release may change the API, so pin an exact version.
 :::
 
 ```bash
-npm install @phasetwo/keycloak-native-react-native
+npm install @phasetwo.io/keycloak-native-react-native
 ```
 
 **iOS.** Run `pod install`. The pod brings in the iOS SDK as a Swift package. For passkeys and saved passwords, add the Associated Domains entitlement `webcredentials:<rp-id>` (see [Server setup](./server-setup.md#passkeys)). If your app hits linker errors with pods that include Swift packages, build with `USE_FRAMEWORKS=dynamic`.
@@ -64,7 +64,7 @@ The config plugin does both platforms' setup during `npx expo prebuild`:
   "expo": {
     "plugins": [
       [
-        "@phasetwo/keycloak-native-react-native",
+        "@phasetwo.io/keycloak-native-react-native",
         {
           "redirectUri": "myapp://auth/callback",
           "associatedDomains": ["<your-keycloak-host>"]
@@ -84,7 +84,7 @@ It registers the activity, declares the callback activity for `redirectUri`, rai
 Create one instance per issuer and client, and keep it for the life of the app. The issuer is your realm's URL, including `/realms/<realm>`:
 
 ```ts
-import { KeycloakNative } from "@phasetwo/keycloak-native-react-native";
+import { KeycloakNative } from "@phasetwo.io/keycloak-native-react-native";
 
 export const kc = KeycloakNative.configure({
   issuer: "https://<your-keycloak-host>/realms/<your-realm>",
@@ -103,7 +103,7 @@ import { useEffect, useState } from "react";
 import {
   NativeLoginScreen,
   type NativeLoginFlow,
-} from "@phasetwo/keycloak-native-react-native";
+} from "@phasetwo.io/keycloak-native-react-native";
 
 function Login({ onSignedIn }: { onSignedIn(): void }) {
   const [flow, setFlow] = useState<NativeLoginFlow>();
