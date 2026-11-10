@@ -1,0 +1,677 @@
+---
+id: user-storage-readonly
+title: "Keycloak User Storage SPI: Read-Only Lookup"
+description: Federate an external user store into Keycloak with the User Storage SPI. The two Maven artifacts, a tested provider, and the four things AbstractUserAdapter does not do for you.
+keywords:
+  - keycloak user storage spi
+  - keycloak user federation custom provider
+  - UserLookupProvider
+  - CredentialInputValidator
+  - AbstractUserAdapter
+  - keycloak external user database
+difficulty: advanced
+time: 60 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - JDK 21 or later and Maven
+  - A packaged Keycloak provider jar you have deployed before
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak User Storage SPI: Read-Only Lookup
+
+A **read-only User Storage provider** is two capability interfaces and an adapter:
+
+1. **`UserLookupProvider`** — `getUserByUsername`, `getUserById`, `getUserByEmail`. Keycloak
+   calls these when a user logs in and the realm's own database has no such user.
+2. **`CredentialInputValidator`** — `isValid`, so the password typed on the login page is
+   checked against the external store rather than against Keycloak.
+3. A **`UserModel`** adapter that maps one external record onto Keycloak's user model, with
+   an id of the form `f:<component id>:<external id>`.
+
+Implement those, drop the jar in `providers/`, add the provider to a realm under **User
+federation**, and external users can log in without a single row being copied into
+Keycloak's database. Implementing them *correctly* takes two more things nobody mentions
+until you hit them: the attribute accessors on your adapter, and the required-action
+methods.
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2`, `start-dev`, H2 dev-file database,
+single container), built with Temurin JDK 25 compiling to release 21, Maven 3.9.15. Every
+command, log line, error message and timing below is copied from a real run on 2026-11-09.
+The official
+[Server Developer Guide — User Storage SPI](https://www.keycloak.org/docs/latest/server_development/index.html#_user-storage-spi)
+is the reference for what each interface means and the properties-file example to read
+first. This page is what happens when you run one.
+
+:::
+
+## What you'll build
+
+A provider called `legacy-rest` that federates a read-only HTTP user service: Keycloak asks
+it for a user record, asks it to check a password, and never writes to it. That shape —
+*the legacy system still owns the users and the passwords* — is the common one, and it is
+the shape the open-source
+[`keycloak-user-migration`](https://github.com/daniel-frak/keycloak-user-migration) project
+implements for just-in-time migrations.
+
+This page covers lookup and credential validation only. Queries, writes and cache tuning
+are a separate problem with separate failure modes.
+
+## The import that will not resolve
+
+Start here, because it costs an hour otherwise. The `org.keycloak.storage` package is split
+across **two** Maven artifacts, and the guide names neither:
+
+| You import | Artifact |
+|---|---|
+| `org.keycloak.storage.UserStorageProvider`, `UserStorageProviderFactory`, `UserStorageProviderModel` | `keycloak-model-storage` |
+| `org.keycloak.storage.adapter.AbstractUserAdapter`, `org.keycloak.credential.UserCredentialManager` | `keycloak-model-storage` |
+| `org.keycloak.storage.StorageId`, `ReadOnlyException`, `org.keycloak.storage.user.*` | `keycloak-server-spi` |
+| `org.keycloak.credential.CredentialInput*`, `PasswordCredentialModel`, `ProviderConfigurationBuilder` | `keycloak-server-spi` |
+| `org.keycloak.models.utils.KeycloakModelUtils` | `keycloak-server-spi-private` |
+
+A project that lists only `keycloak-server-spi` fails with `cannot find symbol: class
+UserStorageProvider` on the very first line of the very first class, which reads like a
+version problem and is not one.
+
+```xml title="pom.xml (dependencies only)"
+<dependencies>
+  <dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-server-spi</artifactId>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-server-spi-private</artifactId>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.keycloak</groupId>
+    <artifactId>keycloak-model-storage</artifactId>
+    <scope>provided</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.jboss.logging</groupId>
+    <artifactId>jboss-logging</artifactId>
+    <scope>provided</scope>
+  </dependency>
+</dependencies>
+```
+
+Unlike most Keycloak SPI artifacts, `keycloak-model-storage` *does* pull `keycloak-core` and
+`keycloak-common` transitively, so you do not need to list them. The rest of the build —
+the `keycloak-parent` BOM import, `<maven.compiler.release>21</maven.compiler.release>`, the
+`META-INF/services` file — is the same as
+[your first Keycloak SPI](/tutorials/extending/first-spi/), and the service file here is
+named `org.keycloak.storage.UserStorageProviderFactory`.
+
+## 1. The store you are federating
+
+Anything with an HTTP API will do. This stands in for one — two endpoints, a JSON file, no
+dependencies:
+
+```python title="legacy_users.py"
+import json, os
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+USERS_FILE = os.environ.get("USERS_FILE", "users.json")
+
+class Handler(BaseHTTPRequestHandler):
+    # The JDK HTTP client keeps connections alive; the default HTTP/1.0 reply closes
+    # them and the next request fails with "header parser received no bytes".
+    protocol_version = "HTTP/1.1"
+
+    def _send(self, code, body=None):
+        payload = b"" if body is None else json.dumps(body).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def do_GET(self):
+        if self.path.startswith("/users/"):
+            u = json.load(open(USERS_FILE)).get(self.path[len("/users/"):])
+            if u:
+                return self._send(200, {k: v for k, v in u.items() if k != "password"})
+        self._send(404)
+
+    def do_POST(self):
+        if self.path != "/verify-password":
+            return self._send(404)
+        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
+        u = json.load(open(USERS_FILE)).get(body.get("username", ""))
+        self._send(200 if u and u.get("password") == body.get("password") else 401)
+
+ThreadingHTTPServer(("0.0.0.0", 8000), Handler).serve_forever()
+```
+
+```json title="users.json"
+{
+  "ada": {"username": "ada", "email": "ada@legacy.example", "emailVerified": true,
+          "firstName": "Ada", "lastName": "Lovelace", "enabled": true,
+          "password": "analytical-engine"},
+  "alan": {"username": "alan", "email": "alan@legacy.example", "emailVerified": true,
+           "firstName": "Alan", "lastName": "Turing", "enabled": false,
+           "password": "bombe"}
+}
+```
+
+## 2. The provider: lookup and validation
+
+```java title="LegacyRestStorageProvider.java"
+public class LegacyRestStorageProvider implements
+        UserStorageProvider,
+        UserLookupProvider,
+        CredentialInputValidator,
+        CredentialInputUpdater {
+
+    private final KeycloakSession session;
+    private final ComponentModel model;
+    private final LegacyUserClient client;
+    private final Map<String, UserModel> loaded = new HashMap<>();
+
+    public LegacyRestStorageProvider(KeycloakSession session, ComponentModel model,
+                                     LegacyUserClient client) {
+        this.session = session;
+        this.model = model;
+        this.client = client;
+    }
+
+    @Override
+    public UserModel getUserByUsername(RealmModel realm, String username) {
+        UserModel cached = loaded.get(username);
+        if (cached != null) {
+            return cached;
+        }
+        return client.findByUsername(username)
+                .map(u -> {
+                    UserModel adapter = new LegacyUserAdapter(session, realm, model, u);
+                    loaded.put(username, adapter);
+                    return adapter;
+                })
+                .orElse(null);
+    }
+
+    @Override
+    public UserModel getUserById(RealmModel realm, String id) {
+        return getUserByUsername(realm, new StorageId(id).getExternalId());
+    }
+
+    @Override
+    public UserModel getUserByEmail(RealmModel realm, String email) {
+        return null;
+    }
+
+    @Override
+    public boolean supportsCredentialType(String credentialType) {
+        return PasswordCredentialModel.TYPE.equals(credentialType);
+    }
+
+    @Override
+    public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
+        return supportsCredentialType(credentialType);
+    }
+
+    @Override
+    public boolean isValid(RealmModel realm, UserModel user, CredentialInput input) {
+        if (!supportsCredentialType(input.getType())) {
+            return false;
+        }
+        return client.isPasswordValid(user.getUsername(), input.getChallengeResponse());
+    }
+
+    @Override
+    public boolean updateCredential(RealmModel realm, UserModel user, CredentialInput input) {
+        if (supportsCredentialType(input.getType())) {
+            throw new ReadOnlyException("The legacy store is read-only; change it there.");
+        }
+        return false;
+    }
+
+    @Override
+    public void disableCredentialType(RealmModel realm, UserModel user, String type) {
+    }
+
+    @Override
+    public Stream<String> getDisableableCredentialTypesStream(RealmModel realm, UserModel user) {
+        return Stream.empty();
+    }
+
+    @Override
+    public void close() {
+    }
+}
+```
+
+Three things in there are load-bearing.
+
+**`loaded` is per transaction, not a cache.** A provider instance is created per transaction
+and closed at the end of it, so this map only stops one login resolving the same user twice.
+Keycloak's real user cache sits above you and is covered below.
+
+**`getUserByEmail` returning `null` has a visible consequence.** With
+`loginWithEmailAllowed` on, `ada@legacy.example` gets `invalid_grant / Invalid user
+credentials` while `ada` logs in fine. Returning `null` here is honest — the store has no
+email index — but say so in your runbook rather than discovering it in a ticket.
+
+**`CredentialInputUpdater` is the read-only guard, and omitting it is not "no writes".** The
+same provider with those three methods deleted behaves like this when an admin resets the
+password of a federated user:
+
+```bash
+kcadm.sh set-password -r legacy-demo \
+  --userid "f:QxzjL3DeTICMT6xk7jKgYg:linus" --new-password hijacked
+```
+
+```
+### login with the admin-set password:  200 OK
+### login with the LEGACY password:     200 OK
+```
+
+Both work. Keycloak asked the legacy store first, got a `401`, and then validated against a
+password it had quietly written into its own database. The user now has two credentials and
+you can no longer revoke one of them at the source. With `updateCredential` throwing
+`ReadOnlyException`, the same command refuses:
+
+```
+Can't reset password as account is read only
+```
+
+## 3. The adapter, and what `AbstractUserAdapter` leaves to you
+
+`AbstractUserAdapter` is worth extending: it builds the `f:<component id>:<external id>` id
+for you, throws `ReadOnlyException` from every setter, and returns the realm's default roles
+and groups. The official example overrides exactly one method, `getUsername()`. Do that and
+nothing works.
+
+```java title="LegacyUserAdapter.java"
+public class LegacyUserAdapter extends AbstractUserAdapter {
+
+    private final LegacyUser user;
+
+    public LegacyUserAdapter(KeycloakSession session, RealmModel realm,
+                             ComponentModel model, LegacyUser user) {
+        super(session, realm, model);
+        this.user = user;
+    }
+
+    @Override public String getUsername()      { return user.username(); }
+    @Override public String getEmail()         { return user.email(); }
+    @Override public boolean isEmailVerified() { return user.emailVerified(); }
+    @Override public String getFirstName()     { return user.firstName(); }
+    @Override public String getLastName()      { return user.lastName(); }
+    @Override public boolean isEnabled()       { return user.enabled(); }
+
+    @Override
+    public SubjectCredentialManager credentialManager() {
+        return new UserCredentialManager(session, realm, this);
+    }
+
+    // Required actions: no-ops, not exceptions.
+    @Override public void addRequiredAction(String action) {}
+    @Override public void removeRequiredAction(String action) {}
+    @Override public void addRequiredAction(RequiredAction action) {}
+    @Override public void removeRequiredAction(RequiredAction action) {}
+
+    // The attribute accessors. AbstractUserAdapter answers all four with "username only".
+    @Override
+    public Map<String, List<String>> getAttributes() {
+        MultivaluedHashMap<String, String> attributes = new MultivaluedHashMap<>();
+        attributes.add(UserModel.USERNAME, getUsername());
+        attributes.add(UserModel.EMAIL, getEmail());
+        attributes.add(UserModel.FIRST_NAME, getFirstName());
+        attributes.add(UserModel.LAST_NAME, getLastName());
+        return attributes;
+    }
+
+    @Override
+    public List<String> getAttribute(String name) {
+        List<String> values = getAttributes().get(name);
+        return values == null ? Collections.emptyList() : values;
+    }
+
+    @Override
+    public Stream<String> getAttributeStream(String name) {
+        return getAttribute(name).stream();
+    }
+
+    @Override
+    public String getFirstAttribute(String name) {
+        return getAttribute(name).stream().findFirst().orElse(null);
+    }
+}
+```
+
+Four overrides there are not optional, and each one is a failure you would otherwise debug
+from a stack trace.
+
+**`credentialManager()`.** The guide's `createAdapter` snippet does not compile on 26.8.2:
+`<anonymous> is not abstract and does not override abstract method credentialManager() in
+org.keycloak.models.UserModel`. `AbstractUserAdapter` does not implement it. Return a
+`UserCredentialManager` over `this`.
+
+**The attribute accessors.** `AbstractUserAdapter.getAttributes()` returns a map containing
+the username and nothing else, and `getFirstAttribute` / `getAttribute` are implemented
+independently with the same rule — no matter how many getters you override. Keycloak 26
+reads users through
+[the declarative user profile](/tutorials/users/user-profile/), which reads *attributes*, so
+with only `getUsername()` overridden the admin API returns a user with no email and no name:
+
+```json
+{
+  "id" : "f:QxzjL3DeTICMT6xk7jKgYg:ada",
+  "username" : "ada",
+  "emailVerified" : false,
+  "enabled" : true
+}
+```
+
+and every login fails before it reaches your credential check:
+
+```
+error="resolve_required_actions", reason="Account is not fully set up"
+```
+
+because the profile is incomplete, so `VERIFY_PROFILE` is triggered, and a direct grant
+cannot run a required action.
+
+**The required-action no-ops.** Once the profile *does* validate, `VerifyUserProfile`
+clears the action it would otherwise have set — by calling `removeRequiredAction()` on your
+user, which `AbstractUserAdapter` answers with `ReadOnlyException`. With the user cache in
+its default mode the cached model absorbs that call and you never see it. Turn caching off
+and every login becomes an HTTP 500:
+
+```
+ERROR [org.keycloak.services.error.KeycloakErrorHandler] Uncaught server error:
+org.keycloak.storage.ReadOnlyException: user is read only for this update
+	at org.keycloak.storage.adapter.AbstractUserAdapter.removeRequiredAction(AbstractUserAdapter.java:84)
+	at org.keycloak.authentication.requiredactions.VerifyUserProfile.evaluateTriggers(VerifyUserProfile.java:66)
+```
+
+A read-only user has no required actions to store. Swallowing the call is correct, and it is
+the difference between a provider that works and one that works until somebody changes a
+cache policy.
+
+## 4. The factory
+
+```java title="LegacyRestStorageProviderFactory.java"
+public class LegacyRestStorageProviderFactory
+        implements UserStorageProviderFactory<LegacyRestStorageProvider> {
+
+    public static final String PROVIDER_ID = "legacy-rest";
+
+    private static final List<ProviderConfigProperty> CONFIG = ProviderConfigurationBuilder.create()
+            .property().name("baseUrl").type(ProviderConfigProperty.STRING_TYPE)
+                .label("Legacy user service base URL")
+                .helpText("Root URL of the read-only user service, e.g. http://legacy:8000")
+                .add()
+            .property().name("timeoutMs").type(ProviderConfigProperty.STRING_TYPE)
+                .label("Timeout (ms)").defaultValue("2000")
+                .helpText("Connect and read timeout. This runs inline on the login request.")
+                .add()
+            .build();
+
+    @Override public String getId() { return PROVIDER_ID; }
+
+    @Override public List<ProviderConfigProperty> getConfigProperties() { return CONFIG; }
+
+    @Override
+    public void validateConfiguration(KeycloakSession session, RealmModel realm, ComponentModel model)
+            throws ComponentValidationException {
+        String baseUrl = model.getConfig().getFirst("baseUrl");
+        if (baseUrl == null || !(baseUrl.startsWith("http://") || baseUrl.startsWith("https://"))) {
+            throw new ComponentValidationException("baseUrl must start with http:// or https://");
+        }
+        if (model.getId() == null) {
+            // Keep the federated user id inside WebAuthn's 64-byte user handle limit.
+            model.setId(KeycloakModelUtils.generateShortId());
+        }
+    }
+
+    @Override
+    public LegacyRestStorageProvider create(KeycloakSession session, ComponentModel model) {
+        return new LegacyRestStorageProvider(session, model, new LegacyUserClient(
+                model.getConfig().getFirst("baseUrl"),
+                Integer.parseInt(model.get("timeoutMs", "2000"))));
+    }
+}
+```
+
+The generic parameter on `UserStorageProviderFactory<LegacyRestStorageProvider>` is not
+decoration — Keycloak introspects that type to discover which capability interfaces you
+implement. Omit it and the provider loads and does nothing.
+
+The `generateShortId()` call is worth copying. User ids are
+`"f:" + componentId + ":" + externalId`; a default UUID component id is 36 characters, which
+leaves 25 for the external id before you breach the 64-byte WebAuthn user handle limit. The
+short id is 22 characters, and the ids in this run came out at 28 characters total.
+
+## 5. Deploy and register it
+
+Loading the jar and using it are two steps, as with every SPI.
+
+```bash
+mvn -q package
+cp target/legacy-rest-storage-1.0.0.jar ~/kc-providers/
+
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  --add-host=host.docker.internal:host-gateway \
+  -v ~/kc-providers:/opt/keycloak/providers \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+```
+
+**There is no log line confirming your provider loaded.** `storage` is one of the few public
+SPIs, so you do not get the `KC-SERVICES0047 … is implementing the internal SPI` warning that
+tells you an event listener or authenticator was found. Ask instead:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh config credentials \
+  --server http://localhost:8080 --realm master --user admin --password admin
+docker exec kc /opt/keycloak/bin/kcadm.sh get serverinfo | jq '.providers.storage'
+```
+
+```json
+{
+  "internal": false,
+  "providers": { "ldap": {...}, "legacy-rest": { "order": 0 }, "kerberos": {...} }
+}
+```
+
+Registering it for a realm is a `components` create. The admin console does this under
+**User federation**; the CLI equivalent is not in the guide, which only shows the Java admin
+client:
+
+```bash
+docker exec kc /opt/keycloak/bin/kcadm.sh create components -r legacy-demo \
+  -s name=legacy-users \
+  -s providerId=legacy-rest \
+  -s providerType=org.keycloak.storage.UserStorageProvider \
+  -s 'config.baseUrl=["http://host.docker.internal:8000"]' \
+  -s 'config.timeoutMs=["2000"]'
+```
+
+```
+Created new component with id 'QxzjL3DeTICMT6xk7jKgYg'
+```
+
+`parentId` defaults to the realm, and that component id is the one that ends up in every
+user's `sub`.
+
+## 6. Prove it
+
+```bash
+curl -s -X POST \
+  http://localhost:8080/realms/legacy-demo/protocol/openid-connect/token \
+  -d client_id=demo-app -d grant_type=password -d 'scope=openid' \
+  -d username=ada -d 'password=analytical-engine'
+```
+
+```json
+{
+  "sub": "f:QxzjL3DeTICMT6xk7jKgYg:ada",
+  "preferred_username": "ada",
+  "email": "ada@legacy.example",
+  "email_verified": true,
+  "given_name": "Ada",
+  "family_name": "Lovelace"
+}
+```
+
+That `sub` is the whole proof: the user exists only in the legacy store, and the id names the
+component that produced them. Nothing was written to Keycloak's `USER_ENTITY` table.
+
+Four behaviours are worth checking deliberately, because three of them are silent:
+
+| Attempt | Result | Why |
+|---|---|---|
+| Correct password | `200`, token as above | |
+| Wrong password | `invalid_grant / Invalid user credentials` | `isValid` returned false |
+| Unknown username | `invalid_grant / Invalid user credentials`, log says `user_not_found` | lookup returned `null` |
+| `enabled: false` in the store | `invalid_grant / Account disabled`, log says `user_disabled` | **the password was still sent to the legacy store first** |
+
+## 7. What a login costs
+
+Keycloak caches the user object, not the credential check. With the legacy service padded to
+300 ms per call:
+
+| | Calls to the legacy store | Login time |
+|---|---|---|
+| First login for a user | `GET /users/{u}` + `POST /verify-password` | 0.97 s |
+| Subsequent logins | `POST /verify-password` only | 0.37–0.40 s |
+| With `cachePolicy: NO_CACHE` | both, every time | 0.97 s |
+
+So the lookup is cached and the password check never is — correct, since a cached credential
+is a credential you cannot revoke. The cost is that **the cached user goes stale**. Change a
+surname in the legacy store and log in again:
+
+```
+family_name in token: Torvalds        # the legacy store says CHANGED
+```
+
+Set `cachePolicy` to `NO_CACHE` on the component and the next token is correct, at the price
+of the first row of that table on every login:
+
+```bash
+kcadm.sh update components/QxzjL3DeTICMT6xk7jKgYg -r legacy-demo \
+  -s 'config.cachePolicy=["NO_CACHE"]'
+```
+
+`DEFAULT`, `EVICT_DAILY`, `EVICT_WEEKLY` and `MAX_LIFESPAN` are the other settings, and they
+are the whole of your freshness policy. There is no invalidation callback from your store.
+
+The timeout is a login-latency budget, not a background setting. With the store taking 5 s
+and `timeoutMs` at 2000:
+
+```
+500 after 2.073784s  unknown_error
+WARN  [io.example.keycloak.storage.LegacyUserClient] legacy user service call failed:
+      http://host.docker.internal:8000/users/grace (java.net.http.HttpTimeoutException: request timed out)
+```
+
+## 8. A failed lookup is not an empty answer
+
+This is the decision that matters most in the whole provider, and it is three lines of code.
+
+When the legacy store is unreachable, your HTTP client can either throw or return "no user".
+Return "no user" and every federated login fails like this:
+
+```
+400 invalid_grant | Invalid user credentials
+WARN [org.keycloak.events] type="LOGIN_ERROR" error="user_not_found" username="linus"
+```
+
+An outage has been rendered as *your account does not exist*, your users are retyping
+passwords, and your login error rate looks like a credential-stuffing attempt. Throw
+instead and the same outage is unambiguous:
+
+```
+500 unknown_error
+ERROR [org.keycloak.services.error.KeycloakErrorHandler] Uncaught server error:
+io.example.keycloak.storage.LegacyStoreUnavailableException: legacy user service unreachable
+```
+
+A 500 is the honest answer: Keycloak does not know whether this user exists. Local Keycloak
+users keep logging in normally throughout, because the provider is only consulted when the
+local lookup misses.
+
+## When it goes wrong
+
+**The admin console shows no users at all.** `get users` returns `[ ]` and `users/count`
+returns `0`, while `get users/f:<component id>:<username>` returns the full record. This is
+correct: listing and searching are `UserQueryMethodsProvider`, which you have not
+implemented. Logging in never needed it.
+
+**A local user silently wins.** Keycloak checks its own database before any federation
+provider. If a user with that username already exists locally — imported during an earlier
+migration attempt, say — the provider is **never called**: the local password is the one
+that works, the legacy one is rejected, and `sub` is a plain UUID rather than `f:…`. Nothing
+in any log says so; the only tell is that the legacy service sees no traffic. Going the
+other way is blocked for you: creating a local user whose username the provider resolves
+fails with `User exists with same username`.
+
+**`Account is not fully set up` on a direct grant.** The user profile found the account
+incomplete and raised `VERIFY_PROFILE`. In nearly every case this is the attribute accessors
+in section 3, not a realm setting.
+
+**Every login is an HTTP 500 after a cache-policy change.** The required-action methods in
+section 3.
+
+**`header parser received no bytes` from your own client.** The JDK's `HttpClient` reuses
+connections; a toy HTTP server replying in HTTP/1.0 closes them. Real stores do not have this
+problem, test rigs do.
+
+**Two jars in `providers/`.** The alphabetically first filename wins, with only a
+`SplitPackageProcessor` warning. Delete before you copy — see
+[your first Keycloak SPI](/tutorials/extending/first-spi/).
+
+## What this provider deliberately cannot do
+
+Each of these is a separate capability interface, and leaving one out is a legitimate
+choice, not an incomplete implementation:
+
+| You want | Interface to add |
+|---|---|
+| Users visible and searchable in the admin console | `UserQueryMethodsProvider` |
+| A user count on the realm page | `UserCountMethodsProvider` |
+| Create and delete users through Keycloak | `UserRegistrationProvider` |
+| Roles, groups or extra attributes on top of the external record | `AbstractUserAdapterFederatedStorage` instead of `AbstractUserAdapter` |
+| Copy users into Keycloak as they log in, then retire the old store | the import strategy, plus `ImportedUserValidation` |
+
+That last row is a different product decision rather than a bigger provider. Federation keeps
+the external store authoritative forever; import makes Keycloak authoritative and leaves you
+synchronising two systems until the old one is switched off. The tradeoff is the subject of
+[Keycloak slow migration vs fast migration](/blog/keycloak-slow-user-migration/) — decide it
+before you write any of this, because it changes what `getUserByUsername` is supposed to
+return.
+
+And before writing any provider at all: if the external store is LDAP or Active Directory,
+[Keycloak already ships this](/tutorials/identity-providers/ldap/) as an implementation of
+the same SPI, with group and role mappers you would otherwise be building.
+
+## Next steps
+
+- [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
+  packaging and deployment loop this page assumes.
+- [Connect Keycloak to LDAP or Active Directory](/tutorials/identity-providers/ldap/) — the
+  same SPI, already written, with the settings that matter.
+- [Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/) — why the
+  attribute accessors in section 3 are what the rest of Keycloak reads.
+- [Use `kcadm.sh`: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the
+  `components` commands above, in context.
+- [Keycloak as an identity and access management system](/docs/keycloak/iam/) — where user
+  federation sits in the wider model.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [User Storage SPI](https://www.keycloak.org/docs/latest/server_development/index.html#_user-storage-spi)
+  and the
+  [`user-storage-simple` quickstart](https://github.com/keycloak/keycloak-quickstarts/tree/main/extension/user-storage-simple).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

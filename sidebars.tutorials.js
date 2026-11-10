@@ -133,7 +133,11 @@ module.exports = {
       type: "category",
       label: "Extending Keycloak",
       link: { type: "generated-index" },
-      items: ["extending/first-spi", "extending/event-listener"],
+      items: [
+        "extending/first-spi",
+        "extending/event-listener",
+        "extending/user-storage-readonly",
+      ],
     },
     {
       type: "category",

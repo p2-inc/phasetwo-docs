@@ -190,8 +190,10 @@ is the next step:
 3. [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/)
 4. [Keycloak Event Listener SPI: ship events off-box](/tutorials/extending/event-listener/) —
    the first provider most people need, and the delivery problem it hands you
+5. [Keycloak User Storage SPI: read-only lookup](/tutorials/extending/user-storage-readonly/)
+   — a real provider, federating an external user store
 
-Custom authenticators, user storage and REST endpoints build on the same packaging.
+Custom authenticators and REST endpoints build on the same packaging.
 *(Coming soon.)*
 
 **Branding the pages your users actually see** — the login screen is the one Keycloak page
