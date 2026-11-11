@@ -61,19 +61,6 @@ module.exports = {
       link: { type: "doc", id: "securing-applications/index" },
       items: [
         "securing-applications/django",
-        {
-          type: "category",
-          label: "Native apps",
-          link: { type: "doc", id: "securing-applications/native-apps/index" },
-          items: [
-            "securing-applications/native-apps/server-setup",
-            "securing-applications/native-apps/ios",
-            "securing-applications/native-apps/android",
-            "securing-applications/native-apps/react-native",
-            "securing-applications/native-apps/flutter",
-            "securing-applications/native-apps/browser-login",
-          ],
-        },
         "securing-applications/javascript",
         "securing-applications/react",
         "securing-applications/next",
@@ -82,6 +69,19 @@ module.exports = {
         "securing-applications/remix",
         "securing-applications/sveltekit",
         "securing-applications/angular",
+      ],
+    },
+    {
+      type: "category",
+      label: "Native Apps",
+      link: { type: "doc", id: "securing-applications/native-apps/index" },
+      items: [
+        "securing-applications/native-apps/server-setup",
+        "securing-applications/native-apps/ios",
+        "securing-applications/native-apps/android",
+        "securing-applications/native-apps/react-native",
+        "securing-applications/native-apps/flutter",
+        "securing-applications/native-apps/browser-login",
       ],
     },
     {
