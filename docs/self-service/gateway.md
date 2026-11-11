@@ -10,19 +10,15 @@ keywords:
   - add login to website without code
 ---
 
-Most teams have a website that should never have been public: an admin console, a reporting
-dashboard, a staging environment, an internal wiki. It has no login, or a shared password, and
-adding OpenID Connect to it means changing code nobody wants to touch.
+:::info Preview
+Gateway is being rolled out. It appears under each realm in the dashboard once it is enabled for
+your account. Ask [support@phasetwo.io](mailto:support@phasetwo.io) if you want to try it.
+:::
 
 **Gateway puts your realm's login in front of that website without changing it.** You point
 the site's hostname at Phase Two. Visitors sign in with the same Keycloak realm, identity
 providers, MFA and policies as the rest of your applications, and then Phase Two forwards their
 requests to your site. Your site doesn't have to know anything about OIDC.
-
-:::info Preview
-Gateway is being rolled out. It appears under each realm in the dashboard once it is enabled for
-your account. Ask [support@phasetwo.io](mailto:support@phasetwo.io) if you want to try it.
-:::
 
 ## How it works
 
