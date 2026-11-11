@@ -1,7 +1,7 @@
 ---
 id: gateway
 title: Protecting an existing application with Gateway
-sidebar_label: Any website, with Gateway
+sidebar_label: Gateway
 description: Put Keycloak login in front of a website without adding an OIDC library. Make the origin require Gateway's secret, run correctly behind the proxy, and optionally verify the signed identity assertion.
 keywords:
   - keycloak reverse proxy
@@ -10,7 +10,6 @@ keywords:
   - oauth2-proxy alternative
 ---
 
-The other guides in this section add an OIDC library to your application. This one doesn't.
 With [Gateway](../self-service/gateway.md), Phase Two signs users in to your realm and forwards
 their requests to your application. Your application only has to do two things:
 
