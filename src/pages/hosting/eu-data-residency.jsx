@@ -42,9 +42,9 @@ const DATA_MAP = [
     leaves: "Never replicated outside the EU",
   },
   {
-    data: "Encryption keys for realm signing",
+    data: "Realm signing keys",
     stored: "Frankfurt (eu-central-1)",
-    provider: "AWS KMS, Germany",
+    provider: "Keycloak database, CockroachDB Cloud, Germany",
     access: "Phase Two operations staff",
     leaves: "Never replicated outside the EU",
   },
@@ -89,7 +89,7 @@ const FAQS = [
   },
   {
     q: "Can staff outside the EU access my data?",
-    a: "Yes. Our control plane runs in the United States and our engineering team is distributed globally, so administrators outside the EU can reach your cluster in order to operate it. Access is limited to named roles and is logged internally. We disclose this because it is the part most vendors leave out.",
+    a: "Yes. Our control plane runs in the United States and our team works remotely from the United States and Europe, so administrators outside the EU can reach your cluster in order to operate it. Access is granted individually, goes through zero-trust network access with single sign-on and multi-factor authentication, and is logged. We disclose this because it is the part most vendors leave out.",
   },
   {
     q: "Is remote administrative access a transfer under the GDPR?",
@@ -324,14 +324,14 @@ export default function EuDataResidency() {
               </p>
               <p className="mt-4 text-gray-300">
                 <strong className="text-white">
-                  Our control plane runs in the United States, and our engineers are
-                  distributed globally.
+                  Our control plane runs in the United States, and our team works
+                  remotely from the United States and Europe.
                 </strong>{" "}
                 Administering your cluster — provisioning it, upgrading it, restoring
                 it, responding at three in the morning — means reaching it, and some
                 of the people doing that are outside the EU. Under Chapter V of the
                 GDPR that access is a restricted transfer, not a gap in one. It is
-                limited to named roles, logged internally, and covered in the{" "}
+                granted individually, logged, and covered in the{" "}
                 <Link to="/company/data-processing/" className="ilink">
                   data processing agreement
                 </Link>
@@ -359,16 +359,17 @@ export default function EuDataResidency() {
             <div className="mx-auto max-w-[var(--content-width-narrow)]">
               <h2 className="text-white">Keys and access control</h2>
               <p className="mt-6 text-gray-300">
-                Realm signing keys for EU clusters are held in AWS KMS in the
-                Frankfurt region and do not leave the EU. To be precise about
-                something the industry is often vague about: these are our keys held
-                in our key management service, not customer-held keys. We do not
+                Realm signing keys for EU clusters are stored with the realm in its
+                database in Frankfurt and do not leave the EU. To be precise about
+                something the industry is often vague about: data at rest is
+                encrypted with provider-managed keys, not customer-held keys. We do not
                 offer bring-your-own-key on hosted clusters today, and we would
                 rather say that than imply otherwise.
               </p>
               <p className="mt-4 text-gray-300">
-                Administrative access to clusters is restricted to named operations
-                roles and logged internally. Those logs are part of what our SOC 2
+                Administrative access to clusters is granted individually, goes
+                through zero-trust network access with single sign-on and
+                multi-factor authentication, and is logged. Those logs are part of what our SOC 2
                 Type II audit examines; they are not currently exposed to customers,
                 which is a limitation we would like to remove.
               </p>

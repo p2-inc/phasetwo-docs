@@ -168,7 +168,7 @@ Same ten items, our side of them, including the rows we would rather not write.
 | --- | --- |
 | 1 | EU clusters: database, sessions, event store and realm signing keys in Frankfurt (`eu-central-1`), backups in Ireland (`eu-west-1`), never replicated outside the EU. A cluster's region is fixed at creation. Full list in the [regions documentation](/docs/self-service/regions/) |
 | 2 | Dashboard account metadata, support tickets and billing run in the United States. That is our business systems, not your end users' identity data, and it is in the data map rather than omitted from it |
-| 3 | **Yes.** Our control plane runs in the US and our engineering team is distributed globally, so administrative access to an EU cluster can come from outside the EU. We disclose it as a Chapter V restricted transfer; access is limited to named operations roles and logged internally |
+| 3 | **Yes.** Our control plane runs in the US and our team works remotely from the United States and Europe, so administrative access to an EU cluster can come from outside the EU. We disclose it as a Chapter V restricted transfer; access is granted individually, goes through zero-trust network access with SSO and MFA, and is logged |
 | 4 | EU to UK: the Commission's adequacy decision of 19 December 2025. US administrative access: Standard Contractual Clauses, Commission Implementing Decision (EU) 2021/914, incorporated into the DPA. We are **not** certified under the Data Privacy Framework and do not rely on it |
 | 5 | A transfer impact assessment exists and we share it on request, without an NDA |
 | 6 | Phase Two UK, Ltd, registered in England and Wales, company number 16815578, 2 Leman Street, London E1W 9US. Parent: Phase Two, Inc., Seattle, United States, which acts as a subprocessor to the UK entity and is named as such in the agreement |
@@ -183,7 +183,7 @@ The whole data map, class by class, is in [where your Keycloak data lives](/blog
 
 - We do not describe ourselves as sovereign. Our parent is US-incorporated, so we cannot claim immunity from US legal process, and we would read any vendor that does claim it carefully. What we do with a legal demand is on the [government requests](/company/government-requests/) page; the count received to date is zero.
 - We will not hold SecNumCloud qualification — it requires European ownership a US-parented company cannot satisfy — and we hold no BSI C5 attestation of our own.
-- Realm signing keys for EU clusters are held in our key management service in the Frankfurt region. They are our keys in our KMS; we do not offer bring-your-own-key on hosted clusters today.
+- Realm signing keys for EU clusters are stored with the realm in its database in the Frankfurt region. They are held by us, not by you; we do not offer bring-your-own-key on hosted clusters today.
 - Administrative access logs are examined in our SOC 2 Type II audit but are not exposed to customers. We would like to change that.
 - Support is in English only.
 

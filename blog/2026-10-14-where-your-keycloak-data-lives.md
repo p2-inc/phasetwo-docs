@@ -60,7 +60,7 @@ Two details are worth stopping on. The session and the event both carry an IP ad
 | Sessions and cache | Frankfurt `eu-central-1` | Phase Two operations staff, including staff outside the EU | No |
 | Event store, login and admin events | Frankfurt `eu-central-1` | Phase Two operations staff, including staff outside the EU | No |
 | Backups | Ireland `eu-west-1` | Phase Two operations staff, including staff outside the EU | No |
-| Realm signing keys | Frankfurt, AWS KMS | Phase Two operations staff | No |
+| Realm signing keys | Frankfurt, in the Keycloak database | Phase Two operations staff | No |
 | Cluster logs and metrics | Frankfurt `eu-central-1` | Phase Two engineering, including staff outside the EU | No |
 | Dashboard account metadata | United States | Phase Two staff | **Yes** |
 | Support tickets and attachments | United States | Phase Two support staff | **Yes** |
@@ -85,7 +85,7 @@ What the UK entity does not buy you is immunity. Phase Two, Inc. is incorporated
 ## What we do not claim
 
 - We do not describe ourselves as sovereign, and we will not hold SecNumCloud qualification: it requires European ownership a US-parented company cannot satisfy.
-- We do not offer bring-your-own-key on hosted clusters. Realm signing keys for EU clusters sit in Frankfurt and do not leave the EU, but they are our keys in our KMS.
+- We do not offer bring-your-own-key on hosted clusters. Realm signing keys for EU clusters sit in Frankfurt and do not leave the EU, but they are held by us, not by you.
 - We are not certified under the EU-US Data Privacy Framework and do not rely on it as a transfer mechanism.
 - Support is in English only.
 - Our contractual breach notification window is 72 hours. NIS2 gives you 24 hours for an early warning, so raise this during contracting rather than discovering the gap during an incident.
