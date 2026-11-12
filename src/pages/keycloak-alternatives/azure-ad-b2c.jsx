@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. Azure AD B2C — Phase Two",
+  title: "Azure AD B2C end of life? Dates, pricing and Keycloak — Phase Two",
   description:
-    "Azure AD B2C is end of sale, not end of life: supported to at least May 2030, with a frozen roadmap. Compare staying, Entra External ID, and Keycloak — and what a B2C migration actually costs.",
+    "Azure AD B2C is end of sale, not end of life: supported to at least May 2030, with a frozen roadmap. The dates, how B2C and Entra External ID are priced, and when Keycloak is the better place to land.",
   keywords:
-    "azure ad b2c alternative, azure b2c migration, azure ad b2c end of life, azure ad b2c replacement, keycloak vs azure ad b2c, azure ad b2c end of sale",
+    "azure ad b2c end of life, azure ad b2c deprecated, azure ad b2c retirement, azure ad b2c pricing, entra external id pricing, azure ad b2c alternative, azure ad b2c replacement, azure b2c migration, keycloak vs azure ad b2c",
 };
 
 const hero = {
@@ -90,11 +90,18 @@ const sections = [
   {
     id: "status",
     kicker: "01 — Status",
-    title: "What actually happened to Azure AD B2C",
+    title: "Is Azure AD B2C end of life, deprecated or retired?",
     body: (
       <>
         <p>
-          Three separate announcements got compressed into one rumour, so start with the dates.
+          <b>No, not yet, and not in 2026.</b> Azure AD B2C is <b>end of sale</b>: Microsoft
+          stopped selling it to new customers on 1 May 2025 and supports it until at least May
+          2030. Existing tenants keep running, keep their SLAs and keep getting security updates.
+          "Deprecated", "retired" and "end of life" all get attached to it; none of them matches
+          what Microsoft has published.
+        </p>
+        <p>
+          Three separate announcements got compressed into one rumour, so here are the dates.
           All of them come from{" "}
           <a
             href="https://learn.microsoft.com/azure/active-directory-b2c/faq"
@@ -221,8 +228,92 @@ const sections = [
     ),
   },
   {
+    id: "pricing",
+    kicker: "03 — Pricing",
+    title: "How is Azure AD B2C priced, and what do the alternatives cost?",
+    body: (
+      <>
+        <p>
+          Both Microsoft products bill per <b>monthly active user</b> (MAU): a user counts once in
+          a calendar month if they authenticate at all. Keycloak has no licence fee; what you pay
+          for is running it.
+        </p>
+        <table className="ptable">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>How it bills</th>
+              <th>What comes on top</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="plan">Azure AD B2C</td>
+              <td>
+                Per MAU. The first 50,000 MAU a month are free on P1 and P2, except on trial,
+                credit-based and sponsorship subscriptions
+              </td>
+              <td>SMS and voice MFA, charged per attempt; Go-Local data residency, per MAU</td>
+            </tr>
+            <tr>
+              <td className="plan">Entra External ID</td>
+              <td>Per MAU, with the MAUs of your workforce and external tenants combined</td>
+              <td>
+                Premium add-ons, each with its own billing model; machine-to-machine
+                authentication, for example, is billed per transaction
+              </td>
+            </tr>
+            <tr>
+              <td className="plan">Keycloak, self-hosted</td>
+              <td>No licence fee</td>
+              <td>The servers, the database, and the people who upgrade and patch it</td>
+            </tr>
+            <tr>
+              <td className="plan">Keycloak, hosted by Phase Two</td>
+              <td>
+                Per cluster, from $149/month, with no per-user billing on any tier — see{" "}
+                <Link to="/pricing/hosting/" className="ilink">
+                  hosting pricing
+                </Link>
+              </td>
+              <td>Nothing per user or per authentication</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Read that table honestly. A tenant on user flows, under 50,000 MAU and not paying for
+          SMS, pays Microsoft close to nothing, and moving to Keycloak will cost more than staying.
+          Price starts to favour Keycloak when the MAU count climbs, when add-ons stack up, or
+          when the move to Entra External ID is a rebuild anyway and the only remaining question
+          is which bill you want for the next ten years.
+        </p>
+        <p>
+          Microsoft's current figures are on its{" "}
+          <a
+            href="https://learn.microsoft.com/azure/active-directory-b2c/billing"
+            target="_blank"
+            rel="noreferrer"
+            className="ilink"
+          >
+            B2C billing
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://learn.microsoft.com/entra/external-id/external-identities-pricing"
+            target="_blank"
+            rel="noreferrer"
+            className="ilink"
+          >
+            External ID billing
+          </a>{" "}
+          pages.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "gaps",
-    kicker: "03 — Parity",
+    kicker: "04 — Parity",
     title: "What Entra External ID does not carry over",
     body: (
       <>
@@ -273,7 +364,7 @@ const sections = [
   },
   {
     id: "mapping",
-    kicker: "04 — Mapping",
+    kicker: "05 — Mapping",
     title: "Where each B2C concept lands in Keycloak",
     body: (
       <>
@@ -347,7 +438,7 @@ const sections = [
   },
   {
     id: "migration",
-    kicker: "05 — Migration",
+    kicker: "06 — Migration",
     title: "Moving your users, and the password problem",
     body: (
       <>
@@ -397,7 +488,7 @@ const sections = [
   },
   {
     id: "best",
-    kicker: "06 — Verdict",
+    kicker: "07 — Verdict",
     title: "When you should not pick Keycloak",
     body: (
       <>
@@ -462,7 +553,7 @@ const matrix = {
 
 const faqs = [
   {
-    q: "Is Azure AD B2C being discontinued?",
+    q: "Is Azure AD B2C deprecated or being discontinued?",
     a: (
       <p>
         No. Azure AD B2C reached <b>end of sale</b>, not end of life. It stopped being available to
@@ -485,6 +576,19 @@ const faqs = [
       </p>
     ),
     text: "The only firm dates Microsoft has published are 1 May 2025 (no longer sold to new customers), 15 March 2026 (Premium P2 discontinued for all customers, tenants moved to P1) and May 2030 (the earliest end of the support commitment). Claims that tenants retire on 15 March 2026 mistake the P2 date for a tenant-retirement date.",
+  },
+  {
+    q: "How much does Azure AD B2C cost compared with Entra External ID?",
+    a: (
+      <p>
+        Both bill per monthly active user. On B2C the first 50,000 MAU a month are free on P1 and
+        P2 (not on trial or credit-based subscriptions), with SMS and voice MFA charged per
+        attempt. Entra External ID bills per MAU, combining your workforce and external tenants,
+        with premium add-ons billed on top. Keycloak has no licence fee; you pay for hosting it, or for a managed
+        cluster priced per cluster rather than per user.
+      </p>
+    ),
+    text: "Both bill per monthly active user. On B2C the first 50,000 MAU a month are free on P1 and P2 (not on trial or credit-based subscriptions), with SMS and voice MFA charged per attempt. Entra External ID bills per MAU, combining your workforce and external tenants, with premium add-ons billed on top. Keycloak has no licence fee; you pay for hosting it, or for a managed cluster priced per cluster rather than per user.",
   },
   {
     q: "Can I export passwords from Azure AD B2C?",
