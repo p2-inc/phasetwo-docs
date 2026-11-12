@@ -5,13 +5,30 @@ const path = require("path");
 // no Google tag at all and src/analytics.js pushes into an array nobody reads.
 const GTM_CONTAINER_ID = process.env.GTM_CONTAINER_ID || "";
 
-// Consent Mode defaults go in before the container loads. Every storage type starts
-// denied; src/theme/Layout updates it from the TermsFeed banner, and the 500ms wait
-// lets a returning visitor's stored choice land before the first hit.
+// Consent Mode defaults go in before the container loads; src/theme/Layout updates
+// them from the TermsFeed banner, and the 500ms wait lets a returning visitor's
+// stored choice land before the first hit.
+//
+// The defaults are regional. In the EEA, the UK and Switzerland, where analytics
+// cookies need opt-in, every storage type starts denied. Everywhere else analytics
+// starts granted and ad storage stays denied. A visitor who rejects tracking in the
+// banner is still set to denied, wherever they are.
+//
+// Do not collapse this back to one global "denied" default. That makes GA4 count
+// only visitors who click Accept, worldwide, and the counts drop from the day it
+// ships. That is what happened between #461 and this change.
+const CONSENT_OPT_IN_REGIONS = [
+  // EU member states
+  "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
+  "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
+  // rest of the EEA, then the UK and Switzerland
+  "IS", "LI", "NO", "GB", "CH",
+];
 const consentDefaultScript = [
   "window.dataLayer = window.dataLayer || [];",
   "function gtag(){dataLayer.push(arguments);}",
-  "gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500});",
+  `gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', region: ${JSON.stringify(CONSENT_OPT_IN_REGIONS)}, wait_for_update: 500});`,
+  "gtag('consent', 'default', {ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'granted', wait_for_update: 500});",
 ].join("");
 
 // The standard GTM loader, verbatim apart from the container id.

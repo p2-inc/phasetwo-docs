@@ -6,11 +6,13 @@
  * is a no-op during server rendering, and when the container is absent (local
  * builds without GTM_CONTAINER_ID) the pushes simply accumulate in an array.
  *
- * Consent: the container starts with every storage type denied, set inline in
- * the <head> before it loads. TermsFeed's banner is the source of truth. Its
- * "tracking" level maps to analytics storage and "targeting" to the three ad
- * types, so until a visitor accepts, GA4 and Google Ads receive cookieless
- * pings only and no cookie is written.
+ * Consent: the defaults are set inline in the <head> before the container loads
+ * (docusaurus.config.js) and depend on region. In the EEA, the UK and Switzerland
+ * every storage type starts denied. Elsewhere analytics starts granted and ad
+ * storage stays denied. Once a visitor makes a choice, TermsFeed's banner is the
+ * source of truth. Its "tracking" level maps to analytics storage and "targeting"
+ * to the three ad types, so in an opt-in region, until a visitor accepts, GA4 and
+ * Google Ads receive cookieless pings only and no cookie is written.
  */
 
 const CONSENT_COOKIE = "cookie_consent_level";
