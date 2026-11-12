@@ -13,6 +13,8 @@ keywords:
   - keycloak x-forwarded-proto
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 A Keycloak infinite redirect loop at login almost always means one thing: a cookie Keycloak set on the way to the login page did not come back on the way out of it. Keycloak has no session to resume, so it starts the flow again, and the browser bounces between your application and `/protocol/openid-connect/auth` until it gives up.
 
 The reason this is so common is in the `Set-Cookie` headers. Keycloak 26.8.0 marks **every** cookie in the login flow `Secure; SameSite=None`, unconditionally — there is no setting that relaxes it. A browser will not store a `Secure` cookie that arrives over plain `http://`, and it will not store `SameSite=None` without `Secure`. So the loop is usually not an OIDC problem at all. It is a transport problem that the OIDC layer reports as a lost session.
@@ -42,6 +44,8 @@ Do these before changing any configuration. Together they name the cause in abou
    ```
 
 3. **Compare the host in the browser's address bar with the host in the login form's `action` attribute.** If they differ, you have cause 3, and nothing else needs investigating.
+
+<TroubleshootingCallout variant="proxy" error="login-redirect-loop" />
 
 ## What Keycloak actually sets
 

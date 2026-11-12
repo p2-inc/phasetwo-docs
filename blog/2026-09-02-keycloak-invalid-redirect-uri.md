@@ -12,6 +12,8 @@ keywords:
   - keycloak redirect_uri
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 You clicked "Log in", Keycloak showed you **"We are sorry… Invalid parameter: redirect_uri"**, and no amount of staring at the admin console explains why.
 
 The short answer: the `redirect_uri` your application sent does not match, **character for character after wildcard expansion**, any entry in that client's *Valid redirect URIs*. The long answer is that Keycloak's matching rules are stricter and stranger than almost everyone assumes — in particular, **it will reject any `redirect_uri` containing a query string, no matter what you registered**.
@@ -36,6 +38,8 @@ docker logs <container> 2>&1 | grep invalid_redirect_uri
 ```
 
 Put the `redirect_uri="..."` value next to your registered list and the mismatch is usually obvious in about five seconds. **This one step solves most cases**, and almost nobody knows the log line exists.
+
+<TroubleshootingCallout variant="config" error="invalid-redirect-uri" />
 
 ## The matching rules, tested
 

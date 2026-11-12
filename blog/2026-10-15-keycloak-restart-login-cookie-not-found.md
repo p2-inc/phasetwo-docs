@@ -13,6 +13,8 @@ keywords:
   - keycloak cookie_not_found
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 "Restart login cookie not found. It may have expired; it may have been deleted or cookies are disabled in your browser." Keycloak shows this on a dead-end HTTP 400 page, and the message is more confident than it should be. It means exactly one thing: the request arrived with **no `KC_RESTART` cookie at all**. Not a stale one, not a rejected one. None. That cookie has no expiry to run out, so "it may have expired" is the one explanation that is never true. A rejected cookie produces a different message. And the page tells the user to "Click Back to Application", which on a default client renders no link to click.
 
 Here is what the cookie is for, how to tell in one log line which failure you have, and the one client field that turns the dead end into a recoverable page.
@@ -67,6 +69,8 @@ kcadm.sh get events -r demo -q type=LOGIN_ERROR -q max=10
 ```
 
 One `cookie_not_found` by itself is this error. An `invalid_code` immediately before it means the cookie *did* arrive and Keycloak refused it. That happens when the realm's AES key has been regenerated since the cookie was issued, when the client in the cookie has been deleted, or when the cookie belongs to a different client than the `client_id` in the URL. Deleting and recreating a realm's `aes-generated` key provider invalidates every outstanding `KC_RESTART` in every user's browser at once; so does restoring a realm from an export.
+
+<TroubleshootingCallout variant="proxy" error="restart-login-cookie-not-found" />
 
 ## The five ways the cookie goes missing
 

@@ -13,6 +13,8 @@ keywords:
   - upstream sent too big header
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 A Keycloak 502 Bad Gateway never comes from Keycloak. [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#status.502) defines 502 as a status a gateway emits about *its upstream* — so the proxy is telling you it could not get a usable response out of Keycloak, and the explanation is in the proxy's error log rather than anywhere in Keycloak's configuration. Start there, every time. In nginx there are only six lines that produce a 502 in front of Keycloak, each maps to one cause, and three of the six are the Quarkus-era port layout catching out a config written for an older release.
 
 Everything below was reproduced against **Keycloak 26.8.1** behind **nginx 1.29**, and every error string is copied out of a real run.
@@ -33,6 +35,8 @@ Run one failing request and read `error.log`. This table is the whole diagnosis:
 | `upstream sent too big header while reading response header` | A response header exceeded `proxy_buffer_size` | Raise the buffers — see below |
 
 If the log says `upstream timed out`, you have a 504, not a 502, and it is a different problem. Keycloak answered too slowly; the proxy never failed to reach it.
+
+<TroubleshootingCallout variant="proxy" error="502-bad-gateway" />
 
 ## The port matrix
 
