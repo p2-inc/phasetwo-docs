@@ -146,6 +146,50 @@ components:
           type: string
         sync_mode:
           type: string
+    IdpInitiatedClientRepresentation:
+      type: object
+      description: SAML client that receives IdP-initiated logins brokered through an identity provider of this organization and sends the user on to the target application.
+      required:
+        - protocol
+        - clientId
+      properties:
+        protocol:
+          type: string
+          enum:
+            - saml
+        clientId:
+          type: string
+          description: Must start with `idp-initiated-`. By convention `idp-initiated-{alias}`, where `{alias}` is the identity provider alias.
+          example: idp-initiated-generic-saml-a1b2c3
+        name:
+          type: string
+        description:
+          type: string
+        attributes:
+          type: object
+          description: String values only, including booleans ("true"/"false").
+          properties:
+            saml_idp_initiated_sso_url_name:
+              type: string
+              description: Must equal `clientId`. The identity provider posts to `/realms/{realm}/broker/{alias}/endpoint/clients/{value}`.
+            saml_idp_initiated_sso_relay_state:
+              type: string
+              description: RelayState sent to the target application.
+            saml.force.post.binding:
+              type: string
+              enum:
+                - "true"
+                - "false"
+              description: Send the response to the target application with the POST binding.
+            saml_assertion_consumer_url_redirect:
+              type: string
+              description: Where to send the user after login. For an OIDC application, its home page; for a SAML application using the Redirect binding, its ACS URL.
+            saml_assertion_consumer_url_post:
+              type: string
+              description: ACS URL of a SAML application using the POST binding.
+            phasetwo.idp-initiated.alias:
+              type: string
+              description: Alias of the identity provider this client is paired with.
     RealmAttributeRepresentation:
       type: object
       properties:
@@ -2029,6 +2073,49 @@ paths:
       responses:
         201:
           description: success
+  /{realm}/orgs/{orgId}/idps/clients:
+    parameters:
+      - in: path
+        name: realm
+        description: realm name (not id!)
+        required: true
+        schema:
+          type: string
+        style: simple
+      - in: path
+        name: orgId
+        description: organization id
+        required: true
+        schema:
+          type: string
+        style: simple
+    post:
+      tags:
+        - Identity Providers
+      summary: Create the client for IdP-initiated login through this organization's identity provider
+      description: Creates a SAML client that accepts IdP-initiated logins brokered through an identity provider of this organization. Create the client before the identity provider it is paired with.
+      operationId: createIdpInitiatedClient
+      requestBody:
+        description: JSON body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdpInitiatedClientRepresentation"
+        required: true
+      responses:
+        201:
+          description: success
+          headers:
+            Location:
+              description: URL of the created client
+              schema:
+                type: string
+        400:
+          description: invalid client representation
+        401:
+          description: not authorized to manage identity providers for this organization
+        409:
+          description: a client with the same clientId already exists
   /{realm}/orgs/{orgId}/idps/link:
     parameters:
       - in: path
