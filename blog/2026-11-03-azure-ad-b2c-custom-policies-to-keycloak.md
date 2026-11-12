@@ -187,7 +187,8 @@ enough without a translation layer in the middle.
 about is silently discarded on write, and the write still succeeds. That behaviour and the
 four `unmanagedAttributePolicy` values are covered properly in [managed vs unmanaged
 attributes](/tutorials/users/user-profile/); it is the single most expensive thing to discover
-late in a B2C migration.
+late in a B2C migration, and it comes up again in [migrating users without password
+hashes](/blog/migrate-azure-ad-b2c-users-to-keycloak/).
 
 ## Technical profiles: four kinds, four destinations
 

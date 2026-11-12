@@ -382,7 +382,11 @@ const sections = [
           owe whichever platform you pick.
         </p>
         <p>
-          We do this as a service — see{" "}
+          The patterns, with the decision table and the rough timelines, are in{" "}
+          <Link to="/blog/migrate-azure-ad-b2c-users-to-keycloak/" className="ilink">
+            migrating Azure AD B2C users without password hashes
+          </Link>
+          . We also do this as a service — see{" "}
           <Link to="/support/migrate-to-keycloak/" className="ilink">
             migrate to Keycloak
           </Link>
@@ -516,7 +520,11 @@ const faqs = [
         As ranges rather than promises: a simple tenant with one or two built-in user flows and a
         couple of social identity providers is a few weeks. A tenant with custom policies, several
         enterprise federations and custom claims is two to four months. The custom-policy rewrite
-        dominates the estimate, and user migration is usually the predictable part.
+        dominates the estimate, and user migration is usually the predictable part — see{" "}
+        <Link to="/blog/migrate-azure-ad-b2c-users-to-keycloak/" className="ilink">
+          migrating Azure AD B2C users without password hashes
+        </Link>
+        .
       </p>
     ),
     text: "As ranges rather than promises: a simple tenant with one or two built-in user flows and a couple of social identity providers is a few weeks. A tenant with custom policies, several enterprise federations and custom claims is two to four months. The custom-policy rewrite dominates the estimate.",
