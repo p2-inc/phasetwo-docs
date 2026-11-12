@@ -15,6 +15,8 @@ keywords:
   ]
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 A Keycloak 403 Forbidden always means the same thing: your token was accepted, and the permissions attached to it were not enough. That is the whole difference from a 401, which means the token itself was rejected — missing, expired, malformed, or signed by another realm. Checking which of the two you have is the fastest useful thing you can do, because 401 sends you to the token and 403 sends you to role mappings, and they share no fixes.
 
 After that, the question is which surface returned it. The Keycloak admin console, the Admin REST API and your own application all return 403 for unrelated reasons, and the response body tells you which one you are looking at without any further digging.
@@ -35,6 +37,8 @@ Keycloak's 403s carry four distinct bodies. Each one points at exactly one cause
 | `{"error":"Invalid origin"}` | The browser origin is not in the client's Web Origins | [Keycloak CORS errors](/blog/keycloak-cors-errors) |
 
 The last one is the reason CORS and 403 get confused so often. It is a 403, it is thrown by Keycloak, and the browser never shows you the body.
+
+<TroubleshootingCallout variant="config" error="403-forbidden" />
 
 ## 401 or 403?
 

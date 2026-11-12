@@ -15,6 +15,8 @@ keywords:
   ]
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 A Keycloak CORS error is almost never a CORS-configuration problem in the general sense. There is no CORS server setting to turn on. Keycloak decides per request by comparing the browser's `Origin` header against the **Web Origins** list on the OIDC client named in that request, using exact string matching. If it matches, the response carries `Access-Control-Allow-Origin`. If it does not, you get `403` with the body `{"error":"Invalid origin"}` — and the browser reports it as a CORS failure, which sends most people to the wrong place.
 
 So the first thing to do is not to read a CORS guide. It is to open the Network tab, find the failing request, and check whether the status is 403 with that body. That single fact splits every cause below into two halves.
@@ -31,6 +33,8 @@ Everything here was run against **Keycloak 26.7.3** in `start-dev`, with real `c
 4. Save. No restart, no cache flush — the next request picks it up.
 
 If the client is `admin-cli`, stop: that one can never work from a browser. See [the admin API section](#the-admin-rest-api-needs-its-own-client).
+
+<TroubleshootingCallout variant="config" error="cors-errors" />
 
 ## Your preflight is not the problem
 

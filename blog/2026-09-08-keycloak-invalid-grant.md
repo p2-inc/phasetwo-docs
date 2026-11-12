@@ -13,6 +13,8 @@ keywords:
   - keycloak refresh token reuse
 ---
 
+import TroubleshootingCallout from "@site/src/components/TroubleshootingCallout";
+
 Keycloak returns `invalid_grant` for at least eight unrelated failures, and the error code
 itself tells you nothing. The useful field is `error_description`, which Keycloak fills in
 with a short string that maps almost one-to-one onto a cause:
@@ -58,6 +60,8 @@ Every string below came out of a live server. `error` was `invalid_grant` and th
 
 The rest of this post is the eight causes those strings group into, in the order you are
 likely to hit them.
+
+<TroubleshootingCallout variant="config" error="invalid-grant" />
 
 ## 1. The code was already redeemed — and it just killed the session
 
