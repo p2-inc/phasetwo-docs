@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. Okta — Phase Two",
+  title: "Keycloak vs. Okta: Cost, Control and Features (2026)",
   description:
-    "A 2026 comparison of Keycloak vs. Okta — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to Okta.",
+    "Okta charges $6 to $17 per user a month; Keycloak is open source with no per-user fee. Cost, deployment and features compared, and when to pick each.",
   keywords:
-    "keycloak vs okta, okta alternative, open source okta alternative, okta pricing, managed keycloak",
+    "keycloak vs okta, okta vs keycloak, okta alternative, open source okta alternative, okta pricing, managed keycloak",
 };
 
 const hero = {

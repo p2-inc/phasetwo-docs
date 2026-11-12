@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. FrontEgg — Phase Two",
+  title: "Frontegg Alternatives: Keycloak vs. Frontegg (2026)",
   description:
-    "A 2026 comparison of Keycloak vs. FrontEgg — cost, deployment, maintenance, and B2B features — and why managed Keycloak is a strong open-source alternative to FrontEgg.",
+    "Frontegg prices B2B auth per monthly active user. Keycloak has organizations, SSO and SCIM open source, with no per-user fee. Cost and features side by side.",
   keywords:
-    "keycloak vs frontegg, frontegg alternative, open source frontegg alternative, frontegg pricing, managed keycloak, b2b authentication",
+    "frontegg alternatives, frontegg alternative, keycloak vs frontegg, open source frontegg alternative, frontegg pricing, managed keycloak, b2b authentication",
 };
 
 const hero = {

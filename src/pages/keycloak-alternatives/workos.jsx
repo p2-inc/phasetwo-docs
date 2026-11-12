@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. WorkOS — Phase Two",
+  title: "WorkOS Alternatives: Keycloak vs. WorkOS (2026)",
   description:
-    "A 2026 comparison of Keycloak vs. WorkOS — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to WorkOS for enterprise SSO and SCIM.",
+    "Looking for a WorkOS alternative? Keycloak is open source and covers SSO, SCIM and directory sync with no per-connection fee. Costs and trade-offs compared.",
   keywords:
-    "keycloak vs workos, workos alternative, open source workos alternative, workos pricing, enterprise sso, scim, managed keycloak",
+    "workos alternatives, workos alternative, open source workos alternative, keycloak vs workos, workos pricing, enterprise sso, scim, managed keycloak",
 };
 
 const hero = {

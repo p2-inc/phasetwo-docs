@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. Ping Identity — Phase Two",
+  title: "Ping Identity Alternative: Keycloak vs. Ping (2026)",
   description:
-    "A 2026 comparison of Keycloak vs. Ping Identity — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to Ping's quote-based enterprise suite.",
+    "Ping's workforce plans start with a 5,000-user annual minimum. Keycloak does SAML, OIDC and federation open source. Cost, deployment and trade-offs compared.",
   keywords:
-    "keycloak vs ping identity, ping identity alternative, open source ping alternative, pingone pricing, managed keycloak",
+    "ping identity alternative, ping identity alternatives, keycloak vs ping identity, open source ping alternative, pingone pricing, managed keycloak",
 };
 
 const hero = {

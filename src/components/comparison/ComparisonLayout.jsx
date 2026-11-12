@@ -310,6 +310,10 @@ export default function ComparisonLayout({
   return (
     <Layout title={meta.title} description={meta.description}>
       <Head>
+        {/* The page title stands alone. Layout would otherwise append the site
+            title, which is long enough to push the comparison out of the visible
+            part of a search result. */}
+        <title>{meta.title}</title>
         {meta.keywords ? <meta name="keywords" content={meta.keywords} /> : null}
         <link rel="canonical" href={url} />
         <meta property="og:title" content={meta.title} />
