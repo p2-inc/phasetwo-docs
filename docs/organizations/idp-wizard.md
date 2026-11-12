@@ -185,7 +185,7 @@ When the user clicks the tile, Keycloak sends them straight to the OIDC identity
 ### Behavior to be aware of
 
 - **Existing sessions.** A user who already has a Keycloak session goes straight to the target application without visiting the identity provider again. This is normal single sign-on behavior.
-- **Deleting the connection.** Deleting the identity provider, from the wizard dashboard, the organization API, or the admin console, also deletes its `idp-initiated-{alias}` client, and deleting the client also deletes the identity provider. Unlinking the identity provider from an organization keeps both.
+- **Deleting the connection.** Deleting the identity provider, through the organization API or the admin console, also deletes its `idp-initiated-{alias}` client, and deleting the client also deletes the identity provider. Unlinking the identity provider from an organization keeps both.
 - **Organization admins.** In organization mode, the wizard creates the client through the organization API, which only accepts IdP-initiated SAML clients. Organization admins need the organization's `manage-identity-providers` role; realm-wide setup needs the `manage-clients` and `manage-identity-providers` realm-management roles.
 
 ## Setting realm attributes for manual control
