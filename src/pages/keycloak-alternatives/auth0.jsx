@@ -3,11 +3,11 @@ import React from "react";
 import ComparisonLayout from "../../components/comparison/ComparisonLayout";
 
 const meta = {
-  title: "Keycloak vs. Auth0 — Phase Two",
+  title: "Keycloak vs. Auth0: Pricing, Features and Migration (2026)",
   description:
-    "A 2026 comparison of Keycloak vs. Auth0 — cost, deployment, maintenance, and features — and why managed Keycloak is a strong open-source alternative to Auth0.",
+    "Auth0 bills per monthly active user, and SAML, LDAP and extra SSO connections cost more. Keycloak has no per-user fee. Costs compared, plus the migration path.",
   keywords:
-    "keycloak vs auth0, auth0 alternative, open source auth0 alternative, auth0 pricing, managed keycloak",
+    "keycloak vs auth0, auth0 vs keycloak, auth0 alternative, auth0 alternatives, open source auth0 alternative, auth0 pricing, auth0 to keycloak, managed keycloak",
 };
 
 const hero = {
