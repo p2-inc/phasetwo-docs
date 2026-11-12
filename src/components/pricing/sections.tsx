@@ -710,7 +710,7 @@ const Sections: {
       {
         name: "Telemetry Export",
         description:
-          "Stream your cluster's Keycloak logs and authentication events to your own observability system over OTLP, self-serve from Logs → Export. Experimental.",
+          "Stream your cluster's Keycloak logs and authentication events to your own observability system over OTLP, self-serve from Logs → Export.",
         links: [
           {
             href: "/docs/self-service/telemetry-export",
