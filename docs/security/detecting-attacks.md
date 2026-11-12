@@ -208,7 +208,7 @@ Detection ends where response starts. Close the path the attacker used, identify
 | Cluster, event and request [logs](../self-service/logs.md) in the dashboard | Forwarding events to your own systems with the `ext-event-webhook` listener and [webhooks](/docs/audit-logs/webhooks) |
 | Help during an incident: email [support@phasetwo.io](mailto:support@phasetwo.io) | Any SIEM or anomaly detection, and responding to what it finds |
 
-On Enterprise clusters, [Telemetry Export](../self-service/telemetry-export.md) streams logs and authentication events to your own OTLP endpoint. It is marked experimental.
+On Enterprise clusters, [Telemetry Export](../self-service/telemetry-export.md) streams logs and authentication events to your own OTLP endpoint.
 
 ## Related
 

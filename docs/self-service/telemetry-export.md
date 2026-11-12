@@ -11,10 +11,6 @@ This is for teams who already run an observability stack and want Keycloak data 
 
 On Starter or Premium your logs and events keep working exactly as they are — upgrading adds the ability to stream them to a destination you operate. [Compare plans](/pricing), and email [support@phasetwo.io](mailto:support@phasetwo.io) to change your plan. If you want to evaluate it before moving tier, email [support@phasetwo.io](mailto:support@phasetwo.io) and ask.
 
-:::caution Experimental
-Telemetry Export is **experimental and unsupported**. The record shape, the attribute names, and the configuration options may change in a backwards-incompatible way. Do not build production alerting or compliance reporting on it yet — and if you do take it into production, tell us at [support@phasetwo.io](mailto:support@phasetwo.io) so we can warn you before anything changes.
-:::
-
 ## What you need
 
 - An **Enterprise dedicated cluster**. The **Logs → Export** page shows an upgrade note on Starter and Premium, and the API refuses the request with a `403`.
@@ -129,11 +125,9 @@ Delivery is continuous and buffered, per cluster.
 
 - If your endpoint is **slow or briefly unavailable**, records queue on disk and are retried until it comes back. Nothing is lost, and delivery to other customers is unaffected.
 - If your endpoint stays **unavailable for a long time**, the queue eventually reaches its limit and the oldest records are discarded. How long that takes depends on your cluster's volume — typically days, not hours.
-- **Turning export off stops delivery immediately** and discards anything still queued. That is deliberate: a destination you have switched off should stop receiving data.
+- **Turning export off stops delivery within a couple of minutes** and discards anything still queued. That is deliberate: a destination you have switched off should stop receiving data.
 
 Phase Two alerts internally when a cluster's export stops delivering or starts dropping records, and we will get in touch. **We cannot tell whether your backend accepted a record after we delivered it** — a token your collector rejects looks like a failed delivery; a record your pipeline silently drops does not. Check your own backend after enabling export rather than assuming success.
-
-The **Delivery status** panel on the export page does not yet report live delivery state. Treat it as unimplemented for now.
 
 ## Current limitations
 
