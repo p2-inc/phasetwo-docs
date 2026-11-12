@@ -85,7 +85,7 @@ const FAQS = [
   },
   {
     q: "Are you subject to the US CLOUD Act?",
-    a: "Our parent company is incorporated in the United States, so we cannot claim immunity from United States legal process, and you should be sceptical of any vendor with a United States or United Kingdom parent that does. Under the CLOUD Act a provider subject to United States jurisdiction can be compelled to disclose data in its possession, custody, or control wherever that data is stored. What we can tell you is what we would do about it, which is on our government requests page, and that we have never received such a request.",
+    a: "Phase Two, Inc., the company you contract with, is incorporated in the United States, so we cannot claim immunity from United States legal process, and you should be sceptical of any vendor with a United States or United Kingdom parent that does. Under the CLOUD Act a provider subject to United States jurisdiction can be compelled to disclose data in its possession, custody, or control wherever that data is stored. What we can tell you is what we would do about it, which is on our government requests page, and that we have never received such a request.",
   },
   {
     q: "Can staff outside the EU access my data?",
@@ -96,8 +96,8 @@ const FAQS = [
     a: "Yes. Remote access to EU-stored data from outside the EU is a restricted transfer under Chapter V of the GDPR, not an exception to it. It is covered in our data processing agreement rather than left unsaid.",
   },
   {
-    q: "Why do I contract with a UK company?",
-    a: "Phase Two UK, Ltd is our European operating company and the contracting party for customers in the European Union and the United Kingdom. The European Commission renewed its adequacy decision for the United Kingdom on 19 December 2025, valid until 27 December 2031, so transfers from the EU to the United Kingdom need no additional safeguard.",
+    q: "Which company do I contract with?",
+    a: "Phase Two, Inc., the company that operates the service, under a GDPR Article 28 data processing agreement that incorporates the EU Standard Contractual Clauses. Customers that require a UK contracting entity may contract with Phase Two UK, Ltd on request.",
   },
   {
     q: "Can I choose Ireland as my primary region?",
@@ -150,7 +150,7 @@ export default function EuDataResidency() {
   return (
     <Layout
       title="EU Data Residency for Managed Keycloak"
-      description="Managed Keycloak hosted in Frankfurt with backups in Ireland, contracted through our UK company under a GDPR Article 28 agreement. Where every class of your data lives, and who can reach it."
+      description="Managed Keycloak hosted in Frankfurt with backups in Ireland, contracted with Phase Two, Inc. under a GDPR Article 28 agreement. Where every class of your data lives, and who can reach it."
     >
       <Head>
         <meta
@@ -176,7 +176,7 @@ export default function EuDataResidency() {
                 <h1 className="text-white">Your identity data stays in the EU</h1>
                 <p className="text--body-large mt-6 text-gray-300">
                   Every EU cluster runs in Frankfurt with backups in Ireland. You
-                  contract with Phase Two UK, Ltd under English law. Your users,
+                  contract with Phase Two, Inc. under a GDPR Article 28 agreement. Your users,
                   credentials and events are never replicated outside the EU — and
                   the administrative access that reaches them from outside the EU is
                   described on this page rather than left out of it.
@@ -214,18 +214,17 @@ export default function EuDataResidency() {
               <ul className="mt-6 space-y-3 text-gray-300">
                 <li>
                   <strong className="text-white">
-                    Phase Two UK, Ltd is the contracting party
-                  </strong>{" "}
-                  for customers in the European Union and the United Kingdom.
-                  Registered in England and Wales, company number 16815578,
-                  registered office 2 Leman Street, London E1W 9US.
-                </li>
-                <li>
-                  <strong className="text-white">
-                    Phase Two, Inc. is the parent company
+                    Phase Two, Inc. is the contracting party
                   </strong>
                   , incorporated in the United States and based in Seattle. We are a
                   remote team distributed across several countries.
+                </li>
+                <li>
+                  <strong className="text-white">
+                    A UK contracting entity is available on request.
+                  </strong>{" "}
+                  Phase Two UK, Ltd, registered in England and Wales, company number
+                  16815578, registered office 2 Leman Street, London E1W 9US.
                 </li>
                 <li>
                   <strong className="text-white">
@@ -233,13 +232,6 @@ export default function EuDataResidency() {
                   </strong>{" "}
                   — Frankfurt for everything, Ireland for backups — on infrastructure
                   operated by AWS in Germany and Ireland.
-                </li>
-                <li>
-                  <strong className="text-white">
-                    EU to UK transfers need no extra safeguard.
-                  </strong>{" "}
-                  The European Commission renewed its adequacy decision for the
-                  United Kingdom on 19 December 2025, valid until 27 December 2031.
                 </li>
               </ul>
             </div>
@@ -312,7 +304,7 @@ export default function EuDataResidency() {
               </p>
               <p className="mt-4 text-gray-300">
                 <strong className="text-white">
-                  Our parent company is incorporated in the United States.
+                  Phase Two, Inc. is incorporated in the United States.
                 </strong>{" "}
                 Under the US CLOUD Act a provider subject to United States
                 jurisdiction can be compelled to disclose data in its
@@ -320,7 +312,7 @@ export default function EuDataResidency() {
                 stored. We therefore do not claim immunity from United States legal
                 process, and we would encourage you to read any vendor who does
                 claim it with some care — a European region does not by itself change
-                where a parent company is incorporated.
+                where the provider is incorporated.
               </p>
               <p className="mt-4 text-gray-300">
                 <strong className="text-white">
