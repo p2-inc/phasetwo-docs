@@ -23,6 +23,7 @@ With the appropriate organization roles, the wizard can be used to:
 - Review existing configurations from the wizard dashboard
 - Validate a newly created SSO connection before enabling it for users
 - Enable, disable, or delete an existing connection when the user's roles allow it
+- Set up [IdP-initiated SSO](#idp-initiated-sso), so users can launch your application from their identity provider's dashboard
 
 This is typically paired with verified organization domains and [automatic IdP redirection](./automatic-idp-redirection.md), so users can be routed to the correct provider during sign-in.
 
@@ -112,6 +113,80 @@ To automatically redirect users to the right provider during login:
 3. Configure the login flow for [automatic IdP redirection](./automatic-idp-redirection.md).
 
 For more on managing identity providers and associating them with organizations, see [Identity Providers](./identity-providers.md).
+
+## IdP-initiated SSO
+
+Most connections the wizard creates are service provider (SP) initiated: the user starts at your application, clicks sign in, and is sent to their identity provider. With IdP-initiated SSO, the user starts at their identity provider instead, for example by clicking an application tile on their Okta, PingOne, or Microsoft dashboard, and lands in your application already signed in.
+
+Use IdP-initiated SSO when your customers expect to launch your application from their identity provider's app dashboard. You can offer it alongside a regular SP-initiated connection, but each IdP-initiated setup creates its own identity provider.
+
+For background on how the flow works in Keycloak, and on its security trade-offs, see [Keycloak SAML IdP-Initiated Flow with Okta](/blog/keycloak-saml-identity-provider-idp-initiated-flow-with-okta).
+
+### Available wizards
+
+- **Generic SAML.** Choose the **SAML (IdP-initiated)** option when you pick the protocol for the generic SAML provider. IdP-initiated wizards are marked with an `idp-initiated` badge in the provider list.
+- **Provider-specific wizards** for Okta, PingOne, and Entra ID, which walk through the IdP-initiated application setup in each provider's own console.
+- **Generic OIDC**, for identity providers that sign users in with OpenID Connect but can still launch an application from a dashboard tile. See [IdP-initiated SSO with an OIDC identity provider](#idp-initiated-sso-with-an-oidc-identity-provider).
+
+IdP-initiated setup works both realm-wide and for a single organization, in the same way as the other wizards.
+
+### What the wizard creates
+
+Keycloak only accepts an unsolicited SAML response when it is addressed to a specific client, so each IdP-initiated setup creates a pair of objects that share an alias:
+
+| Object            | Name                    | Purpose                                                                                                                              |
+| ----------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Identity provider | `{alias}`               | Trusts your customer's identity provider and maps its attributes to Keycloak users, like any other wizard-created identity provider. |
+| SAML client       | `idp-initiated-{alias}` | Receives the IdP-initiated login and decides where to send the user afterward (the target application).                              |
+
+On the confirmation step, the wizard creates the client first, then the identity provider, then the attribute mappers. If a step fails and you retry, the wizard reuses the client from the earlier attempt instead of creating a duplicate.
+
+Your customer configures their identity provider to post SAML responses to this assertion consumer service (ACS) URL, which the wizard shows on its first step:
+
+```
+https://{server}/realms/{realm}/broker/{alias}/endpoint/clients/idp-initiated-{alias}
+```
+
+This URL differs from the ACS URL of a regular SP-initiated SAML connection: the `/clients/idp-initiated-{alias}` suffix tells Keycloak which client the login is for.
+
+### Choosing the target application
+
+After the user signs in, Keycloak sends them to the target application you choose in the wizard:
+
+- **OIDC application.** Enter the application's home page. This fits most modern applications: Keycloak redirects the user to the home page, and the application then signs them in with OpenID Connect as usual. Because the user already has a Keycloak session, that sign-in completes without another prompt.
+- **SAML application (Redirect binding).** Enter the application's ACS URL. Keycloak sends the SAML response to the application with the HTTP-Redirect binding.
+- **SAML application (POST binding).** Enter the application's ACS URL. Keycloak posts the SAML response to the application with the HTTP-POST binding. Choose this when the application only accepts POST, which is common.
+
+:::note
+With an OIDC application as the target, Keycloak still delivers a SAML response, so it arrives as a parameter on the home page URL. The application doesn't need it and should ignore it, and ideally remove it from the address bar, before starting its normal OpenID Connect sign-in.
+:::
+
+### Steps in the generic SAML wizard
+
+1. **Create a SAML application** in your identity provider. Copy the IdP-initiated ACS URL and the Entity ID that the wizard shows into the application's settings.
+2. **Provide the identity provider's metadata**, from a URL, a file, or manual entry.
+3. **Choose the target application**: an OIDC application's home page, or a SAML application's ACS URL with the Redirect or POST binding.
+4. **Map attributes** from the identity provider to Keycloak user attributes.
+5. **Assign users** to the application in your identity provider.
+6. **Confirm** to create the client, the identity provider, and the mappers.
+
+The provider-specific wizards follow the same shape, with instructions tailored to each provider's console.
+
+### IdP-initiated SSO with an OIDC identity provider
+
+OpenID Connect has no equivalent of an unsolicited SAML response, so with the generic OIDC wizard the upstream identity provider doesn't post anything to Keycloak. Instead, its application tile (often called the "initiate login URI") points at Keycloak's IdP-initiated URL for the paired client, with a hint that names the identity provider:
+
+```
+https://{server}/realms/{realm}/protocol/saml/clients/idp-initiated-{alias}?kc_idp_hint={alias}
+```
+
+When the user clicks the tile, Keycloak sends them straight to the OIDC identity provider to sign in, then on to the target application. This relies on the **Identity Provider Redirector** step in the realm's browser flow, which honors `kc_idp_hint`. The stock browser flow includes it; if you have customized the browser flow, make sure it is still there.
+
+### Behavior to be aware of
+
+- **Existing sessions.** A user who already has a Keycloak session goes straight to the target application without visiting the identity provider again. This is normal single sign-on behavior.
+- **Deleting the connection.** Deleting the identity provider, from the wizard dashboard, the organization API, or the admin console, also deletes its `idp-initiated-{alias}` client, and deleting the client also deletes the identity provider. Unlinking the identity provider from an organization keeps both.
+- **Organization admins.** In organization mode, the wizard creates the client through the organization API, which only accepts IdP-initiated SAML clients. Organization admins need the organization's `manage-identity-providers` role; realm-wide setup needs the `manage-clients` and `manage-identity-providers` realm-management roles.
 
 ## Setting realm attributes for manual control
 
