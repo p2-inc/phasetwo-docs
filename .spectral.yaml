@@ -1,0 +1,35 @@
+# Spectral rules for openapi.yaml, focused on what the SDKs depend on.
+extends: [["spectral:oas", "off"]]
+rules:
+  # SDK method names come from operationIds; without one the generator invents
+  # names like realmUsersUserIdOrgsOrgIdRolesPut.
+  operation-operationId: error
+  operation-operationId-unique: error
+  operation-operationId-valid-in-url: error
+
+  # SDK class names come from tags. Two tags put one operation in two classes.
+  p2-one-tag-per-operation:
+    description: Every operation has exactly one tag (it becomes the SDK class name).
+    given: $.paths[*][get,put,post,delete,patch,head,options]
+    severity: error
+    then:
+      field: tags
+      function: length
+      functionOptions: { min: 1, max: 1 }
+  operation-tag-defined: error
+  openapi-tags: warn
+
+  # Creates should say where the new resource is, so SDKs can return its id.
+  p2-created-has-location:
+    description: 201 responses should declare a Location header.
+    given: $.paths[*][post,put].responses['201']
+    severity: warn
+    then:
+      field: headers.Location
+      function: truthy
+
+  oas3-schema: error
+  oas3-valid-schema-example: warn
+  oas3-unused-component: warn
+  path-params: error
+  no-$ref-siblings: error
