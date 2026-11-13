@@ -405,6 +405,7 @@ components:
           type: string
         not-before-policy:
           type: integer
+          format: int64
         session_state:
           type: string
         scope:
@@ -594,6 +595,7 @@ components:
           type: string
         time:
           type: integer
+          format: int64
         realmId:
           type: string
         realmName:
