@@ -1,0 +1,134 @@
+# On PRs that touch openapi.yaml: validate it, lint it for the things the SDKs rely
+# on, comment with the API changelog (oasdiff), flagging changes that break SDKs, and
+# require an info.version minor bump when the API changes (all SDKs are released as
+# X.Y.* of it).
+# On merge to main: tell phasetwo-sdk-generator to regenerate the SDKs.
+#
+# Needs a GitHub App that can dispatch to p2-inc/phasetwo-sdk-generator
+# (contents: write there): vars.SDK_BOT_APP_ID, secrets.SDK_BOT_PRIVATE_KEY.
+name: openapi-sdks
+
+on:
+  pull_request:
+    paths: [openapi.yaml, .spectral.yaml]
+  push:
+    branches: [main]
+    paths: [openapi.yaml]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Validate (openapi-generator)
+        run: docker run --rm -v "$PWD:/local" openapitools/openapi-generator-cli:v7.27.0 validate -i /local/openapi.yaml
+      - name: Lint (Spectral)
+        # Converted to JSON first: unquoted response codes (200:) are YAML integers,
+        # which Spectral's YAML parser rejects but every other tool accepts.
+        run: |
+          yq -o json openapi.yaml > "$RUNNER_TEMP/openapi.json"
+          npx --yes @stoplight/spectral-cli@6.17.1 lint -r .spectral.yaml "$RUNNER_TEMP/openapi.json" \
+            --fail-severity error -f github-actions
+      - name: API changelog
+        id: changelog
+        run: |
+          git show "origin/${{ github.base_ref }}:openapi.yaml" > "$RUNNER_TEMP/base.yaml"
+          cp openapi.yaml "$RUNNER_TEMP/head.yaml"
+          od() { docker run --rm -v "$RUNNER_TEMP:/specs" tufin/oasdiff:v1.37.0 "$@"; }
+          od changelog /specs/base.yaml /specs/head.yaml --format markdown > "$RUNNER_TEMP/changelog.md" || true
+          changes=$(od changelog /specs/base.yaml /specs/head.yaml --format json | jq 'length' 2>/dev/null || echo 0)
+          base_ver=$(yq '.info.version' "$RUNNER_TEMP/base.yaml")
+          head_ver=$(yq '.info.version' "$RUNNER_TEMP/head.yaml")
+          bumped=false
+          if [[ $head_ver =~ ^([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+            hx=${BASH_REMATCH[1]}; hy=${BASH_REMATCH[2]}
+            if [[ $base_ver =~ ^([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+              bx=${BASH_REMATCH[1]}; by=${BASH_REMATCH[2]}
+              if (( hx > bx || (hx == bx && hy > by) )); then bumped=true; fi
+            else
+              bumped=true   # first semver version (base was e.g. "v1")
+            fi
+            valid=true
+          else
+            valid=false
+          fi
+          {
+            echo "changes=${changes:-0}"
+            echo "bumped=$bumped"
+            echo "valid=$valid"
+            echo "base_ver=$base_ver"
+            echo "head_ver=$head_ver"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "<!-- openapi-sdks -->"
+            echo "### OpenAPI changes"
+            if ! od breaking /specs/base.yaml /specs/head.yaml --fail-on ERR > /dev/null \
+              || grep -Eq "API tag \`[^\`]+\` removed" "$RUNNER_TEMP/changelog.md"; then
+              echo
+              echo "> [!WARNING]"
+              echo "> Breaking for SDK users (a breaking API change, or a removed/renamed tag, which renames an SDK class). The SDKs will get a minor version bump."
+            fi
+            echo
+            if [ -s "$RUNNER_TEMP/changelog.md" ]; then cat "$RUNNER_TEMP/changelog.md"; else echo "No API changes."; fi
+            echo
+            echo "**API version:** \`$base_ver\` → \`$head_ver\`. The SDKs are released as ${head_ver%.*}.x."
+            if [ "${changes:-0}" != 0 ] && [ "$bumped" != true ]; then
+              echo
+              echo "> [!CAUTION]"
+              echo "> This changes the API, so bump the minor of \`info.version\` in openapi.yaml (e.g. \`${base_ver%.*}.x\` → the next minor)."
+            fi
+            echo
+            echo "After merge, [phasetwo-sdk-generator](https://github.com/p2-inc/phasetwo-sdk-generator) opens PRs in the SDK repos."
+          } > "$RUNNER_TEMP/comment.md"
+      - name: Comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq '[.[] | select(.body | startswith("<!-- openapi-sdks -->"))][0].id // empty')
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/comment.md" --silent
+          else
+            gh pr comment "$PR" --body-file "$RUNNER_TEMP/comment.md"
+          fi
+      - name: Require an API version bump
+        env:
+          CHANGES: ${{ steps.changelog.outputs.changes }}
+          BUMPED: ${{ steps.changelog.outputs.bumped }}
+          VALID: ${{ steps.changelog.outputs.valid }}
+          HEAD_VER: ${{ steps.changelog.outputs.head_ver }}
+        run: |
+          if [ "$VALID" != true ]; then
+            echo "::error file=openapi.yaml::info.version must be a semver version like 0.2.0 (got '$HEAD_VER')"; exit 1
+          fi
+          if [ "$CHANGES" != 0 ] && [ "$BUMPED" != true ]; then
+            echo "::error file=openapi.yaml::this PR changes the API; bump the minor of info.version"; exit 1
+          fi
+
+  dispatch:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v3
+        id: token
+        with:
+          app-id: ${{ vars.SDK_BOT_APP_ID }}
+          private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
+          owner: p2-inc
+          repositories: phasetwo-sdk-generator
+      - name: Regenerate SDKs
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: |
+          gh api repos/p2-inc/phasetwo-sdk-generator/dispatches \
+            -f event_type=openapi-updated -f "client_payload[sha]=$GITHUB_SHA"
