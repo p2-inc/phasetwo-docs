@@ -43,9 +43,12 @@ info:
     | Java (and other JVM langs) | https://github.com/p2-inc/phasetwo-java |
     | JavaScript/TypeScript | https://github.com/p2-inc/phasetwo-js |
     | Python | https://github.com/p2-inc/phasetwo-python |
+    | Go | https://github.com/p2-inc/phasetwo-go |
+
+    See [SDKs](https://phasetwo.io/docs/api/sdks/) for installation and examples.
   # The Phase Two API version (semver). The SDKs share it: every SDK release 0.X.*
   # implements API 0.X. Bump the minor in any PR that changes the API; CI checks this.
-  version: "0.2.0"
+  version: "0.3.0"
 servers:
   - url: "{baseUrl}/realms"
     variables:
@@ -467,6 +470,7 @@ components:
           type: string
         createdAt:
           type: string
+          description: Creation time in UTC, to the minute (`yyyy-MM-ddTHH:mmZ`, e.g. `2026-01-31T09:15Z`).
         email:
           type: string
         inviterId:
@@ -579,8 +583,6 @@ components:
           type: string
         realmName:
           type: string
-        organizationId:
-          type: string
         type:
           type: string
         representation:
@@ -591,6 +593,10 @@ components:
           type: string
         resourceType:
           type: string
+        resourceId:
+          type: string
+          readOnly: true
+          description: Id of the affected resource (set by the server).
         error:
           type: string
         authDetails:
@@ -640,10 +646,12 @@ components:
           type: integer
         status_message:
           type: string
-        retried:
+        retries:
           type: integer
         sent_at:
-          type: string
+          type: integer
+          format: int64
+          description: When the send was attempted, in milliseconds since the epoch.
         event_id:
           type: string
         keycloak_event_type:
@@ -1502,6 +1510,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
     delete:
       tags:
         - Organization Memberships
@@ -1614,6 +1627,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
         409:
           description: invitation already exists
     get:
@@ -1800,6 +1818,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
     put:
       tags:
         - Organization Roles
@@ -1986,6 +2009,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
     delete:
       tags:
         - Organization Roles
@@ -2070,6 +2098,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
   /{realm}/orgs/{orgId}/idps/clients:
     parameters:
       - in: path
@@ -2144,6 +2177,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
   /{realm}/orgs/{orgId}/idps/{alias}/unlink:
     parameters:
       - in: path
@@ -2283,6 +2321,11 @@ paths:
       responses:
         201:
           description: success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
   /{realm}/orgs/{orgId}/idps/{alias}/mappers/{id}:
     parameters:
       - in: path
@@ -2703,6 +2746,11 @@ paths:
       responses:
         201:
           description: Attribute created
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
         400:
           description: Malformed attribute
   /{realm}/attributes/{attributeKey}:
@@ -2813,6 +2861,11 @@ paths:
       responses:
         201:
           description: Webhook created
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI of the new resource.
         400:
           description: Malformed webhook
   /{realm}/webhooks/count:
