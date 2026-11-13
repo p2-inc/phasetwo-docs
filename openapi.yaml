@@ -56,6 +56,29 @@ servers:
           - https://app.phasetwo.io/auth
           - http://localhost:8081
           - http://localhost:8081/auth
+tags:
+  # Each operation has exactly one tag. SDK generators turn tags into API class names
+  # (e.g. OrganizationInvitationsApi), so renaming a tag is a breaking SDK change.
+  - name: Organizations
+    description: Create, read, update and delete organizations; the caller's organizations and invitations; portal links; import and export.
+  - name: Organization Memberships
+    description: Add, list, count and remove organization members, and member attributes.
+  - name: Organization Domains
+    description: Claim and verify email domains for an organization.
+  - name: Organization Invitations
+    description: Invite users to an organization, and list, resend and remove invitations.
+  - name: Organization Roles
+    description: Define roles within an organization and grant them to members.
+  - name: Identity Providers
+    description: Per-organization identity providers, mappers, config import and IdP-initiated clients.
+  - name: Organization SCIM
+    description: Directory sync (SCIM) configuration per organization.
+  - name: Users
+    description: User-centric views across organizations, the active organization, and magic links.
+  - name: Events
+    description: Event storage, webhooks and delivery inspection.
+  - name: Attributes
+    description: Realm attribute management.
 components:
   securitySchemes:
     access_token:
@@ -1379,7 +1402,6 @@ paths:
         style: simple
     get:
       tags:
-        - Organization
         - Organization Domains
       summary: Get details for all domains owned by an organization
       operationId: getOrganizationDomains
@@ -1417,7 +1439,6 @@ paths:
         style: simple
     get:
       tags:
-        - Organization
         - Organization Domains
       summary: Get details for a domain owned by an organization
       operationId: getOrganizationDomain
@@ -1486,7 +1507,6 @@ paths:
     get:
       tags:
         - Organization Memberships
-        - Users
       summary: Check if a user is a member of an organization
       operationId: checkOrganizationMembership
       responses:
@@ -1495,7 +1515,6 @@ paths:
     put:
       tags:
         - Organization Memberships
-        - Users
       summary: Add an organization member
       operationId: addOrganizationMember
       description: Add the specified user to the specified organization as a member
@@ -1601,7 +1620,7 @@ paths:
         style: simple
     post:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Create an invitation to an organization
       description: Create an invitation to join the specified organization. Requires a user to register with the application (if they don't already have an account) before they can accept the invitation. Acceptance happens during login via a required action.
       operationId: addOrganizationInvitation
@@ -1618,7 +1637,7 @@ paths:
           description: invitation already exists
     get:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Get organization invitations
       operationId: getOrganizationInvitations
       description: Get a paginated list of invitations to an organization, using an optional search query for email address.
@@ -1668,7 +1687,7 @@ paths:
         style: simple
     get:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Get organization invitation count
       operationId: getOrganizationInvitationCount
       description: Get a count of invitations to an organization
@@ -1705,7 +1724,7 @@ paths:
         style: simple
     get:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Get organization invitation by ID
       operationId: getOrganizationInvitationById
       description: Get an invitation to an organization by its uuid.
@@ -1718,7 +1737,7 @@ paths:
                 $ref: "#/components/schemas/InvitationRepresentation"
     delete:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Remove a pending invitation
       operationId: removeOrganizationInvitation
       responses:
@@ -1749,7 +1768,7 @@ paths:
         style: simple
     put:
       tags:
-        - Organization Invitation
+        - Organization Invitations
       summary: Resend an Organization Invitation
       operationId: resendOrganizationInvitation
       description: Resend the email for an existing Organization Invitation
@@ -1972,7 +1991,6 @@ paths:
     get:
       tags:
         - Organization Roles
-        - Users
       summary: Check if a user has an organization role
       operationId: checkUserOrganizationRole
       responses:
@@ -1981,7 +1999,6 @@ paths:
     put:
       tags:
         - Organization Roles
-        - Users
       summary: Grant a user an organization role
       operationId: grantUserOrganizationRole
       description: Grant the specified user to the specified organization role
@@ -1991,7 +2008,6 @@ paths:
     delete:
       tags:
         - Organization Roles
-        - Users
       summary: Revoke an organization role from a user
       operationId: revokeUserOrganizationRole
       description: Revoke the specified organization role from the specified user
@@ -2519,7 +2535,6 @@ paths:
     get:
       tags:
         - Users
-        - Organization Roles
       summary: List organization roles for the given user and org
       responses:
         200:
@@ -2533,7 +2548,6 @@ paths:
     put:
       tags:
         - Users
-        - Organization Roles
       summary: Grant a user organization roles
       requestBody:
         content:
@@ -2555,7 +2569,6 @@ paths:
     patch:
       tags:
         - Users
-        - Organization Roles
       summary: Revoke organization roles from a user
       requestBody:
         content:

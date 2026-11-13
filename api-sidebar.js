@@ -233,7 +233,7 @@ module.exports = {
         },
         {
           type: "category",
-          label: "Organization Invitation",
+          label: "Organization Invitations",
           link: {
             type: "generated-index",
             title: "Organization Invitations",
