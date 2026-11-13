@@ -39,6 +39,8 @@ what order, or what breaks when you get it wrong. These tutorials are the other 
 1. [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/)
 2. [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
 3. [Spring Boot Keycloak authentication](/tutorials/securing-applications/spring-boot/)
+4. [Passport.js and Keycloak](/tutorials/securing-applications/express-passport/) — swap
+   `passport-local` for Keycloak and migrate users as they log in
 
 More framework-by-framework guides are next. *(Coming soon.)*
 

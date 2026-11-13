@@ -24,6 +24,7 @@ module.exports = {
       items: [
         "securing-applications/validating-tokens",
         "securing-applications/spring-boot",
+        "securing-applications/express-passport",
       ],
     },
     {

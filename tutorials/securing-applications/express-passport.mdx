@@ -1,0 +1,598 @@
+---
+id: express-passport
+title: "Passport.js and Keycloak: Replace passport-local Without a Password Reset"
+description: Move an Express app from passport-local to Keycloak with openid-client's Passport strategy, and migrate existing users as they log in. A tested example.
+keywords:
+  - passport.js keycloak
+  - express keycloak login
+  - openid-client passport strategy
+  - migrate passport-local users to keycloak
+  - keycloak user migration rest provider
+difficulty: intermediate
+time: 40 minutes
+keycloak_version: "26.8.2"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Passport.js and Keycloak: Replace passport-local Without a Password Reset
+
+An Express app that logs users in with `passport-local` moves to Keycloak in two parts:
+
+1. **Swap the strategy.** Replace `passport-local` with the Passport strategy that ships in
+   [`openid-client`](https://github.com/panva/openid-client). The app sends users to
+   Keycloak to log in and gets an ID token back. Your routes, `req.user` and
+   `passport.authenticate("session")` work the way they did before.
+2. **Bring the users with you.** Add two small endpoints to the app that look up a user and
+   check a password against your existing table. The
+   [keycloak-user-migration](https://github.com/daniel-frak/keycloak-user-migration) provider
+   calls them the first time each user logs in to Keycloak, copies the user across, and
+   stores the password in Keycloak. Nobody gets a password-reset email.
+
+The code for both is short. The things that go wrong are in the configuration: roles that
+silently don't migrate, attributes that look as if they were dropped, a logout that doesn't
+log out, and users that exist in Keycloak after a failed login. This page covers each one.
+
+:::info Tested against
+Keycloak **26.8.2** with keycloak-user-migration **6.3.0**, on Node.js 26 with Express
+5.3.0, Passport 0.7.0, passport-local 1.0.0, express-session 1.19.0 and openid-client
+6.8.9. Every response, status and log line below is copied from a run. Keycloak ran on a
+different local port, which has been rewritten to 8080 here.
+:::
+
+## What you'll build
+
+One Express app on port 3100, and a `demo` realm. When you're done:
+
+| Action                                                | Result                                                            |
+| ----------------------------------------------------- | ----------------------------------------------------------------- |
+| `alice` logs in for the first time, legacy password   | Logged in. She now exists in Keycloak with her role and password. |
+| `alice` logs in again with the migration switched off | Logged in. Keycloak checks her password itself.                   |
+| A user who isn't in the legacy table logs in          | `Invalid username or password.`                                   |
+| `/logout`                                             | Ends the app session **and** the Keycloak session                 |
+
+## Prerequisites
+
+Node.js 20 or newer (we ran 26), Java 21 or newer, and `curl`. You need Keycloak with the migration
+provider installed, so this tutorial runs the Keycloak distribution directly instead of the
+plain container image. If you'd rather use a container, mount the jar into
+`/opt/keycloak/providers/`.
+
+## Step 1 — The app you have
+
+This is the starting point: a user table with bcrypt hashes, and `passport-local` checking
+passwords against it. It's the same shape as Passport's own
+[todos-express-password](https://github.com/passport/todos-express-password) example.
+
+```bash
+mkdir express-keycloak && cd express-keycloak
+npm init -y && npm pkg set type=module
+npm i express express-session passport passport-local openid-client bcryptjs
+```
+
+`users.js` stands in for your database. The second user, `bob`, is used later to show what
+a failed first login leaves behind.
+
+```js title="users.js"
+// The legacy user store. In a real app this is your database table.
+import bcrypt from "bcryptjs";
+
+const users = [
+  {
+    id: "1001",
+    username: "alice",
+    email: "alice@example.com",
+    firstName: "Alice",
+    lastName: "Legacy",
+    passwordHash: bcrypt.hashSync("correct-horse", 10),
+    roles: ["editor"],
+  },
+  {
+    id: "1002",
+    username: "bob",
+    email: "bob@example.com",
+    firstName: "Bob",
+    lastName: "Legacy",
+    passwordHash: bcrypt.hashSync("battery-staple", 10),
+    roles: [],
+  },
+];
+
+export function findByUsername(username) {
+  return users.find((u) => u.username === username);
+}
+
+export function verifyPassword(user, password) {
+  return bcrypt.compareSync(password, user.passwordHash);
+}
+```
+
+The `passport-local` version of the app, for reference:
+
+```js title="before/server.js"
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import { findByUsername, verifyPassword } from "../users.js";
+
+passport.use(
+  new LocalStrategy((username, password, done) => {
+    const user = findByUsername(username);
+    if (!user || !verifyPassword(user, password)) return done(null, false);
+    return done(null, user);
+  }),
+);
+passport.serializeUser((user, done) => done(null, user.username));
+passport.deserializeUser((username, done) =>
+  done(null, findByUsername(username)),
+);
+
+const app = express();
+app.use(express.urlencoded({ extended: false }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+  }),
+);
+app.use(passport.authenticate("session"));
+
+app.get("/login", (req, res) =>
+  res.send(
+    `<form method="post"><input name="username"><input name="password" type="password"><button>Log in</button></form>`,
+  ),
+);
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  }),
+);
+app.get("/", (req, res) =>
+  req.user ? res.json({ user: req.user.username }) : res.redirect("/login"),
+);
+
+app.listen(3100);
+```
+
+```bash
+SESSION_SECRET=dev node before/server.js
+curl -s -c jar -b jar -L -d username=alice -d password=correct-horse localhost:3100/login
+# {"user":"alice"}
+```
+
+Note the two functions it depends on, `findByUsername` and `verifyPassword`. The migration
+endpoints in step 5 reuse both. The legacy password check doesn't go away on day one. It
+moves behind an endpoint that only Keycloak calls.
+
+## Step 2 — Keycloak with the migration provider
+
+Keycloak doesn't migrate users from another system by itself. The
+[keycloak-user-migration](https://github.com/daniel-frak/keycloak-user-migration) provider
+adds a **User migration using a REST client** option under **User federation**. Its 6.x
+releases are built for Keycloak 26.
+
+```bash
+curl -sLO https://github.com/keycloak/keycloak/releases/download/26.8.2/keycloak-26.8.2.tar.gz
+tar xzf keycloak-26.8.2.tar.gz
+curl -sL -o keycloak-26.8.2/providers/keycloak-rest-provider-6.3.0.jar \
+  https://github.com/daniel-frak/keycloak-user-migration/releases/download/6.3.0/keycloak-rest-provider-6.3.0.jar
+
+KC_BOOTSTRAP_ADMIN_USERNAME=admin KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  keycloak-26.8.2/bin/kc.sh start-dev
+```
+
+`start-dev` picks up the jar on startup. For a production server you run `kc.sh build`
+after adding it.
+
+## Step 3 — The realm and the client
+
+The app logs users in with the authorization code flow, so it needs a **confidential**
+client with a client secret. (For the trade-offs, see
+[Keycloak client types](/tutorials/clients/oidc-client-types/).) These commands use
+[kcadm.sh](/tutorials/getting-started/admin-cli/). The admin console works too.
+
+```bash
+export PATH="$PWD/keycloak-26.8.2/bin:$PATH"
+kcadm.sh config credentials --server http://localhost:8080 --realm master \
+  --user admin --password admin
+
+kcadm.sh create realms -s realm=demo -s enabled=true
+kcadm.sh create roles -r demo -s name=editor
+
+CID=$(kcadm.sh create clients -r demo -i \
+  -s clientId=express-app -s publicClient=false \
+  -s standardFlowEnabled=true -s directAccessGrantsEnabled=false \
+  -s 'redirectUris=["http://localhost:3100/auth/callback"]' \
+  -s 'attributes={"post.logout.redirect.uris":"http://localhost:3100"}')
+
+kcadm.sh get clients/$CID/client-secret -r demo
+```
+
+The provider maps legacy role names onto realm roles. Creating `editor` up front isn't
+required, because the provider adds a role that's missing, but it lets you set the role's
+description and composites before anyone lands in it.
+
+## Step 4 — Swap the strategy
+
+Replace `passport-local` with `openid-client`'s Passport strategy. `client.discovery()` reads
+the realm's `.well-known/openid-configuration`, so the only Keycloak-specific value is the
+issuer URL.
+
+```js title="server.js (part 1 of 3)"
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import * as client from "openid-client";
+import { Strategy as OidcStrategy } from "openid-client/passport";
+import { findByUsername, verifyPassword } from "./users.js";
+
+const {
+  KEYCLOAK_ISSUER, // e.g. http://localhost:8080/realms/demo
+  CLIENT_ID,
+  CLIENT_SECRET,
+  APP_URL = "http://localhost:3100",
+  SESSION_SECRET,
+  MIGRATION_TOKEN, // shared secret Keycloak sends when it calls /migration
+} = process.env;
+
+// --- 1. Discover the realm and register the strategy ----------------------
+const config = await client.discovery(
+  new URL(KEYCLOAK_ISSUER),
+  CLIENT_ID,
+  CLIENT_SECRET,
+  undefined,
+  // Local development over plain http only. Remove in production.
+  KEYCLOAK_ISSUER.startsWith("http://")
+    ? { execute: [client.allowInsecureRequests] }
+    : undefined,
+);
+
+passport.use(
+  "keycloak",
+  new OidcStrategy(
+    {
+      config,
+      scope: "openid profile email",
+      callbackURL: `${APP_URL}/auth/callback`,
+    },
+    (tokens, verified) => {
+      const claims = tokens.claims();
+      verified(null, {
+        sub: claims.sub,
+        username: claims.preferred_username,
+        legacyId: claims.legacy_id, // from the protocol mapper in step 5
+        email: claims.email,
+        idToken: tokens.id_token,
+      });
+    },
+  ),
+);
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+```
+
+Three things in there are easy to get wrong:
+
+- **`allowInsecureRequests`.** openid-client 6 refuses to talk to an `http://` issuer. Without
+  this option, `discovery()` against a local Keycloak throws
+  `OAUTH_HTTP_REQUEST_FORBIDDEN: only requests to HTTPS are allowed`. Only pass it for `http://` issuers, as
+  above, so it can't follow you into production.
+- **The verify callback takes `(tokens, verified)`.** There's no `profile` argument as in
+  `passport-oauth2`-style strategies. The user's identity is in `tokens.claims()`, which are
+  the ID token's claims, already validated by openid-client.
+- **The session now holds claims, not a database row.** `serializeUser` stores the whole
+  object. Keep it small. The ID token is there only so logout can pass it back to Keycloak.
+
+The routes:
+
+```js title="server.js (part 2 of 3)"
+const app = express();
+app.use(express.json());
+app.use(
+  session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false }),
+);
+app.use(passport.authenticate("session"));
+
+// --- 2. Login, callback, logout -------------------------------------------
+app.get("/login", passport.authenticate("keycloak"));
+app.get(
+  "/auth/callback",
+  passport.authenticate("keycloak", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  }),
+);
+app.get("/logout", (req, res, next) => {
+  const idToken = req.user?.idToken;
+  req.logout((err) => {
+    if (err) return next(err);
+    if (!idToken) return res.redirect("/");
+    // End the Keycloak SSO session too, or /login signs the user straight back in.
+    res.redirect(
+      client.buildEndSessionUrl(config, {
+        id_token_hint: idToken,
+        post_logout_redirect_uri: APP_URL,
+      }).href,
+    );
+  });
+});
+app.get("/", (req, res) => {
+  if (!req.user) return res.send('<a href="/login">Log in</a>');
+  const { idToken, ...user } = req.user;
+  res.json({ user });
+});
+```
+
+`/login` is now a redirect, and the login form is Keycloak's. The `POST /login` route and the
+`express.urlencoded` body parser go away.
+
+**Logout has to end two sessions.** `req.logout()` only clears the Express session. The
+Keycloak session survives it, so the next `/login` redirect comes straight back logged in,
+with no form. Sending the user to Keycloak's end-session endpoint ends both. The `!idToken`
+guard matters. Without it, hitting `/logout` with no session redirects to Keycloak with
+`id_token_hint=undefined`, and Keycloak answers `400`.
+
+## Step 5 — Migrate users as they log in
+
+### The two endpoints
+
+The provider makes two calls to a base URL you configure:
+
+- `GET {base}/{username}` returns the user as JSON, or any non-200 status for "no such user".
+- `POST {base}/{username}` with `{"password": "..."}` returns 200 if the password is right,
+  or anything else if it isn't.
+
+The full contract is in the [User Migration API](/docs/user-migration/api) docs. In the
+Express app, both endpoints sit behind a bearer token, because they answer the question "is
+this the password?":
+
+```js title="server.js (part 3 of 3)"
+// --- 3. Migration endpoints Keycloak calls during the switch-over ---------
+const migration = express.Router();
+migration.use((req, res, next) =>
+  req.get("authorization") === `Bearer ${MIGRATION_TOKEN}`
+    ? next()
+    : res.sendStatus(401),
+);
+migration.get("/users/:username", (req, res) => {
+  const user = findByUsername(req.params.username);
+  if (!user) return res.sendStatus(404);
+  res.json({
+    // No "id": Keycloak assigns a UUID. Keep the legacy key as an attribute.
+    username: user.username,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    enabled: true,
+    emailVerified: true,
+    roles: user.roles,
+    attributes: { legacy_id: [user.id] },
+    groups: [],
+    requiredActions: [],
+  });
+});
+migration.post("/users/:username", (req, res) => {
+  const user = findByUsername(req.params.username);
+  if (!user || !verifyPassword(user, req.body?.password ?? ""))
+    return res.sendStatus(401);
+  res.sendStatus(200);
+});
+app.use("/migration", migration);
+
+app.listen(3100, () => console.log(`listening on ${APP_URL}`));
+```
+
+Start it with the client secret from step 3. Keep real values in your secret store, not in
+the repository.
+
+```bash
+KEYCLOAK_ISSUER=http://localhost:8080/realms/demo CLIENT_ID=express-app \
+  CLIENT_SECRET=<secret from step 3> SESSION_SECRET=dev-session-secret \
+  MIGRATION_TOKEN=dev-migration-token node server.js
+# listening on http://localhost:3100
+```
+
+Before you involve Keycloak, check the endpoints with `curl`:
+
+```bash
+T=dev-migration-token
+curl -s -w ' %{http_code}\n' localhost:3100/migration/users/alice
+# Unauthorized 401
+curl -s -w ' %{http_code}\n' -H "Authorization: Bearer $T" localhost:3100/migration/users/alice
+# {"username":"alice","email":"alice@example.com","firstName":"Alice","lastName":"Legacy","enabled":true,"emailVerified":true,"roles":["editor"],"attributes":{"legacy_id":["1001"]},"groups":[],"requiredActions":[]} 200
+curl -s -w ' %{http_code}\n' -H "Authorization: Bearer $T" localhost:3100/migration/users/nobody
+# Not Found 404
+curl -s -w ' %{http_code}\n' -H "Authorization: Bearer $T" -H 'content-type: application/json' \
+  -d '{"password":"wrong"}' localhost:3100/migration/users/alice
+# Unauthorized 401
+curl -s -w ' %{http_code}\n' -H "Authorization: Bearer $T" -H 'content-type: application/json' \
+  -d '{"password":"correct-horse"}' localhost:3100/migration/users/alice
+# OK 200
+```
+
+Usernames that are email addresses arrive percent-encoded, so `alice@example.com` is sent as
+`alice%40example.com`. Express decodes `req.params` for you. If you implement the endpoints
+in something that doesn't, decode the username yourself, or every lookup returns 404.
+
+### Why the response has no `id`
+
+The `id` field is optional, and if you send it, Keycloak uses it as the user's ID and as the
+`sub` claim. That looks attractive, because existing rows keyed on the legacy ID would keep
+working. With an ID like `1001`, Keycloak creates the user but logs:
+
+```
+WARN  [org.keycloak.storage.jpa.KeyUtils] The given key is not a valid key per specification, future migration might fail: 1001
+```
+
+Leave `id` out, let Keycloak assign a UUID, and carry the old key as a `legacy_id`
+attribute. The protocol mapper below puts it in the token, so the app can still join to its
+own tables.
+
+### Add the provider
+
+```bash
+RID=$(kcadm.sh get realms/demo --fields id --format csv --noquotes)
+kcadm.sh create components -r demo \
+  -s name=legacy-app \
+  -s providerId="User migration using a REST client" \
+  -s providerType=org.keycloak.storage.UserStorageProvider \
+  -s parentId=$RID \
+  -s 'config.URI=["http://localhost:3100/migration/users"]' \
+  -s 'config.API_TOKEN_ENABLED=["true"]' \
+  -s 'config.API_TOKEN=["dev-migration-token"]' \
+  -s 'config.MIGRATE_UNMAPPED_ROLES=["true"]' \
+  -s 'config.MIGRATE_UNMAPPED_GROUPS=["true"]' \
+  -s 'config.SEVER_FEDERATION_LINK=["true"]'
+```
+
+:::warning Set the defaults yourself when you script it
+The provider lists defaults for its options, such as **Migrate unmapped roles: on** and
+**Sever federation link after migration: on**. Those are only form defaults. A component
+created through the admin API or `kcadm.sh` stores exactly the keys you send, and the
+provider treats a missing switch as **off**. In our first run, the component had only `URI`
+and the two token keys. Alice logged in and was migrated, but her `editor` role was silently
+dropped. She had only `default-roles-demo`. Adding `MIGRATE_UNMAPPED_ROLES=true` fixed it.
+After any scripted setup, read the component back with
+`kcadm.sh get components/<id> -r demo` and check its `config`.
+:::
+
+### Put `legacy_id` in the token
+
+```bash
+kcadm.sh create clients/$CID/protocol-mappers/models -r demo \
+  -s name=legacy_id -s protocol=openid-connect \
+  -s protocolMapper=oidc-usermodel-attribute-mapper \
+  -s 'config={"user.attribute":"legacy_id","claim.name":"legacy_id","jsonType.label":"String","id.token.claim":"true","access.token.claim":"true","userinfo.token.claim":"true"}'
+```
+
+[Protocol mappers](/tutorials/clients/protocol-mappers/) covers the other options.
+
+## Step 6 — Verify it worked
+
+Open `http://localhost:3100/login` in a browser and log in to the Keycloak form as `alice` /
+`correct-horse`, her legacy password. The app shows:
+
+```json
+{
+  "user": {
+    "sub": "b835fe23-6b20-43db-8b5b-4d9a2e0ae9cf",
+    "username": "alice",
+    "legacyId": "1001",
+    "email": "alice@example.com"
+  }
+}
+```
+
+Keycloak's log shows the migration as it happens:
+
+```
+INFO  [...UserModelFactory] Creating user model for: alice
+INFO  [...LegacyProvider] Severing federation link for alice
+```
+
+Then check what Keycloak stored:
+
+```bash
+UID_ALICE=$(kcadm.sh get users -r demo -q username=alice --fields id --format csv --noquotes)
+kcadm.sh get users/$UID_ALICE/role-mappings/realm -r demo --fields name
+# [ { "name" : "default-roles-demo" }, { "name" : "editor" } ]
+kcadm.sh get users/$UID_ALICE/credentials -r demo --fields type
+# [ { "type" : "password" } ]
+```
+
+Alice now has a password credential in Keycloak, re-hashed with Keycloak's own algorithm
+(Argon2 on 26.x). She also has no `federationLink`, because the provider severed it.
+
+**The proof that the password moved:** disable the provider and log in again.
+
+```bash
+CMP=$(kcadm.sh get components -r demo -q name=legacy-app --fields id --format csv --noquotes)
+kcadm.sh update components/$CMP -r demo -s 'config.enabled=["false"]'
+```
+
+Alice still logs in. Keycloak never calls the app. Switch the provider back on
+(`config.enabled=["true"]`) before you continue.
+
+### Where's `legacy_id`?
+
+The token has `legacy_id`, but `kcadm.sh get users/$UID_ALICE` shows no attributes, and
+neither does the admin console. The attribute **is** stored. It's an _unmanaged_ attribute,
+one that isn't declared in the realm's user profile, and by default the admin API reads
+those back as absent. Set the realm's unmanaged attribute policy to **Only administrators can
+view** and it appears:
+
+```json
+"attributes" : {
+  "legacy_id" : [ "1001" ]
+}
+```
+
+The protocol mapper read it under both settings. To make the attribute a proper part of the
+profile, declare it. See
+[Keycloak managed vs unmanaged attributes](/tutorials/users/user-profile/).
+
+## What a failed first login leaves behind
+
+Log `bob` in with the wrong password. Keycloak shows `Invalid username or password.`, which
+is correct. But he now exists in Keycloak:
+
+```bash
+kcadm.sh get users -r demo -q username=bob --fields username,federationLink
+# [ { "username" : "bob", "federationLink" : "fb5908c6-f7d4-4f32-b72c-e43872667746" } ]
+```
+
+The provider creates the user from the `GET` response _before_ it checks the password. Bob
+has no credential and is still linked to the provider. If he logs in correctly later, the
+migration completes as normal, and the link is severed. If you disable the provider first,
+he can't log in at all. With the provider disabled, his correct password got
+`Invalid username or password.`, while Alice, who had finished migrating, got in.
+
+So the realm's user count overstates progress: it includes users who only failed. To count
+the migrated users, count the ones without a `federationLink`. Before you switch the provider
+off, unlink the users who are left, as described in
+[Turning the migration off](/docs/user-migration/#turning-the-migration-off).
+
+## Every failure, and what it means
+
+| Symptom                                                              | Cause                                                                                       | Fix                                                                        |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `OAUTH_HTTP_REQUEST_FORBIDDEN` at startup                            | openid-client 6 rejects plain HTTP                                                          | `execute: [client.allowInsecureRequests]` for local `http://` issuers only |
+| `/logout` works, but `/login` signs the user straight back in        | Only the Express session was cleared                                                        | Redirect to `buildEndSessionUrl()` with `id_token_hint`                    |
+| `/logout` with no session gives Keycloak `400`                       | `id_token_hint=undefined` in the redirect                                                   | Skip the Keycloak redirect when there's no ID token                        |
+| Migrated users have no roles                                         | `MIGRATE_UNMAPPED_ROLES` missing from a scripted component                                  | Set it explicitly, or map each role in `ROLE_MAP`                          |
+| Custom attributes "missing" after migration                          | Unmanaged attributes are hidden from the admin API by default                               | Declare them in the user profile, or change the unmanaged attribute policy |
+| `KeyUtils ... not a valid key per specification` in the Keycloak log | The `GET` response has a non-UUID `id`                                                      | Leave `id` out; keep the legacy key as an attribute                        |
+| Every legacy user gets `Invalid username or password.`               | Endpoints returned non-200: wrong token, wrong base URL, or an encoded username not decoded | `curl` the endpoints with the bearer token, as in step 5                   |
+| A user fails to log in only after the provider was disabled          | They were imported by a failed login and are still linked                                   | Unlink users before disabling the provider                                 |
+
+## Finishing the migration
+
+Run the slow migration until most active users have moved across. Then handle the rest:
+bulk-import them and set `UPDATE_PASSWORD`, unlink, and remove the provider. Then delete the
+`/migration` router, `users.js`'s password check and `passport-local` from the app.
+[Keycloak slow migration vs fast migration](/blog/keycloak-slow-user-migration/) covers how to
+plan that and when to stop waiting.
+
+## Next steps
+
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/)
+  — if the same Express app also serves an API that receives access tokens.
+- [Keycloak roles, composite roles, and groups](/tutorials/authorization/roles-and-groups/) —
+  what to do with the roles you just migrated, and how they reach the token.
+- [User Migration](/docs/user-migration/) and the
+  [User Migration API](/docs/user-migration/api) — every provider option.
+- Official references: [openid-client](https://github.com/panva/openid-client) (including its
+  Passport strategy) and the
+  [keycloak-user-migration README](https://github.com/daniel-frak/keycloak-user-migration).
+- Clean up: stop `kc.sh` and `node`, and delete the `keycloak-26.8.2` directory.
+
+<ProductionNote>
+  Everything above runs on any Keycloak instance. The user migration provider is
+  installed on every Phase Two cluster, so on a managed cluster you skip step 2
+  and add the provider in User federation. When you need Keycloak running in
+  production — upgrades, backups, HA, and someone on call — that is what we do.
+</ProductionNote>
