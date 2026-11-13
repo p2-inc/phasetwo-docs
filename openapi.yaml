@@ -56,29 +56,6 @@ servers:
           - https://app.phasetwo.io/auth
           - http://localhost:8081
           - http://localhost:8081/auth
-tags:
-  # Each operation has exactly one tag. SDK generators turn tags into API class names
-  # (e.g. OrganizationInvitationsApi), so renaming a tag is a breaking SDK change.
-  - name: Organizations
-    description: Create, read, update and delete organizations; the caller's organizations and invitations; portal links; import and export.
-  - name: Organization Memberships
-    description: Add, list, count and remove organization members, and member attributes.
-  - name: Organization Domains
-    description: Claim and verify email domains for an organization.
-  - name: Organization Invitations
-    description: Invite users to an organization, and list, resend and remove invitations.
-  - name: Organization Roles
-    description: Define roles within an organization and grant them to members.
-  - name: Identity Providers
-    description: Per-organization identity providers, mappers, config import and IdP-initiated clients.
-  - name: Organization SCIM
-    description: Directory sync (SCIM) configuration per organization.
-  - name: Users
-    description: User-centric views across organizations, the active organization, and magic links.
-  - name: Events
-    description: Event storage, webhooks and delivery inspection.
-  - name: Attributes
-    description: Realm attribute management.
 components:
   securitySchemes:
     access_token:
