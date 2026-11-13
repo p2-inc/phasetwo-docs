@@ -35,7 +35,7 @@ jobs:
         run: |
           yq -o json openapi.yaml > "$RUNNER_TEMP/openapi.json"
           npx --yes @stoplight/spectral-cli@6.17.1 lint -r .spectral.yaml "$RUNNER_TEMP/openapi.json" \
-            --fail-severity error -f github-actions -f text
+            --fail-severity error -f github-actions
       - name: API changelog
         run: |
           git show "origin/${{ github.base_ref }}:openapi.yaml" > "$RUNNER_TEMP/base.yaml"
