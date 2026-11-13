@@ -532,25 +532,25 @@ module.exports = {
           items: [
             {
               type: "doc",
-              id: "list-organizations-for-the-given-user",
+              id: "list-user-organizations",
               label: "List organizations for the given user",
               className: "api-method get",
             },
             {
               type: "doc",
-              id: "list-organization-roles-for-the-given-user-and-org",
+              id: "list-user-roles-in-organization",
               label: "List organization roles for the given user and org",
               className: "api-method get",
             },
             {
               type: "doc",
-              id: "grant-a-user-organization-roles",
+              id: "grant-user-roles-in-organization",
               label: "Grant a user organization roles",
               className: "api-method put",
             },
             {
               type: "doc",
-              id: "revoke-organization-roles-from-a-user",
+              id: "revoke-user-roles-in-organization",
               label: "Revoke organization roles from a user",
               className: "api-method patch",
             },

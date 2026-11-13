@@ -1349,6 +1349,13 @@ module.exports = {
           // to the introduction, which is the first page of the docs sidebar --
           // the same section-root pattern as /articles -> /tutorials/ below.
           { from: "/docs", to: "/docs/introduction/" },
+          // These four Extensions API endpoints had no operationId, so their pages were
+          // named after their summaries. They now have operationIds (which the SDKs use
+          // as method names), and the generated pages are named after those.
+          { from: "/api/list-organizations-for-the-given-user", to: "/api/list-user-organizations/" },
+          { from: "/api/list-organization-roles-for-the-given-user-and-org", to: "/api/list-user-roles-in-organization/" },
+          { from: "/api/grant-a-user-organization-roles", to: "/api/grant-user-roles-in-organization/" },
+          { from: "/api/revoke-organization-roles-from-a-user", to: "/api/revoke-user-roles-in-organization/" },
           // The extension was renamed from SSO Tracer before launch; its privacy
           // policy had already been published at the old URL.
           { from: "/company/sso-tracer-privacy", to: "/company/login-tracer-privacy/" },

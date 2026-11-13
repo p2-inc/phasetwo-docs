@@ -48,5 +48,5 @@ Related API docs:
 
 - [Create organization roles](/api/create-organization-roles)
 - [Delete organization roles](/api/delete-organization-roles)
-- [Grant a user organization roles](/api/grant-a-user-organization-roles)
-- [Revoke organization roles from a user](/api/revoke-organization-roles-from-a-user)
+- [Grant a user organization roles](/api/grant-user-roles-in-organization)
+- [Revoke organization roles from a user](/api/revoke-user-roles-in-organization)

@@ -2500,6 +2500,7 @@ paths:
       tags:
         - Users
       summary: List organizations for the given user
+      operationId: listUserOrganizations
       responses:
         200:
           description: success
@@ -2536,6 +2537,7 @@ paths:
       tags:
         - Users
       summary: List organization roles for the given user and org
+      operationId: listUserRolesInOrganization
       responses:
         200:
           description: success
@@ -2549,6 +2551,7 @@ paths:
       tags:
         - Users
       summary: Grant a user organization roles
+      operationId: grantUserRolesInOrganization
       requestBody:
         content:
           application/json:
@@ -2570,6 +2573,7 @@ paths:
       tags:
         - Users
       summary: Revoke organization roles from a user
+      operationId: revokeUserRolesInOrganization
       requestBody:
         content:
           application/json:
