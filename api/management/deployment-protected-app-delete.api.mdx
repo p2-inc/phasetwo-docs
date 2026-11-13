@@ -1,0 +1,69 @@
+---
+id: deployment-protected-app-delete
+title: "Delete a protected app."
+description: "Stops serving it immediately, then removes its Cloudflare hostname and the OIDC client Phase Two created."
+sidebar_label: "Delete a protected app."
+hide_title: true
+hide_table_of_contents: true
+api: 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
+sidebar_class_name: "delete api-method"
+info_path: api/management/phase-two-cluster-management-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Delete a protected app."}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"delete"}
+  path={"/deployments/{id}/apps/{appId}"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Stops serving it immediately, then removes its Cloudflare hostname and the OIDC client Phase Two created.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./deployment-protected-app-delete.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./deployment-protected-app-delete.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./deployment-protected-app-delete.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      

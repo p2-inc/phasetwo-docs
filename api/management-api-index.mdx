@@ -1,7 +1,7 @@
 ---
 id: management-api-index
 title: Management API
-description: The Phase Two control plane API — create and configure dedicated Keycloak clusters, realms, custom domains, extensions, IP rules and billing. 82 endpoints, OAuth2 client credentials.
+description: The Phase Two control plane API — create and configure dedicated Keycloak clusters, realms, custom domains, extensions, IP rules, Gateway apps and billing. 92 endpoints, OAuth2 client credentials.
 sidebar_label: About this API
 sidebar_position: 0
 keywords:
@@ -76,7 +76,7 @@ and the failure modes in full.
 
 ## What is here
 
-82 endpoints in nine groups.
+92 endpoints in ten groups.
 
 | Group                                                          | Endpoints | What it covers                                                                                                                                     |
 | -------------------------------------------------------------- | --------: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -88,6 +88,7 @@ and the failure modes in full.
 | [Custom Domains](/api/management/customer-domains)             |         5 | Attach a hostname, read its DNS records and certificate status                                                                                     |
 | [Environment Variables](/api/management/environment-variables) |         5 | Custom SPI configuration on a cluster                                                                                                              |
 | [IP Rules](/api/management/ip-rules)                           |         3 | Admin and realm endpoint allow/deny lists                                                                                                          |
+| [Gateway](/api/management/gateway)                             |        10 | Put a realm's login in front of an existing website: create, verify, activate and deactivate apps, rotate the origin secret                        |
 | [Logs](/api/management/logs)                                   |         2 | List log files and get a temporary download URL                                                                                                    |
 
 ## Conventions worth knowing before you start

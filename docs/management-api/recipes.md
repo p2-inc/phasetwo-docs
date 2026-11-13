@@ -2,7 +2,7 @@
 id: recipes
 title: Automation recipes
 sidebar_label: Automation recipes
-description: Worked Management API examples — provision a cluster, onboard a tenant realm, attach a custom domain, lock down admin access by IP, and rotate credentials.
+description: Worked Management API examples — provision a cluster, onboard a tenant realm, attach a custom domain, lock down admin access by IP, rotate credentials, and put a login in front of a website with Gateway.
 keywords:
   - keycloak automation
   - provision keycloak cluster api
@@ -303,6 +303,142 @@ curl -s "$URL" | gunzip | head
 
 Log paths contain slashes, so URL-encode the path segment — that is what the `jq -sRr @uri`
 is doing.
+
+---
+
+## 8. Put a login in front of a website
+
+[Gateway](/docs/self-service/gateway) serves an existing website behind a realm's login. The
+calls need an API secret with the `manage-clusters` role. `$DEPLOYMENT_ID` is the realm's
+deployment ID.
+
+### Create the app and keep the secret
+
+```bash
+CREATED=$(curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Internal admin console",
+    "public_hostname": "admin.acme.com",
+    "origin_url": "https://admin-origin.acme.com",
+    "health_path": "/healthz"
+  }')
+APP_ID=$(echo "$CREATED" | jq -r .app.id)
+echo "$CREATED" | jq -r .origin_secret   # shown once: store it now
+```
+
+**`origin_secret` is in this response and nowhere else.** Put it straight into your secrets
+manager, then configure the origin to answer `403` to requests whose `X-Phasetwo-Origin-Secret`
+header doesn't match. See
+[Protecting an existing application with Gateway](/docs/securing-applications/gateway).
+
+### Verify the origin
+
+```bash
+curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/verify \
+  -H "Authorization: Bearer $TOKEN" | jq '.verification | {result, reason, probes}'
+```
+
+`result` is `VERIFIED`, `FAILED` (the origin served a request without the secret) or
+`INCONCLUSIVE` (a `404`, a redirect, an error or a timeout). `probes` has the status each of the
+four requests got.
+
+### Point DNS at it, wait, activate
+
+The detail read includes live readiness, with the CNAME target:
+
+```bash
+curl -s $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID \
+  -H "Authorization: Bearer $TOKEN" | jq '.readiness'
+```
+
+```json
+{
+  "auth_configured": true,
+  "origin_verified": true,
+  "hostname_ready": false,
+  "hostname": {
+    "status": "pending",
+    "ssl_status": "pending_validation",
+    "dns_target": "<the CNAME target>",
+    "dns_ok": false
+  }
+}
+```
+
+Create a CNAME from `admin.acme.com` to `dns_target`, then wait for `hostname_ready` and
+activate:
+
+```bash
+until [ "$(curl -s $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID \
+    -H "Authorization: Bearer $TOKEN" | jq -r .readiness.hostname_ready)" = "true" ]; do
+  sleep 30
+done
+
+curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/activate \
+  -H "Authorization: Bearer $TOKEN" | jq '{status, revision}'
+```
+
+Activation returns `409` naming the missing piece if the origin isn't verified, the hostname
+isn't ready, or the realm's issuer has changed since the app was created.
+
+### Change who gets in
+
+`PUT` takes the same body as create. Fields you leave out keep their values, and changes to an
+active app apply within a minute:
+
+```bash
+curl -s -X PUT $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Internal admin console",
+    "policy": {
+      "default": "deny",
+      "rules": [
+        { "path_prefix": "/reports", "methods": ["GET"] },
+        { "path_prefix": "/admin", "groups_any": ["/staff"] },
+        { "path_prefix": "/admin/billing", "claims_equal": { "email_verified": true } }
+      ]
+    },
+    "header_mappings": { "X-Phasetwo-Auth-Email": "email" },
+    "assertion_enabled": true
+  }'
+```
+
+Every rule that matches a request must pass, so `/admin/billing` needs both the `/staff` group and
+a verified email. An active app can't change `origin_url` or `health_path`. Deactivate it first.
+
+### Rotate the origin secret with no downtime
+
+```bash
+NEXT=$(curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/origin-secret/rotate \
+  -H "Authorization: Bearer $TOKEN" | jq -r .origin_secret)
+
+# 1. Configure the origin to accept both the current secret and $NEXT.
+# 2. Check the new one:
+curl -s -X POST "$API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/verify?secret=next" \
+  -H "Authorization: Bearer $TOKEN" | jq -r .next_verification.result
+
+# 3. Start sending it:
+curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/origin-secret/promote \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Remove the old secret from the origin.
+```
+
+Promotion is refused until the new secret has verified, so a rotation can't lock users out.
+
+### Stop serving it
+
+```bash
+# Immediately, everywhere, signing everyone out. Activate again later.
+curl -s -X POST $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID/deactivate \
+  -H "Authorization: Bearer $TOKEN"
+
+# Or remove the app, its hostname and its OIDC client.
+curl -s -X DELETE $API/deployments/$DEPLOYMENT_ID/apps/$APP_ID \
+  -H "Authorization: Bearer $TOKEN"
+```
 
 ---
 

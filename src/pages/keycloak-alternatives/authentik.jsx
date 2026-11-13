@@ -45,7 +45,7 @@ const hero = {
   miniRows: [
     { feat: "Open source and self-hostable", vendor: "yes", keycloak: "yes" },
     { feat: "Every feature under the open-source licence", vendor: "no", keycloak: "yes" },
-    { feat: "Protects apps that speak no auth protocol", vendor: "yes", keycloak: "no" },
+    { feat: "Protects apps that speak no auth protocol", vendor: "yes", keycloak: "lim" },
     { feat: "LDAP / AD federation with write-back", vendor: "lim", keycloak: "yes" },
     { feat: "PAR, CIBA and mTLS-bound tokens at defaults", vendor: "no", keycloak: "yes" },
     { feat: "Idle memory, quickstart as published", vendor: { label: "~688 MB" }, keycloak: { label: "~512 MB" } },
@@ -86,7 +86,7 @@ const atAGlance = [
   {
     dim: "Apps that speak no auth protocol",
     vendor: "Proxy provider in forward-auth or full-proxy mode, plus LDAP, RADIUS and browser RDP/SSH providers",
-    keycloak: "Not in the project. You run a separate authenticating proxy in front",
+    keycloak: "Websites: Phase Two Gateway, a managed authenticating reverse proxy on your realm's login. Not in the Keycloak project itself, and nothing for LDAP, RADIUS or remote desktop",
   },
   {
     dim: "Existing LDAP or Active Directory",
@@ -396,7 +396,13 @@ curl -s http://localhost:9000/application/o/<app-slug>/.well-known/openid-config
             <tr>
               <td className="plan">An HTTP app with no authentication of its own</td>
               <td>Proxy provider, in <code>proxy</code>, <code>forward_single</code> or <code>forward_domain</code> mode behind nginx, Traefik or Envoy</td>
-              <td>Not in the project — run a separate authenticating proxy</td>
+              <td>
+                Not in the project. On Phase Two,{" "}
+                <Link to="/docs/self-service/gateway/" className="ilink">
+                  Gateway
+                </Link>{" "}
+                is the managed equivalent of the proxy provider's <code>proxy</code> mode
+              </td>
             </tr>
             <tr>
               <td className="plan">An app that can only bind to LDAP</td>
@@ -434,6 +440,26 @@ curl -s http://localhost:9000/application/o/<app-slug>/.well-known/openid-config
           same as here: no, the traffic goes one way. The usual Keycloak estate puts
           oauth2-proxy or an ingress-level authenticator in front of the protocol-less apps
           and keeps the identity server doing identity.
+        </p>
+        <p>
+          Phase Two hosting changes the answer for the first row. <b>Gateway</b> is a
+          managed authenticating reverse proxy that puts a realm's login in front of an
+          existing website, which is the job authentik's proxy outposts do in{" "}
+          <code>proxy</code> mode. You point the site's hostname at Phase Two, and there is
+          no outpost to deploy, upgrade or give the Docker socket to: it runs on Phase Two's
+          edge network, separately from the Keycloak cluster that issues your tokens. Each
+          site gets its own OIDC client in the realm, path rules on realm roles, client
+          roles, groups and claims, identity headers, and a 60-second ES256 assertion the
+          site can verify against a published JWKS. Your origin has to require a per-app
+          secret, and Gateway checks that it does, refusing to go live while the origin
+          answers without it.
+        </p>
+        <p>
+          It is narrower than the outposts, and the gaps are worth knowing. Gateway reaches
+          origins over the public internet only; an authentik outpost can run inside a
+          private network next to the app it protects. There is no forward-auth mode for a
+          proxy you already run, no WebSockets yet, and nothing for LDAP, RADIUS or remote
+          desktop. If those are the apps you have, the table above still stands.
         </p>
         <p>
           Which model is better is a real question rather than a rhetorical one. One box that
@@ -644,10 +670,13 @@ curl -s -H "Authorization: Bearer $TOKEN" \\
         <p>authentik is the better answer when:</p>
         <ul>
           <li>
-            <b>Half your estate does not speak OIDC.</b> The proxy, LDAP, RADIUS and remote
-            access providers are the whole reason authentik is popular in homelabs and small
-            infrastructure teams, and they are genuinely good. Keycloak will not do this, and
-            assembling the equivalent out of oauth2-proxy and friends is a real project.
+            <b>Half your estate does not speak OIDC, and it is not all websites.</b> The
+            proxy, LDAP, RADIUS and remote access providers are the whole reason authentik is
+            popular in homelabs and small infrastructure teams, and they are genuinely good.
+            On Phase Two, Gateway covers websites reachable from the internet. For apps on a
+            private network, anything that binds to LDAP or speaks RADIUS, and remote
+            desktops, Keycloak has no answer, and assembling one out of oauth2-proxy and
+            friends is a real project.
           </li>
           <li>
             <b>Nobody on the team writes Java</b>, and the custom logic is more than a
@@ -750,7 +779,9 @@ const matrix = {
     { feat: "LDAP / AD federation with write-back and registration sync", vendor: "lim", keycloak: "yes" },
     { feat: "Kerberos desktop SSO", vendor: "yes", keycloak: "yes" },
     { feat: "Outbound SCIM provisioning", vendor: "yes", keycloak: "lim" },
-    { feat: "Reverse proxy / forward auth for protocol-less apps", vendor: "yes", keycloak: "no" },
+    { feat: "Authenticating reverse proxy for websites", vendor: "yes", keycloak: "yes" },
+    { feat: "Forward auth behind your own nginx, Traefik or Envoy", vendor: "yes", keycloak: "no" },
+    { feat: "Proxy for apps on a private network", vendor: "yes", keycloak: "no" },
     { feat: "Serves LDAP and RADIUS to legacy clients", vendor: "yes", keycloak: "no" },
     { feat: "Full template-level login customization", vendor: "lim", keycloak: "yes" },
     { feat: "Extend without writing Java", vendor: "yes", keycloak: "lim" },
@@ -799,16 +830,22 @@ const faqs = [
     q: "Can Keycloak do forward auth like authentik's proxy provider?",
     a: (
       <p>
-        No. Keycloak is an identity provider and nothing else — there is no proxy provider,
-        no LDAP server, no RADIUS and no remote desktop access in the project. authentik has
-        all four, and its proxy provider runs in full-proxy, single-application forward-auth
-        or domain-level forward-auth mode behind nginx, Traefik or Envoy. The usual Keycloak
-        equivalent is to put a separate authenticating proxy such as oauth2-proxy in front of
-        the applications that cannot speak OIDC, which works well but is another component to
-        run.
+        Keycloak itself, no. It is an identity provider and nothing else — there is no proxy
+        provider, no LDAP server, no RADIUS and no remote desktop access in the project.
+        authentik has all four, and its proxy provider runs in full-proxy, single-application
+        forward-auth or domain-level forward-auth mode behind nginx, Traefik or Envoy. On
+        Phase Two,{" "}
+        <Link to="/docs/self-service/gateway/" className="ilink">
+          Gateway
+        </Link>{" "}
+        is the managed equivalent of full-proxy mode: it puts a realm's login in front of a
+        website reachable from the internet, with path rules, identity headers and a signed
+        assertion, and nothing to deploy. It has no forward-auth mode and cannot reach apps
+        on a private network. Self-hosted, the usual equivalent is a separate authenticating
+        proxy such as oauth2-proxy, which works well but is another component to run.
       </p>
     ),
-    text: "No. Keycloak is an identity provider and nothing else — there is no proxy provider, no LDAP server, no RADIUS and no remote desktop access in the project. authentik has all four, and its proxy provider runs in full-proxy, single-application forward-auth or domain-level forward-auth mode behind nginx, Traefik or Envoy. The usual Keycloak equivalent is a separate authenticating proxy such as oauth2-proxy in front of the applications that cannot speak OIDC.",
+    text: "Keycloak itself, no. It is an identity provider and nothing else — there is no proxy provider, no LDAP server, no RADIUS and no remote desktop access in the project. authentik has all four, and its proxy provider runs in full-proxy, single-application forward-auth or domain-level forward-auth mode behind nginx, Traefik or Envoy. On Phase Two, Gateway is the managed equivalent of full-proxy mode: it puts a realm's login in front of a website reachable from the internet, with path rules, identity headers and a signed assertion, and nothing to deploy. It has no forward-auth mode and cannot reach apps on a private network. Self-hosted, the usual equivalent is a separate authenticating proxy such as oauth2-proxy.",
   },
   {
     q: "Does Keycloak support SCIM?",
