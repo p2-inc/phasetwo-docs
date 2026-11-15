@@ -102,7 +102,12 @@ module.exports = {
       type: "category",
       label: "API + Access",
       link: { type: "doc", id: "api/index" },
-      items: ["api/service-accounts", "api/authentication", "api/sdks"],
+      items: [
+        "api/service-accounts",
+        "api/authentication",
+        "api/sdks",
+        "api/realm-attributes",
+      ],
     },
     {
       type: "category",

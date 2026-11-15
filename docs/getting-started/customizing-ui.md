@@ -85,7 +85,7 @@ Phase Two has assembled a few complete custom themes. View them in our [Keycloak
 
 ## Manually by Realm attributes
 
-All values set through the Styles panel are stored as Realm attributes. You can set them programmatically via the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON. Use the following attribute keys:
+All values set through the Styles panel are stored as Realm attributes. You can set them programmatically via the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON. Use the following attribute keys. [Realm Attributes](../api/realm-attributes.md) lists these together with the keys read by the other Phase Two extensions.
 
 **General**
 
@@ -192,8 +192,8 @@ These Admin Portal keys follow the [Tailwind color](https://tailwindcss.com/docs
 | `_providerConfig.assets.portal.primaryColor600`   | —       | Read, but no longer affects rendering                                             |
 | `_providerConfig.assets.portal.primaryColor700`   | —       | Fallback for the `primary` token when `v2.primary` is unset                       |
 | `_providerConfig.assets.portal.primaryColor900`   | —       | Read, but no longer affects rendering                                             |
-| `_providerConfig.assets.portal.secondaryColor800` | —       | Read, but no longer affects rendering; the CTA hover shade now derives from `cta` |
-| `_providerConfig.assets.portal.secondaryColor900` | —       | Fallback for the `cta` token when `v2.cta` is unset                               |
+| `_providerConfig.assets.portal.secondaryColor800` | —       | Read, but no longer affects rendering                                             |
+| `_providerConfig.assets.portal.secondaryColor900` | —       | Read, but no longer affects rendering                                             |
 
 _Custom CSS_
 
