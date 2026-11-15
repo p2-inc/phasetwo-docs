@@ -40,7 +40,7 @@ Every color token takes an optional dark-mode override named `dark<Token>` — f
 
 Because these tokens are shared rather than portal-specific, the admin UI edits them under **Styles**->_Login_ — the **Styles**->_Portal_ tab still shows the legacy portal colors described below. You can also set them with the [Keycloak Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html#_realms_admin_resource) or in a realm export JSON.
 
-The full token list — nine base tokens with built-in defaults, six derived tokens that follow a base token until you set them, plus `radius` and `fontFamily` — is documented once in [Customizing the UI](../getting-started/customizing-ui.md#manually-by-realm-attributes), since the same tokens drive the login pages and email.
+The full token list — nine base tokens with built-in defaults, six derived tokens that follow a base token until you set them, plus `radius` and `fontFamily` — is documented once in [Customizing the UI](../getting-started/customizing-ui.md#manually-by-realm-attributes), since the same tokens drive the login pages and email. Every realm attribute the portal reads, including the visibility flags, is listed in [Realm Attributes](../api/realm-attributes.md#admin-portal).
 
 The Admin Portal's own defaults differ from the login palette in two places: `primary` defaults to `#1570c2` rather than `#3b82f6`, and `radius` to `0.5rem` rather than `0.625rem`. Those apply only where you leave the token unset.
 

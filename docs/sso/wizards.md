@@ -51,7 +51,7 @@ If your provider is not listed, use one of the generic protocols instead.
 
 From the Admin UI, go to the **Clients** section of the realm where you want to add the identity provider. In the `idp-wizard` client, click the link in the **Home URL** column. This opens the wizard in a separate browser window as your current administrator.
 
-In this mode, the wizard is typically running in `_providerConfig.wizard.apiMode=onprem`, which means it uses the Keycloak Admin API to create or update the identity provider. The user launching it should have the required `realm-management` permissions.
+In this mode, the wizard is typically running in `_providerConfig.wizard.apiMode=onprem`, which means it uses the Keycloak Admin API to create or update the identity provider. The user launching it should have the required `realm-management` permissions. The wizard's other realm attributes are listed in [Realm Attributes](../api/realm-attributes.md#idp-wizard).
 
 After the wizard completes:
 

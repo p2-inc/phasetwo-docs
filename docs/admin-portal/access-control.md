@@ -28,7 +28,7 @@ Access to each of the Organization components is controlled by the User's member
 
 Most of the visibility of functionality in the Portal is controlled by user permissions. However, it is also possible to control visibility through Realm Attributes.
 
-When setting the attributes manually, the values are:
+When setting the attributes manually, the values are listed below. The value must be exactly `true` to enable a section. See [Realm Attributes](../api/realm-attributes.md#admin-portal) for every key the portal reads.
 
 | Attribute                                             | Controls                                  | Default |
 | ----------------------------------------------------- | ----------------------------------------- | ------- |

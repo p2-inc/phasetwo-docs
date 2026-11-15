@@ -19,6 +19,8 @@ All of these settings can be changed in the Admin UI by clicking the "Manage Set
 
 Then each setting can be edited in the form that appears. Be sure to click "Save" when you are done.
 
+Each setting is stored as a realm attribute. [Realm Attributes](../api/realm-attributes.md#organizations) lists them with their defaults, along with the organization keys that have no field in this form.
+
 ![Settings config modal](/docs/organizations/config/orgs-settings-config.png)
 
 ## Main configuration settings
@@ -118,4 +120,5 @@ If you are debugging organizations behavior, checking these realm-level settings
 - [Identity Providers](./identity-providers.md)
 - [Automatic IdP Redirection](./automatic-idp-redirection.md)
 - [Membership](./membership.md)
+- [Realm Attributes](../api/realm-attributes.md#organizations)
 - [Portal Link](../admin-portal/portal-link.md)

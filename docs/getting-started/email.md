@@ -69,7 +69,7 @@ A live preview renders below the branding fields so you can see how your logo an
 
 ### Realm attributes
 
-These values can also be set programmatically via the Keycloak Admin REST API:
+These values can also be set programmatically via the Keycloak Admin REST API. The email template and message override keys are listed in [Realm Attributes](../api/realm-attributes.md#email).
 
 | Attribute                                   | Description                                    |
 | ------------------------------------------- | ---------------------------------------------- |
