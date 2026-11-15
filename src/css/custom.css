@@ -379,8 +379,10 @@ main:not(.col) {
     padding-left: 16px;
     padding-right: 16px;
   }
-  /* All sections with content: 16px left/right */
-  .homepage-section,
+  /* Subpage sections: 16px left/right. Homepage sections are left out on
+     purpose: their inner containers supply the 16px (see below), and padding
+     both gave a 32px gutter in production builds, where the minifier hoists
+     the base `.homepage-section` rule above this block. */
   .subpage-section {
     padding-left: 16px;
     padding-right: 16px;
@@ -411,6 +413,18 @@ main:not(.col) {
   .hosting-block[class*="px-"] {
     padding-left: 16px !important;
     padding-right: 16px !important;
+  }
+  /* A padded section with a padded container inside it: only the section
+     pads, otherwise the two add up to a 32px gutter */
+  .homepage-section[class*="px-"] > [class~="px-6"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  /* Logos section has no inner container, so its text gets the gutter here
+     (the logo marquee keeps running edge to edge) */
+  .homepage-section.logos-section p {
+    padding-left: 16px;
+    padding-right: 16px;
   }
   /* Tailwind px-6 containers (exact match to avoid px-64 etc) */
   [class~="px-6"] {
