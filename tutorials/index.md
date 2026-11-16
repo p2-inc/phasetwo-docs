@@ -223,7 +223,17 @@ leave:
 
 Realm key management builds on the same track. *(Coming soon.)*
 
-**Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
+**Running Keycloak in production** — getting it deployed, and getting your data back out
+again:
+
+1. [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) —
+   dev mode, and why it is not a starting point for production
+2. [Deploy Keycloak on Kubernetes with the Operator](/tutorials/operations/kubernetes-operator/)
+   — the custom resource, what it generates, and the five ways it fails quietly
+3. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+   — the backup half, which no operator does for you
+
+Sizing, upgrades and observability build on the same track. *(Coming soon.)*
 
 ## A note on scope
 
