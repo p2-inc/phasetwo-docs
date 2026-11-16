@@ -142,6 +142,7 @@ module.exports = {
         "extending/first-spi",
         "extending/event-listener",
         "extending/user-storage-readonly",
+        "extending/user-storage-advanced",
       ],
     },
     {

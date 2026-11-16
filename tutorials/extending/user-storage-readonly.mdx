@@ -634,7 +634,8 @@ problem, test rigs do.
 ## What this provider deliberately cannot do
 
 Each of these is a separate capability interface, and leaving one out is a legitimate
-choice, not an incomplete implementation:
+choice, not an incomplete implementation. The first four are the subject of
+[part 2](/tutorials/extending/user-storage-advanced/):
 
 | You want | Interface to add |
 |---|---|
@@ -657,6 +658,8 @@ the same SPI, with group and role mappers you would otherwise be building.
 
 ## Next steps
 
+- [Keycloak User Storage SPI: writes, queries, caching](/tutorials/extending/user-storage-advanced/)
+  — part 2: the query, registration and cache interfaces, and what each one costs.
 - [Your first Keycloak SPI: build, package, deploy](/tutorials/extending/first-spi/) — the
   packaging and deployment loop this page assumes.
 - [Connect Keycloak to LDAP or Active Directory](/tutorials/identity-providers/ldap/) — the
