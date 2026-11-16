@@ -221,7 +221,15 @@ leave:
 
 Realm key management builds on the same track. *(Coming soon.)*
 
-**Running Keycloak in production** — sizing, backups, upgrades, observability. *(Coming soon.)*
+**Running Keycloak in production** — getting the realm out of the admin console and into a
+repository, so a change is reviewed before it lands:
+
+1. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+2. [Keycloak configuration as code with Terraform](/tutorials/operations/config-as-code/) —
+   the provider, realm JSON import, and which of the two destroys your users
+3. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+
+Sizing, backups, upgrades and observability build on the same track. *(Coming soon.)*
 
 ## A note on scope
 

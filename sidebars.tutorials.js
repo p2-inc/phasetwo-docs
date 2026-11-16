@@ -150,5 +150,11 @@ module.exports = {
       link: { type: "generated-index" },
       items: ["customization/login-theme"],
     },
+    {
+      type: "category",
+      label: "Operations",
+      link: { type: "generated-index" },
+      items: ["operations/config-as-code"],
+    },
   ],
 };
