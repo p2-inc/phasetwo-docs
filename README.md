@@ -33,3 +33,14 @@ Contributions and corrections are welcome as pull requests.
 ## Website
 
 This website is built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator.
+
+## Deploying
+
+The site is served by a Cloudflare Worker with static assets (`wrangler.jsonc`), built and deployed by Workers Builds, Cloudflare's git integration. A push to `main` deploys to production; every other branch gets a preview URL, linked from the pull request.
+
+The build settings live in the Cloudflare dashboard (Workers & Pages → `phasetwo-docs` → Settings → Build), not in this repo:
+
+- **Build command:** `git fetch --unshallow || true; pnpm install --frozen-lockfile && pnpm regen-api-docs && pnpm build`. Workers Builds clones shallowly, and Docusaurus takes each page's last-modified date from git history for the sitemap, so the build fetches the full history first.
+- **Build variable:** `GTM_CONTAINER_ID`, the Google Tag Manager container read by `docusaurus.config.js`. Unset, the site builds without the tag.
+
+The `deploy.yml` GitHub Actions workflow still builds and tests every pull request, and publishes to GitHub Pages while the Worker is being verified.
