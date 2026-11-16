@@ -155,7 +155,7 @@ module.exports = {
       type: "category",
       label: "Operations",
       link: { type: "generated-index" },
-      items: ["operations/kubernetes-operator"],
+      items: ["operations/kubernetes-operator", "operations/config-as-code"],
     },
   ],
 };

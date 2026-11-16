@@ -1,0 +1,622 @@
+---
+id: config-as-code
+title: "Keycloak Configuration as Code with Terraform"
+description: Manage Keycloak configuration as code — the Terraform provider, realm JSON import, what each one drifts on, and the 401 that stops both on Keycloak 26.8.2.
+keywords:
+  - keycloak configuration as code
+  - terraform keycloak
+  - keycloak terraform provider
+  - using terraform to set up keycloak
+  - keycloak realm import
+  - keycloak import realm json
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - Terraform 1.9 or later
+  - A Keycloak admin login
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Configuration as Code with Terraform
+
+There are two ways to manage Keycloak configuration as code, and they are not alternatives —
+they do different jobs:
+
+1. **The Terraform provider** (`keycloak/keycloak`) manages a realm continuously. It detects
+   when someone changes a setting in the admin console and puts it back.
+2. **Realm JSON import** (`--import-realm`) creates a realm once, at first boot. It has no
+   update path that is not a delete and recreate.
+
+Use Terraform for anything that will be changed again. Use realm JSON to bootstrap an empty
+server — a CI job, a dev container, a new cluster — and then hand the realm to Terraform.
+
+Everything below was run against a real server. The parts that surprised us: a service-account
+client that returns **401 on every Admin API call** until you attach one client scope, a
+`terraform apply` that cheerfully leaves a client someone added by hand in place forever, and a
+`kc.sh import` whose **default** is to delete the realm and every user in it first.
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2 start-dev`), Terraform **1.17.2**, and
+the **`keycloak/keycloak`** provider **5.10.0** on a 2-vCPU host. Every command, log line,
+error message and timing below is copied from a run on **2026-11-16**.
+
+The reference pages are Keycloak's
+[Importing and exporting realms](https://www.keycloak.org/server/importExport) and the
+provider's [registry documentation](https://registry.terraform.io/providers/keycloak/keycloak/latest/docs).
+Both are accurate. Neither tells you which of the two to reach for, what each one stops
+noticing, or what the defaults destroy.
+
+:::
+
+## Which Terraform provider, and why most examples are wrong
+
+Nearly every blog post and Stack Overflow answer about Terraform and Keycloak starts with
+this:
+
+```hcl
+# Do not use this.
+keycloak = {
+  source = "mrparkers/keycloak"
+}
+```
+
+That namespace is frozen. The repository was transferred to the Keycloak organisation —
+`github.com/mrparkers/terraform-provider-keycloak` now redirects to
+`github.com/keycloak/terraform-provider-keycloak`, same repository ID — but the Terraform
+Registry treats a namespace as permanent, so the old listing stayed where it was:
+
+| Registry source | Latest version | Published |
+|---|---|---|
+| `mrparkers/keycloak` | 4.4.0 | 2024-01-08 |
+| `keycloak/keycloak` | 5.10.0 | 2026-10-05 |
+
+Pinning `mrparkers/keycloak` gives you a provider that predates most of what is in Keycloak
+26. Change the `source`, delete `.terraform.lock.hcl`, and re-run `terraform init`. The
+resource names did not change, so in most configurations that is the whole migration.
+
+The provider's own README states it supports the **latest three minor versions** of Keycloak,
+and 5.10.0's acceptance tests run against 26.8.0 down to 26.2.5. Older servers often work;
+they are not tested.
+
+## Give Terraform its own credential
+
+Do not point Terraform at `admin-cli` with your admin password. It is a human's password in a
+CI variable, it has no audit identity of its own, and `admin-cli` is a client
+[many people disable on a production realm](/blog/keycloak-disable-admin-cli-account-clients/).
+
+Create a dedicated client with a
+[service account](/tutorials/clients/service-accounts/) instead. Start a server:
+
+```bash
+docker rm -f kc 2>/dev/null
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+```
+
+Then bootstrap the credential. This is the one piece of imperative setup you cannot avoid —
+Terraform needs an account before it can manage anything:
+
+```bash
+KC="docker exec kc /opt/keycloak/bin/kcadm.sh"
+
+$KC config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+
+# A dedicated client for Terraform: service account, no browser flows.
+$KC create clients -r master \
+  -s clientId=terraform \
+  -s enabled=true \
+  -s publicClient=false \
+  -s standardFlowEnabled=false \
+  -s serviceAccountsEnabled=true
+
+CID=$($KC get clients -r master -q clientId=terraform --fields id --format csv --noquotes)
+
+# Required on Keycloak 26.8.2 and later. Without this scope every Admin REST
+# API call from this client returns 401. See the next section.
+SCOPE=$($KC get client-scopes -r master -q name=kc-admin-api \
+          --fields id,name --format csv --noquotes | grep kc-admin-api | cut -d, -f1)
+$KC update clients/$CID/default-client-scopes/$SCOPE -r master
+
+$KC add-roles -r master --uusername service-account-terraform --rolename admin
+
+$KC get clients/$CID/client-secret -r master --fields value
+```
+
+The same thing in the admin console: **Clients → Create client**, turn off *Standard flow*,
+turn on *Client authentication* and *Service accounts roles*, then **Client scopes** → *Add
+client scope* → `kc-admin-api` as **Default**, then **Service accounts roles** → *Assign role*
+→ filter by realm roles → `admin`.
+
+## The 401 that is not about your roles
+
+This is new, it is recent, and it will be the first thing that stops you.
+
+Keycloak **26.8.2** added an audience check to the Admin REST API. The upgrading guide puts it
+under *Breaking changes*: "A new built-in client scope, `kc-admin-api`, provides this
+capability… you must assign the `kc-admin-api` client scope to those clients (as a default or
+optional scope)." The upgrade creates the scope in every realm but attaches it only to the
+built-in `admin-cli` and `security-admin-console` clients. A client you create yourself does
+not get it.
+
+Skip that step and the provider fails before it touches a single resource:
+
+```text
+Error: error initializing keycloak provider
+
+  with provider["registry.terraform.io/keycloak/keycloak"],
+  on main.tf line 11, in provider "keycloak":
+  11: provider "keycloak" {
+
+failed to perform initial login to Keycloak: error sending GET request to
+/admin/serverinfo: 401 Unauthorized. Response body: {"error":"HTTP 401
+Unauthorized"}
+```
+
+Nothing in that message mentions scopes or audiences. The token is issued fine — the
+`client_credentials` grant returns 200 and the token carries every admin role. It is the
+`aud` claim that is wrong. Before attaching the scope:
+
+```json
+{ "aud": ["master-realm", "account"], "azp": "terraform", "scope": "profile email" }
+```
+
+After:
+
+```json
+{
+  "aud": ["http://localhost:8080/admin/realms/master", "master-realm", "account"],
+  "azp": "terraform",
+  "scope": "profile email kc-admin-api"
+}
+```
+
+`GET /admin/serverinfo` goes from `401` to `200` on that change alone. Tokens issued before
+you attach the scope do not gain the audience; get a fresh one.
+
+**The two status codes mean different things, and the difference saves an afternoon:**
+
+| Code | Cause | Fix |
+|---|---|---|
+| `401 Unauthorized` on every endpoint | Token lacks the `kc-admin-api` scope and the Admin API audience | Attach the `kc-admin-api` client scope to the client |
+| `403 Forbidden` on one endpoint | Token is accepted; the service account lacks the role for *that* call | Grant the role |
+
+## Your first realm as code
+
+```hcl
+terraform {
+  required_version = ">= 1.9"
+  required_providers {
+    keycloak = {
+      source  = "keycloak/keycloak"
+      version = "5.10.0"
+    }
+  }
+}
+
+provider "keycloak" {
+  client_id     = "terraform"
+  client_secret = var.terraform_client_secret
+  url           = "http://localhost:8080"
+  realm         = "master"
+}
+
+variable "terraform_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+resource "keycloak_realm" "acme" {
+  realm        = "acme"
+  enabled      = true
+  display_name = "Acme Corp"
+
+  login_with_email_allowed = true
+  duplicate_emails_allowed = false
+
+  access_token_lifespan    = "10m"
+  sso_session_idle_timeout = "30m"
+  sso_session_max_lifespan = "10h"
+}
+
+resource "keycloak_openid_client" "webapp" {
+  realm_id  = keycloak_realm.acme.id
+  client_id = "acme-webapp"
+  name      = "Acme Web App"
+  enabled   = true
+
+  access_type           = "CONFIDENTIAL"
+  standard_flow_enabled = true
+  valid_redirect_uris   = ["https://app.acme.example/callback"]
+  web_origins           = ["https://app.acme.example"]
+}
+
+resource "keycloak_role" "support" {
+  realm_id    = keycloak_realm.acme.id
+  name        = "support-agent"
+  description = "Read-only access to customer records"
+}
+
+resource "keycloak_group" "support" {
+  realm_id = keycloak_realm.acme.id
+  name     = "support"
+}
+
+resource "keycloak_group_roles" "support" {
+  realm_id = keycloak_realm.acme.id
+  group_id = keycloak_group.support.id
+  role_ids = [keycloak_role.support.id]
+}
+```
+
+```bash
+export TF_VAR_terraform_client_secret='<the secret printed above>'
+terraform init
+terraform apply
+```
+
+Five resources, created in **0.7 seconds**. The provider is a thin wrapper over the Admin
+REST API, so an apply against a local server is as fast as the API is — the slow part of a
+real run is `terraform plan` refreshing state, one GET per resource.
+
+`standard_flow_enabled` is not optional above. Leave it out and the provider rejects the plan
+before it calls Keycloak at all:
+
+```text
+Error: valid_redirect_uris cannot be set when standard or implicit flow is not enabled
+```
+
+That is the provider's own validation, not the server's — a useful property, because it fails
+in `plan` rather than halfway through an `apply`. Which [client type](/tutorials/clients/oidc-client-types/)
+you want decides which flow flags to set.
+
+## What `terraform plan` catches, and what it will never catch
+
+This is the part that decides whether config-as-code is actually buying you anything.
+
+We changed three things on the running server by hand, the way a colleague with console
+access would:
+
+1. Added `https://evil.example/cb` to `acme-webapp`'s redirect URIs.
+2. Created a new client, `added-by-hand`.
+3. Created a new realm role, `rogue-admin`.
+
+```text
+Plan: 0 to add, 1 to change, 0 to destroy.
+
+  # keycloak_openid_client.webapp will be updated in-place
+  ~ resource "keycloak_openid_client" "webapp" {
+      ~ valid_redirect_uris = [
+          - "https://evil.example/cb",
+            # (1 unchanged element hidden)
+        ]
+    }
+```
+
+One of three. `terraform apply` removed the rogue redirect URI. After the apply,
+`added-by-hand` and `rogue-admin` were both still there.
+
+**Terraform reverts what it manages and is blind to everything else.** It is a
+*configuration* baseline, not an *inventory* one. A client someone adds by hand — the exact
+thing you want to catch — produces `0 to add` forever, because Terraform has no record that it
+should not exist.
+
+What to do about it:
+
+| Want | Do |
+|---|---|
+| Revert console edits to managed objects | `terraform plan -detailed-exitcode` on a schedule; exit code 2 means drift |
+| Notice objects nobody declared | Diff a nightly realm export against a list of expected `clientId`s — Terraform will not do this |
+| Stop console edits happening | Remove console access, or scope it; see [fine-grained admin permissions](/tutorials/admin/fine-grained-permissions-v2/) |
+| An audit trail of who changed what | Admin events, not Terraform state |
+
+## The state file is key material
+
+A Keycloak confidential client has a secret, and Terraform reads it:
+
+```bash
+$ grep -o '"client_secret": "[^"]*"' terraform.tfstate
+"client_secret": "j2yrvF0CYMfYSYm22z5s7sCchRWr97pQ0U4EV9tQV4uQFOGBTO48exLd3V7eMMfEbD7d93hYBJjf5TJ1akGs2p"
+```
+
+Marking an output `sensitive = true` hides it from the console. It does nothing to the state
+file. A five-resource state here is 11 KB of JSON containing one client secret in cleartext —
+the same property that makes `kc.sh export` output key material, covered in
+[exporting a realm](/tutorials/data-protection/exit-export/).
+
+So:
+
+- **Never commit `terraform.tfstate`.** Use a remote backend with encryption at rest and
+  locking, from the first commit.
+- Treat read access to the backend as equivalent to read access to every client secret in
+  every realm you manage.
+- The provider's *own* credential is **not** written to state — we checked. Only resource
+  attributes are. That is the one thing you do not have to worry about.
+- For secrets you supply rather than read, the provider has write-only variants
+  (`client_secret_wo` with `client_secret_wo_version`) that keep the value out of state.
+
+## Adopting a realm you already have
+
+Nobody starts from an empty server. Terraform 1.5+ `import` blocks plus
+`-generate-config-out` will write the HCL for you:
+
+```hcl
+import {
+  to = keycloak_openid_client.added_by_hand
+  id = "acme/93e42b86-6bc5-4038-b0e5-097de67ffee8"
+}
+```
+
+```bash
+terraform plan -generate-config-out=generated.tf
+```
+
+```text
+Plan: 1 to import, 0 to add, 0 to change, 0 to destroy.
+```
+
+Two things to know before you plan a migration around this.
+
+**The IDs are internal UUIDs, not names.** `keycloak_openid_client` wants
+`{realm}/{internal client UUID}`, which you get from
+`kcadm.sh get clients -r acme -q clientId=added-by-hand --fields id`. Scripting that lookup is
+most of the work of a bulk import. The [admin CLI tutorial](/tutorials/getting-started/admin-cli/)
+covers the query syntax.
+
+**Generated config is exhaustive, not minimal.** A client we had created with five attributes
+of HCL came back as **40 attributes**, every default spelled out, including
+`client_secret = null # sensitive`. It is correct and it is unreadable. Treat the output as a
+starting point to delete from, not as the config you keep.
+
+The import itself is non-destructive: the client secret of an imported client was byte-for-byte
+identical before and after `terraform apply`, and landed in state. Importing does not rotate
+anything.
+
+## The other path: realm JSON at startup
+
+The second mechanism is a JSON file in `/opt/keycloak/data/import`, read by `start --import-realm`.
+It is the right tool for a server that does not exist yet.
+
+```json
+{
+  "realm": "beta",
+  "enabled": true,
+  "displayName": "Beta Corp",
+  "accessTokenLifespan": 600,
+  "clients": [
+    {
+      "clientId": "beta-webapp",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "${BETA_WEBAPP_SECRET}",
+      "redirectUris": ["https://beta.example/callback"],
+      "standardFlowEnabled": true
+    }
+  ],
+  "roles": { "realm": [{ "name": "support-agent" }] },
+  "groups": [{ "name": "support", "realmRoles": ["support-agent"] }]
+}
+```
+
+```bash
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  -e BETA_WEBAPP_SECRET=s3cr3t-from-env \
+  -v "$PWD/import:/opt/keycloak/data/import:ro" \
+  quay.io/keycloak/keycloak:26.8.2 start-dev --import-realm
+```
+
+```text
+KC-SERVICES0030: Full model import requested. Strategy: IGNORE_EXISTING
+Realm 'beta' imported
+KC-SERVICES0032: Import finished successfully
+```
+
+**`${BETA_WEBAPP_SECRET}` is substituted from the environment.** We confirmed the client's
+secret came out as `s3cr3t-from-env`. That is how you keep a realm JSON file in git without
+keeping the secrets in git, and it is the single best reason to use this path for bootstrapping.
+
+### `IGNORE_EXISTING` is the whole problem
+
+Change the file and restart. The server logs this:
+
+```text
+KC-SERVICES0030: Full model import requested. Strategy: IGNORE_EXISTING
+Realm 'beta' already exists. Import skipped
+KC-SERVICES0032: Import finished successfully
+```
+
+`Import skipped`, then `finished successfully`, then exit 0. We changed `displayName` and
+`accessTokenLifespan`; after the restart both were still at their original values. A green
+deploy, a committed file, and a server that does not match it.
+
+There is no option on `start` to change this. `kc.sh start-dev --help-all` lists exactly one
+import flag — `--import-realm` — and no strategy setting. **The startup import can create a
+realm. It can never update one.**
+
+### `kc.sh import --override` updates it by deleting it
+
+The separate `kc.sh import` command does have the knob, and its default is the dangerous one:
+
+```text
+--override <true|false>
+     Set if existing data should be overwritten. If set to false, data will be
+     ignored. Default: true.
+```
+
+We created a user, `alice`, in the imported `beta` realm, stopped the server, and ran:
+
+```bash
+kc.sh import --file /opt/keycloak/data/import/beta-realm.json --override true
+```
+
+```text
+Full importing from file /opt/keycloak/data/import/beta-realm.json
+Realm 'beta' already exists. Removing it before import
+Realm 'beta' imported
+```
+
+**"Removing it before import."** After restarting, `displayName` was the new value from the
+file — and the realm had zero users. `alice` was gone, along with every session, consent,
+federated-identity link and credential in the realm.
+
+That is the honest answer to "why can't I just re-apply my realm JSON on every deploy?"
+Because "apply" means `DELETE /admin/realms/beta`. Realm JSON describes a realm's
+configuration; it is not a desired-state engine, and nothing in it distinguishes "this realm
+should have these clients" from "this realm should have *only* these clients and no users
+that aren't listed".
+
+### `partialImport` merges, on a running server
+
+There is a third, narrower option that most people never find:
+`POST /admin/realms/{realm}/partialImport`. It merges clients, roles, groups and identity
+providers into a **live** realm — no restart, no realm deletion — and a single top-level
+`ifResourceExists` field decides what happens to collisions. Tested against a realm that
+already had `acme-webapp`:
+
+| `ifResourceExists` | Response |
+|---|---|
+| `SKIP` | `200` · `{"overwritten":0,"added":0,"skipped":1}` |
+| `OVERWRITE` | `200` · `{"overwritten":1,"added":0,"skipped":0}` |
+| `FAIL` | `409` · `{"errorMessage":"Client id 'acme-webapp' already exists"}` |
+
+```bash
+curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"ifResourceExists":"OVERWRITE","clients":[{"clientId":"acme-webapp","enabled":true}]}' \
+  http://localhost:8080/admin/realms/acme/partialImport
+```
+
+**`OVERWRITE` does not mean "patch".** After that call the client had a *new internal UUID*, a
+*new client secret*, and an empty `redirectUris` — because the payload did not mention redirect
+URIs. It deletes the object and recreates it from exactly what you sent. Every application
+holding the old secret is now broken.
+
+So `partialImport` is additive and safe with `SKIP` or `FAIL`, destructive per-object with
+`OVERWRITE`, and in no mode can it remove something you stopped declaring. It drifts in the
+other direction from Terraform: it never deletes what it should, where `kc.sh import --override`
+deletes what it shouldn't.
+
+## Picking one
+
+| | Terraform provider | Realm JSON (`--import-realm`) | `kcadm.sh` scripts |
+|---|---|---|---|
+| Creates a realm | Yes | Yes | Yes |
+| Updates an existing realm | Yes, in place | **No** — skipped silently | Yes |
+| Detects console drift | Yes, for managed objects | No | No |
+| Removes what it no longer declares | Yes | Only by deleting the realm | No |
+| Notices objects it never declared | **No** | No | No |
+| Needs a server running | Yes | No — runs at boot | Yes |
+| Keeps secrets out of the artefact | Variables, write-only attributes | `${ENV_VAR}` substitution | Shell |
+| Keeps secrets out of *state* | No — plaintext in `tfstate` | n/a, no state | n/a, no state |
+| Review a change before it lands | `terraform plan` | No | No |
+| Realistic blast radius of a mistake | The managed objects | **The whole realm** | One call |
+
+The combination most teams land on: realm JSON to get a brand-new server to a working
+baseline with no network calls, then Terraform for everything after that. A realm JSON file
+checked into the repo and re-applied on every deploy is the configuration that looks safest
+and is the most dangerous.
+
+## Stop Terraform from deleting your realm
+
+`keycloak_realm` has an argument for this, added in provider 5.6.0:
+
+```hcl
+resource "keycloak_realm" "acme" {
+  realm                         = "acme"
+  terraform_deletion_protection = true
+}
+```
+
+It works — `terraform destroy` refuses:
+
+```text
+Error: Deletion protection is enabled for keycloak_realm resource with realm
+acme (ID: acme). To delete this resource, first set
+`terraform_deletion_protection` to `false`.
+```
+
+**Read the rest of that run before you trust it.** Destroy walks the dependency graph leaves
+first, so by the time the realm resource errored, Terraform had already destroyed the client,
+the role, the group and the group-role binding inside it. We checked the server afterwards:
+realm `acme` present, every managed object in it gone.
+
+So the flag protects the realm *object* — its login settings, its token lifespans, its keys,
+its users. It protects nothing you declared inside it. Set it, and still keep `prevent_destroy`
+lifecycle blocks on the resources you cannot lose.
+
+## Narrow the credential
+
+The bootstrap above grants `admin` in `master`, which is every permission on every realm.
+Where one Terraform workspace owns one realm, put the service-account client *inside* that
+realm instead and give it `realm-admin` from `realm-management`:
+
+```bash
+KC="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$KC create clients -r acme -s clientId=terraform-acme -s enabled=true \
+  -s publicClient=false -s standardFlowEnabled=false -s serviceAccountsEnabled=true
+CID=$($KC get clients -r acme -q clientId=terraform-acme --fields id --format csv --noquotes)
+SCOPE=$($KC get client-scopes -r acme -q name=kc-admin-api \
+          --fields id,name --format csv --noquotes | grep kc-admin-api | cut -d, -f1)
+$KC update clients/$CID/default-client-scopes/$SCOPE -r acme
+$KC add-roles -r acme --uusername service-account-terraform-acme \
+  --cclientid realm-management --rolename realm-admin
+```
+
+Point the provider at `realm = "acme"` and it manages everything in that realm normally. Ask
+it to create a second realm and you get the bounded failure you wanted:
+
+```text
+Error: error sending POST request to /admin/realms: 403 Forbidden.
+```
+
+The cost: this credential cannot create the realm it lives in, so realm creation stays a
+privileged bootstrap step. That is usually the right trade — realm creation is rare, and
+everything frequent is inside a realm.
+
+## Where this runs out
+
+Two things worth knowing before you put the whole realm under Terraform.
+
+**Authentication flows are the painful resource.** A flow is modelled as a parent plus
+ordered children, and on `keycloak_authentication_execution` both `authenticator` and
+`parent_flow_alias` are `ForceNew` — change which authenticator a step uses and Terraform
+destroys the execution and creates a new one rather than editing it. `terraform plan` says
+`1 to add, 1 to destroy`, and for a window inside the apply the flow is missing that step. If
+the realm is bound to that flow, that window is a login outage. Build the new flow under a new
+alias, then switch `keycloak_authentication_bindings` to it — a rename is cheap, a replacement
+in place is not.
+
+**Realm JSON covers more than the provider does.** The `partial-export` of the small realm
+above was 59 KB and 123 top-level keys — every WebAuthn policy field, every brute-force
+setting, the full authentication flow tree, `clientPolicies`, `components`. The provider has
+111 resource types and covers the common ground well, but when something has no resource, the
+escape hatches are `keycloak_generic_client_protocol_mapper`, `keycloak_custom_user_federation`
+and `keycloak_ldap_custom_mapper` — and for a few things, nothing.
+
+Check the resource exists before you promise a team their realm is fully declarative.
+
+## Next steps
+
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the lookups
+  the import IDs need, and the bootstrap half of any of this.
+- [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/) —
+  what `partial-export` masks, what `kc.sh export` writes in cleartext, and how to verify a move.
+- [Keycloak service accounts and the client credentials grant](/tutorials/clients/service-accounts/)
+  — what the credential Terraform uses actually is.
+- [Keycloak audience: get the `aud` claim right](/tutorials/clients/audience/) — the claim
+  behind the 401 above, in the general case.
+- [Which Keycloak clients should be enabled when you go live?](/blog/keycloak-disable-admin-cli-account-clients/)
+  — why `admin-cli` is a poor choice for automation.
+- [Safely updating Keycloak authentication flows](/blog/keycloak-atomic-auth-flows/) — the
+  replacement problem above, and an open-source answer to it.
+- [Keycloak fine-grained admin permissions V2](/tutorials/admin/fine-grained-permissions-v2/)
+  — scoping the console access that causes the drift in the first place.
+- More [Keycloak tutorials](/tutorials/).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />
