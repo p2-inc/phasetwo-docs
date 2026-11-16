@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 60" width="140" height="60" fill="none" role="img" aria-label="Clerk">
+  <g fill="#A0A9DB">
+    <path d="M24.6 20.1a9.9 9.9 0 0 0-14 0 9.9 9.9 0 0 0 0 14l-4.3 4.3a16 16 0 0 1 0-22.6 16 16 0 0 1 22.6 0l-4.3 4.3Z"/>
+    <path d="M24.6 39.9a9.9 9.9 0 0 1-14 0l-4.3 4.3a16 16 0 0 0 22.6 0l-4.3-4.3Z" opacity="0.6"/>
+    <circle cx="17.6" cy="30" r="6.1"/>
+  </g>
+  <text x="40" y="38.5" fill="#A0A9DB" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="27" font-weight="600" letter-spacing="-0.6">Clerk</text>
+</svg>
