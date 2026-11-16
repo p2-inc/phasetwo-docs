@@ -142,6 +142,7 @@ module.exports = {
         "extending/first-spi",
         "extending/event-listener",
         "extending/user-storage-readonly",
+        "extending/user-storage-advanced",
       ],
     },
     {
@@ -154,7 +155,7 @@ module.exports = {
       type: "category",
       label: "Operations",
       link: { type: "generated-index" },
-      items: ["operations/config-as-code"],
+      items: ["operations/kubernetes-operator", "operations/config-as-code"],
     },
   ],
 };

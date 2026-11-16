@@ -196,6 +196,8 @@ is the next step:
    the first provider most people need, and the delivery problem it hands you
 5. [Keycloak User Storage SPI: read-only lookup](/tutorials/extending/user-storage-readonly/)
    — a real provider, federating an external user store
+6. [Keycloak User Storage SPI: writes, queries, caching](/tutorials/extending/user-storage-advanced/)
+   — the same provider made searchable and writable, and what each capability costs
 
 Custom authenticators and REST endpoints build on the same packaging.
 *(Coming soon.)*
@@ -221,15 +223,20 @@ leave:
 
 Realm key management builds on the same track. *(Coming soon.)*
 
-**Running Keycloak in production** — getting the realm out of the admin console and into a
-repository, so a change is reviewed before it lands:
+**Running Keycloak in production** — getting it deployed, getting the realm out of the admin
+console and into a repository, and getting your data back out again:
 
-1. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
-2. [Keycloak configuration as code with Terraform](/tutorials/operations/config-as-code/) —
+1. [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) —
+   dev mode, and why it is not a starting point for production
+2. [Deploy Keycloak on Kubernetes with the Operator](/tutorials/operations/kubernetes-operator/)
+   — the custom resource, what it generates, and the five ways it fails quietly
+3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+4. [Keycloak configuration as code with Terraform](/tutorials/operations/config-as-code/) —
    the provider, realm JSON import, and which of the two destroys your users
-3. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+5. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+   — the backup half, which no operator does for you
 
-Sizing, backups, upgrades and observability build on the same track. *(Coming soon.)*
+Sizing, upgrades and observability build on the same track. *(Coming soon.)*
 
 ## A note on scope
 

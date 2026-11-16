@@ -1,0 +1,602 @@
+---
+id: kubernetes-operator
+title: Deploy Keycloak on Kubernetes with the Operator
+description: Install the Keycloak Operator on Kubernetes, deploy a Keycloak CR against Postgres, import a realm, scale to two pods — plus the five ways it fails quietly.
+keywords:
+  - keycloak operator
+  - what is keycloak operator
+  - keycloak kubernetes
+  - keycloak helm chart
+  - keycloak custom resource
+  - keycloakrealmimport
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - A Kubernetes cluster you can create namespaces in (kind works)
+  - kubectl (tested with 1.37)
+  - About 3 GB of free memory for the cluster
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Deploy Keycloak on Kubernetes with the Operator
+
+The Keycloak Operator is a controller that turns a `Keycloak` custom resource into a running
+Keycloak: a StatefulSet, two Services, an Ingress, a NetworkPolicy and a generated admin
+Secret. Four commands get you there:
+
+```bash
+kubectl create namespace keycloak
+kubectl apply -k 'github.com/keycloak/keycloak-k8s-resources/kubernetes?ref=26.8.2'
+kubectl -n keycloak apply -f postgres.yaml      # your database
+kubectl -n keycloak apply -f keycloak.yaml      # the Keycloak CR
+```
+
+The manifests are below. On a fresh kind cluster the operator was ready 51 seconds after the
+second command, and the Keycloak CR reported `Ready` about 80 seconds after the fourth,
+including the image pull.
+
+:::info Tested against
+Keycloak **26.8.2** and Keycloak Operator **26.8.2**, on kind v0.33.0 running Kubernetes
+v1.37.0, with kubectl v1.37.2 and `postgres:17-alpine`. Every command and every line of
+output on this page was run on 2026-11-16. Chart versions were checked the same day.
+:::
+
+## Operator, Helm chart, or plain YAML?
+
+The operator is not automatically the right answer. It is the Keycloak project's own opinion
+about how Keycloak should run, expressed as an API — which is worth a lot when the alternative
+is maintaining that opinion yourself, and worth little if your platform already templates
+everything and will not take on a CRD.
+
+| | Keycloak Operator | codecentric `keycloakx` chart | Plain StatefulSet |
+|---|---|---|---|
+| Maintained by | the Keycloak project | community | you |
+| Ships with Keycloak releases | yes, same version number | lags: chart 7.4.0 packages 26.8.1 | n/a |
+| Config surface | typed CR fields, rejected by the API server when wrong | Helm values | raw YAML |
+| Upgrades | rolling update driven by the CR | `helm upgrade` | you write it |
+| Realm import | `KeycloakRealmImport` resource | no | no |
+| Client management | preview CRs (see below) | no | no |
+| Needs cluster-admin to install | yes, for the CRDs | no | no |
+| Multi-namespace | one operator can watch the whole cluster (preview) | one release per namespace | n/a |
+
+Two things worth knowing before you choose:
+
+- **The operator pins the Keycloak version to its own.** Operator 26.8.2 deploys
+  `quay.io/keycloak/keycloak:26.8.2` unless you override `spec.image`. That is a feature —
+  the pairing is tested — but it means an operator upgrade is a Keycloak upgrade. If you
+  install through OLM, set the approval strategy to `Manual`, or OLM will upgrade your
+  identity provider on its own schedule.
+- **Check what your chart actually pins.** On 2026-11-16 the newest `bitnami/keycloak` in the
+  public `charts.bitnami.com/bitnami` repository was 25.2.0, packaging Keycloak 26.3.3 —
+  five minor releases behind upstream, because Broadcom moved the Bitnami catalogue to a
+  commercial model during 2025. Older guides still recommend it by name.
+
+## What you'll build
+
+One Keycloak pod backed by Postgres, reachable over TLS, with a realm and a client imported
+from a custom resource — then the same thing scaled to two pods forming an Infinispan cluster.
+
+A throwaway cluster is enough:
+
+```bash
+kind create cluster --name kc-op
+```
+
+Everything below assumes the `keycloak` namespace.
+
+## 1. Install the operator
+
+```bash
+kubectl create namespace keycloak
+kubectl apply -k 'github.com/keycloak/keycloak-k8s-resources/kubernetes?ref=26.8.2'
+```
+
+That `ref=` is the Keycloak version, and pinning it is not optional — without it you get
+whatever the default branch holds today. The apply installs four CRDs, a ServiceAccount with its RBAC, and one Deployment:
+
+```console
+$ kubectl api-resources --api-group=k8s.keycloak.org
+NAME                   SHORTNAMES   APIVERSION                  NAMESPACED   KIND
+keycloakoidcclients                 k8s.keycloak.org/v2alpha1   true         KeycloakOIDCClient
+keycloakrealmimports                k8s.keycloak.org/v2beta1    true         KeycloakRealmImport
+keycloaks              kc           k8s.keycloak.org/v2beta1    true         Keycloak
+keycloaksamlclients                 k8s.keycloak.org/v2alpha1   true         KeycloakSAMLClient
+```
+
+**Use `v2beta1` for the `Keycloak` kind.** `v2alpha1` is still served, so a CR copied from an
+older guide applies and works, but the CRD marks it deprecated and `kubectl` says so once:
+
+```console
+$ kubectl apply -f keycloak.yaml
+Warning: Please migrate to v2beta1
+keycloak.k8s.keycloak.org/example-kc configured
+```
+
+Storage is `v2beta1`, so that warning is the only notice you get before the alpha version is
+dropped. The upstream guides still contain `v2alpha1` examples; believe the CRD.
+
+Wait for the controller:
+
+```bash
+kubectl -n keycloak rollout status deploy/keycloak-operator
+```
+
+It asks for 450 Mi of memory and 300m–700m of CPU, which is the budget it will hold whether
+or not you have any Keycloak CRs.
+
+## 2. Give it a database
+
+The operator does not manage a database. It will not create one, back one up, or notice that
+the one you pointed it at is gone. For a lab, an ephemeral Postgres is enough — this is the
+upstream example with a newer image, real credentials, and one correction:
+
+```yaml title="postgres.yaml"
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql-db
+spec:
+  serviceName: postgresql-db-service
+  selector:
+    matchLabels:
+      app: postgresql-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql-db
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:17-alpine
+          volumeMounts:
+            - mountPath: /data
+              name: cache-volume
+          env:
+            - name: POSTGRES_USER
+              value: keycloak
+            - name: POSTGRES_PASSWORD
+              value: keycloak
+            - name: PGDATA
+              value: /data/pgdata
+            - name: POSTGRES_DB
+              value: keycloak
+      volumes:
+        - name: cache-volume
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+spec:
+  selector:
+    app: postgresql-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+```
+
+```bash
+kubectl -n keycloak apply -f postgres.yaml
+kubectl -n keycloak rollout status statefulset/postgresql-db
+```
+
+The correction: the Service is a **ClusterIP**, where the upstream example says
+`type: LoadBalancer`. On a cloud cluster that asks your provider for a public address for
+your identity database, and there is no reason to want one.
+
+What is unchanged is the `emptyDir`, which means **deleting this pod deletes every user,
+realm and credential you create below**. That is correct for a lab and wrong for everything
+else: in production this is a managed Postgres, or at minimum a PersistentVolumeClaim, and
+backing it up is your job, not the operator's.
+
+## 3. Create the two Secrets
+
+```bash
+openssl req -subj '/CN=keycloak.kc.test/O=Keycloak Lab/C=US' \
+  -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 \
+  -addext "basicConstraints=critical,CA:FALSE" -out certificate.pem
+
+kubectl -n keycloak create secret tls keycloak-tls \
+  --cert certificate.pem --key key.pem
+
+kubectl -n keycloak create secret generic keycloak-db-secret \
+  --from-literal=username=keycloak \
+  --from-literal=password=keycloak
+```
+
+The CR references both by name. The operator polls referenced Secrets roughly once a minute
+and performs a rolling restart when one meaningfully changes, so rotating the database
+password is an edit to the Secret, not to the CR.
+
+## 4. The Keycloak CR
+
+```yaml title="keycloak.yaml"
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: example-kc
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: postgres-db
+    database: keycloak
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+  http:
+    tlsSecret: keycloak-tls
+  hostname:
+    hostname: https://keycloak.kc.test
+  proxy:
+    headers: xforwarded
+```
+
+```bash
+kubectl -n keycloak apply -f keycloak.yaml
+```
+
+Four fields deserve a sentence each:
+
+- **`hostname`** is not cosmetic. It becomes the `iss` claim of every token this server
+  issues, and leaving it out crash-loops the pod (see below). Set it to the URL your users
+  will actually type.
+- **`proxy.headers`** tells Keycloak which forwarded headers to trust. Omit it and the
+  operator falls back to the legacy `proxy=passthrough` behaviour and logs deprecation
+  warnings; that fallback is documented as going away.
+- **`http.tlsSecret`** makes the pod serve HTTPS on 8443 and the generated Ingress a
+  passthrough. Drop it and set `http.httpEnabled: true` if you want TLS terminated at the
+  ingress instead.
+- **`instances`** is a plain replica count. The CRD declares the `scale` subresource against
+  it (`specReplicasPath: .spec.instances`), which is what `kubectl scale` and an HPA need.
+
+Watch it come up. `kubectl get keycloak` has no `READY` column, so read the conditions:
+
+```console
+$ kubectl -n keycloak get keycloak example-kc -o go-template='{{range .status.conditions}}CONDITION: {{.type}}{{"\n"}}  STATUS: {{.status}}{{"\n"}}  MESSAGE: {{.message}}{{"\n"}}{{end}}'
+CONDITION: Ready
+  STATUS: True
+  MESSAGE:
+CONDITION: HasErrors
+  STATUS: False
+  MESSAGE: warning: A ServiceMonitor will not be created because `metrics-enabled` is not true.
+CONDITION: RollingUpdate
+  STATUS: False
+  MESSAGE:
+```
+
+`HasErrors` carries warnings as well as errors, and it is the most useful field on the whole
+resource — when a pod crash-loops, the operator copies the pod's log tail into that message.
+
+## 5. What the operator actually created
+
+```console
+$ kubectl -n keycloak get sts,svc,ingress,networkpolicy,secret -o name
+statefulset.apps/example-kc
+service/example-kc-discovery
+service/example-kc-service
+ingress.networking.k8s.io/example-kc-ingress
+networkpolicy.networking.k8s.io/example-kc-network-policy
+secret/example-kc-initial-admin
+```
+
+(Filtered to what the operator made — Postgres, the operator's own Service and the two
+Secrets you created are in that namespace too.)
+
+| Object | What it is for |
+|---|---|
+| `example-kc` StatefulSet | the Keycloak pods — a StatefulSet, not a Deployment, because cache nodes need stable identities |
+| `example-kc-service` | ClusterIP on 8443 (HTTPS) and 9000 (management/health) |
+| `example-kc-discovery` | headless Service on 7800, used by JGroups to find peers |
+| `example-kc-ingress` | created **by default**; set `spec.ingress.enabled: false` to suppress it |
+| `example-kc-network-policy` | created **by default** (`spec.networkPolicy.enabled` defaults to `true`) |
+| `example-kc-initial-admin` | a generated `basic-auth` Secret — the only admin you get |
+
+Two defaults surprise people:
+
+**There is no `admin`/`admin`.** The operator generates a username and a random password and
+writes them to `<cr-name>-initial-admin`:
+
+```bash
+kubectl -n keycloak get secret example-kc-initial-admin \
+  -o jsonpath='{.data.username}' | base64 -d   # temp-admin
+kubectl -n keycloak get secret example-kc-initial-admin \
+  -o jsonpath='{.data.password}' | base64 -d
+```
+
+It is a temporary bootstrap account. Create a real admin and delete it.
+
+**The default NetworkPolicy is narrower than it looks.** It restricts the JGroups ports
+(7800 and 57800) to Keycloak's own pods, which is the part that matters, but it leaves 8443
+and 9000 open to every source in the cluster. If you terminate TLS at an ingress and rely on
+`X-Forwarded-For`, restrict 8443 to the ingress controller with `spec.networkPolicy.http`
+or `.https` — otherwise any pod that can reach Keycloak directly can forge those headers.
+
+And if you want to know what a CR field became, read the StatefulSet. Every option arrives as
+an environment variable (abridged — the real list is 21 entries):
+
+```console
+$ kubectl -n keycloak get sts example-kc -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}={.value}{"\n"}{end}'
+KC_HOSTNAME=https://keycloak.kc.test
+KC_HTTPS_CERTIFICATE_FILE=/mnt/certificates/tls.crt
+KC_HTTPS_CERTIFICATE_KEY_FILE=/mnt/certificates/tls.key
+KC_DB=postgres
+KC_DB_USERNAME=
+KC_DB_PASSWORD=
+KC_DB_URL_DATABASE=keycloak
+KC_DB_URL_HOST=postgres-db
+KC_PROXY_HEADERS=xforwarded
+KC_HEALTH_ENABLED=true
+KC_CACHE=ispn
+```
+
+The empty ones are not missing — `KC_DB_USERNAME`, `KC_DB_PASSWORD` and the two bootstrap
+admin variables are `valueFrom` Secret references, so a `jsonpath` on `.value` prints
+nothing for them.
+
+The probes point at `/health/started` and `/health/ready` on port 9000, with a startup
+`failureThreshold` of 600 at a 1-second period — ten minutes of grace before Kubernetes gives
+up on a slow first start.
+
+One default to revisit before production: if you do not set `spec.resources`, the operator
+requests **1700 Mi** of memory with a 2 Gi limit, and **no CPU request at all**. Keycloak
+sizes its heap from the memory limit, so the memory numbers are reasonable defaults; the
+missing CPU request means your identity provider is `BestEffort` for CPU and will lose a
+scheduling fight with anything that asked.
+
+## 6. Verify it worked
+
+There is no ingress controller on a kind cluster, so go straight at the Service:
+
+```bash
+kubectl -n keycloak port-forward service/example-kc-service 8443:8443
+```
+
+```console
+$ curl -sk -o /dev/null -w '%{http_code}\n' https://localhost:8443/realms/master
+200
+
+$ curl -sk https://localhost:8443/realms/master/.well-known/openid-configuration | jq -r .issuer
+https://keycloak.kc.test/realms/master
+```
+
+Read that second answer carefully, because it is the single most common source of "it works
+in the cluster but my app won't log in". You reached the server on `localhost:8443`, and it
+told you its issuer is `https://keycloak.kc.test`. `spec.hostname.hostname` decides the
+issuer, and clients validate `iss` against the URL they were configured with. A port-forward
+is fine for a health check and useless as an application endpoint — your app has to reach
+Keycloak at the hostname in the CR.
+
+Prove the admin account works:
+
+```bash
+ADMIN_PW=$(kubectl -n keycloak get secret example-kc-initial-admin \
+  -o jsonpath='{.data.password}' | base64 -d)
+
+curl -sk -d "client_id=admin-cli" -d "username=temp-admin" \
+  -d "password=$ADMIN_PW" -d "grant_type=password" \
+  https://localhost:8443/realms/master/protocol/openid-connect/token
+```
+
+## 7. Import a realm — and what the import will not do
+
+```yaml title="realm-import.yaml"
+apiVersion: k8s.keycloak.org/v2beta1
+kind: KeycloakRealmImport
+metadata:
+  name: demo-realm
+spec:
+  keycloakCRName: example-kc
+  realm:
+    realm: demo
+    displayName: Demo Realm
+    enabled: true
+    clients:
+      - clientId: demo-api
+        enabled: true
+        publicClient: false
+        serviceAccountsEnabled: true
+        standardFlowEnabled: false
+        secret: demo-secret
+```
+
+`spec.realm` takes a full realm representation — the same JSON `kc.sh export` produces,
+converted to YAML. The operator runs it as a Job:
+
+```console
+$ kubectl -n keycloak get jobs
+NAME         STATUS     COMPLETIONS   DURATION   AGE
+demo-realm   Complete   1/1           31s        3m24s
+```
+
+And the client works:
+
+```console
+$ curl -sk -d "client_id=demo-api" -d "client_secret=demo-secret" \
+    -d "grant_type=client_credentials" \
+    https://localhost:8443/realms/demo/protocol/openid-connect/token
+```
+
+The decoded token carries `"iss": "https://keycloak.kc.test/realms/demo"` and
+`"preferred_username": "service-account-demo-api"`.
+
+**Now the part that will bite you.** `KeycloakRealmImport` creates realms. It does not update
+them, and it reports success when it does nothing. Edit `displayName`, re-apply, and:
+
+```console
+$ kubectl -n keycloak get keycloakrealmimport demo-realm -o go-template='{{range .status.conditions}}{{.type}}={{.status}} {{end}}{{"\n"}}'
+Done=True Started=False HasErrors=False
+
+$ kubectl -n keycloak logs job/demo-realm | grep -i import
+... Full importing from file /mnt/realm-import/demo-realm.json
+... Realm 'demo' already exists. Import skipped
+```
+
+`Done=True`, `HasErrors=False`, and the realm is unchanged — I confirmed `displayName` was
+still the old value through the Admin REST API. If you are tempted to treat these CRs as
+desired-state realm configuration in GitOps, don't: they are a first-boot seeding mechanism.
+Changes you make in the Admin Console are never synced back, either. Delete the CR once the
+import has completed, which also cleans up the Job and its pod.
+
+## 8. Scale it
+
+```bash
+kubectl -n keycloak patch keycloak example-kc --type merge -p '{"spec":{"instances":2}}'
+```
+
+What I actually ran was a re-apply of the whole CR with `instances: 2` and an explicit
+`spec.resources` (1 Gi request, 1400 Mi limit, to fit a two-CPU cluster) — so the measurement
+below covers a rolling restart of the existing pod as well as the new one. The CR went
+`Ready` **77 seconds** later, passing through `RollingUpdate=True` with the message
+`Rolling out deployment update`. The second pod found the first with no extra configuration:
+
+```console
+$ kubectl -n keycloak logs example-kc-0 | grep ISPN000094
+2026-11-16 07:21:14,577 INFO [org.infinispan.CLUSTER] (db-index-checker) ISPN000094: Received
+new cluster view for channel ISPN: [example-kc-1(v=16.0.15, m=kc-op-control-plane)|3] (2)
+[example-kc-1(v=16.0.15, m=kc-op-control-plane), example-kc-0(v=16.0.15, m=kc-op-control-plane)]
+```
+
+Discovery is `JDBC_PING` — the pods find each other through the database, which is why the
+only thing you had to configure was a database. The logs also show
+`JGroups Encryption enabled (mTLS)`, so inter-node traffic is encrypted without you asking.
+There is no Infinispan configuration to write, no extra Service to create, and nothing to
+change when the replica count moves.
+
+## What breaks
+
+Five failure modes, all reproduced on the cluster above.
+
+**The CR applies and absolutely nothing happens.** The operator watches only the namespace it
+was installed into. A `Keycloak` CR in `default` is accepted by the API server, shows up in
+`kubectl get keycloak`, creates no pods, emits no events, and has an **empty** `status` — the
+one state that is not a condition you can check. After 60 seconds:
+
+```console
+$ kubectl -n default get keycloak example-kc -o jsonpath='{.status}'
+$ kubectl -n default get all
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3m9s
+```
+
+An empty status means nobody is reconciling your resource. Check the namespace first.
+
+**`spec.image` crash-loops the pod.** Setting an image — even the exact same stock image the
+operator would have chosen — makes the operator assume you have pre-built it, and it appends
+`--optimized`:
+
+```console
+HasErrors=True (Waiting for keycloak/example-kc-0 due to CrashLoopBackOff: back-off 40s
+restarting failed container=keycloak pod=example-kc-0_keycloak(...)
+Log for keycloak/example-kc-0: The '--optimized' flag was used for first ever server start.
+Please don't use this flag for the first startup or use 'kc.sh build' to build the server first.)
+```
+
+Add `startOptimized: false` alongside `spec.image`, or build a genuinely optimized image
+`FROM` the Keycloak image with `kc.sh build` baked in. The CRD says as much in one line of
+field documentation — "the operator will assume custom images have already been augmented" —
+and nothing else warns you.
+
+**No `hostname`, no server.** Omitting `spec.hostname.hostname` passes CR validation and then:
+
+```console
+Caused by: java.lang.IllegalArgumentException: hostname is not configured;
+  either configure hostname, or set hostname-strict to false
+```
+
+The operator does not reject this at admission. You find out from a CrashLoopBackOff.
+
+**Fixing the CR does not fix the pod.** This one cost me ten minutes twice. After correcting
+either of the two errors above, the operator updates the StatefulSet — and the crash-looping
+pod stays exactly as it was, on the old revision, for as long as I watched it (12 minutes).
+A StatefulSet rolling update is ordered and gated on readiness, and a pod that can never
+become Ready stalls it. Compare the revisions:
+
+```console
+$ kubectl -n keycloak get pod example-kc-0 -o jsonpath='{.metadata.labels.controller-revision-hash}'
+example-kc-67fb5c8c48
+$ kubectl -n keycloak get sts example-kc -o jsonpath='{.status.updateRevision}'
+example-kc-9d499f857
+```
+
+Different values mean the pod is not running your fix. `kubectl -n keycloak delete pod
+example-kc-0` and it came back Ready in about 40 seconds, both times.
+
+**Every pod start rebuilds the server.** With the default image you will see this on each
+start:
+
+```console
+Changes detected in configuration. Updating the server image.
+...
+2026-11-16 07:13:50,152 INFO [io.quarkus.deployment.QuarkusAugmentor] (main) Quarkus
+augmentation completed in 10213ms
+...
+2026-11-16 07:13:58,090 INFO [io.quarkus] (main) Keycloak 26.8.2 on JVM (powered by Quarkus
+3.40.1.1) started in 7.749s. Listening on: https://0.0.0.0:8443.
+```
+
+Ten seconds of augmentation before 8 seconds of startup, on every pod, every restart. It is
+not a fault, but it is pure latency during a rolling upgrade, and it is the reason to build
+an optimized image once your configuration settles.
+
+## Managing clients from Kubernetes too
+
+Keycloak 26.8 promoted `KeycloakOIDCClient` and `KeycloakSAMLClient` to preview — real
+reconciliation, unlike the one-shot realm import. They are worth knowing about, with two
+prerequisites that are easy to miss:
+
+```console
+$ kubectl -n keycloak get keycloakoidcclient web-frontend -o go-template='{{range .status.conditions}}{{.type}}={{.status}} ({{.message}}){{"\n"}}{{end}}'
+HasErrors=True (Cannot create/update because the server does not have client-admin-api:v2 enabled)
+```
+
+You need `features: {enabled: [client-admin-api:v2]}` on the Keycloak CR, and a Secret named
+`<cr-name>-admin` holding `client-id` and `client-secret` for a bootstrap admin service
+account — the operator authenticates with the client credentials grant against `master`, and
+that Secret is not generated for you. One detail that is not in the guide: after I enabled
+the feature and the pod restarted with `Preview features enabled: client-admin-api:v2` in its
+log, the client CR kept reporting the feature as missing across repeated reconciles for
+several minutes. Restarting the operator pod cleared it.
+
+These are `v2alpha1` and preview. Read
+[Managing Keycloak clients](https://www.keycloak.org/operator/managing-clients) before
+putting them anywhere near production, and note the warning there that the operator does not
+detect changes made in the Admin Console and will overwrite them.
+
+## Clean up
+
+```bash
+kind delete cluster --name kc-op
+```
+
+On a real cluster, delete the client CRs before the `Keycloak` CR — the operator removes
+clients from the server on deletion, and once the server is gone it cannot.
+
+## Next steps
+
+- [Run Keycloak locally in 5 minutes](/tutorials/getting-started/run-keycloak-locally/) — the
+  same server without the orchestrator, and why `start-dev` is a different product.
+- [Your first realm, client, and user](/tutorials/getting-started/first-realm-client-user/) —
+  what you just imported from YAML, done by hand so you know what the fields mean.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — for
+  everything the CRs do not express. Run it with `kubectl exec` into the pod.
+- [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/) —
+  how to produce the realm representation that `KeycloakRealmImport` wants, and your backup
+  story, which the operator does not provide.
+- [Keycloak as an identity and access management system](/docs/keycloak/iam/) — where this
+  server sits in the wider model.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Operator installation](https://www.keycloak.org/operator/installation),
+  [Basic deployment](https://www.keycloak.org/operator/basic-deployment),
+  [Advanced configuration](https://www.keycloak.org/operator/advanced-configuration) and
+  [Realm import](https://www.keycloak.org/operator/realm-import).
+
+<ProductionNote />
