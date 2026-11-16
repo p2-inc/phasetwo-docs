@@ -196,6 +196,8 @@ is the next step:
    the first provider most people need, and the delivery problem it hands you
 5. [Keycloak User Storage SPI: read-only lookup](/tutorials/extending/user-storage-readonly/)
    — a real provider, federating an external user store
+6. [Keycloak User Storage SPI: writes, queries, caching](/tutorials/extending/user-storage-advanced/)
+   — the same provider made searchable and writable, and what each capability costs
 
 Custom authenticators and REST endpoints build on the same packaging.
 *(Coming soon.)*
