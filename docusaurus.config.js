@@ -136,7 +136,7 @@ module.exports = {
     announcementBar: {
       id: "keycloak_skills_plugin",
       content:
-        'New: <a href="/docs/management-api/ai-agents/">Keycloak Skills for your coding agent</a> - Install the Phase Two plugin in Claude Code, Cursor or Codex and your agent sets up passkeys, SSO and organizations on your cluster for you.',
+        'New: <a href="/docs/management-api/ai-agents/">The Phase Two plugin</a> for Claude Code, Cursor and Codex - fully manage your Keycloak from your coding agent.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
