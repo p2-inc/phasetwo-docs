@@ -1,30 +1,20 @@
-name: Deploy to GitHub Pages
+name: Build
+
+# Builds and tests every pull request. Deploying is Cloudflare Workers Builds' job:
+# it builds main into the phasetwo-docs Worker that serves phasetwo.io (see README).
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
-# Publishing force-pushes to p2-inc.github.io, so two deploys in flight race and
-# the loser fails. Merging four PRs in a few minutes did exactly that today.
-# Queue them instead of cancelling: each run publishes the main it built from, and
-# cancelling the in-flight one can leave the site on an older commit than the run
-# that superseded it.
-concurrency:
-  group: deploy-pages
-  cancel-in-progress: false
-
 env:
   NODE_VERSION: 22
-  CUSTOM_DOMAIN: phasetwo.io
   # Google Tag Manager container; read by docusaurus.config.js. Unset means no tag.
   GTM_CONTAINER_ID: ${{ vars.GTM_CONTAINER_ID }}
 
 jobs:
   test:
     name: Build (validate)
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -72,46 +62,3 @@ jobs:
           pnpm test
           pnpm regen-api-docs
           pnpm build
-
-  deploy:
-    name: Deploy
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          # Full history: Docusaurus derives each page's last-modified date from
-          # git, and feeds it to the sitemap as <lastmod>. On the default shallow
-          # clone every file looks like it changed in the one fetched commit, so
-          # every URL gets stamped with the build date and <lastmod> stops
-          # carrying any information at all.
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v6
-        with:
-          run_install: false
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Build site & add CNAME
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm regen-api-docs
-          pnpm build
-          echo "${CUSTOM_DOMAIN}" > build/CNAME
-
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
-
-      - name: Publish to GitHub Pages
-        env:
-          USE_SSH: true
-        run: |
-          git config --global user.email "244253+xgp@users.noreply.github.com"
-          git config --global user.name  "Garth"
-          pnpm exec docusaurus deploy --skip-build

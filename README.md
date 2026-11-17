@@ -19,8 +19,7 @@
 > ```
 <!-- phasetwo:banner:end -->
 
-![Build Status](https://github.com/p2-inc/phasetwo-docs/actions/workflows/deploy.yml/badge.svg)
-[![pages-build-deployment](https://github.com/p2-inc/p2-inc.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/p2-inc/p2-inc.github.io/actions/workflows/pages/pages-build-deployment)
+![Build Status](https://github.com/p2-inc/phasetwo-docs/actions/workflows/build.yml/badge.svg)
 
 Content for the https://phasetwo.io/ public website, documentation and API specs.
 
@@ -43,4 +42,4 @@ The build settings live in the Cloudflare dashboard (Workers & Pages → `phaset
 - **Build command:** `git fetch --unshallow || true; pnpm install --frozen-lockfile && pnpm regen-api-docs && pnpm build`. Workers Builds clones shallowly, and Docusaurus takes each page's last-modified date from git history for the sitemap, so the build fetches the full history first.
 - **Build variable:** `GTM_CONTAINER_ID`, the Google Tag Manager container read by `docusaurus.config.js`. Unset, the site builds without the tag.
 
-The `deploy.yml` GitHub Actions workflow still builds and tests every pull request, and publishes to GitHub Pages while the Worker is being verified.
+The `build.yml` GitHub Actions workflow builds and tests every pull request; it does not deploy.
