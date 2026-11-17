@@ -157,7 +157,7 @@ Keycloak 26.8.1 ships four event listeners: `jboss-logging`, `email`, `micromete
 
 The Phase Two [keycloak-events](https://github.com/p2-inc/keycloak-events) extension adds listeners that do this. It is included in the `phasetwo-keycloak` image. According to its README:
 
-- **`ext-event-webhook`** sends user and admin events, in a unified format with `access.` and `admin.` type prefixes, to webhook subscriptions you manage through a REST resource at `/realms/{realm}/webhooks`. Payloads can be signed with a shared secret, and failed sends are retried with exponential backoff. See [Webhooks](/docs/audit-logs/webhooks).
+- **`ext-event-webhook`** sends user and admin events, in a unified format with `access.` and `admin.` type prefixes, to webhook subscriptions you manage through a REST resource at `/realms/{realm}/webhooks`. Payloads can be signed with a shared secret, and failed sends are retried with exponential backoff. See [Webhooks](/docs/audit-logs/webhooks). A webhook can also post straight to Microsoft Sentinel, Datadog or Google SecOps in each platform's own format. See [Send Events to a SIEM](/docs/audit-logs/siem).
 - **`ext-event-http`** posts each event to a single configured URI, optionally HMAC-signed in an `X-Keycloak-Signature` header, with retries.
 - **`ext-event-script`** runs a JavaScript function for each event inside Keycloak.
 
@@ -206,7 +206,7 @@ Detection ends where response starts. Close the path the attacker used, identify
 | Event capture into the Phase Two [audit log](/docs/audit-logs), independent of your realm's event settings and its expiration | Saving events in the realm too, if you want to query them through the Admin API |
 | Event and request [metrics](../self-service/metrics.md) in the dashboard, including successful and failed logins and lockout reasons | Alert rules in your own monitoring, from events you forward |
 | Cluster, event and request [logs](../self-service/logs.md) in the dashboard | Forwarding events to your own systems with the `ext-event-webhook` listener and [webhooks](/docs/audit-logs/webhooks) |
-| Help during an incident: email [support@phasetwo.io](mailto:support@phasetwo.io) | Any SIEM or anomaly detection, and responding to what it finds |
+| Help during an incident: email [support@phasetwo.io](mailto:support@phasetwo.io) | Any SIEM or anomaly detection, and responding to what it finds. [SIEM export](/docs/audit-logs/siem) sends events to Microsoft Sentinel, Datadog or Google SecOps. |
 
 On Enterprise clusters, [Telemetry Export](../self-service/telemetry-export.md) streams logs and authentication events to your own OTLP endpoint.
 
