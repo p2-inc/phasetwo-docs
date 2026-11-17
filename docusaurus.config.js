@@ -57,9 +57,6 @@ module.exports = {
   url: "https://phasetwo.io",
   baseUrl: "/",
   favicon: "img/favicon.svg",
-  organizationName: "p2-inc",
-  projectName: "p2-inc.github.io",
-  deploymentBranch: "main",
   trailingSlash: true,
   // "throw", matching the default for onBrokenLinks. It was "log" because the
   // report was 519 false positives from <section id> anchors in src/pages/ that

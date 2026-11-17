@@ -15,5 +15,8 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  // Pull requests get a preview deploy from Workers Builds (`npx wrangler preview`), which needs this block
+  // even when it's empty; everything else is inherited from the top level.
+  "previews": {}
 }
