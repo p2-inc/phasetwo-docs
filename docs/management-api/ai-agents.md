@@ -2,7 +2,7 @@
 id: ai-agents
 title: AI agents (Keycloak Skills and MCP server)
 sidebar_label: AI agents
-description: Let an AI agent like Claude configure Keycloak on your Phase Two cluster with the open-source Keycloak Skills plugin and the Phase Two MCP server. Install in two commands; every call is authorized as you.
+description: Let your coding agent (Claude Code, Cursor or Codex) configure Keycloak on your Phase Two cluster with the open-source Keycloak Skills plugin and the Phase Two MCP server. Install in two commands; every call is authorized as you.
 keywords:
   - keycloak mcp server
   - keycloak claude
@@ -12,16 +12,29 @@ keywords:
 
 # AI agents
 
-Phase Two has two pieces that let an AI agent like Claude set up and change Keycloak for you:
+The **Phase Two plugin** lets your coding agent set up and change Keycloak for you. It works in Claude Code, Cursor and Codex, and installing it gives the agent two things:
 
-- **[Keycloak Skills](https://github.com/p2-inc/keycloak-skills)**, an open-source Agent Skills plugin that teaches the agent how to configure Keycloak correctly: login flows, passwordless and passkeys, social and enterprise SSO, organizations, and securing your own apps.
-- **The Phase Two MCP server** (`https://mcp.phasetwo.io/mcp`), which lets the agent do that work against your cluster directly instead of telling you what to type.
+- **[Keycloak Skills](https://github.com/p2-inc/keycloak-skills)**, open-source Agent Skills that teach the agent how to configure Keycloak correctly: login flows, passwordless and passkeys, social and enterprise SSO, organizations, and securing your own apps.
+- **The Phase Two MCP server** (`https://mcp.phasetwo.io/mcp`), which lets the agent do that work against your cluster directly instead of telling you what to type. The plugin connects it for you; the only prompt you see is the Phase Two sign-in.
 
 Ask in plain language, for example "add passwordless login by magic link", "connect our customer's Okta by email domain" or "add login to this React app", and the agent picks the right steps, asks what it needs, and makes the change.
 
+## Let your agent set it up {#connect-your-agent}
+
+Paste this into your coding agent and it installs the plugin for whichever client you are using, then signs you in:
+
+```text
+Install the Phase Two Keycloak plugin so you can set up and manage Keycloak on Phase Two for me.
+The plugin is in the p2-inc/keycloak-skills marketplace on GitHub. It bundles the Keycloak skills and connects the Phase Two MCP server at https://mcp.phasetwo.io/mcp.
+Install it for the coding agent I am using, then sign me in to the MCP server.
+Setup guide: https://phasetwo.io/docs/management-api/ai-agents/
+```
+
+Or install it yourself with the steps below.
+
 ## Install
 
-In Claude Code:
+### Claude Code
 
 ```bash
 claude plugin marketplace add p2-inc/keycloak-skills
@@ -37,6 +50,19 @@ To add the MCP server on its own, without the skills:
 ```bash
 claude mcp add --transport http keycloak https://mcp.phasetwo.io/mcp
 ```
+
+### Codex
+
+```bash
+codex plugin marketplace add p2-inc/keycloak-skills
+codex plugin add phasetwo@keycloak-skills
+```
+
+Codex runs the Phase Two sign-in as part of the install. Start a new Codex task afterwards so it picks up the skills and the MCP server.
+
+### Cursor
+
+Cursor 3.19 or later imports the plugin from GitHub: in the Cursor dashboard go to **Plugins → Team Marketplaces → Add Marketplace → Import from Repo**, enter `p2-inc/keycloak-skills` and add **Phase Two Keycloak**. Then open **Customize** in the Cursor sidebar, find **Phase Two Keycloak** and click **Install**. The first tool call opens a browser so you can sign in to Phase Two. The [Cursor install guide](https://github.com/p2-inc/keycloak-skills/blob/main/docs/install-cursor.md) has the details.
 
 ## No cluster yet? Ask the agent for one {#no-cluster-yet}
 

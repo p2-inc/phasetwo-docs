@@ -134,9 +134,9 @@ module.exports = {
   ],
   themeConfig: {
     announcementBar: {
-      id: "mcp_authorization",
+      id: "keycloak_skills_plugin",
       content:
-        'New: <a href="/blog/instant-mcp-authorization-keycloak/">Instant MCP authorization using Keycloak</a> - Protect your MCP server with real login flows, scoped tokens, and zero custom auth code.',
+        'New: <a href="/docs/management-api/ai-agents/">Keycloak Skills for your coding agent</a> - Install the Phase Two plugin in Claude Code, Cursor or Codex and your agent sets up passkeys, SSO and organizations on your cluster for you.',
       backgroundColor: "#3fa1e3",
       textColor: "#fff",
       isCloseable: false,
