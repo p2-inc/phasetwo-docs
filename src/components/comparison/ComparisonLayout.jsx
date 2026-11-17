@@ -20,6 +20,7 @@ const VENDOR_LINKS = [
   { key: "azure-ad-b2c", label: "vs. Azure AD B2C", to: "/keycloak-alternatives/azure-ad-b2c/" },
   { key: "zitadel", label: "vs. Zitadel", to: "/keycloak-alternatives/zitadel/" },
   { key: "authentik", label: "vs. authentik", to: "/keycloak-alternatives/authentik/" },
+  { key: "clerk", label: "vs. Clerk", to: "/keycloak-alternatives/clerk/" },
 ];
 
 // Render a feature-matrix cell from a compact value:
