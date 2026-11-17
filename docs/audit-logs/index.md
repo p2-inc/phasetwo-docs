@@ -14,7 +14,7 @@ Both Phase Two and customer events are available in the administrative applicati
 
 No. On a hosted cluster, access and administrative events are captured automatically and delivered to the Phase Two platform, where they are available in the dashboard. You do not need to turn on event storage in your realm's settings for this to happen, and the realm-level event expiration setting does not limit what Phase Two retains.
 
-You only need to configure something in your realm if you want events pushed to _your_ systems as they happen. In that case, enable the [webhook event listener](webhooks) and register an endpoint.
+You only need to configure something in your realm if you want events pushed to _your_ systems as they happen. In that case, enable the [webhook event listener](webhooks) and register an endpoint. To send them to Microsoft Sentinel, Datadog or Google SecOps, see [Send Events to a SIEM](siem/index.md).
 
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';

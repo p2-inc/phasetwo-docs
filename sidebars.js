@@ -175,6 +175,16 @@ module.exports = {
         "audit-logs/admin",
         "audit-logs/api",
         "audit-logs/webhooks",
+        {
+          type: "category",
+          label: "SIEM Export",
+          link: { type: "doc", id: "audit-logs/siem/index" },
+          items: [
+            "audit-logs/siem/microsoft-sentinel",
+            "audit-logs/siem/datadog",
+            "audit-logs/siem/google-secops",
+          ],
+        },
       ],
     },
     {
