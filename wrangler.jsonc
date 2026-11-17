@@ -1,0 +1,19 @@
+// Cloudflare Worker that serves the built site (static assets only, no Worker script).
+// Built and deployed by Workers Builds (Cloudflare's git integration); the build settings
+// live in the Cloudflare dashboard, see README "Deploying".
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "phasetwo-docs",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./build",
+    // Docusaurus builds with trailingSlash: true, so /docs/foo is served from
+    // docs/foo/index.html and /docs/foo redirects to /docs/foo/.
+    "html_handling": "auto-trailing-slash",
+    // Serve build/404.html, with a 404 status, for paths that match no file.
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
