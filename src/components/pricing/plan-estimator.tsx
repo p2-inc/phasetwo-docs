@@ -132,7 +132,7 @@ function CheckRow({
 }
 
 export default function PlanEstimator() {
-  const [activeUsers, setActiveUsers] = useState(5_000);
+  const [activeUsers, setActiveUsers] = useState(100_000);
   const [domains, setDomains] = useState(1);
   const [customExt, setCustomExt] = useState(false);
   const [ipList, setIpList] = useState(false);
