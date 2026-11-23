@@ -22,6 +22,12 @@ Our dashboard is a single-page app. It's served as static files, every page requ
 
 <!-- truncate -->
 
+:::note
+
+This post reflects oidc-spa 10 (10.2.18), the current release. Version 11 is in release candidates and changes several of the APIs and patterns shown here, including how the library is initialized and how login is enforced. We'll update our guides once it's stable.
+
+:::
+
 ## Why oidc-spa
 
 oidc-spa is an OpenID Connect client for browser apps. Like any good SPA library it does the authorization code flow with PKCE, renews tokens, restores sessions on reload and syncs login and logout across tabs. It keeps tokens in memory, not in `localStorage` or `sessionStorage`. What sets it apart is that it also hardens the page it runs in:
@@ -33,17 +39,7 @@ oidc-spa is an OpenID Connect client for browser apps. Like any good SPA library
 
 It works well with Keycloak, which is what we run, and it handles Keycloak specifics such as the account console and logout. Our dashboard, our internal tools and the [React example](https://github.com/p2-inc/examples/tree/main/frameworks/reactjs/oidc-spa) in our examples repo all use it.
 
-The usual alternatives are good libraries, and we still document both. [keycloak-js](https://www.keycloak.org/securing-apps/javascript-adapter) is the Keycloak project's own adapter: Keycloak-specific, small, and familiar to anyone who has used Keycloak for a while. oidc-spa even ships a keycloak-js compatible API for teams that want to switch without rewriting. [oidc-client-ts](https://github.com/authts/oidc-client-ts) is a general, provider-neutral OIDC client with a lot of configuration, and with [react-oidc-context](https://github.com/authts/react-oidc-context) it's what our [React guide](/docs/securing-applications/react) shows first. Both handle the protocol well. Neither tries to protect the token from other code running in the same page, and that's the part we wanted a library to own.
-
-## Why not Auth.js
-
-We get asked about [Auth.js](https://authjs.dev) (formerly NextAuth.js) often enough that it deserves an answer. Auth.js is a server-side authentication library for frameworks like Next.js and SvelteKit. The server is the OIDC client: it handles the redirect, keeps the tokens, and gives the browser an `HttpOnly` session cookie, either an encrypted JWT or a pointer to a session in a database. The browser never holds an access token. That's the backend-for-frontend (BFF) pattern, and it's a sound choice when you already run a server framework.
-
-Our dashboard doesn't. It's a logged-in-only SPA deployed as static assets, and it calls several APIs directly with access tokens. Adopting Auth.js would mean adding and operating a server just for authentication, then proxying every API call through it. A client-side library that hardens the browser fits that architecture better. If your app is server-rendered, the trade-off flips, and the oidc-spa docs say so themselves.
-
-## About the maintainer
-
-oidc-spa is written by [Joseph Garrone](https://www.linkedin.com/in/joseph-garrone-0b583490/), who also maintains [Keycloakify](https://www.keycloakify.dev/), the tool we and many others use to build Keycloak login themes in React. What stands out about his work is the care that goes into it: hard cases are handled rather than documented away, and the library is built to be solid enough for open-source platforms that real institutions depend on. One of those is [Onyxia](https://github.com/InseeFrLab/onyxia), an open-source, cloud-native web platform that gives data scientists a streamlined working environment on Kubernetes. It's developed by France's National Institute of Statistics and Economic Studies (INSEE) and supported by the Interministerial Digital Directorate (DINUM), and it removes the need for data professionals to manage complex cloud infrastructure by hand. Onyxia uses both oidc-spa and Keycloakify.
+The usual alternatives are good libraries, and we still document both. [keycloak-js](https://www.keycloak.org/securing-apps/javascript-adapter) is the Keycloak project's own adapter: Keycloak-specific, small, and familiar to anyone who has used Keycloak for a while. oidc-spa even ships a keycloak-js compatible API for teams that want to switch without rewriting. [oidc-client-ts](https://github.com/authts/oidc-client-ts) is a general, provider-neutral OIDC client with a lot of configuration, and with [react-oidc-context](https://github.com/authts/react-oidc-context) it's what our [React guide](/docs/securing-applications/react) shows first. Both handle the protocol well. Neither tries to protect the token from other code running in the same page, and that's the part we wanted a library to own. We also get asked about Auth.js; that comparison, and a word about the library's maintainer, are [near the end](#why-not-authjs).
 
 ## Early init, and why the entry point matters
 
@@ -166,7 +162,7 @@ The client side is easy. The work is in every API that receives the token, and i
 - Verify the proof as RFC 9449 describes: signature, `htm` and `htu` matching the request, `ath` matching the token, a fresh `iat`, a `jti` not seen before, and the key thumbprint matching the token's `cnf.jkt`. Verify it once per request. A framework that authenticates the same request twice will see its own `jti` as a replay.
 - Reject a DPoP-bound token sent with the `Bearer` scheme or without a proof. Otherwise the binding protects nothing.
 
-There's no per-host opt-out in the client. Once DPoP is on, every request oidc-spa decorates uses the DPoP scheme, whatever the host. The only escape hatch is a second oidc-spa client instance with `disableDPoP: true`, which means a second token lifecycle. In practice, every resource server on your allowlist has to be ready at the same time.
+In oidc-spa 10 there's no per-host opt-out in the client. Once DPoP is on, every request oidc-spa decorates uses the DPoP scheme, whatever the host. The only escape hatch is a second oidc-spa client instance with `disableDPoP: true`, which means a second token lifecycle. In practice, every resource server on your allowlist has to be ready at the same time. Finer-grained control is coming in the next major version, which will make a gradual, API-by-API rollout easier.
 
 Two more things to measure before turning it on. The proof adds roughly half a kilobyte to a kilobyte to every request, so check your largest tokens against gateway header limits. Proofs are also time-stamped, so a user whose clock is minutes off will fail every API call even though login worked. Our [RFC 9700 guide](/docs/security/oauth-security-bcp#how-do-you-sender-constrain-tokens-with-dpop-or-mtls) covers the Keycloak side, and the same API checklist is [in our docs](/docs/security/oauth-security-bcp#what-must-apis-do-before-clients-use-dpop). A follow-up post will cover rolling DPoP out across a set of APIs.
 
@@ -198,6 +194,16 @@ bootstrapOidc({
 **Watch analytics in `index.html`.** oidc-spa restores sessions in a hidden iframe that loads your `index.html`. A tag manager snippet inline in the HTML runs there too and can record page views that no user saw. Load analytics from app code, which never runs in the iframe, or guard the snippet with `window.self === window.top`.
 
 **Use the debug logs while you set up.** Wire `debugLogs` to an environment variable like `VITE_OIDC_SPA_DEBUG`, as above. It logs initialization, token renewal and the ID-token parse. Keep it out of production builds, and redact the output before you paste it anywhere.
+
+## Why not Auth.js
+
+We get asked about [Auth.js](https://authjs.dev) (formerly NextAuth.js) often enough that it deserves an answer. Auth.js is a server-side authentication library for frameworks like Next.js and SvelteKit. The server is the OIDC client: it handles the redirect, keeps the tokens, and gives the browser an `HttpOnly` session cookie, either an encrypted JWT or a pointer to a session in a database. The browser never holds an access token. That's the backend-for-frontend (BFF) pattern, and it's a sound choice when you already run a server framework.
+
+Our dashboard doesn't. It's a logged-in-only SPA deployed as static assets, and it calls several APIs directly with access tokens. Adopting Auth.js would mean adding and operating a server just for authentication, then proxying every API call through it. A client-side library that hardens the browser fits that architecture better. If your app is server-rendered, the trade-off flips, and the oidc-spa docs say so themselves.
+
+## About the maintainer
+
+oidc-spa is written by [Joseph Garrone](https://www.linkedin.com/in/joseph-garrone-0b583490/), who also maintains [Keycloakify](https://www.keycloakify.dev/), the tool we and many others use to build Keycloak login themes in React. What stands out about his work is the care that goes into it: hard cases are handled rather than documented away, and the library is built to be solid enough for open-source platforms that real institutions depend on. One of those is [Onyxia](https://github.com/InseeFrLab/onyxia), an open-source, cloud-native web platform that gives data scientists a streamlined working environment on Kubernetes. It's developed by France's National Institute of Statistics and Economic Studies (INSEE) and supported by the Interministerial Digital Directorate (DINUM), and it removes the need for data professionals to manage complex cloud infrastructure by hand. Onyxia uses both oidc-spa and Keycloakify.
 
 ## Where to go next
 
