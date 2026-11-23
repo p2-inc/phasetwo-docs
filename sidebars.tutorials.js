@@ -116,7 +116,7 @@ module.exports = {
       type: "category",
       label: "Realm administration",
       link: { type: "generated-index" },
-      items: ["admin/fine-grained-permissions-v2"],
+      items: ["admin/fine-grained-permissions-v2", "admin/realm-keys"],
     },
     {
       type: "category",
