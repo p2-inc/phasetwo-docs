@@ -219,7 +219,8 @@ leave:
 1. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
 2. [What personal data Keycloak stores, and how to erase it](/tutorials/users/personal-data-gdpr/)
 3. [Keycloak event retention: expiration settings for GDPR](/tutorials/data-protection/event-retention/)
-4. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
+4. [Back up and restore Keycloak](/tutorials/operations/backup-restore/)
+5. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/)
 
 Realm key management builds on the same track. *(Coming soon.)*
 
@@ -234,7 +235,9 @@ console and into a repository, and getting your data back out again:
 4. [Keycloak configuration as code with Terraform](/tutorials/operations/config-as-code/) —
    the provider, realm JSON import, and which of the two destroys your users
 5. [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
-   — the backup half, which no operator does for you
+   — moving a realm to another server, and proving it arrived
+6. [Back up and restore Keycloak](/tutorials/operations/backup-restore/) — why the export is
+   not the backup, and the command for each of the four things that go missing
 
 Sizing, upgrades and observability build on the same track. *(Coming soon.)*
 
