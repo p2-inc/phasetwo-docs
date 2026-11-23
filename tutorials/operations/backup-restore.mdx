@@ -1,0 +1,484 @@
+---
+id: backup-restore
+title: "Back Up and Restore Keycloak"
+description: How to back up Keycloak and actually restore it — why a realm export taken on a running server is silently inconsistent, and the four losses with a tested command each.
+keywords:
+  - how to backup keycloak
+  - keycloak backup
+  - keycloak backup and restore
+  - how to export keycloak realm
+  - keycloak export config
+  - keycloak restore realm
+difficulty: intermediate
+time: 45 minutes
+keycloak_version: "26.8.2"
+prerequisites:
+  - Docker
+  - Access to the database behind Keycloak
+  - A Keycloak admin login
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Back Up and Restore Keycloak
+
+**Back up the database, not the realm.** A `pg_dump` of a running Keycloak took **0.29
+seconds** on a 5,009-user realm and is guaranteed consistent. The realm export everyone
+reaches for first — `kc.sh export` — takes **13 seconds of reading**, and if the server is
+running while it reads, the file you get is a mixture of several points in time. It exits 0
+and prints `Export finished successfully` either way.
+
+That is the whole lesson, and the rest of this page proves it and then tells you what to do
+when something is actually gone: a deleted user, a deleted client, a deleted realm, a
+destroyed database. Each has a different command and a different thing it costs you.
+
+:::info Tested against
+
+Keycloak **26.8.2** (`quay.io/keycloak/keycloak:26.8.2`) on **PostgreSQL 16.16**, one realm
+with **5,009 users**, 9 clients and 5,117 role mappings, on a 2-vCPU host. Every timing, row
+count, log line and error message below is copied from a run on **2026-11-23**. Keycloak
+**26.7.5** appears in the version section.
+
+The reference page is Keycloak's
+[Importing and exporting realms](https://www.keycloak.org/server/importExport). It is
+accurate, and it already tells you that "the import / export process has limitations to be
+used as a backup and restore mechanism" and that "consistency of an export is not guaranteed
+unless all Keycloak nodes are stopped prior to running the export."
+
+What it does not tell you is what that inconsistency looks like, what stopping the nodes
+costs, or which command to run when a specific thing is missing. There is no backup section
+in the [production configuration guide](https://www.keycloak.org/server/configuration-production)
+either. That is the gap this page fills.
+
+:::
+
+## Why a realm export taken on a live server is not a backup
+
+The documentation says the server "must not be started when invoking this command." Nothing
+enforces it. Run it against a live server and it works:
+
+```bash
+docker exec kc /opt/keycloak/bin/kc.sh export \
+  --dir /tmp/exp --realm acme --users realm_file
+```
+
+```console
+KC-SERVICES0034: Export of realm 'acme' requested.
+DirExportProvider: Exporting into directory /tmp/exp
+DirExportProvider: Realm 'acme' - data exported
+KC-SERVICES0035: Export finished successfully
+real    0m33.192s
+```
+
+Exit code 0, a 4.9 MB file, the live server still serving on :8080. Nothing in that output
+suggests a problem.
+
+Here is the problem. The export spends about 13 seconds reading the realm, and it does not
+read it in one transaction. To measure it, I wrote to the realm while the export was reading,
+timestamping every write against the export's own log lines:
+
+| Time | Event | In the exported file? |
+|---|---|---|
+| `07:50:32.303` | `KC-SERVICES0034: Export of realm 'acme' requested` | — |
+| `07:50:32.628` | created realm role `midflight-role` | **yes** |
+| `07:50:32.757` | created user `midflight1` with that role | **yes** |
+| `07:50:33.810` | created user `midflight2` | **no** |
+| `07:50:34.880` … `07:50:40.274` | created `midflight3` … `midflight8` | **no** |
+| `07:50:45.210` | `Realm 'acme' - data exported` | — |
+
+Read that table again. The file contains a user created **0.45 s after the export started**
+and omits one created **1.5 s after it started** — nine seconds before it finished. The
+export is not the state at the beginning and not the state at the end. It is a seam.
+
+A `pg_dump` cannot do this, and you can watch it not do it. Turn on `log_statement='all'` and
+run one:
+
+```console
+LOG:  statement: SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY
+```
+
+One snapshot, taken at the start, held until the dump finishes. Everything in the file is
+the database as it was at a single instant.
+
+## The three ways to get the data out, measured
+
+Same realm, same host, same afternoon.
+
+| Path | Server | Wall time | Output size | Consistent? |
+|---|---|---|---|---|
+| `pg_dump -Fc` | **running** | **0.29 s** | 1.6 MB | yes — one snapshot |
+| `kc.sh export` | **running** | 33 s | 4.9 MB | **no — proven above** |
+| `kc.sh export` | stopped | 33 s + **43.6 s of outage** | 4.9 MB | yes |
+
+The third row is the supported way, and it is worth seeing the whole bill:
+
+```console
+stop keycloak      : 1.4s
+offline export     : 33.5s
+start + ready again: 8.7s
+TOTAL OUTAGE       : 43.6s
+```
+
+Forty-four seconds of refused logins, per realm, per backup, to produce a file that is bigger
+and carries less than the dump you could have taken in under a third of a second without
+anybody noticing. There is no nightly schedule on which that trade makes sense.
+
+So: **`pg_dump` is the backup.** Realm exports are for moving a realm somewhere else, which
+is a different job with its own page —
+[export a Keycloak realm, users and credentials](/tutorials/data-protection/exit-export/)
+covers the three export paths, what each carries, and how to verify the move.
+
+## Taking the backup
+
+```bash
+# the backup
+pg_dump -U kc -d keycloak -Fc -f /backups/keycloak-$(date -u +%Y%m%dT%H%M%SZ).dump
+
+# the version that wrote it — store this next to the file
+psql -U kc -d keycloak -t -A \
+  -c "select version from migration_model order by update_time desc limit 1"
+```
+
+```console
+26.8.2
+```
+
+That second command matters more than it looks, and the version section below is why.
+
+**The dump is a file full of secrets.** Not "contains hashed passwords" — cleartext key
+material. In this realm:
+
+```console
+       provider       |   cfgkey    |       value_prefix       | len
+----------------------+-------------+--------------------------+------
+ rsa-generated        | privateKey  | MIIEpAIBAAKCAQEA0cpRaEnj | 1592
+ rsa-enc-generated    | privateKey  | MIIEowIBAAKCAQEAyOivzysP | 1588
+ hmac-generated-hs512 | secret      | l9Rg9H39RYbCc55Koo04vpxO |  171
+```
+
+```console
+ client_id | secret
+-----------+--------------------
+ portal    | portal-secret-7c1f
+ batch     | batch-secret-9a2e
+
+     name     |         value
+--------------+-----------------------
+ clientSecret | gh-super-secret-value
+```
+
+Realm signing keys, every client secret, and every identity-provider and LDAP bind
+credential, readable with `strings`. Whoever can read the backup bucket can mint tokens your
+applications will accept. Encrypt the dumps, keep them off the Keycloak host, and treat read
+access to them exactly as you treat admin access to the realm.
+
+**And back up what is not in the database.** The dump carries everything Keycloak persists
+and nothing it was handed at boot:
+
+| Lives in the database | Lives on the filesystem or in your secret store |
+|---|---|
+| Realms, users, credentials, clients, roles, groups | `providers/` — extension JARs |
+| Realm signing keys, client secrets, IdP credentials | `themes/` — custom login and email themes |
+| Sessions, offline sessions, events | `conf/keycloak.conf`, `conf/truststores/` |
+| Authentication flows, authorization policies | `KC_DB_PASSWORD`, `KC_HOSTNAME` and every other build/runtime option |
+
+A dump restored onto a stock container gives you a realm whose custom theme is gone and whose
+SPI no longer loads. `kc.sh show-config` prints where each option is actually coming from —
+run it once and back up every source it names.
+
+## Four losses and the command for each
+
+| What is gone | Restore with | Costs you |
+|---|---|---|
+| One user | `partialImport` of that user | nothing — the id survives |
+| One client | `partialImport` of that client | **a new client UUID**, see below |
+| A whole realm | `POST /admin/realms` with the export file | all sessions; ~10 s, no downtime |
+| The database | `pg_restore` | ~13 s of downtime; nothing else |
+
+The first two need a realm export file, not a dump — you cannot pick one object out of a
+`pg_dump` and put it back. That is the honest reason to keep taking realm exports **as well
+as** dumps: not because they are backups, but because they are the only thing you can restore
+a single object from. Take them on a schedule where a torn file is survivable, or from a
+restored copy rather than from production.
+
+### Restoring one deleted user
+
+Take the user straight out of the export file, keep its `id`, and POST it:
+
+```bash
+curl -X POST "$KC/admin/realms/acme/partialImport" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"ifResourceExists":"OVERWRITE","users":[ <user object from the export> ]}'
+```
+
+```console
+{"overwritten":0,"added":1,"skipped":0,
+ "results":[{"action":"ADDED","resourceType":"USER","resourceName":"user00042",
+             "id":"98554352-7728-4b75-ad2f-25a13935eed6"}]}
+```
+
+That is the **same id** the user had before it was deleted. Group memberships, realm roles
+and the original password all came back — the user authenticated with it immediately. For a
+deleted user this is a complete restore.
+
+### Restoring one deleted client, which is not the same thing
+
+Do the identical operation with a client and watch the id:
+
+```console
+uuid in backup: 3f8dace7-b15b-44f0-9958-7a3f82a50ef2
+{"added":1,"results":[{"action":"ADDED","resourceType":"CLIENT","resourceName":"portal",
+                       "id":"c53b0cc4-c1e1-47f2-8fae-1d4abe51278a"}]}
+```
+
+`partialImport` honours the `id` on a user and ignores it on a client. The secret, the
+redirect URIs and every flag came back correctly, so applications holding the client secret
+keep working. What breaks is anything that referenced the client's UUID: Admin API URLs,
+authorization policies, fine-grained admin permissions.
+
+It is worse for a service-account client. Restoring `batch` gave it a new client UUID **and
+a new service-account user**:
+
+```console
+service account user id before: 832769a6-4215-4247-94c7-47ae7027b917
+service account user id after : 2831129c-8ba4-4199-b7f3-c43a0d23a76b
+```
+
+```console
+sub: 2831129c-8ba4-4199-b7f3-c43a0d23a76b
+preferred_username: service-account-batch
+```
+
+The `sub` claim is that id. `client_credentials` still returns a token, so nothing fails
+loudly — but every row your application wrote keyed on the old `sub` now belongs to a
+principal that no longer exists. **If you restore a service-account client, plan on
+reconciling ownership rows; the client did not come back, a new one took its name.**
+
+### Restoring a whole realm, without downtime
+
+`kc.sh import` is not your only option, and it is not the fast one. The Admin API will create
+a realm from the same export file while the server stays up:
+
+```bash
+curl -X POST "$KC/admin/realms" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  --data-binary @acme-realm.json
+```
+
+```console
+payload bytes: 4962693
+HTTP 201 in 9.9s
+```
+
+Ten seconds for 5,009 users, no restart, no outage for the other realms on the server. And
+unlike `partialImport`, a full realm create preserves identity completely:
+
+| | Before the loss | After the restore |
+|---|---|---|
+| Realm UUID | `ad35b638-…` | `ad35b638-…` |
+| User id (`user00042`) | `98554352-…` | `98554352-…` |
+| Client UUID (`portal`) | `3f8dace7-…` | `3f8dace7-…` |
+| JWKS | — | **byte-identical** |
+| users / clients / roles / role mappings | 5009 / 9 / 39 / 5117 | 5009 / 9 / 39 / 5117 |
+
+The signing key survives, which is the part people assume means their tokens survive. They do
+not:
+
+```console
+userinfo BEFORE the loss                    : HTTP 200
+JWKS identical before/after restore         : YES
+userinfo AFTER, with the pre-loss token     : HTTP 401
+fresh login AFTER                           : HTTP 200
+```
+
+The token is still correctly signed by a key the realm still holds. It fails because UserInfo
+checks the session behind it, and a realm export carries no sessions. **Everyone is logged
+out.** Offline tokens are dead too — `{"error":"invalid_grant","error_description":"Offline
+user session not found"}`.
+
+Deleting that realm, for reference, took **1.7 seconds**.
+
+### Restoring the database
+
+The only path that keeps people logged in. Keycloak must be stopped — the restore drops the
+database out from under it.
+
+```bash
+docker stop kc
+psql -U kc -d postgres -c "DROP DATABASE keycloak" -c "CREATE DATABASE keycloak OWNER kc"
+pg_restore -U kc -d keycloak --no-owner /backups/keycloak-20261123T075800Z.dump
+docker start kc
+```
+
+```console
+stop keycloak        : 1.4s
+drop + create db     : 0.3s
+pg_restore           : 2.3s
+start + ready        : 8.7s
+TOTAL RECOVERY TIME  : 12.7s
+```
+
+Every count matched the pre-disaster state exactly, including the ones a realm export does
+not carry: 32 offline session rows, 16 user events, 5,138 admin events. An offline refresh
+token minted before the database was dropped redeemed afterwards:
+
+```console
+REDEEMED, expires_in 300
+```
+
+Two things to know before you reach for this. It replaces the **whole server**, not one
+realm — including `master` and its administrators. And offline tokens survive only if the
+issuer URL does not change with the restore; move the server to a new hostname and they are
+refused regardless.
+
+## Which Keycloak version does this dump belong to?
+
+A database dump carries the Liquibase schema, and the schema belongs to a version. You can
+read which one without restoring anything:
+
+```bash
+pg_restore -a -t migration_model -f - backup.dump | grep -A3 'COPY public.migration_model'
+```
+
+```console
+COPY public.migration_model (id, version, update_time) FROM stdin;
+rzabt	26.7.5	1795421238
+```
+
+**Forward is fine.** I restored that 26.7.5 dump into an empty database and started 26.8.2 on
+it:
+
+```console
+Updating database. Using changelog META-INF/jpa-changelog-master.xml
+Migrating older model to 26.8.0
+migrated realm legacy to 26.8.0
+Migrating older model to 26.8.2
+migrated realm legacy to 26.8.2
+```
+
+First start took 24.9 s instead of the usual ~9 s, the user kept its id, and a password set
+on 26.7.5 authenticated on 26.8.2. Restoring a months-old dump is a normal upgrade.
+
+**Backward is where the trap is.** Keycloak 26.7.5, started against a database 26.8.2 had
+already migrated, does **not** refuse. It starts in 8.8 seconds, serves
+`/.well-known/openid-configuration`, logs users in, and emits exactly one line about it:
+
+```console
+WARN [org.keycloak.storage.datastore.DefaultMigrationManager] Possibly incorrect state of
+migration. You are trying to run server version '26.7.5' against database, which was already
+migrated to newer version '26.8.2'.
+```
+
+Zero `ERROR` lines. It also logs two indexes as missing that 26.8.2 never complains about:
+
+```console
+WARN  Missing database index IDX_OFFLINE_CSS_BY_USER_SESSION_AND_OFFLINE on table OFFLINE_CLIENT_SESSION
+WARN  Missing database index IDX_IDP_REALM_ORG on table IDENTITY_PROVIDER
+```
+
+So the old binary is running against a schema it does not match, at whatever that costs on a
+large `OFFLINE_CLIENT_SESSION` table, and the only thing that told you is a `WARN` in a
+startup log nobody reads. **Rolling the container tag back is not a rollback.** The migration
+went one way; your rollback is the dump you took before the upgrade. Take one.
+
+## Prove the backup restores
+
+A backup you have never restored is a file. This runs in under 30 seconds and ends with a
+real user authenticating against the restored copy:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+DUMP=${1:?usage: verify-backup.sh <dump-file>}
+SCRATCH=kc_verify_$(date +%s)
+
+cleanup() { docker rm -f kcverify >/dev/null 2>&1 || true
+            psql -U kc -d postgres -c "DROP DATABASE IF EXISTS $SCRATCH" >/dev/null 2>&1 || true; }
+trap cleanup EXIT
+
+psql -U kc -d postgres -c "CREATE DATABASE $SCRATCH OWNER kc"
+pg_restore -U kc -d "$SCRATCH" --no-owner "$DUMP"
+
+echo "== the Keycloak version that wrote this dump =="
+psql -U kc -d "$SCRATCH" -t -A \
+  -c "select version from migration_model order by update_time desc limit 1"
+
+echo "== row counts =="
+psql -U kc -d "$SCRATCH" -t -A -F' ' -c \
+ "select (select count(*) from realm), (select count(*) from user_entity),
+         (select count(*) from client), (select count(*) from credential)"
+
+docker run -d --name kcverify --network kcnet --memory 1536m \
+  -e KC_DB=postgres -e KC_DB_URL="jdbc:postgresql://kcdb:5432/$SCRATCH" \
+  -e KC_DB_USERNAME=kc -e KC_DB_PASSWORD=kc \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=verify -e KC_BOOTSTRAP_ADMIN_PASSWORD=verify \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+
+until curl -sf "http://kcverify:8080/realms/acme/.well-known/openid-configuration" >/dev/null
+do sleep 2; done
+
+curl -s -X POST "http://kcverify:8080/realms/acme/protocol/openid-connect/token" \
+  -d grant_type=password -d client_id=portal -d client_secret="$PORTAL_SECRET" \
+  -d username="$PROBE_USER" -d "password=$PROBE_PASSWORD" \
+  -o /dev/null -w 'token endpoint: HTTP %{http_code}\n'
+```
+
+```console
+== the Keycloak version that wrote this dump ==
+26.8.2
+== row counts ==
+2 5010 16 5009
+realm acme answers its discovery document  (10 polls)
+== a real user authenticates against the restored copy ==
+token endpoint: HTTP 200
+
+real    0m28.710s
+```
+
+Run it on a schedule against the newest dump. Row counts alone would have passed on a dump
+with a corrupt `credential` table; the token request is what makes it a test.
+
+## Named failure modes
+
+- **The export succeeded and the file is wrong.** You ran `kc.sh export` against a live
+  server. Exit 0, `Export finished successfully`, and a file stitched from a 13-second read.
+  Stop the node, or use a dump.
+- **`Permission denied` — after the outage.** Mounting a host directory the container's
+  `keycloak` user cannot write ends the job at the last step: `ERROR: Error during
+  export/import: /export/acme-realm.json (Permission denied)`. It cost 53 seconds of downtime
+  to find that out. `chown 1000:1000` the target directory first.
+- **"Changes detected in configuration. Updating the server image."** The export triggered a
+  Quarkus rebuild, roughly 10 of its 33 seconds. Pre-build the image and pass `--optimized`.
+- **The restored realm is there and the login page is unstyled.** Themes and provider JARs
+  live on the filesystem, not in the database.
+- **The restore worked and your application cannot find its service account.** You restored a
+  client with `partialImport`; its service-account `sub` changed.
+- **The old binary started fine, so the upgrade is rolled back.** It is not. See the version
+  section.
+- **The backup does not contain the attribute you were counting on.** It can only contain
+  what the server actually stored. `POST /users` with `"attributes":{"costCentre":["CC-900"]}`
+  returns `201 Created` and stores nothing at all unless the realm's
+  [user profile](/tutorials/users/user-profile/) declares that attribute or enables unmanaged
+  attributes — the row is absent from `user_attribute`, so it is absent from every backup you
+  have ever taken. Check the restored copy for the fields you care about, not the request you
+  sent.
+
+## Next steps
+
+- [Export a Keycloak realm, users, and credentials](/tutorials/data-protection/exit-export/)
+  — the other job the export does, done properly: moving a realm between servers and proving
+  it arrived.
+- [Keycloak configuration as code with Terraform](/tutorials/operations/config-as-code/) —
+  the realm configuration you can rebuild from a repository is configuration you do not need
+  to restore.
+- [Keycloak production readiness checklist](/blog/keycloak-production-checklist/) — where
+  "rehearse the restore" sits among everything else that has to be true before launch.
+- [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — the client
+  for the Admin API calls above.
+- More [Keycloak tutorials](/tutorials/).
+- Official reference:
+  [Importing and exporting realms](https://www.keycloak.org/server/importExport) and the
+  [Admin REST API](https://www.keycloak.org/docs-api/latest/rest-api/index.html).
+- Clean up: `docker rm -f kc kcdb && docker network rm kcnet`.
+
+<ProductionNote />
