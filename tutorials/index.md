@@ -97,6 +97,8 @@ Customizing the email templates themselves is next. *(Coming soon.)*
 5. [Keycloak protocol mappers: a complete field guide](/tutorials/clients/protocol-mappers/) —
    how a claim gets into a token in the first place
 6. [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/)
+7. [Keycloak logout: back-channel, front-channel, RP-initiated](/tutorials/sessions/oidc-logout/) —
+   ending a session on purpose, and getting every application to notice
 
 Paste a token into our free [JWT decoder](/tools/jwt-decoder/) while you read.
 

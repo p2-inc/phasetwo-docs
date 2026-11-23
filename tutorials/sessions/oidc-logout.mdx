@@ -1,0 +1,522 @@
+---
+id: oidc-logout
+title: "Keycloak Logout: Back-Channel, Front-Channel, RP-Initiated"
+description: The three OIDC logout mechanisms in Keycloak, which one each client should use, the exact attribute names, and the four ways logout fails silently. Tested on 26.8.2.
+keywords:
+  - keycloak logout
+  - keycloak backchannel logout
+  - keycloak front channel logout
+  - rp-initiated logout
+  - keycloak end_session_endpoint
+  - keycloak logout not working
+difficulty: intermediate
+time: 30 minutes
+keycloak_version: "26.8.2"
+---
+
+import ProductionNote from "@site/src/components/ProductionNote";
+
+# Keycloak Logout: Back-Channel, Front-Channel, RP-Initiated
+
+Keycloak logout is three different mechanisms with three different failure modes, and
+picking the wrong one is why a user who clicked "Log out" is still logged in to the other
+tab. In one sentence each:
+
+1. **RP-initiated logout** is the user's browser being redirected to Keycloak's
+   `end_session_endpoint`. It ends the Keycloak session. It is what the Log out button does.
+2. **Back-channel logout** is Keycloak POSTing a signed *logout token* server-to-server to
+   each client's registered URL, so the client can destroy its own session. No browser
+   involved.
+3. **Front-channel logout** is Keycloak rendering the client's logout URL in a hidden
+   `<iframe>` on its logout page, so the client's cookie can be cleared in the browser.
+
+They are not alternatives you choose between at logout time. (1) is how logout *starts*;
+(2) and (3) are two mutually exclusive ways Keycloak *propagates* it, configured per client.
+**A client gets one or the other, never both** — and the switch that decides which is a
+single boolean most people never touch.
+
+:::info Tested against
+Keycloak **26.8.2**, started per
+[Run Keycloak locally](/tutorials/getting-started/run-keycloak-locally/). Every token,
+header, log line and error string below was copied out of an actual run against that
+version, not quoted from the specification.
+:::
+
+Keycloak's [OIDC Logout](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc-logout)
+reference describes all three mechanisms and documents every client field by name. That is
+the right place to look up what a setting means. It does not tell you which to pick, what
+the defaults actually produce, which combinations cancel each other out, or what a failed
+logout looks like in the log. That is this page.
+
+<!-- truncate -->
+
+## Which mechanism should this client use?
+
+| Client | Use | Why |
+|---|---|---|
+| Browser SPA using the JS adapter | Session Management (nothing to configure) | The adapter polls `check_session_iframe` and notices on its own |
+| Server-rendered web app (Spring, Django, Rails) | **Back-channel** | It holds a server-side session cookie that only it can destroy, and it is reachable from Keycloak |
+| Mobile / native app | Back-channel, or nothing | Not reachable by iframe; often just relies on a short access token lifespan |
+| API-only / bearer-only client | Nothing | No session of its own to end |
+| Legacy app that must clear a cookie via a browser redirect | **Front-channel** | The cookie is `SameSite`-bound to a browser request Keycloak can only make from the browser |
+| Client Keycloak cannot route to (behind a VPN, on a laptop) | **Front-channel** | The back-channel POST originates from the Keycloak server, not the user |
+
+Back-channel is the default answer. Front-channel exists for the two cases in that table
+where a server-to-server call cannot work, and it pays for that with every limitation below.
+
+## Prerequisites
+
+```bash
+docker run -d --name kc --memory 1536m -p 127.0.0.1:8080:8080 \
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.8.2 start-dev
+
+K="docker exec kc /opt/keycloak/bin/kcadm.sh"
+$K config credentials --server http://localhost:8080 \
+  --realm master --user admin --password admin
+$K create realms -s realm=demo -s enabled=true
+$K create users -r demo -s username=alice -s enabled=true \
+  -s email=alice@example.com -s emailVerified=true \
+  -s firstName=Alice -s lastName=Example
+$K set-password -r demo --username alice --new-password s3cret
+$K create clients -r demo -s clientId=api-app -s publicClient=false -s secret=s3cr3t \
+  -s standardFlowEnabled=true -s directAccessGrantsEnabled=true \
+  -s 'redirectUris=["http://172.17.0.1:9000/*"]'
+$K create clients -r demo -s clientId=web-app -s publicClient=true \
+  -s standardFlowEnabled=true -s 'redirectUris=["http://172.17.0.1:9000/*"]'
+```
+
+`172.17.0.1` is the Docker bridge gateway — the address the container uses to reach a
+process on your host. Confirm yours with
+`docker network inspect bridge --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}'`; on
+Docker Desktop use `host.docker.internal` instead. You also want `jq`.
+
+You also need somewhere for Keycloak to send logout requests. Save this as
+`logout-sink.py` and run it with `python3 -u logout-sink.py` — the `-u` matters, because
+otherwise the output you are waiting for sits in a buffer:
+
+```python
+import base64, json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import unquote_plus
+
+def seg(s):
+    return json.loads(base64.urlsafe_b64decode(s + "=" * (-len(s) % 4)))
+
+class Sink(BaseHTTPRequestHandler):
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length", 0))).decode()
+        print(f"\nBACK-CHANNEL POST {self.path}  ({self.headers.get('Content-Type')})")
+        if body.startswith("logout_token="):
+            h, p, _ = unquote_plus(body[13:]).split(".")
+            print("  header:", json.dumps(seg(h)))
+            print("  claims:", json.dumps(seg(p), indent=4))
+        self.send_response(200); self.send_header("Content-Length", "0"); self.end_headers()
+
+    def do_GET(self):
+        print(f"\nFRONT-CHANNEL GET {self.path}")
+        self.send_response(200); self.send_header("Content-Length", "2")
+        self.end_headers(); self.wfile.write(b"ok")
+
+    def log_message(self, *a):
+        pass
+
+HTTPServer(("0.0.0.0", 9000), Sink).serve_forever()
+```
+
+## RP-initiated logout: the endpoint and its parameters
+
+```
+GET /realms/{realm}/protocol/openid-connect/logout
+```
+
+Four parameters matter. The behaviour of each, measured:
+
+| Parameter | Effect |
+|---|---|
+| `id_token_hint` | Identifies the session and the client. **With it, logout is silent.** Without it, the user gets a confirmation page |
+| `post_logout_redirect_uri` | Where to send the browser afterwards. Must match the client's Valid post logout redirect URIs |
+| `client_id` | An alternative to `id_token_hint` for identifying which client's redirect list to validate against |
+| `state` | Echoed back on the redirect, unchanged |
+
+The rule that catches people: **`post_logout_redirect_uri` requires one of `id_token_hint`
+or `client_id`.** With neither, the request is rejected before anything is logged out:
+
+```
+HTTP/1.1 400 Bad Request
+
+    Missing parameters: id_token_hint
+```
+
+and in the server log:
+
+```
+WARN  [org.keycloak.events] type="LOGOUT_ERROR", realmName="demo", clientId="null",
+  error="invalid_request", reason="Either the parameter 'client_id' or the parameter
+  'id_token_hint' is required when 'post_logout_redirect_uri' is used."
+```
+
+With a valid `id_token_hint`, the browser goes straight through:
+
+```
+HTTP/1.1 302 Found
+Location: http://172.17.0.1:9000/done?state=abc123
+```
+
+### The extra page nobody asked for
+
+Send `client_id` instead of `id_token_hint` and the user does **not** get a redirect. They
+get an interstitial — HTTP 200, title "Logging out", a form posting to
+`/protocol/openid-connect/logout/logout-confirm`, and a button they have to click:
+
+```html
+<form action="/realms/demo/protocol/openid-connect/logout/logout-confirm?client_id=api-app&amp;tab_id=q8XXNvZR-_U" method="POST">
+  <input type="hidden" name="session_code" value="..."/>
+  <input type="submit" name="confirmLogout" value="Logout"/>
+</form>
+```
+
+This is by design — without the ID token, Keycloak cannot prove the logout request came from
+the session it is about to end, so it asks. **If your logout has a mystery confirmation
+screen, your client is not sending `id_token_hint`**, which usually means it is not storing
+the ID token at all. Store it at login; it is the only thing that makes logout a single hop.
+
+### Validating the redirect
+
+`post_logout_redirect_uri` is checked against the client's `post.logout.redirect.uris`
+attribute, which is **unset** on a freshly created client. Unset means "inherit the client's
+redirect URIs", so logout redirects work out of the box wherever login redirects do. The
+two explicit values:
+
+```bash
+CID=$($K get clients -r demo -q clientId=api-app --fields id --format csv --noquotes)
+
+# allow a specific list, independent of the login redirect URIs
+$K update clients/$CID -r demo \
+  -s 'attributes."post.logout.redirect.uris"=http://localhost:5173/bye##http://localhost:5173/'
+
+# "-" forbids every post-logout redirect for this client
+$K update clients/$CID -r demo -s 'attributes."post.logout.redirect.uris"=-'
+```
+
+Multiple values are separated by `##`, not commas — with the list above, `/bye` and `/`
+redirect and anything else is refused. A rejected URI gives HTTP 400 with
+`Invalid redirect uri` on the page and
+`error="invalid_redirect_uri", redirect_uri="http://evil.example.com/"` in the log — the
+same validation path as the login redirect, and the same thing to grep for.
+
+## Back-channel logout: configure it and read the token
+
+Two attributes, on the client:
+
+```bash
+$K update clients/$CID -r demo \
+  -s 'attributes."backchannel.logout.url"=http://172.17.0.1:9000/bc-logout' \
+  -s 'attributes."backchannel.logout.session.required"=true'
+```
+
+Log in and log out — here, through the admin API, which is the case front-channel cannot
+cover at all:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d grant_type=password -d client_id=api-app -d client_secret=s3cr3t \
+  -d username=alice -d password=s3cret -d scope=openid > /dev/null
+
+UID=$($K get users -r demo -q username=alice --fields id --format csv --noquotes)
+$K create users/$UID/logout -r demo
+```
+
+The sink prints what Keycloak actually sends — a form-encoded POST whose single field is a
+signed JWT:
+
+```
+BACK-CHANNEL POST /bc-logout  (application/x-www-form-urlencoded)
+  header: {"alg": "RS256", "typ": "logout+jwt", "kid": "mLcRbNA8aGylSyy_5ykVNFFAxOwpT0OZ3H0MSfgTuRM"}
+  claims: {
+    "exp": 1795418409,
+    "iat": 1795418289,
+    "jti": "069384bc-6f71-44cb-7fe3-3961a8387a7b",
+    "iss": "http://localhost:8080/realms/demo",
+    "aud": "api-app",
+    "sub": "31b519a2-a5d9-47f8-b0bf-c4b07db17d24",
+    "typ": "Logout",
+    "sid": "mEEKncPACmQu4MKLYV-Xh_Lh",
+    "events": {
+        "http://schemas.openid.net/event/backchannel-logout": {}
+    }
+}
+```
+
+### The `sid` default is the opposite of what the console suggests
+
+Now remove that second attribute and repeat:
+
+```bash
+$K update clients/$CID -r demo -s 'attributes."backchannel.logout.session.required"='
+```
+
+```
+    "sub": "31b519a2-a5d9-47f8-b0bf-c4b07db17d24",
+    "typ": "Logout",
+    "events": {
+        "http://schemas.openid.net/event/backchannel-logout": {}
+    }
+```
+
+**No `sid`.** When `backchannel.logout.session.required` is absent — which is how every
+client created through `kcadm`, Terraform, a realm import or dynamic registration starts —
+the logout token carries `sub` only.
+
+That is still a valid logout token: the specification requires `sub` *or* `sid`. But the two
+mean different things to the receiving application. `sid` says *end this one session*;
+`sub` alone says *end every session you hold for this user*. A correctly written RP that
+receives a `sub`-only token will log the user out of all their devices, which is almost
+never what the person clicking Log out on one laptop intended. Set the attribute explicitly
+and stop relying on the default — and note the inverse for front-channel, where
+`frontchannel.logout.session.required` behaves as if on when unset, and you have to set it
+to `false` to drop `sid` and `iss` from the iframe URL.
+
+### What your application has to do with it
+
+Keycloak only sends the token. Everything after that is the client's job, and a client that
+returns 200 without doing the work looks identical to one that works. Before destroying a
+session, validate:
+
+1. Signature, using the realm JWKS — same keys as an ID token. Reject `alg: none`.
+2. `iss`, `aud`, `iat`, `exp`, as for an ID token.
+3. A `sub` claim, a `sid` claim, or both.
+4. `events` contains `http://schemas.openid.net/event/backchannel-logout`.
+5. **No `nonce` claim.** Its presence means someone is replaying an ID token at you.
+6. `jti` not seen before, if you keep a replay cache.
+
+Then return 200 (or 204), or 400 if validation failed. The same signature-checking you
+already do for access tokens applies — see
+[Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/).
+
+## Front-channel logout: what actually renders
+
+```bash
+WID=$($K get clients -r demo -q clientId=web-app --fields id --format csv --noquotes)
+$K update clients/$WID -r demo -s frontchannelLogout=true \
+  -s 'attributes."frontchannel.logout.url"=http://172.17.0.1:9000/fc-logout'
+```
+
+Log a browser into both clients and hit the logout endpoint. Instead of a 302 you get a
+200, and the body is the propagation mechanism:
+
+```html
+<iframe src="http://172.17.0.1:9000/fc-logout?sid=Uf_zoj19y6YnsaonVWJWqNoH&amp;iss=http%3A%2F%2Flocalhost%3A8080%2Frealms%2Fdemo"
+        style="display:none;">
+...
+window.location.replace("http://172.17.0.1:9000/done")
+```
+
+One hidden iframe per front-channel client, then a JavaScript redirect to
+`post_logout_redirect_uri`. Reproducing this with `curl` shows you the markup but will never
+hit your sink — `curl` does not load iframes. **That is the whole fragility of front-channel
+logout in one sentence: it only works if a browser stays on that page long enough to render
+every iframe.** A user who closes the tab, a flaky client, or a slow endpoint and the logout
+silently did not happen.
+
+The `Content-Security-Policy` on that page is worth seeing, because the official warning
+about CSP is easy to misread:
+
+```
+Content-Security-Policy: frame-src 'self' 172.17.0.1:9000 ; frame-ancestors 'self'; object-src 'none';
+```
+
+Keycloak rewrites its *own* CSP to allow each front-channel client's origin, so its header
+is not what blocks you. What blocks you is the **client's** response — an
+`X-Frame-Options: DENY` or a `frame-ancestors 'none'` on your logout URL, which is a header
+most hardened applications set globally and never think about again. The iframe loads, the
+browser refuses to render it, nothing is reported anywhere.
+
+## The switch that silently disables back-channel logout
+
+`frontchannelLogout` is a top-level boolean on the client, and it is not a preference. It
+selects the mechanism, exclusively:
+
+```bash
+# back-channel URL is configured and correct
+$K get clients/$CID -r demo | jq '.attributes."backchannel.logout.url"'
+"http://172.17.0.1:9000/bc-logout"
+
+$K update clients/$CID -r demo -s frontchannelLogout=true
+# ... log in, log out ...
+# back-channel POSTs received: 0
+```
+
+The URL stays in the database, the admin console still shows it under **Clients → your
+client → Settings → Logout settings**, and Keycloak never calls it. The one trace is a
+warning that does not mention the setting:
+
+```
+WARN  [org.keycloak.services.managers.AuthenticationManager]
+  Some clients have not been logged out for user alice in demo realm: api-app
+```
+
+If logout ever worked and then quietly stopped, check this boolean before anything else.
+
+## Admin-initiated logout reaches back-channel clients only
+
+An administrator ending a session from the console, an API call to
+`POST /admin/realms/{realm}/users/{id}/logout`, or an automated offboarding job all run with
+no browser attached. Front-channel propagation needs the user's browser, so there is nothing
+to render the iframe in:
+
+| Logout triggered by | Back-channel client | Front-channel client |
+|---|---|---|
+| User, via `end_session_endpoint` | notified | notified |
+| Admin console / admin REST API | notified | **not notified** |
+| Account console, another device | notified | **not notified** |
+
+Measured: with a front-channel-only client in the session, `users/{id}/logout` produced zero
+requests to the sink and one line in the log — the same
+`Some clients have not been logged out` warning as above. Keycloak's session is gone, the
+application's is not, and the user stays logged in there until their cookie expires.
+
+**If you have a compliance requirement to terminate access on demand, every client that
+matters has to be on back-channel.** There is no front-channel path that satisfies it.
+
+## Offline sessions are a separate thing, and logout does not clear them
+
+`offline_access` does not create an ordinary session. Request it and check:
+
+```bash
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/token \
+  -d grant_type=password -d client_id=api-app -d client_secret=s3cr3t \
+  -d username=alice -d password=s3cret -d 'scope=openid offline_access' | jq .refresh_expires_in
+2592000
+
+$K get users/$UID/sessions -r demo
+[ ]
+```
+
+Thirty days, and `users/{id}/sessions` is **empty** — the session is an offline one, listed
+only under `users/{id}/offline-sessions/{clientUuid}`. Because there is no regular session,
+**no back-channel logout token is sent for it.**
+
+What `users/{id}/logout` does do is bump the user's not-before timestamp, so refresh tokens
+issued before it are rejected:
+
+```json
+{"error":"invalid_grant","error_description":"Stale token"}
+```
+
+A token obtained *after* the logout refreshes normally, and the offline session record is
+still listed — logging a user out does not delete it, so the list grows. To actually remove
+one, delete the session or revoke the token:
+
+```bash
+$K delete "sessions/$SID?isOffline=true" -r demo
+# or, from the client:
+curl -s -X POST http://localhost:8080/realms/demo/protocol/openid-connect/revoke \
+  -d client_id=api-app -d client_secret=s3cr3t \
+  -d token_type_hint=refresh_token -d token="$RT"
+```
+
+Either gives `{"error":"invalid_grant","error_description":"Offline user session not found"}`
+on the next refresh. Set `backchannel.logout.revoke.offline.tokens=true` and, where a regular
+session does exist alongside the offline grant, the logout token tells the client to drop it
+too:
+
+```json
+"events": {
+    "http://schemas.openid.net/event/backchannel-logout": {},
+    "revoke_offline_access": true
+}
+```
+
+## The four ways this fails silently
+
+Keycloak treats logout propagation as best-effort. It will report success to the user while
+the propagation failed, in all four of these:
+
+| What happened | Keycloak's response | In the log |
+|---|---|---|
+| Client returns **500, 404 or 401** to the logout token | success; session deleted | **nothing** |
+| Client is unreachable or hangs | success; session deleted | `KC-SERVICES0057 ... Logout for client 'api-app' failed` |
+| Client is front-channel, logout is admin-initiated | success | `Some clients have not been logged out ...` |
+| `frontchannelLogout=true` with only a back-channel URL set | success | `Some clients have not been logged out ...` |
+
+The first row is the one to sit with. **Keycloak does not look at the HTTP status code of the
+back-channel response.** Tested against 500, 404 and 401: in every case the POST was sent,
+the session was destroyed, logout returned 204, and the server log recorded nothing at all.
+An application whose logout handler throws on every request is indistinguishable from one
+that works.
+
+Only transport-level failures are reported, and then at `WARN`:
+
+```
+WARN  [org.keycloak.services] KC-SERVICES0057: Logout for client 'api-app' failed:
+  java.net.SocketTimeoutException: Read timed out
+WARN  [org.keycloak.services] KC-SERVICES0057: Logout for client 'api-app' failed:
+  org.apache.http.conn.HttpHostConnectException: Connect to 172.17.0.1:9999 failed: Connection refused
+```
+
+A hanging endpoint also costs the person waiting: with the sink made to sleep, a single
+admin logout call took **6.2 seconds** to return, and clients are called one after another.
+A slow logout endpoint is a slow logout for everybody.
+
+So: **alert on `KC-SERVICES0057` and on `Some clients have not been logged out`**, and
+instrument the logout handler in the application, because Keycloak will not do it for you.
+
+## Verify your configuration
+
+Five questions. If you cannot answer them from the config rather than from memory, logout is
+not doing what you think.
+
+1. **Which clients have `frontchannelLogout` true?** Everything else about their logout
+   configuration is ignored.
+2. **Does every client that holds a server-side session have a back-channel URL?** The ones
+   that do not are relying on access-token expiry, which is a window, not a logout.
+3. **Is `backchannel.logout.session.required` set explicitly?** Unset means `sub`-only
+   tokens and all-device logout at the client.
+4. **Does your Log out link send `id_token_hint`?** If not, your users are clicking through a
+   confirmation page.
+5. **Is `offline_access` granted anywhere?** Those sessions do not receive logout tokens and
+   survive in the list after a logout.
+
+One loop answers the first three for every client in the realm:
+
+```bash
+for c in $($K get clients -r demo --fields clientId --format csv --noquotes); do
+  id=$($K get clients -r demo -q clientId=$c --fields id --format csv --noquotes)
+  $K get clients/$id -r demo | jq -c --arg c "$c" '{client:$c,
+    frontchannel: .frontchannelLogout,
+    bc_url:   .attributes."backchannel.logout.url",
+    bc_sid:   .attributes."backchannel.logout.session.required",
+    fc_url:   .attributes."frontchannel.logout.url"}'
+done
+```
+
+```json
+{"client":"api-app","frontchannel":false,"bc_url":"http://172.17.0.1:9000/bc-logout","bc_sid":null,"fc_url":null}
+{"client":"web-app","frontchannel":true,"bc_url":null,"bc_sid":null,"fc_url":"http://172.17.0.1:9000/fc-logout"}
+```
+
+A row with `frontchannel: true` and a `bc_url` is misconfigured. A row with neither URL is a
+client that is never told about logout at all — which is a deliberate choice for a bearer-only
+API, and a bug for anything with a session cookie.
+
+## Next steps
+
+- [Keycloak session and token timeouts, explained](/tutorials/sessions/timeouts/) — the
+  clocks that end a session when nobody clicks Log out, and why killing a session does not
+  kill tokens already issued from it.
+- [Get a Keycloak token and read every claim](/tutorials/getting-started/your-first-token/) —
+  including `sid`, which is the claim that joins a token to the session these logout tokens
+  identify.
+- [Validating Keycloak tokens in any backend](/tutorials/securing-applications/validating-tokens/) —
+  the signature checking a logout token handler needs, which you have probably already built.
+- [Keycloak client types: public, confidential, bearer-only](/tutorials/clients/oidc-client-types/) —
+  the decision upstream of this one; bearer-only clients need no logout configuration at all.
+- [Tokens and sessions](/docs/security/tokens-and-sessions/) — the security view of the same
+  objects, including what a stolen token still gets an attacker after a logout.
+- Official reference:
+  [OIDC Logout](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc-logout) and
+  [OpenID Connect Back-Channel Logout 1.0](https://openid.net/specs/openid-connect-backchannel-1_0.html).
+- Clean up: `docker rm -f kc`.
+
+<ProductionNote />

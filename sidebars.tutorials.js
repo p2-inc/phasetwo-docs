@@ -88,7 +88,7 @@ module.exports = {
       type: "category",
       label: "Sessions and tokens",
       link: { type: "generated-index" },
-      items: ["sessions/timeouts"],
+      items: ["sessions/timeouts", "sessions/oidc-logout"],
     },
     {
       type: "category",
