@@ -174,7 +174,9 @@ giving them the realm:
 3. [Use kcadm.sh: the Keycloak admin CLI](/tutorials/getting-started/admin-cli/) — how to
    grant that scoped role, and everything else, from a script
 
-Realm keys and auditing build on the same track. *(Coming soon.)*
+Realm key rotation and what to do when a key leaks is
+[the key compromise runbook](/tutorials/admin/realm-keys/). Auditing builds on the same
+track. *(Coming soon.)*
 
 **Authorizing AI agents and MCP servers** — the tokens an agent presents, and what your
 server has to check before trusting one:
