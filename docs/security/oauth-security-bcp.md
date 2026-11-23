@@ -150,6 +150,17 @@ Two details matter. First, `dpop-bind-enforcer` enforces at request time only fo
 
 **mTLS (RFC 8705)** binds tokens to the client's TLS certificate: **OAuth 2.0 Mutual TLS Certificate Bound Access Tokens Enabled** per client, or `holder-of-key-enforcer`. It needs Keycloak, and every proxy in front of it, to request and pass on client certificates. We did not test mTLS for this page.
 
+## What must APIs do before clients use DPoP?
+
+A DPoP-bound token is only as safe as the resource servers that accept it, and a client that turns DPoP on sends the `DPoP` scheme to every API it calls. Single-page app libraries such as [oidc-spa](/docs/securing-applications/react#enable-dpop-once-your-apis-support-it) have no per-host opt-out, so every API that receives the token must be ready before the client enables DPoP. Each API must:
+
+- **Accept the `DPoP` authorization scheme**, `Authorization: DPoP <token>`, and accept access tokens whose `typ` claim is `DPoP`. Keycloak sets that type on bound tokens, so an API that only accepts `typ: Bearer` rejects them.
+- **Allow the `DPoP` request header in CORS preflight responses.** Keycloak's own endpoints already allow it; API gateways and custom CORS configurations usually need it added.
+- **Verify the proof on every request, once per request,** as [RFC 9449](https://www.rfc-editor.org/rfc/rfc9449.html#section-4.3) describes: the signature with the embedded public key, `htm` and `htu` matching the request method and URL, `ath` matching the hash of the access token, a recent `iat`, a `jti` not seen before, and the key's thumbprint matching the token's `cnf.jkt`. If the same request is authenticated twice, the second check sees the proof's `jti` as a replay and fails.
+- **Reject a DPoP-bound token sent as `Bearer` or without a proof.** Otherwise the binding protects nothing. Keycloak's userinfo endpoint behaves this way.
+
+Two operational details. A proof adds roughly 0.5 to 1 KB to each request, so check your largest tokens against gateway header-size limits. Proofs are time-stamped, so a client whose clock is off by more than the server's tolerance fails every request even though login worked; the error is usually `invalid_dpop_proof` with a 401. Don't cache authorizer decisions for DPoP requests, since every request carries a new proof, and don't log the `DPoP` header.
+
 ## Can the FAPI profiles do this for you?
 
 Keycloak ships ready-made global profiles. You attach them to a policy the same way as your own. They are listed by `GET /admin/realms/{realm}/client-policies/profiles?include-global-profiles=true`.
