@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 60" width="170" height="60" fill="none" role="img" aria-label="FusionAuth">
+  <g fill="#A0A9DB">
+    <path d="M30 10 16 17.9v15.8L30 41.6l14-7.9V17.9L30 10Zm0 5.4 9.3 5.2v10.4L30 36.2l-9.3-5.2V20.6L30 15.4Z"/>
+    <path d="M25.4 22.2h9.2v3.3h-5.5v2.6h4.8v3.3h-4.8v4.1h-3.7V22.2Z"/>
+  </g>
+  <text x="52" y="38.5" fill="#A0A9DB" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="25" font-weight="600" letter-spacing="-0.6">FusionAuth</text>
+</svg>

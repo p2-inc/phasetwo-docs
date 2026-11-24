@@ -21,6 +21,7 @@ const VENDOR_LINKS = [
   { key: "zitadel", label: "vs. Zitadel", to: "/keycloak-alternatives/zitadel/" },
   { key: "authentik", label: "vs. authentik", to: "/keycloak-alternatives/authentik/" },
   { key: "clerk", label: "vs. Clerk", to: "/keycloak-alternatives/clerk/" },
+  { key: "fusionauth", label: "vs. FusionAuth", to: "/keycloak-alternatives/fusionauth/" },
 ];
 
 // Render a feature-matrix cell from a compact value:
