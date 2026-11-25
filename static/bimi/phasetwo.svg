@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+<title>Phase Two</title>
+<rect width="192" height="192" fill="#3FA1E3"/>
+<g transform="translate(96 96) scale(0.72) translate(-96.43 -96.26)">
+<path fill="#FFFFFF" d="M95.2097 33H124.902L55.7661 153.692C53.9329 156.897 49.8486 159.517 46.6951 159.517H17L86.1356 38.8253C87.972 35.6201 92.0531 33 95.2097 33Z"/>
+<path fill="#FFFFFF" d="M146.162 33H175.857L106.721 153.692C104.885 156.897 100.804 159.517 97.6471 159.517H67.9519L137.088 38.8253C138.924 35.6201 143.005 33 146.162 33Z"/>
+</g>
+</svg>
