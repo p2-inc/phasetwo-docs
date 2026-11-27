@@ -15,7 +15,7 @@ keywords:
 
 Keycloak organization login can replace the tenant-aware login that Auth0 Organizations and WorkOS sell to B2B SaaS platforms. With the open-source Phase Two [Keycloak organizations](/extensions/organizations/) extension, your app asks for a tenant with `account_hint=globex`, and Keycloak lets the user in only if they are a member of Globex or hold an invitation to it. The rule holds whether they sign in with a password, with Google, through their company's SSO, or through an external identity provider.
 
-We tested four cases on Keycloak 26.8.2 with keycloak-orgs 0.200, in a real browser: the tenant hint across every login method, a contractor who switches tenants, an external IdP with `kc_idp_hint`, and every way a user gets refused. The screenshots and the video come from that run.
+We tested four cases on Phase Two Keycloak, in a real browser: the tenant hint across every login method, a contractor who switches tenants, an external IdP with `kc_idp_hint`, and every way a user gets refused. The screenshots and the video come from that run.
 
 <!-- truncate -->
 
