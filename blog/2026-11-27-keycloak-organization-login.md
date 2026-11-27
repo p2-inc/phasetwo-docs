@@ -46,7 +46,7 @@ Customers can set up their own SAML or OIDC connection through the IdP wizard, w
 
 ### Only members may enter a customer's tenant
 
-A contractor who left one of your customers should not be able to sign in to that customer's tenant, even with a valid account elsewhere in your product. Select Organization checks membership at sign-in. A user who asks for an organization they do not belong to gets an error page instead of a token, and a user with no organization at all can be refused the same way.
+A contractor who left a customer should not get back into that customer's tenant, even with a valid account elsewhere in your product. Select Organization checks membership at sign-in. A user who asks for an organization they do not belong to gets an error page instead of a token, and a user with no organization at all can be refused the same way.
 
 ![Invalid Organization error for a non-member](/blog/keycloak-organization-login/not-a-member.png)
 
@@ -62,7 +62,7 @@ If they belong to exactly one, the picker is skipped. If the application asks wi
 
 ### Your app already knows the customer
 
-When the user arrives from `globex.app.example.com` or from a link inside a customer's workspace, asking them to pick is friction. The application passes `account_hint=globex` (by organization id, or by name if you enable that) and Keycloak skips the picker, checks membership and signs the user in to that organization.
+When the user arrives from `globex.app.example.com` or a link inside a customer's workspace, a picker is friction. The application passes `account_hint=globex` (by organization id, or by name if you enable that) and Keycloak skips the picker, checks membership and signs the user in to that organization.
 
 ### Switching customer without signing out
 
@@ -82,7 +82,7 @@ Many B2B customers are small, with no identity provider and no appetite for anot
 
 ### Some customers need stricter rules
 
-Your bank customer requires MFA; your design-agency customer does not. A condition on an organization attribute runs an extra step, such as MFA or accepting terms, only for organizations that carry that attribute. The same idea pins a white-label application to its own customer: compare an attribute on the organization with one on the application, and refuse anyone from another tenant. In Auth0 this is an Action you write in code.
+Your bank customer requires MFA; your design agency does not. A condition on an organization attribute runs an extra step, such as MFA, only for organizations with that attribute. The same idea pins a white-label application to its own customer. In Auth0 both are Actions you write in code.
 
 ## What does your application get back?
 
@@ -92,17 +92,17 @@ The token carries the active organization: its id, its name, the user's roles **
 
 ## What do you have to get right?
 
-The hosted vendors enforce the tenant for you once an application is configured for it. In Keycloak you get the pieces and assemble the flow, so the check exists only where you put it. Three rules cover most of it:
+Hosted vendors enforce the tenant once an application is configured for it. In Keycloak the check exists only where your flow puts it. Three rules:
 
-1. **Check federated users after they come back from their identity provider**, in the identity provider's post-broker flow. A check placed after the redirect in the browser flow never runs for them: in our test, a user with no organization signed in through an identity provider and got a token anyway.
+1. **Check federated users after they come back from their identity provider**, in the identity provider's post-broker flow. A check after the redirect in the browser flow never runs: in our test, a user with no organization got a token anyway.
 2. **Choose when to check passwordless users.** Checking before the magic link is sent means non-members never get an email. But that check runs on a typed address, so its answer can tell a stranger which accounts exist. If that matters more, check right after an email code or passkey instead.
-3. **Have your API verify the organization claim.** Reject tokens whose organization is missing or does not match the customer whose data is being requested. The application decides whether to ask for a specific organization, so the API is the last line.
+3. **Have your API verify the organization claim.** Reject tokens whose organization is missing or does not match the customer whose data is requested. The API is the last line.
 
 The [Select Organization docs](/docs/organizations/active-organization-authenticator/) cover the configuration.
 
 ## Does it hold up in a real run?
 
-We built one realm with three customer organizations, a test identity provider standing in for a company SSO and for Google, and a mail catcher, then signed in through a real browser for each case.
+One realm, three customer organizations, a test identity provider standing in for a company SSO and for Google, and a real browser for each case.
 
 | Case | Result |
 |---|---|
@@ -121,7 +121,7 @@ Not covered in this run: per-organization MFA and pinning an application to one 
 
 ## Can an AI coding agent set this up for you?
 
-Yes. The open-source [Phase Two Keycloak skills](https://github.com/p2-inc/keycloak-skills) for Claude Code, Cursor and Codex include an intent for each organization-aware login case. Ask the agent in plain words, such as "only members of Acme can sign in" or "send acme.com users to their Okta". It builds the flow, binds it, and checks the result against your Keycloak.
+Yes. The open-source [Phase Two Keycloak skills](https://github.com/p2-inc/keycloak-skills) for Claude Code, Cursor and Codex include an intent for each organization-aware login case. Ask in plain words, such as "only members of Acme can sign in", and the agent builds the flow, binds it and checks the result.
 
 | Case | Skill intent |
 |---|---|
@@ -130,24 +130,16 @@ Yes. The open-source [Phase Two Keycloak skills](https://github.com/p2-inc/keycl
 | Only members may sign in through an identity provider | [`admin:idp-org-restrict-login`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-idp-org-restrict-login.md) |
 | Passwordless magic link for members only | [`admin:passwordless-magic-link-org-restrict`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-passwordless-magic-link-org-restrict.md) |
 
-Each intent comes in two variants: one that uses Keycloak's Admin REST API directly, and one that uses the Phase Two MCP server. The [launch post](/blog/keycloak-skills-mcp-launch/) covers installation.
+Each intent works over the Admin REST API or the Phase Two MCP server. The [launch post](/blog/keycloak-skills-mcp-launch/) covers installation.
 
 ## When should you not use this?
 
-- **Users who work in two customers at once, side by side.** The active organization is stored on the user, not the session. Two tabs or two devices in different organizations share it, and the most recent choice wins at the next token refresh. WorkOS, Clerk and Descope keep it per session. If your users routinely keep two tenants open, this will hurt.
-- **You want the tenant enforced without building a flow.** If nobody on the team will own the login flows and review them like code, a hosted product that enforces membership by configuration is safer.
-- **You want drop-in UI components.** There is no ready-made organization switcher component or SDK hook. You build the switcher against the API.
+- **Users who work in two customers at once, side by side.** The active organization is stored on the user, not the session, so two tabs or devices share it and the latest choice wins at the next refresh. WorkOS, Clerk and Descope keep it per session.
+- **You want the tenant enforced without building a flow.** If nobody will own and review the login flows, a hosted product that enforces membership by configuration is safer.
+- **You want drop-in UI components.** There is no ready-made organization switcher; you build it against the API.
 - **You resolve tenants from subdomains inside the identity provider.** Today your application turns `acme.app.example.com` into an `account_hint`; there is an [open issue](https://github.com/p2-inc/keycloak-orgs/issues/439) to do it in Keycloak.
 
-## Should you switch?
-
-| If you need | Keycloak + Phase Two |
-|---|---|
-| Company SSO per customer, self-service setup, no per-connection fees | Strong fit |
-| Members-only tenants, multi-customer users, deep links, switching | Strong fit, with the flow rules above |
-| Passwordless tenant login for small customers | Strong fit |
-| Per-customer policies without writing code | Strong fit |
-| Per-tab or per-device tenants, ready-made UI components | Not yet |
+## Where should you start?
 
 The [multi-tenancy tutorial](/tutorials/authorization/multi-tenancy/) helps decide whether organizations are the right model at all. If you are moving from a hosted vendor, the migration guides for [WorkOS](/blog/workos-keycloak-migration/) and [Auth0](/blog/migrate-auth0-to-keycloak/) cover users, organizations and connections.
 
