@@ -15,7 +15,7 @@ keywords:
 
 Keycloak organization login can replace the tenant-aware login that Auth0 Organizations, WorkOS and Microsoft Entra ID sell to B2B SaaS teams. With the open-source Phase Two [Keycloak organizations](/extensions/organizations/) extension, one realm can send each customer's employees to their own company SSO, keep non-members out of a customer's tenant, let people who work for several customers choose one, and tell your application which customer the user is signed in to.
 
-This post walks through the login situations B2B products actually run into, what the hosted vendors call each one, and how Keycloak handles it. It ends with the cases where Keycloak is the wrong choice today.
+Below are the login situations B2B products run into, what the hosted vendors call each one, how Keycloak handles it, and when Keycloak is the wrong choice. Every case was run on Keycloak 26.8.2 with keycloak-orgs 0.200 and keycloak-magic-link 0.95, and the screenshots come from that run.
 
 <!-- truncate -->
 
@@ -36,25 +36,29 @@ Tenant-aware login means the identity provider knows which customer organization
 | Customers with no SSO and no passwords | Magic link / passwordless | Magic link, email OTP, passkeys |
 | Extra rules for some customers only | Actions, per-org policy | Conditions on organization attributes |
 
-Each one in more detail.
-
 ### Your customer wants their employees on their own SSO
 
 The most common enterprise request: "our people sign in with Okta, not with a password in your app." The user types their work email, Keycloak matches the domain to the customer's organization, and redirects to that organization's [Keycloak identity provider](/docs/keycloak/idp/). After the first sign-in, the user is added to the organization automatically, so the customer's IT team never has to provision anyone by hand.
 
-Customers can configure their own SAML or OIDC connection through the IdP wizard, the same self-service experience WorkOS and Auth0 offer, and there is no charge per connection. [Automatic IdP redirection](/docs/organizations/automatic-idp-redirection/) covers the setup.
+![Identity-first sign-in page with a Google button](/blog/keycloak-organization-login/identity-first-login.png)
+
+Customers can set up their own SAML or OIDC connection through the IdP wizard, with no charge per connection. [Automatic IdP redirection](/docs/organizations/automatic-idp-redirection/) covers the setup.
 
 ### Only members may enter a customer's tenant
 
 A contractor who left one of your customers should not be able to sign in to that customer's tenant, even with a valid account elsewhere in your product. Select Organization checks membership at sign-in. A user who asks for an organization they do not belong to gets an error page instead of a token, and a user with no organization at all can be refused the same way.
 
-This is also the case that needs the most care, because in Keycloak the check is part of a flow you build rather than a switch you turn on. More on that below.
+![Invalid Organization error for a non-member](/blog/keycloak-organization-login/not-a-member.png)
+
+It needs the most care, because the check is part of a flow you build rather than a switch you turn on. More on that below.
 
 ### One person, several customers
 
-Agencies, consultants, accountants, managed service providers and your own support staff often belong to more than one customer organization. After they sign in, Keycloak shows them the list of organizations they belong to and asks which one to use. There is no limit on the list; Auth0's picker shows the [first 20 organizations](https://auth0.com/docs/manage-users/organizations/login-flows-for-organizations).
+Agencies, consultants, managed service providers and your own support staff often belong to several customer organizations. After they sign in, Keycloak shows them the list of organizations they belong to and asks which one to use. There is no limit on the list; Auth0's picker shows the [first 20 organizations](https://auth0.com/docs/manage-users/organizations/login-flows-for-organizations).
 
-If they belong to exactly one, the picker is skipped. If the application asks with `prompt=select_account`, the standard OpenID Connect value, the picker is shown even to users who are already signed in.
+If they belong to exactly one, the picker is skipped. If the application asks with `prompt=select_account`, the standard OpenID Connect value, the picker is shown even to users who are already signed in, without asking for their password again.
+
+![Organization picker listing acme and globex](/blog/keycloak-organization-login/organization-picker.png)
 
 ### Your app already knows the customer
 
@@ -62,15 +66,19 @@ When the user arrives from `globex.app.example.com` or from a link inside a cust
 
 ### Switching customer without signing out
 
-A support engineer moves from one customer to the next many times a day. With an existing session, a new sign-in request with a different `account_hint` switches the organization without a password prompt. From inside the application, the [switch active organization](/api/switch-active-organization/) endpoint does the same and returns new tokens. WorkOS does this with a [refresh-token exchange](https://workos.com/changelog/organization-switching-apis); Auth0 with a new `/authorize` request.
+Support engineers move between customers all day. With an existing session, a new sign-in request with a different `account_hint` switches the organization without a password prompt. From inside the application, the [switch active organization](/api/switch-active-organization/) endpoint does the same and returns new tokens. WorkOS does this with a [refresh-token exchange](https://workos.com/changelog/organization-switching-apis); Auth0 with a new `/authorize` request.
 
 ### Invited users who prefer Google or Apple
 
-Smaller customers often invite people who sign in with a personal or Google Workspace account rather than a company SSO. The invitation records the organization and the roles. When the invited person signs in with Google or Apple for the first time, the invitation is applied and they land in the right organization with the right roles. People who were never invited stay out.
+Smaller customers often invite people who use Google rather than a company SSO. The invitation records the organization and the roles. When the invited person signs in with Google or Apple for the first time, the invitation is applied and they land in the right organization with the right roles. People who were never invited stay out.
+
+![Error for an uninvited Google user](/blog/keycloak-organization-login/uninvited-social-user.png)
 
 ### Customers with no SSO who do not want passwords
 
-Plenty of B2B customers are small: a shop, a clinic, a franchise location. They have no identity provider and nobody wants another password. Magic links, email one-time codes and passkeys give them passwordless sign-in that is still tied to the organization. The organization check runs either before the magic link is sent, so a non-member never receives one, or right after the user proves who they are. See [magic links](/docs/authentication/magic-links/).
+Many B2B customers are small, with no identity provider and no appetite for another password. Magic links, email one-time codes and passkeys give them passwordless sign-in that is still tied to the organization. The organization check runs either before the magic link is sent, so a non-member never receives one, or right after the user proves who they are. See [magic links](/docs/authentication/magic-links/).
+
+![Magic link sent page for a shop member](/blog/keycloak-organization-login/magic-link-sent.png)
 
 ### Some customers need stricter rules
 
@@ -80,15 +88,36 @@ Your bank customer requires MFA; your design-agency customer does not. A conditi
 
 The token carries the active organization: its id, its name, the user's roles **in that organization**, and the organization's attributes, configured per client scope. Your API reads one claim to know which customer's data the request is for. The same organization roles reach SAML applications through a mapper.
 
+![active_organization claim with role, id and attributes](/blog/keycloak-organization-login/active-organization-claim.png)
+
 ## What do you have to get right?
 
 The hosted vendors enforce the tenant for you once an application is configured for it. In Keycloak you get the pieces and assemble the flow, so the check exists only where you put it. Three rules cover most of it:
 
-1. **Check federated users after they come back from their identity provider**, in the identity provider's post-broker flow. A check placed before the redirect never runs for them.
+1. **Check federated users after they come back from their identity provider**, in the identity provider's post-broker flow. A check placed after the redirect in the browser flow never runs for them: in our test, a user with no organization signed in through an identity provider and got a token anyway.
 2. **Choose when to check passwordless users.** Checking before the magic link is sent means non-members never get an email. But that check runs on a typed address, so its answer can tell a stranger which accounts exist. If that matters more, check right after an email code or passkey instead.
 3. **Have your API verify the organization claim.** Reject tokens whose organization is missing or does not match the customer whose data is being requested. The application decides whether to ask for a specific organization, so the API is the last line.
 
 The [Select Organization docs](/docs/organizations/active-organization-authenticator/) cover the configuration.
+
+## Does it hold up in a real run?
+
+We built one realm with three customer organizations, a test identity provider standing in for a company SSO and for Google, and a mail catcher, then signed in through a real browser for each case.
+
+| Case | Result |
+|---|---|
+| Work email on the customer's domain | Sent to the customer's SSO, joined the organization on first sign-in |
+| Member of another customer asks for Acme | Refused with "Invalid Organization." |
+| User in two customers | Picker listed both; the token carried the chosen one, with that organization's role and attributes |
+| `account_hint` from the app | Picker skipped, signed in to the named organization |
+| Switch on an existing session, and through the API | Both switched organizations with no password prompt |
+| Invited user signs in with Google | Joined the inviting organization |
+| Uninvited user signs in with Google | Refused |
+| Magic link, member | Email sent; the link signed them in to their organization |
+| Magic link, non-member | Refused, and no email sent |
+| No `prompt` or `account_hint`, user with no organization | Signed in, with no organization in the token: the check is opt-in outside identity-provider logins |
+
+Not covered in this run: per-organization MFA and pinning an application to one customer.
 
 ## Can an AI coding agent set this up for you?
 
@@ -119,7 +148,6 @@ Each intent comes in two variants: one that uses Keycloak's Admin REST API direc
 | Passwordless tenant login for small customers | Strong fit |
 | Per-customer policies without writing code | Strong fit |
 | Per-tab or per-device tenants, ready-made UI components | Not yet |
-| Self-hosting, or EU-hosted identity data | Strong fit |
 
 The [multi-tenancy tutorial](/tutorials/authorization/multi-tenancy/) helps decide whether organizations are the right model at all. If you are moving from a hosted vendor, the migration guides for [WorkOS](/blog/workos-keycloak-migration/) and [Auth0](/blog/migrate-auth0-to-keycloak/) cover users, organizations and connections.
 
