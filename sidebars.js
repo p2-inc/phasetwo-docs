@@ -38,6 +38,7 @@ module.exports = {
         "self-service/regions",
         "self-service/egress-ip-addresses",
         "self-service/custom-domains",
+        "self-service/gateway",
         {
           type: "category",
           label: "Observability",
@@ -60,6 +61,7 @@ module.exports = {
       label: "Securing Applications",
       link: { type: "doc", id: "securing-applications/index" },
       items: [
+        "securing-applications/gateway",
         "securing-applications/django",
         "securing-applications/javascript",
         "securing-applications/react",

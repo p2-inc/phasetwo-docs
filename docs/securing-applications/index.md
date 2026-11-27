@@ -8,6 +8,10 @@ Phase Two is an implementation of the [OpenID Connect](https://openid.net/connec
 - [Certified OpenID Connect Implementations](http://openid.net/developers/certified/)
 - [Uncertified OpenID Connect Implementations](http://openid.net/developers/uncertified/)
 
+Can't change the application at all? [Gateway](./gateway.md) puts your realm's login in front of
+an existing website with no library and no code changes. The application only has to refuse
+requests that didn't come through Gateway.
+
 Confused? We will also use this category as a place to provide language and framework specific guides to make securing your applications easier.
 
 ### Guides
