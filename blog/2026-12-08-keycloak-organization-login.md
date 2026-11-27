@@ -70,7 +70,7 @@ Smaller customers often invite people who sign in with a personal or Google Work
 
 ### Customers with no SSO who do not want passwords
 
-Plenty of B2B customers are small: a shop, a clinic, a franchise location. They have no identity provider and nobody wants another password. Magic links, email one-time codes and passkeys give them passwordless sign-in that is still tied to the organization: the user proves who they are by email or passkey, and the organization check happens right after. See [magic links](/docs/authentication/magic-links/).
+Plenty of B2B customers are small: a shop, a clinic, a franchise location. They have no identity provider and nobody wants another password. Magic links, email one-time codes and passkeys give them passwordless sign-in that is still tied to the organization. The organization check runs either before the magic link is sent, so a non-member never receives one, or right after the user proves who they are. See [magic links](/docs/authentication/magic-links/).
 
 ### Some customers need stricter rules
 
@@ -85,10 +85,23 @@ The token carries the active organization: its id, its name, the user's roles **
 The hosted vendors enforce the tenant for you once an application is configured for it. In Keycloak you get the pieces and assemble the flow, so the check exists only where you put it. Three rules cover most of it:
 
 1. **Check federated users after they come back from their identity provider**, in the identity provider's post-broker flow. A check placed before the redirect never runs for them.
-2. **Check passwordless users after they have proven their identity**, never before. A check that runs on a typed email can tell a stranger which accounts and organizations exist.
+2. **Choose when to check passwordless users.** Checking before the magic link is sent means non-members never get an email. But that check runs on a typed address, so its answer can tell a stranger which accounts exist. If that matters more, check right after an email code or passkey instead.
 3. **Have your API verify the organization claim.** Reject tokens whose organization is missing or does not match the customer whose data is being requested. The application decides whether to ask for a specific organization, so the API is the last line.
 
 The [Select Organization docs](/docs/organizations/active-organization-authenticator/) cover the configuration.
+
+## Can an AI coding agent set this up for you?
+
+Yes. The open-source [Phase Two Keycloak skills](https://github.com/p2-inc/keycloak-skills) for Claude Code, Cursor and Codex include an intent for each organization-aware login case. Ask the agent in plain words, such as "only members of Acme can sign in" or "send acme.com users to their Okta". It builds the flow, binds it, and checks the result against your Keycloak.
+
+| Case | Skill intent |
+|---|---|
+| Employees use their company's SSO, routed by email domain | [`admin:corporate-sso`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-corporate-sso.md) |
+| Only members of an organization may sign in with a password | [`admin:org-restrict-login`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-org-restrict-login.md) |
+| Only members may sign in through an identity provider | [`admin:idp-org-restrict-login`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-idp-org-restrict-login.md) |
+| Passwordless magic link for members only | [`admin:passwordless-magic-link-org-restrict`](https://github.com/p2-inc/keycloak-skills/blob/main/plugins/phasetwo/skills/keycloak/references/admin-passwordless-magic-link-org-restrict.md) |
+
+Each intent comes in two variants: one that uses Keycloak's Admin REST API directly, and one that uses the Phase Two MCP server. The [launch post](/blog/keycloak-skills-mcp-launch/) covers installation.
 
 ## When should you not use this?
 
